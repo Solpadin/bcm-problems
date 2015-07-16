@@ -104,9 +104,13 @@ Num_State CHeat2D::gram1(CGrid * nd, int i, int id_local)
 		double hh, p4, f, P[6];
 		int m = solver.id_norm;
 
+/////////////////////////////////////
+//...тестовая печать множества узлов;
+		if (solver.mode(NODES_PRINT | NODES_PRINT)) 
+			nd->TestGrid("nodes.bln", 0.0005, 0., 0., 0., AXIS_Z, 1);
+
 ////////////////////////////////////////////////////////////////////
 //...realization of pattern cell boundary condition for Gram matrix;
-//		nd->TestGrid("nodes.bln", 0.002, 10., 20., 30., AXIS_Z, 1);
 		for (int l = 0; l < nd->N; l++) if (nd->hit[l]) {
 			P[0] = nd->X[l];  P[3] = nd->nX[l];
 			P[1] = nd->Y[l];  P[4] = nd->nY[l];
@@ -162,15 +166,18 @@ Num_State CHeat2D::gram2(CGrid * nd, int i, int id_local)
 	if (nd && nd->N && 0 <= i && i < solver.N && B[i].shape && B[i].mp) {
 		double AX, AY, f, P[6], 
 				 g1 = .5, f1 = 1., g2 = .5, g0 = -1., TX, TY, hh;
-      int id_isolated = 0, m = solver.id_norm, id_dir, k, j, first = 1, k0, j0;
+      int id_isolated = 0, m = solver.id_norm, id_dir, k, j;
 		if (id_isolated) {
 			g0 = g1 = 1.;
 			f1 = g2 = 0.;
 		}
+/////////////////////////////////////
+//...тестовая печать множества узлов;
+		if (solver.mode(NODES_PRINT | NODES_PRINT)) 
+			nd->TestGrid("nodes.bln", 0.0005, 0., 0., 0., AXIS_Z, 1);
 
 ////////////////////////////////////////////////
 //...inclusion data in gram and transfer matrix;
-//		nd->TestGrid("nodes.bln", 0.0005, 0., 0., 0., AXIS_Z, 1);
 		for (int l = 0; l < nd->N; l++) if (nd->hit[l]) {
 			AX = nd->get_param(0, l); 
 			AY = nd->get_param(1, l);
@@ -198,32 +205,27 @@ Num_State CHeat2D::gram2(CGrid * nd, int i, int id_local)
 
 /////////////////////////////
 //...reset auxilliary arrays;
-				for (int num = m+1; num >= m; num--) {
+				for (int num = m; num < solver.n; num++) {
 					 memset(solver.hh[i][0][num], 0, solver.dim[i]*sizeof(double));
 					 memset(solver.hh[k][0][num], 0, solver.dim[k]*sizeof(double));
-				}
-				if (first && solver.mode(REGULARIZATION) && (id_dir == 1 || id_dir == 2)) {
-					 first = 0; k0 = k; j0 = j;
-					 memset(solver.hh[i][0][m+2], 0, solver.dim[i]*sizeof(double));
-					 memset(solver.hh[k][0][m+2], 0, solver.dim[k]*sizeof(double));
 				}
 
 /////////////////////////
 //...jump of all moments;
 				B[i].shape->parametrization_grad(P); 
-				jump1(P, i, 0); if (! first) solver.admittance (i, 2, 1., 0, f); else solver.admittance (i, 2, 0., 0, 1.);
+				jump1(P, i, 0); solver.admittance (i, 2, 0., 0, 1.);
 				jump2(P, i, 1); 
 				solver.admittance(i, 0, g1, 1, g2); 
 				solver.admittance(i, 1, g0, 0, f1); 
 
 				B[i].shape->make_common(P);
-				B[i].shape->norm_common(P+3);
+				B[i].shape->norm_common(P+3); 
 
 				B[k].shape->make_local(P);
 				B[k].shape->norm_local(P+3);
 
 				B[k].shape->parametrization_grad(P); 
-				jump1(P, k, 0); if (! first) solver.admittance (k, 2, 1., 0, -f); else solver.admittance (k, 2, 0., 0, -1.);
+				jump1(P, k, 0); solver.admittance (k, 2, 0., 0, 1.);
 				jump2(P, k, 1); 
 				solver.admittance(k, 0, g1, 1, g2); 
 				solver.admittance(k, 1, g0, 0, f1); 
@@ -231,27 +233,23 @@ Num_State CHeat2D::gram2(CGrid * nd, int i, int id_local)
 ////////////////////////////
 //...composition functional;
 				solver.to_transferTR(i, j, solver.hh[i][0][m],   solver.hh[k][0][m], f);
-				solver.to_transferTT(i, j, solver.hh[i][0][m],   solver.hh[k][0][m+1], f);
+				solver.to_transferDD(i, j, solver.hh[i][0][m],   solver.hh[k][0][m+1], f);
 				solver.to_transferTL(i, j, solver.hh[i][0][m+1], solver.hh[k][0][m+1], f);
 
 				if (fabs(hh) > EE) {
 				  solver.to_equationHH(i, 0, solver.hh[i][0][m  ],  g1*hh*f);
-				  solver.to_equationHL(k, 0, solver.hh[k][0][m+1], -g2*hh*f);
+				  solver.to_equationHL(k, 0, solver.hh[k][0][m+1], -g1*hh*f);
 				}
-				if (first && solver.mode(REGUL_BOUNDARY) && (id_dir == 1 || id_dir == 2)) {//...регуляризация матрицы через граничное условие;
-					solver.to_transferTR(i, j, solver.hh[i][0][m+2], solver.hh[k][0][m+2], f);
-					solver.to_transferTT(i, j, solver.hh[i][0][m+2], solver.hh[k][0][m+2], f);
-					solver.to_transferTL(i, j, solver.hh[i][0][m+2], solver.hh[k][0][m+2], f);
+				if (solver.mode(REGUL_BOUNDARY) && (id_dir == 1 || id_dir == 2)) {//...регуляризация матрицы через граничное условие;
+					solver.to_transferDD(i, j, solver.hh[i][0][m+2], solver.hh[k][0][m+2], f);
+					if (fabs(hh) > EE) {
+					  if (id_dir == 2) solver.to_equationHH(i, 0, solver.hh[i][0][m+2],  hh*f);
+					  if (id_dir == 1) solver.to_equationHL(k, 0, solver.hh[k][0][m+2], -hh*f);
+					}
 				}
 				B[k].mp[1] += TX;
 				B[k].mp[2] += TY; B[k].shape->set_local_P0(B[k].mp+1);
  			}
-		}
-		if (! first) {//...регуляризация матрицы по интегралу первого блока;
-			solver.clean_mode(REGULARIZATION);
-			solver.to_transferTR(i, j0, solver.hh[i][0][m+2], solver.hh[k0][0][m+2], 1.);
-			solver.to_transferTT(i, j0, solver.hh[i][0][m+2], solver.hh[k0][0][m+2], 1.);
-			solver.to_transferTL(i, j0, solver.hh[i][0][m+2], solver.hh[k0][0][m+2], 1.);
 		}
 		return(OK_STATE);
 	}
@@ -269,6 +267,10 @@ Num_State CHeat2D::gram2peri(CGrid * nd, int i, int id_local)
 			g0 = g1 = 1.;
 			f1 = g2 = 0.;
 		}
+/////////////////////////////////////
+//...тестовая печать множества узлов;
+		if (solver.mode(NODES_PRINT | NODES_PRINT)) 
+			nd->TestGrid("nodes.bln", 0.0005, 0., 0., 0., AXIS_Z, 1);
 
 ///////////////////////////////////
 //...inclusion data in gram matrix;
@@ -339,10 +341,13 @@ Num_State CHeat2D::transfer1(CGrid * nd, int i, int k, int id_local)
 			g0 = g1 = 1.;
 			f1 = g2 = 0.;
 		}
+/////////////////////////////////////
+//...тестовая печать множества узлов;
+		if (solver.mode(NODES_PRINT)) 
+			nd->TestGrid("nodes.bln", 0.0005, 0., 0., 0., AXIS_Z, 1);
 
 ////////////////////////////////////////////////
 //...inclusion data in gram and transfer matrix;
-//		nd->TestGrid("nodes.bln", 0.0005, 0., 0., 0., AXIS_Z, 1);
 		for (j = 0; j < solver.JR[i][0]; j++) if (k == solver.JR[i][j+solver.JR_SHIFT]) {
 			for (l = 0; l < nd->N; l++) if (nd->hit[l]) {
 				P[0] = nd->X[l];  P[3] = nd->nX[l];
@@ -382,7 +387,7 @@ Num_State CHeat2D::transfer1(CGrid * nd, int i, int k, int id_local)
 ////////////////////////////
 //...composition functional;
 				solver.to_transferTR(i, j, solver.hh[i][0][m],   solver.hh[k][0][m], f);
-				solver.to_transferTT(i, j, solver.hh[i][0][m],   solver.hh[k][0][m+1], f);
+				solver.to_transferDD(i, j, solver.hh[i][0][m],   solver.hh[k][0][m+1], f);
 				solver.to_transferTL(i, j, solver.hh[i][0][m+1], solver.hh[k][0][m+1], f);
 			}
 		}
@@ -403,10 +408,13 @@ Num_State CHeat2D::transfer2(CGrid * nd, int i, int k, int id_local)
 			f1 = f2 = 0.;
 			id_flag = B[i].link[NUM_PHASE] == -1;
 		}
+/////////////////////////////////////
+//...тестовая печать множества узлов;
+		if (solver.mode(NODES_PRINT)) 
+			nd->TestGrid("nodes.bln", 0.0005, 0., 0., 0., AXIS_Z, 1);
 
 ////////////////////////////////////////////////
 //...inclusion data in gram and transfer matrix;
-//		nd->TestGrid("nodes.bln", 0.0005, 0., 0., 0., AXIS_Z, 1);
 		for (j = 0; j < solver.JR[i][0]; j++) if (k == solver.JR[i][j+solver.JR_SHIFT]) {
 			for (l = 0; l < nd->N; l++) if (nd->hit[l]) {
 				P[0] = nd->X[l];  P[3] = nd->nX[l];
@@ -447,12 +455,12 @@ Num_State CHeat2D::transfer2(CGrid * nd, int i, int k, int id_local)
 //...composition functional;
 				if (id_flag) {
 					solver.to_transferTR(i, j, solver.hh[i][0][m],   solver.hh[k][0][m], f);
-					solver.to_transferTT(i, j, solver.hh[i][0][m],   solver.hh[k][0][m+1], f);
+					solver.to_transferDD(i, j, solver.hh[i][0][m],   solver.hh[k][0][m+1], f);
 					solver.to_transferTL(i, j, solver.hh[i][0][m+1], solver.hh[k][0][m+1], f);
 				}
 				else {
 					solver.to_transferTR(i, j, solver.hh[i][0][m+1], solver.hh[k][0][m+1], f);
-					solver.to_transferTT(i, j, solver.hh[i][0][m+1], solver.hh[k][0][m], f);
+					solver.to_transferDD(i, j, solver.hh[i][0][m+1], solver.hh[k][0][m], f);
 					solver.to_transferTL(i, j, solver.hh[i][0][m],	 solver.hh[k][0][m], f);
 				}
 			}
@@ -468,7 +476,12 @@ Num_State CHeat2D::gram3(CGrid * nd, int i, int id_local)
 {
 	if (nd && nd->N && 0 <= i && i < solver.N && B[i].shape && B[i].mp) {
 		double AX, AY, f, P[6], TX, TY, hh;
-      int m = solver.id_norm, id_dir, k, j, first = 1, k0, j0;
+      int m = solver.id_norm, id_dir, k, j;
+
+/////////////////////////////////////
+//...тестовая печать множества узлов;
+		if (solver.mode(NODES_PRINT)) 
+			nd->TestGrid("nodes.bln", 0.0005, 0., 0., 0., AXIS_Z, 1);
 
 ////////////////////////////////////////////////
 //...inclusion data in gram and transfer matrix;
@@ -499,20 +512,15 @@ Num_State CHeat2D::gram3(CGrid * nd, int i, int id_local)
 
 /////////////////////////////
 //...reset auxilliary arrays;
-				for (int num = m+1; num >= m; num--) {
+				for (int num = m; num < solver.n; num++) {
 					 memset(solver.hh[i][0][num], 0, solver.dim[i]*sizeof(double));
 					 memset(solver.hh[k][0][num], 0, solver.dim[k]*sizeof(double));
-				}
-				if (first && solver.mode(REGULARIZATION) && (id_dir == 1 || id_dir == 2)) {
-					 first = 0; k0 = k; j0 = j;
-					 memset(solver.hh[i][0][m+2], 0, solver.dim[i]*sizeof(double));
-					 memset(solver.hh[k][0][m+2], 0, solver.dim[k]*sizeof(double));
 				}
 
 ///////////////////////////////////////////////////////////////
 //...вычисляем все необходимые моменты коллокационного вектора;
 				B[i].shape->parametrization_grad(P);
-				jump1(P, i, 0); if (! first) solver.admittance (i, 2, 1., 0, f); else solver.admittance (i, 2, 0., 0, 1.); 
+				jump1(P, i, 0);
 				jump2(P, i, 1); 
 
 				B[i].shape->make_common(P);
@@ -522,23 +530,25 @@ Num_State CHeat2D::gram3(CGrid * nd, int i, int id_local)
 				B[k].shape->norm_local(P+3);
 
 				B[k].shape->parametrization_grad(P);
-				jump1(P, k, 0); if (! first) solver.admittance (k, 2, 1., 0, -f); else solver.admittance (k, 2, 0., 0, -1.);
+				jump1(P, k, 0);
 				jump2(P, k, 1); 
 
 //////////////////////////////////////////////////////////////////
 //...сшивка функций и условие скачка методом наименьших квадратов;
 				solver.to_transferTR(i, j, solver.hh[i][0][m], solver.hh[k][0][m], f);
-				solver.to_transferTT(i, j, solver.hh[i][0][m], solver.hh[k][0][m], f);
+				solver.to_transferDD(i, j, solver.hh[i][0][m], solver.hh[k][0][m], f);
 				solver.to_transferTL(i, j, solver.hh[i][0][m], solver.hh[k][0][m], f);
 
 				if (fabs(hh) > EE) {
 				  solver.to_equationHH(i, 0, solver.hh[i][0][m],  hh*f);
 				  solver.to_equationHL(k, 0, solver.hh[k][0][m], -hh*f);
 				}
-				if (first && solver.mode(REGUL_BOUNDARY) && (id_dir == 1 || id_dir == 2)) {//...регуляризация матрицы через граничное условие;
-					solver.to_transferTR(i, j, solver.hh[i][0][m+2], solver.hh[k][0][m+2], f);
-					solver.to_transferTT(i, j, solver.hh[i][0][m+2], solver.hh[k][0][m+2], f);
-					solver.to_transferTL(i, j, solver.hh[i][0][m+2], solver.hh[k][0][m+2], f);
+				if (solver.mode(REGUL_BOUNDARY) && (id_dir == 1 || id_dir == 2)) {//...регуляризация матрицы через граничное условие;
+					solver.to_transferDD(i, j, solver.hh[i][0][m], solver.hh[k][0][m], f);
+					if (fabs(hh) > EE) {
+					  if (id_dir == 2) solver.to_equationHH(i, 0, solver.hh[i][0][m],  hh*f);
+					  if (id_dir == 1) solver.to_equationHL(k, 0, solver.hh[k][0][m], -hh*f);
+					}
 				}
 
 /////////////////////////////
@@ -550,12 +560,6 @@ Num_State CHeat2D::gram3(CGrid * nd, int i, int id_local)
 				B[k].mp[2] += TY; B[k].shape->set_local_P0(B[k].mp+1);
 			}
       }
-		if (! first) {//...регуляризация матрицы по интегралу первого блока;
-			solver.clean_mode(REGULARIZATION);
-			solver.to_transferTR(i, j0, solver.hh[i][0][m+2], solver.hh[k0][0][m+2], 1.);
-			solver.to_transferTT(i, j0, solver.hh[i][0][m+2], solver.hh[k0][0][m+2], 1.);
-			solver.to_transferTL(i, j0, solver.hh[i][0][m+2], solver.hh[k0][0][m+2], 1.);
-		}
 		return(OK_STATE);
 	}
 	return(ERR_STATE);
@@ -569,9 +573,13 @@ Num_State CHeat2D::gram4(CGrid * nd, int i, int id_local)
 		double hh, p4, f, P[6];
 		int m = solver.id_norm;
 
+/////////////////////////////////////
+//...тестовая печать множества узлов;
+		if (solver.mode(NODES_PRINT)) 
+			nd->TestGrid("nodes.bln", 0.0005, 0., 0., 0., AXIS_Z, 1);
+
 ////////////////////////////////////////////////////////////////////
 //...realization of pattern cell boundary condition for Gram matrix;
-//		nd->TestGrid("nodes.bln", 0.002, 10., 20., 30., AXIS_Z, 1);
 		for (int l = 0; l < nd->N; l++) if (nd->hit[l]) {
 			P[0] = nd->X[l];  P[3] = nd->nX[l];
 			P[1] = nd->Y[l];  P[4] = nd->nY[l];
@@ -621,6 +629,11 @@ Num_State CHeat2D::transfer4(CGrid * nd, int i, int k, int id_local)
       double f, P[6];
       int m = solver.id_norm, j, l;
 
+/////////////////////////////////////
+//...тестовая печать множества узлов;
+		if (solver.mode(NODES_PRINT)) 
+			nd->TestGrid("nodes.bln", 0.0005, 0., 0., 0., AXIS_Z, 1);
+
 ////////////////////////////////////////////////
 //...inclusion data in gram and transfer matrix;
 		for (j = 0; j < solver.JR[i][0]; j++) if (k == solver.JR[i][j+solver.JR_SHIFT]) {
@@ -658,7 +671,7 @@ Num_State CHeat2D::transfer4(CGrid * nd, int i, int k, int id_local)
 /////////////////////////////////////////////////
 //...сшивка функций методом наименьших квадратов;
 				solver.to_transferTR(i, j, solver.hh[i][0][m], solver.hh[k][0][m], f);
-				solver.to_transferTT(i, j, solver.hh[i][0][m], solver.hh[k][0][m], f);
+				solver.to_transferDD(i, j, solver.hh[i][0][m], solver.hh[k][0][m], f);
 				solver.to_transferTL(i, j, solver.hh[i][0][m], solver.hh[k][0][m], f);
 
 /////////////////////////////
@@ -1030,7 +1043,7 @@ void CHeat2D::GetFuncAllValues(double X, double Y, double Z, double * F, int i, 
 				jump1(P, i, 0); 
 
 				F[0] = F[1] = B[i].shape->potential(solver.hh[i][0][m], id_variant); 
-				if (solv ==	SPECIAL_SOLVING) F[0] -= X-.5;
+				if (solv == PERIODIC_SOLVING || solv == E_PERIODIC_SOLVING) F[1] -= X;
 			}	break;
 			case FLUX_VALUE: {
 ///////////////////////////

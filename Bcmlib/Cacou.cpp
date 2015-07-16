@@ -161,29 +161,28 @@ void CAcou3DEll::deriv_Z(double * deriv, double f)
 //  ACOUSTIC MULTIPOLES with POLYNOMIAL CHARACTERISTIC   //
 //																			//
 ///////////////////////////////////////////////////////////
-///////////////////////////////////
-//...realization of the multipoles;
+///////////////////////////////////////////////////////////////////
+//...realization of the multipoles with polynomial characteristics;
 void CAcou3DPoly::release()
 {
 	delete_struct(au);
 	delete_struct(E1);
-	CShape<double>::release();
+	CShape<complex>::release();
 }
 
 ///////////////////////////////////////
 //...parametrization of the multipoles;
 void CAcou3DPoly::parametrization(double * P, int m_dop)
 {
-	if (id_cmpl == 2) return;
 	if (! p) {
-			p = (double *)new_struct((NN_dop = freedom(N+m_dop))*sizeof(double));
+			p = (complex *)new_struct((NN_dop = freedom(N+m_dop))*sizeof(complex));
 ///////////////////////
 //...technical support;
-			delete_struct(au); au = (double *)new_struct(( N+1+m_dop)*sizeof(double));        
+			delete_struct(au); au = (double *)new_struct((N+1+m_dop)*sizeof(double));        
 			delete_struct(E1); E1 = (double *)new_struct(((N+m_dop)/2+1)*sizeof(double));        
 	}
 	if (P && p) {
-		int  i, l, nm, m;
+		int  i, l, nm, m, ii;
 		complex z = comp(P[0], P[1])*R0_inv, zm = comp(1.);
 		double rr = abs(z), r_inv,
 				r0  = rr*.25,
@@ -197,14 +196,14 @@ void CAcou3DPoly::parametrization(double * P, int m_dop)
 		cs[1] = P[4];
 		cs[2] = P[5];
 
-///////////////////////////////////
-//...calculation of the multipoles;
+/////////////////////////////////////////
+//...calculation of the Bessel functions;
 		if (au) {
-			const int descrpt[51] = {30, 36, 30, 36, 42, 42, 42, 42, 49, 56, 49,
-												 56, 56, 64, 64, 64, 81, 81, 90, 90,110,
-												100,100,121,132,144,156,182,196,196,196,
-												225,240,272,272,289,289,272,342,342,361,
-												441,380,462,462,462,484,506,552,552,600
+			const int descrpt[51] = {30, 36, 30, 36, 42, 42, 42, 42, 49, 56,  
+											 49, 56, 56, 64, 64, 64, 81, 81, 90, 90,
+											110,100,100,121,132,144,156,182,196,196,
+											196,225,240,272,272,289,289,272,342,342,
+											361,441,380,462,462,462,484,506,552,552,600
 			};
 			double z = param[0]*rr, z_inv = param[1]*r_inv, f = 2.*param[1], h0, h1, rr0 = .25*z*z;
 			int    m;
@@ -231,80 +230,68 @@ void CAcou3DPoly::parametrization(double * P, int m_dop)
 				au[m] = h1*(P*Co-Q*Si);
 			}
 		}
-		for (f1 = 1., f2 = Z, i = 0; i <= N+m_dop; i++) {
+
+///////////////////////////////////////////
+//...calculation of the complex multipoles;
+		for (f1 = 1., f2 = Z, ii = i = 0; i <= N+m_dop; i++, ii = i*(i+1)/2) {
 			for ( E1[l = 0] = 1., nm = i/2; l < nm; l++)
 					E1[l+1] = -r0*(i-2*l-1)*(i-2*l)/sqr(l+1.)*E1[l];
 			for ( F  = E1[nm]*au[nm]*(d  = f1), l = nm-1; l >= 0; l--)
 					F += E1[l ]*au[l ]*(d *= Z0);
-			p[i*i] = F; swap(f1, f2);
+			p[ii] = comp(F); swap(f1, f2);
 		}
 		for (m = 1; m <= N+m_dop; m++)
-		for (zm *= z, f1 = 1., f2 = Z, i = m; i <= N+m_dop; i++) {
+		for (zm *= z, f1 = 1., f2 = Z, ii = m*(m+1)/2, i = m; i <= N+m_dop; i++, ii = i*(i+1)/2) {
 			for ( E1[l = 0] = 1., nm = (i-m)/2; l < nm; l++)
 					E1[l+1] = -r0*(i-m-2*l-1)*(i-m-2*l)/((l+1.)*(m+l+1.))*E1[l];
 			for ( F  = E1[nm]*au[m+nm]*(d  = f1), l = nm-1; l >= 0; l--)
 					F += E1[l ]*au[m+l ]*(d *= Z0);
-			p[i*i+m*2-1] = F*imag(zm);
-			p[i*i+m*2]   = F*real(zm); swap(f1, f2);
+			p[ii+m] = F*zm; swap(f1, f2);
 		}
 	}
 }
 
 ///////////////////////////////////////
 //...differentiation of the multipoles;
-void CAcou3DPoly::deriv_X(double * deriv, double f)
+void CAcou3DPoly::deriv_X(complex * deriv, double f)
 {
 	if (! deriv || ! p) return;
 	f *= R0_inv;
-	int ll = (N+1)*(N+1);
-	for (int m, jj, ii = N*N, i = N; i > 0; i--, ll = ii, ii = jj) {
-		for (jj = (i-1)*(i-1), m = i; m > 1; m--) {
-			deriv[ii+m*2-1] += (m*p[jj+m*2-3]-.25/(m+1.)*((i-m)*(i-m-1)*p[jj+m*2+1]+param[2]*p[ll+m*2+1]))*f;
-			deriv[ii+m*2]   += (m*p[jj+m*2-2]-.25/(m+1.)*((i-m)*(i-m-1)*p[jj+m*2+2]+param[2]*p[ll+m*2+2]))*f;
-		}
-		if (m > 0) {
-			deriv[ii+1] -= (.125*((i-1)*(i-2)*p[jj+3]+param[2]*p[ll+3]))*f;
-			deriv[ii+2] -= (.125*((i-1)*(i-2)*p[jj+4]+param[2]*p[ll+4])-p[jj])*f;
-		}
-		deriv[ii] -= .5*(i*(i-1)*p[jj+2]+param[2]*p[ll+2])*f;
+	int ll = (N+1)*(N+2)/2;
+	for (int m, jj, ii = N*(N+1)/2, i = N; i >= 0; i--, ll = ii, ii = jj) {
+		for (jj = (i-1)*i/2, m = i; m > 1; m--)
+		deriv[ii+m]   += (m*p[jj+m-1]-.25/(m+1.)*((i-m)*(i-m-1)*p[jj+m+1]+param[2]*p[ll+m+1]))*f;
+		if (m > 0)
+		deriv[ii+1] -= (.125*((i-1)*(i-2)*p[jj+2]+param[2]*p[ll+2])-p[jj])*f;
+		deriv[ii] -= .5*(i*(i-1)*real(p[jj+1])+param[2]*real(p[ll+1]))*f;
 	}
-	deriv[0] -= .5*param[2]*p[ll+2]*f;
 }
 
 ///////////////////////////////////////
 //...differentiation of the multipoles;
-void CAcou3DPoly::deriv_Y(double * deriv, double f)
+void CAcou3DPoly::deriv_Y(complex * deriv, double f)
 {
 	if (! deriv || ! p) return;
 	f *= R0_inv;
-	int ll = (N+1)*(N+1);
-	for (int m, jj, ii = N*N, i = N; i > 0; i--, ll = ii, ii = jj) {
-		for (jj = (i-1)*(i-1), m = i; m > 1; m--) {
-			deriv[ii+m*2-1] += (m*p[jj+m*2-2]+.25/(m+1.)*((i-m)*(i-m-1)*p[jj+m*2+2]+param[2]*p[ll+m*2+2]))*f;
-			deriv[ii+m*2]   -= (m*p[jj+m*2-3]+.25/(m+1.)*((i-m)*(i-m-1)*p[jj+m*2+1]+param[2]*p[ll+m*2+1]))*f;
-		}
-		if (m > 0) {
-			deriv[ii+m*2-1] += (.125*((i-1)*(i-2)*p[jj+4]+param[2]*p[ll+4])+p[jj])*f;
-			deriv[ii+m*2]   -= (.125*((i-1)*(i-2)*p[jj+3]+param[2]*p[ll+3]))*f;
-		}
-		deriv[ii] -= .5*(i*(i-1.)*p[jj+1]+param[2]*p[ll+1])*f;
+	int ll = (N+1)*(N+2)/2;
+	for (int m, jj, ii = N*(N+1)/2, i = N; i > 0; i--, ll = ii, ii = jj) {
+		for (jj = (i-1)*i/2, m = i; m > 1; m--)
+		deriv[ii+m] += (m*p[jj+m-1]+.25/(m+1.)*((i-m)*(i-m-1)*p[jj+m+1]+param[2]*p[ll+m+1]))*comp(0., f);
+		if (m > 0)
+		deriv[ii+1] += (.125*((i-1)*(i-2)*p[jj+2]+param[2]*p[ll+2])+p[jj])*comp(0., f);
+		deriv[ii] -= .5*(i*(i-1.)*imag(p[jj+1])+param[2]*imag(p[ll+1]))*f;
 	}
-	deriv[0] -= .5*param[2]*p[ll+1]*f;
 }
 
 ///////////////////////////////////////
 //...differentiation of the multipoles;
-void CAcou3DPoly::deriv_Z(double * deriv, double f)
+void CAcou3DPoly::deriv_Z(complex * deriv, double f)
 {
 	if (! deriv || ! p) return;
 	f *= R0_inv;
-	for (int m, jj, ii = N*N, i = N; i >= 0; i--, ii = jj) {
-		for (jj = (i-1)*(i-1), m = i-1; m > 0; m--) {
-			deriv[ii+m*2-1] += (i-m)*p[jj+m*2-1]*f;
-			deriv[ii+m*2]   += (i-m)*p[jj+m*2]*f;
-		}
-		deriv[ii] += i*p[jj]*f;
-	}
+	for (int m, jj, ii = N*(N+1)/2, i = N; i >= 0; i--, ii = jj)
+	for (jj = (i-1)*i/2, m = i-1; m >= 0; m--)
+		deriv[ii+m] += (i-m)*p[jj+m]*f;
 }
 
 ////////////////////////////////////////////////////////////

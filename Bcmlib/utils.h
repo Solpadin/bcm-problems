@@ -54,11 +54,26 @@ template <typename T>
 void set_matrix(T **& m, int dim_N, int dim_M, int dim_buf = 0) {
 	delete_struct(m);
 	if (dim_N > 0 && dim_M > 0 &&
-		(m = (T **)new char [dim_N*(sizeof(T *)+dim_M*sizeof(T))+sizeof(T *)+dim_buf*sizeof(T)]) != NULL) {
+		(m = (T **)new char [(dim_N+1)*sizeof(T *)+(dim_N*dim_M+dim_buf)*sizeof(T)]) != NULL) {
 		for (int k = 0; k < dim_N; k++) 
 		m[k] = (T *)(m+dim_N+1)+k*dim_M; 
 		m[dim_N] = (T *)(m+dim_N+1)+dim_N*dim_M+dim_buf;
 		memset(m[0], 0, (dim_N*dim_M+dim_buf)*sizeof(T));
+	}
+}
+
+template <typename T> 
+void set_matrix3(T ***& m, int dim_N, int dim_M, int dim_L, int dim_buf = 0) {
+	delete_struct(m);
+	if (dim_N > 0 && dim_M > 0 && dim_L > 0 &&
+		(m = (T ***)new char [dim_N*(sizeof(T **)+dim_M*sizeof(T *))+sizeof(T *)+(dim_N*dim_M*dim_L+dim_buf)*sizeof(T)]) != NULL) {
+		for (int k = 0; k < dim_N; k++) {
+			m[k] = (T **)(m+dim_N)+k*dim_M+1;
+			for (int l = 0; l < dim_M; l++)
+				m[k][l] = (T *)((T **)(m+dim_N)+dim_N*dim_M+1)+(k*dim_M+l)*dim_L;
+		}
+		m[dim_N] = (T **)((T *)((T **)(m+dim_N)+dim_N*dim_M+1)+dim_N*dim_M*dim_L+dim_buf);
+		memset(m[0][0], 0, dim_N*dim_M*dim_L*sizeof(T));
 	}
 }
 

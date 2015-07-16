@@ -40,7 +40,8 @@ static int NUM_BASIC, NUM_SHIFT, NUM_GEOMT, MAX_PHASE;
 		Num_State computing_header(Num_Comput Num);
 public:
 //...параметры задачи;
-		void set_fasa_hmg(double K1, double K2, double K3 = 0.) { set_fasa_hmg(0., 0., K1, K2, K3);}
+		void set_fasa_hmg(double K1, double K2) { set_fasa_hmg(0., 0., K1, K2, 0.);}
+		void set_fasa_hmg(double K1, double K2, double K3) { set_fasa_hmg(0., 0., K1, K2, K3);}
 		void set_fasa_hmg(double R1, double R2, double K3, double K1, double K2);
 //...результаты решени€ задачи;
 		void GetFuncAllValues(double X, double Y, double Z, double * F, int id_block, Num_Value id_F, int id_variant = 0, int iparam = 0);

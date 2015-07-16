@@ -25,6 +25,7 @@ CORD2C         1       0      0.      0.      0.      0.      0.      1.+FEMAPC1
 +FEMAPC1      1.      0.      1.
 CORD2S         2       0      0.      0.      0.      0.      0.      1.+FEMAPC2
 +FEMAPC2      1.      0.      1.
+$ FEMAP Load Set 111 : Inclusion BSOURCE 1. 0.4 0.8 0.2 0.
 $ FEMAP Property 1 : Matrix
 PSHELL         1       1      0.       1               1              0.
 $ FEMAP Property 2 : Fulleren

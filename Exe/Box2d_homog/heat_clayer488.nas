@@ -32,7 +32,7 @@ PSHELL         2       1      0.       1               1              0.
 $ FEMAP Property 3 : Clayer
 PSHELL         3       1      0.       1               1              0.
 $ FEMAP Material 1 : Untitled
-$ FEMAP Load Set 111 : Inclusion nBSOURCE 0.5 0.5 0.3 0.3 0.
+$ FEMAP Load Set 111 : Inclusion BSOURCE 0.5 0.5 0.3 0.3 0.
 MAT1           1                              0.      0.      0.        
 GRID           1       0 0.55221 0.89658      0.       0        
 GRID           2       0     0.7 0.84641      0.       0        

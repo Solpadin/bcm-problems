@@ -308,7 +308,7 @@ Num_State CHeat3D::gram2(CGrid * nd, int i, int id_local)
 
 /////////////////////////////
 //...reset auxilliary arrays;
-				for (int num = m+1; num >= m; num--) {
+				for (int num = m; num < solver.n; num++) {
 					 memset(solver.hh[i][0][num], 0, solver.dim[i]*sizeof(double));
 					 memset(solver.hh[k][0][num], 0, solver.dim[k]*sizeof(double));
 				}
@@ -845,7 +845,7 @@ Num_State CHeat3D::gram3(CGrid * nd, int i, int id_local)
 
 /////////////////////////////
 //...reset auxilliary arrays;
-				for (int num = m+1; num >= m; num--) {
+				for (int num = m; num < solver.n; num++) {
 					 memset(solver.hh[i][0][num], 0, solver.dim[i]*sizeof(double));
 					 memset(solver.hh[k][0][num], 0, solver.dim[k]*sizeof(double));
 				}
@@ -853,7 +853,7 @@ Num_State CHeat3D::gram3(CGrid * nd, int i, int id_local)
 ///////////////////////////////////////////////////////////////
 //...вычисляем все необходимые моменты коллокационного вектора;
 				B[i].shape->parametrization_grad(P);
-				jump1(P, i, 0); solver.admittance (i, 2, 0., 0, 1.);
+				jump1(P, i, 0);
 				jump4(P, i, 1); 
 
 				B[i].shape->make_common(P);
@@ -863,7 +863,7 @@ Num_State CHeat3D::gram3(CGrid * nd, int i, int id_local)
 				B[k].shape->norm_local(P+3);
 
 				B[k].shape->parametrization_grad(P);
-				jump1(P, k, 0); solver.admittance (k, 2, 0., 0, 1.);
+				jump1(P, k, 0);
 				jump4(P, k, 1); 
 
 //////////////////////////////////////////////////////////////////
@@ -877,10 +877,10 @@ Num_State CHeat3D::gram3(CGrid * nd, int i, int id_local)
 				  solver.to_equationHL(k, 0, solver.hh[k][0][m], -hh*f);
 				}
 				if (solver.mode(REGUL_BOUNDARY) && (id_dir == 5 || id_dir == 6)) {//...регуляризация матрицы через граничное условие;
-					solver.to_transferDD(i, j, solver.hh[i][0][m+2], solver.hh[k][0][m+2], f);
+					solver.to_transferDD(i, j, solver.hh[i][0][m], solver.hh[k][0][m], f);
 					if (fabs(hh) > EE) {
-					  if (id_dir == 6) solver.to_equationHH(i, 0, solver.hh[i][0][m+2],  hh*f);
-					  if (id_dir == 5) solver.to_equationHL(k, 0, solver.hh[k][0][m+2], -hh*f);
+					  if (id_dir == 6) solver.to_equationHH(i, 0, solver.hh[i][0][m],  hh*f);
+					  if (id_dir == 5) solver.to_equationHL(k, 0, solver.hh[k][0][m], -hh*f);
 					}
 				}
 

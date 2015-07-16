@@ -51,11 +51,12 @@ CShape<T> * CreateShape(Num_Shape id_SHAPE = NULL_SHAPE, int id_dop = 0)
       case			  WV2D_POLY_SHAPE: if (typeid(T) == typeid(double)) return (CShape<T> *)(new CWave2DPoly);
       case			  WV3D_POLY_SHAPE: if (typeid(T) == typeid(double)) return (CShape<T> *)(new CWave3DPoly);
       case			  AU3D_ELLI_SHAPE: if (typeid(T) == typeid(double)) return (CShape<T> *)(new CAcou3DEll);
-      case			  AU3D_POLY_SHAPE: if (typeid(T) == typeid(double)) return (CShape<T> *)(new CAcou3DPoly);
       case			  AU3D_ZOOM_SHAPE: if (typeid(T) == typeid(double)) return (CShape<T> *)(new CAcou3DZoom);
       case			  AU3D_WAVE_SHAPE: if (typeid(T) == typeid(double)) return (CShape<T> *)(new CAcou3DWave);
       case			  AU3D_BEAM_SHAPE: if (typeid(T) == typeid(double)) return (CShape<T> *)(new CAcou3DBeam);
       case			  AU3D_BEAMZSHAPE: if (typeid(T) == typeid(double)) return (CShape<T> *)(new CAcou3DBeamZ);
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      case			  AU3D_POLY_SHAPE: if (typeid(T) == typeid(complex)) return (CShape<T> *)(new CAcou3DPoly);
 	}
    return new CShape<T>;
 }

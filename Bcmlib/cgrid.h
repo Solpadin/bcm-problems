@@ -373,7 +373,7 @@ public:
 			if (pchar && (! ::strncmp(pchar, ".inp", 4) || ! ::strncmp(pchar, ".INP", 4))) nodes_inp(ch_NODES, max_phase);
 		};
 
-//...хачитывание структуры включений с межфазным слоем;
+//...зачитывание структуры включений с межфазным слоем;
 		int  stru_in(char * id_STRU, unsigned long & count, unsigned long upper_limit, double * par);
 		void stru_in(char * ch_STRU, double * par);
 		void stru_in(const char * ch_STRU, double * par);

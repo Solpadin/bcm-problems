@@ -51,33 +51,33 @@ static int NUM_KAPPA, NUM_SHEAR, NUM_HESS;
 		void jump_make_local (int i, int m);
 		void jump_make_common(int i, int m);
 //...forming block matrix elements;
-		int  gram1_phase1(CGrid * nd, int i, int id_local);
-		int  gram1_phase2(CGrid * nd, int i, int id_local);
-		int  gram1		  (CGrid * nd, int i, int id_local) {
+		Num_State gram1_phase1(CGrid * nd, int i, int id_local);
+		Num_State gram1_phase2(CGrid * nd, int i, int id_local);
+		Num_State gram1		  (CGrid * nd, int i, int id_local) {
 			if (B[i].link[NUM_PHASE] == -1) return gram1_phase1(nd, i, id_local); else
 			if (B[i].link[NUM_PHASE] == -2) return gram1_phase2(nd, i, id_local); else return(NULL_STATE);
 		}
-		int  gram4_phase1(CGrid * nd, int i, int id_local);
-		int  gram4_phase2(CGrid * nd, int i, int id_local);
-		int  gram4		  (CGrid * nd, int i, int id_local) {
+		Num_State gram4_phase1(CGrid * nd, int i, int id_local);
+		Num_State gram4_phase2(CGrid * nd, int i, int id_local);
+		Num_State gram4		  (CGrid * nd, int i, int id_local) {
 			if (B[i].link[NUM_PHASE] == -1) return gram4_phase1(nd, i, id_local); else
 			if (B[i].link[NUM_PHASE] == -2) return gram4_phase2(nd, i, id_local); else return(NULL_STATE);
 		}
-		int  transfer1_phase1(CGrid * nd, int i, int k, int id_local);
-		int  transfer1_phase2(CGrid * nd, int i, int k, int id_local);
-		int  transfer1			(CGrid * nd, int i, int k, int id_local) {
+		Num_State transfer1_phase1(CGrid * nd, int i, int k, int id_local);
+		Num_State transfer1_phase2(CGrid * nd, int i, int k, int id_local);
+		Num_State transfer1			(CGrid * nd, int i, int k, int id_local) {
 			if (B[i].link[NUM_PHASE] == -1 && B[k].link[NUM_PHASE] == -1) return transfer1_phase1(nd, i, k, id_local); else
 			if (B[i].link[NUM_PHASE] == -2 && B[k].link[NUM_PHASE] == -2) return transfer1_phase2(nd, i, k, id_local); else return(NULL_STATE);
 		}
-		int  transfer2			(CGrid * nd, int i, int k, int id_local);
-		int  transfer3			(CGrid * nd, int i, int k, int id_local);
-		int  transfer4_phase1(CGrid * nd, int i, int k, int id_local);
-		int  transfer4_phase2(CGrid * nd, int i, int k, int id_local);
-		int  transfer4			(CGrid * nd, int i, int k, int id_local) {
+		Num_State transfer2			(CGrid * nd, int i, int k, int id_local);
+		Num_State transfer3			(CGrid * nd, int i, int k, int id_local);
+		Num_State transfer4_phase1(CGrid * nd, int i, int k, int id_local);
+		Num_State transfer4_phase2(CGrid * nd, int i, int k, int id_local);
+		Num_State transfer4			(CGrid * nd, int i, int k, int id_local) {
 			if (B[i].link[NUM_PHASE] == -1 && B[k].link[NUM_PHASE] == -1) return transfer4_phase1(nd, i, k, id_local); else
 			if (B[i].link[NUM_PHASE] == -2 && B[k].link[NUM_PHASE] == -2) return transfer4_phase2(nd, i, k, id_local); else return(NULL_STATE);
 		}
-		int  counting_header (int Num);
+		Num_State counting_header (Num_State Num);
 public:
 //...operations with structure and block matrix;
 		void set_fasa_hmg (double kHz, double Ro0, double C0, double Ro1, double nju1, double G1);

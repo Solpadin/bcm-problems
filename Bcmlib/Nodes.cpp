@@ -20,8 +20,8 @@ CGrid * CreateNodes(Num_Nodes id_NODES)
 /////////////////////////////////////////////////
 //          КОРРЕКЦИЯ СЕТКИ ДЛЯ ABAQUS         //
 /////////////////////////////////////////////////
-/////////////////////////////////////
-//...добавление новых узлов в модель;
+/////////////////////////////////////////////////////////////////////////////////
+//...добавление новых узлов в модель (переделать с учетом нового формата данных); <----------------!!!
 void Inp_nodes_add(char * ch_NODES, CGrid * nd, int ID_node_set, int ID_element_set)
 {
 	const int STR_SIZE = 250;
@@ -152,7 +152,7 @@ void Inp_nodes_add(char * ch_NODES, CGrid * nd, int ID_node_set, int ID_element_
 
 //////////////////////////////////////////////////////////////////////////////////
 //...добавление новых элементов в модель (нумерация элементов и узлов -- внешняя);
-void Inp_elements_add(char * ch_NODES, CGrid * nd, int * ID_elements, int ID_element_part)
+void Inp_elements_add(char * ch_NODES, CGrid * nd, int * ID_elements, int ID_part)
 {
 	const int STR_SIZE = 250;
 	char * id_NODES = read_struct_ascii(ch_NODES);
@@ -163,31 +163,24 @@ void Inp_elements_add(char * ch_NODES, CGrid * nd, int * ID_elements, int ID_ele
 		
 		strcpy(buff, ch_NODES);	pchar = ::strrchr(buff, '.'); if (pchar) pchar[0] = 0; strcat(buff, "_add_elements.inp");
 		FILE * INP = fopen(buff, "w");
-		if (INP && ID_element_part > 0) {
-			int i, j, j_max = 17, k, l, l0, m, set, elem, N_geom, NN_geom, N_set = 0, N_part = ID_element_part, 
-				N_part_end, numeration_shift, max_element, max_element_shift;
+		if (INP && ID_part > 0 && nd->geom && nd->geom_ptr) {
+			int i, j, j_max = 18, k, l, l0, m, set, elem, N_geom, NN_geom, N_set = 0, N_part_element_beg, N_part_element_end, max_element;
 
-/////////////////////////////////////////////////////////////////////////////////////
-//...ищем конец элементов заданного *Part (и определяем максимальный номер элемента);
-			for ( j = 0; j < nd->geom[0]; j++) 
-			if (nd->geom[nd->geom_ptr[j]+2]+1 == 0) {
-				if (N_part--) {
-					numeration_shift = j;				
-					max_element = 1;
-				}
-				else break;
-			}
-			else if (max_element < -nd->geom[nd->geom_ptr[j]+2]) max_element = -nd->geom[nd->geom_ptr[j]+2];
+///////////////////////////////////////////////////
+//...ищем начало и конец элементов заданного *Part;
+			for (j = 0; j < nd->geom[0]; j++) 
+				if (nd->geom[nd->geom_ptr[j]+2]+ID_part == 0) break;
+			N_part_element_beg = j;				
 
-			max_element_shift = nd->geom[0]-max_element+numeration_shift; //...нумерация дополнительных элементов - после максимального!!!
-			N_part  = nd->geom[0]-(N_part_end = j)+numeration_shift; //...смещение на фактически последний элемент (без учета пропусков)!!!
+			for (j = N_part_element_beg; j < nd->geom[0]; j++) 
+				if (nd->geom[nd->geom_ptr[j]+2]+ID_part != 0) break;
+			N_part_element_end = j;
+
+//////////////////////////////////////////////////////
+//...определяем максимальный элемента заданного *Part;
+			for (max_element = -nd->geom[nd->geom_ptr[j = N_part_element_beg]+3]; j < N_part_element_end; j++) 
+			if  (max_element < -nd->geom[nd->geom_ptr[j]+3]) max_element = -nd->geom[nd->geom_ptr[j]+3];
 			NN_geom = nd->geom[0];
-
-//////////////////////////////////////////////////////////////////
-//...создаем табличку перенумерации элементов для заданного *Part;
-			int *	geom_pernum = (int *)new_struct(max_element*sizeof(int));
-			for ( j = numeration_shift; j < N_part_end; j++)
-				geom_pernum[-nd->geom[nd->geom_ptr[j]+2]-1] = j;
 
 //////////////////////////////////
 //...добавление элеметов в модель;
@@ -200,21 +193,31 @@ void Inp_elements_add(char * ch_NODES, CGrid * nd, int * ID_elements, int ID_ele
 				if ((nd->cond[l = nd->cond_ptr[k]] == (int)GL_ELEMENTS || nd->cond[l] == (int)GL_ELEMENTS_GENERATE) 
 				  && nd->cond[l+2] == ID_elements[set]) m = 1;
 
+//////////////////////////////////////////////////////////
+//...проверяем, что это множество входит в заданный *Part;
+				if (m) {
+					if (nd->cond[l] == (int)GL_ELEMENTS)
+						for ( i = 2; m && i <= nd->cond[l+1]; i++) if (nd->geom[nd->geom_ptr[nd->cond[l+1+i]]+2]+ID_part != 0) m = 0;
+					else
+					if (nd->cond[l] == (int)GL_ELEMENTS_GENERATE)
+						for (i = nd->cond[l+3]; m && i <= nd->cond[l+4]; i += nd->cond[l+5]) if (nd->geom[nd->geom_ptr[i]+2]+ID_part != 0) m = 0;
+				}
+
 //////////////////////////////////////////////////////////////////////////
 //...добавляем элеметы из указанного множества в заданный *Part элементов;
-				if (nd->geom && nd->geom_ptr && m) {
+				if (m) {
 					N_geom = nd->geom[0];
 
-//////////////////////////////////////
-//...просчитываем геометрию элементов;
-					if (nd->cond[l] == (int)GL_ELEMENTS) { //...добавляемое множество;
-						for ( j = 2; j <= nd->cond[l+1]; j++) if (nd->cond[l+1+j] <= max_element)
-							nd->geom_ptr_add(nd->geom[nd->geom_ptr[geom_pernum[nd->cond[l+1+j]-1]]+1], N_geom);
+///////////////////////////////////////////////////////////////////////////////////////
+//...просчитываем геометрию элементов из добавляемого множества (внутренняя нумерация);
+					if (nd->cond[l] == (int)GL_ELEMENTS) {
+						for ( j = 2; j <= nd->cond[l+1]; j++)
+							nd->geom_ptr_add(nd->geom[nd->geom_ptr[nd->cond[l+1+j]]+1], N_geom);
 					}
 					else
-					if (nd->cond[l] == (int)GL_ELEMENTS_GENERATE) { //...добавляемое множество;
-						for (j = nd->cond[l+3]; j <= nd->cond[l+4]; j += nd->cond[l+5]) if (j <= max_element)
-							nd->geom_ptr_add(nd->geom[nd->geom_ptr[geom_pernum[j-1]]+1], N_geom);
+					if (nd->cond[l] == (int)GL_ELEMENTS_GENERATE) {
+						for (j = nd->cond[l+3]; j <= nd->cond[l+4]; j += nd->cond[l+5])
+							nd->geom_ptr_add(nd->geom[nd->geom_ptr[j]+1], N_geom);
 					}
 
 //////////////////////////////////////////
@@ -224,24 +227,22 @@ void Inp_elements_add(char * ch_NODES, CGrid * nd, int * ID_elements, int ID_ele
 						memcpy(geom_new, nd->geom, (nd->geom_ptr[nd->geom[0]]+1)*sizeof(int)); delete_struct(nd->geom);
 						nd->geom = geom_new;
 
-//////////////////////
-//...переносим данные;
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//...переносим данные об элементах добавляемого множества (как есть) и устанавливаем внешний номер следом за максимальным;
 						N_geom = nd->geom[0];
 						if (nd->cond[l] == (int)GL_ELEMENTS) {
-							for ( j = 2; j <= nd->cond[l+1]; j++) if (nd->cond[l+1+j] <= max_element) { //...;добавляемое множество 
-								elem = geom_pernum[nd->cond[l+1+j]-1];
-								l0 = nd->geom[nd->geom_ptr[elem]+1]+2;
-								memcpy(nd->geom+(i = nd->geom_ptr[nd->geom[0]]), nd->geom+nd->geom_ptr[elem], l0*sizeof(int));
-								nd->geom[i+2] = -(++nd->geom[0])+max_element_shift;
+							for ( j = 2; j <= nd->cond[l+1]; j++) {
+								l0 = nd->geom[nd->geom_ptr[nd->cond[l+1+j]]+1]+2;
+								memcpy(nd->geom+(i = nd->geom_ptr[nd->geom[0]]), nd->geom+nd->geom_ptr[nd->cond[l+1+j]], l0*sizeof(int));
+								nd->geom[i+3] = -(++nd->geom[0])+NN_geom-max_element;
 							}
 						}
 						else
 						if (nd->cond[l] == (int)GL_ELEMENTS_GENERATE) {
-							for (j = nd->cond[l+3]; j <= nd->cond[l+4]; j += nd->cond[l+5]) if (j <= max_element) { 
-								elem = geom_pernum[j-1];
-								l0 = nd->geom[nd->geom_ptr[elem]+1]+2;
-								memcpy(nd->geom+(i = nd->geom_ptr[nd->geom[0]]), nd->geom+nd->geom_ptr[elem], l0*sizeof(int));
-								nd->geom[i+2] = -(++nd->geom[0])+max_element_shift;
+							for (j = nd->cond[l+3]; j <= nd->cond[l+4]; j += nd->cond[l+5]) { 
+								l0 = nd->geom[nd->geom_ptr[j]+1]+2;
+								memcpy(nd->geom+(i = nd->geom_ptr[nd->geom[0]]), nd->geom+nd->geom_ptr[j], l0*sizeof(int));
+								nd->geom[i+3] = -(++nd->geom[0])+NN_geom-max_element;
 							}
 						}
 					}
@@ -268,8 +269,8 @@ void Inp_elements_add(char * ch_NODES, CGrid * nd, int * ID_elements, int ID_ele
 						nd->cond[i = nd->cond_ptr[nd->cond[0]-1]] = GL_ELEMENTS_GENERATE;
 						nd->cond[i+1] = 4;
 						nd->cond[i+2] = --j;
-						nd->cond[i+3] = N_geom+1-max_element_shift;
-						nd->cond[i+4] = nd->geom[0]-max_element_shift;
+						nd->cond[i+3] = N_geom;
+						nd->cond[i+4] = nd->geom[0]-1;
 						nd->cond[i+5] = 1;
 						N_set++;
 					}
@@ -283,7 +284,7 @@ void Inp_elements_add(char * ch_NODES, CGrid * nd, int * ID_elements, int ID_ele
 				PPOS_CUR(id_NODES, pchar, upper,	upper_limit, "*End Part"); upper -= sizeof("*End Part");
 				PPOS_CUR(id_NODES, pchar, begin_set, upper, "*Elset, elset=");
 			}
-			for ( j = 1; j < ID_element_part; j++) 
+			for ( j = 1; j < ID_part; j++) 
 			PPOS_CUR(id_NODES, pchar, ppos_cur, upper_limit, "*Part, name=");
 			if ((upper = count_set = ppos_cur) < upper_limit) {
 				PPOS_CUR(id_NODES, pchar, upper,	upper_limit, "*End Part"); upper -= sizeof("*End Part");
@@ -291,6 +292,11 @@ void Inp_elements_add(char * ch_NODES, CGrid * nd, int * ID_elements, int ID_ele
 
 /////////////////////////////////////////////////////////////////////////////////
 //...ищем вхождение элементов в разделе *Part и печатаем все до начала элементов;
+				//pchar = id_NODES+50; swap(pchar[0], temp);
+				//fprintf(INP, "%s", id_NODES); swap(pchar[0], temp); 
+				//return;
+
+
 				PPOS_CUR(id_NODES, pchar, ppos_cur, upper, "*Element, type="); swap(pchar[0], temp);
 				fprintf(INP, "%s", id_NODES); swap(pchar[0], temp);
 
@@ -304,14 +310,14 @@ void Inp_elements_add(char * ch_NODES, CGrid * nd, int * ID_elements, int ID_ele
 					
 					fprintf(INP, "*Element, type=%s", one_line);
 
-///////////////////////////////////////////////////////////////
-//...печатаем все элементы данной топологии из заданного *Part;
-					for (l = nd->geom_ptr[k = numeration_shift]-1; k < N_part_end; k++) {
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//...печатаем все элементы данной топологии из заданного *Part (номера узлов переводим во внешнюю нумерацию);
+					for (l = nd->geom_ptr[k = N_part_element_beg]-1; k < N_part_element_end; k++) {
 						if (nd->geom[(++l)++] == elem) {
-							fprintf(INP, "%7i", -nd->geom[l+1]);					
-							for (j = 2; j < nd->geom[l]; j++) {
-								if (j != j_max) fprintf(INP, ",%7i", nd->geom[l+1+j]);
-								else			 fprintf(INP, ",\n%15i", nd->geom[l+1+j]);					
+							fprintf(INP, "%7i", -nd->geom[l+2]);					
+							for (j = 3; j < nd->geom[l]; j++) {
+								if (j != j_max) fprintf(INP, ",%7i", nd->hit[nd->geom[l+1+j]]);
+								else			 fprintf(INP, ",\n%15i", nd->hit[nd->geom[l+1+j]]);
 							}
 							fprintf(INP, "\n");					
 						}
@@ -319,10 +325,10 @@ void Inp_elements_add(char * ch_NODES, CGrid * nd, int * ID_elements, int ID_ele
 					}
 					for (l = nd->geom_ptr[k = NN_geom]-1; k < nd->geom[0]; k++) {
 						if (nd->geom[(++l)++] == elem) {
-							fprintf(INP, "%7i", -nd->geom[l+1]);					
-							for (j = 2; j < nd->geom[l]; j++) {
-								if (j != j_max) fprintf(INP, ",%7i", nd->geom[l+1+j]);					
-								else			 fprintf(INP, ",\n%15i", nd->geom[l+1+j]);					
+							fprintf(INP, "%7i", -nd->geom[l+2]);					
+							for (j = 3; j < nd->geom[l]; j++) {
+								if (j != j_max) fprintf(INP, ",%7i", nd->hit[nd->geom[l+1+j]]);
+								else			 fprintf(INP, ",\n%15i", nd->hit[nd->geom[l+1+j]]);
 							}
 							fprintf(INP, "\n");					
 						}
@@ -348,12 +354,22 @@ void Inp_elements_add(char * ch_NODES, CGrid * nd, int * ID_elements, int ID_ele
 
 //////////////////////////////////////////
 //...ищем добавляемое множество элементов;
-				for (m = j = k = 0; ! m && k < nd->cond[0]-N_set; k++)
-				if ((nd->cond[l = nd->cond_ptr[k]] == (int)GL_ELEMENTS || nd->cond[l] == (int)GL_ELEMENTS_GENERATE) && --j &&
-					  nd->cond[l+2] == ID_elements[set]) m = 1;
+					for (m = j = k = 0; ! m && k < nd->cond[0]-N_set; k++)
+					if ((nd->cond[l = nd->cond_ptr[k]] == (int)GL_ELEMENTS || nd->cond[l] == (int)GL_ELEMENTS_GENERATE) && --j &&
+						  nd->cond[l+2] == ID_elements[set]) m = 1;
 
-///////////////////////////////////////////////
-//...ищем имя добавляемого множества элементов и пишем множества элементов;
+//////////////////////////////////////////////////////////
+//...проверяем, что это множество входит в заданный *Part;
+					if (m) {
+						if (nd->cond[l] == (int)GL_ELEMENTS)
+							for ( i = 2; m && i <= nd->cond[l+1]; i++) if (nd->geom[nd->geom_ptr[nd->cond[l+1+i]]+2]+ID_part != 0) m = 0;
+						else
+						if (nd->cond[l] == (int)GL_ELEMENTS_GENERATE)
+							for (i = nd->cond[l+3]; m && i <= nd->cond[l+4]; i += nd->cond[l+5]) if (nd->geom[nd->geom_ptr[i]+2]+ID_part != 0) m = 0;
+					}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+//...ищем имя добавляемого множества элементов и пишем атрибуты множества элементов во внешней нумерации;
 					if (m && N_geom < nd->geom[0]) {
 						ppos_cur = begin_set;
 						while ((upper_element = ppos_cur) < upper && ++j) {
@@ -372,7 +388,7 @@ void Inp_elements_add(char * ch_NODES, CGrid * nd, int * ID_elements, int ID_ele
 								swap(pchar[0], temp); fprintf(INP, "%s", pchar);
 							}
 							fprintf(INP, "", pchar);  i = nd->cond_ptr[nd->cond[0]-N_set];
-							fprintf(INP, "%7i,%7i,%7i\n", nd->cond[i+3], nd->cond[i+4], nd->cond[i+5]);					
+							fprintf(INP, "%7i,%7i,%7i\n", -nd->geom[nd->geom_ptr[nd->cond[i+3]]+3], -nd->geom[nd->geom_ptr[nd->cond[i+4]]+3], nd->cond[i+5]);					
 							N_set--;
 						}
 					}
@@ -382,7 +398,6 @@ void Inp_elements_add(char * ch_NODES, CGrid * nd, int * ID_elements, int ID_ele
 //...печатаем оставшийся хвостик входного файла;
 				fprintf(INP, "%s", id_NODES+end_set);
 			}
-			delete_struct(geom_pernum);
 		}
 		fclose(INP);
 	}

@@ -533,7 +533,7 @@ Num_State CMindl2D::gram3(CGrid * nd, int i, int id_local)
 
 /////////////////////////////////////
 //...тестовая печать множества узлов;
-		if (solver.mode(FULLY_MODE)) 
+		if (solver.mode(NODES_PRINT)) 
 			nd->TestGrid("nodes.bln", 0.02, 10., 20., 30., AXIS_Z, 1);
 
 ////////////////////////////////////////////////
@@ -717,7 +717,7 @@ Num_State CMindl2D::transfer3(CGrid * nd, int i, int k, int id_local)
 
 /////////////////////////////////////
 //...тестовая печать множества узлов;
-		if (solver.mode(FULLY_MODE)) 
+		if (solver.mode(NODES_PRINT)) 
 			nd->TestGrid("nodes.bln", 0.02, 10., 20., 30., AXIS_Z, 1);
 
 ////////////////////////////////////////////////
@@ -877,7 +877,7 @@ Num_State CMindl2D::gram4(CGrid * nd, int i, int id_local)
 
 /////////////////////////////////////
 //...тестовая печать множества узлов;
-		if (solver.mode(FULLY_MODE)) 
+		if (solver.mode(NODES_PRINT)) 
 			nd->TestGrid("nodes.bln", 0.02, 10., 20., 30., AXIS_Z, 1);
 
 ////////////////////////////////////////////////////////////////////
@@ -983,7 +983,7 @@ Num_State CMindl2D::transfer4(CGrid * nd, int i, int k, int id_local)
 
 /////////////////////////////////////
 //...тестовая печать множества узлов;
-		if (solver.mode(FULLY_MODE)) 
+		if (solver.mode(NODES_PRINT)) 
 			nd->TestGrid("nodes.bln", 0.02, 10., 20., 30., AXIS_Z, 1);
 
 ////////////////////////////////////////////////
@@ -1118,7 +1118,7 @@ Num_State CMindl2D::rigidy1(CGrid * nd, int i, double * K)
 
 /////////////////////////////////////
 //...тестовая печать множества узлов;
-		if (solver.mode(FULLY_MODE)) 
+		if (solver.mode(NODES_PRINT)) 
 			nd->TestGrid("nodes.bln", 0.02, 10., 20., 30., AXIS_Z, 1);
 
 ////////////////////////////////////////////////

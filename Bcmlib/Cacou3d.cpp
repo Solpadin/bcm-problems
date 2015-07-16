@@ -13,34 +13,33 @@ int CAcou3D::NUM_HESS  = 18;
 //...initialization of the blocks;
 int CAcou3D::block_shape_init(Block<complex> & B, Num_State id_free)
 {
-	int	i, k, m, set_cmpl = 1; //...set_cmpl == 2 -- real case for extern problem;
+	int	k, m, set_cmpl = 1; //...set_cmpl == 2 -- real case for extern problem;
    if (  B.shape && id_free == INITIAL_STATE) delete_shapes(B.shape);
 	if (! B.shape && B.mp) {
 		B.shape = new CShapeMixer<complex>;
-		if ((B.type & ERR_CODE) == ZOOM_BLOCK) {
-			B.shape->add_shape(CreateShapeC(AU3D_ZOOM_SHAPE));
+/*		if ((B.type & ERR_CODE) == ZOOM_BLOCK) {
+			B.shape->add_shape(CreateShape<double>(AU3D_ZOOM_SHAPE));
 			if (B.mp[7] < 0.) B.shape->set_cmpl(set_cmpl);
 		}
 		else
-		if ((B.type & ERR_CODE) == ELLI_BLOCK)	B.shape->add_shape(CreateShapeD(AU3D_ELLI_SHAPE));
-		else												B.shape->add_shape(CreateShapeD(AU3D_POLY_SHAPE));
+		if ((B.type & ERR_CODE) == ELLI_BLOCK)	B.shape->add_shape(CreateShape<double>(AU3D_ELLI_SHAPE));
+		else*/												B.shape->add_shape(CreateShape<complex>(AU3D_POLY_SHAPE));
 
 ////////////////////////
 //...setting parameters;
-		if ((B.type & ERR_CODE) == ELLI_BLOCK) B.shape->set_shape(param[1]*fabs(B.mp[7]), 0., 0., 0.);
-		else												B.shape->set_shape(param[1]*fabs(B.mp[7]));
+		/*if ((B.type & ERR_CODE) == ELLI_BLOCK) B.shape->set_shape(param[1]*fabs(B.mp[7]), 0., 0., 0.);
+		else*/												B.shape->set_shape(param[1]*fabs(B.mp[7]));
 
 //////////////////////////////////
 //...multipoles number adaptation;
 		if (B.link[NUM_PHASE] == -2) //...another phase of media!!!
 			B.shape->init1(UnPackInts(get_param(0), 1), solver.id_norm*2, 3); else
-		if ((B.type & ERR_CODE) == ZOOM_BLOCK && B.mp[7] < 0.) B.shape->init1(UnPackInts(get_param(0), 1), solver.id_norm*2, 1); else
+		/*if ((B.type & ERR_CODE) == ZOOM_BLOCK && B.mp[7] < 0.) B.shape->init1(UnPackInts(get_param(0), 1), solver.id_norm*2, 1); else
 		if ((B.type & ERR_MASK) == SUB_UGOLOK_BLOCK)			    B.shape->init1(UnPackInts(get_param(0), 1), solver.id_norm*2, 1);
-		else																	 B.shape->init1(UnPackInts(get_param(0)),		solver.id_norm*2, 1); 
+		else*/																	 B.shape->init1(UnPackInts(get_param(0)),		solver.id_norm*2, 1); 
 
 //////////////////////////////////////////////////////////////////////////////
 //...setting acselerator, local system of coordinate and init parametrization;
-		//B.shape->set_acselerator(i = max((int)param[2], max(UnPackInts(get_param(0), 1), UnPackInts(get_param(0)))*2+7));
 		B.shape->set_local(B.mp+1);
 		B.shape->release  ();
    }
@@ -73,20 +72,8 @@ int CAcou3D::block_shape_init(Block<complex> & B, Num_State id_free)
 void  CAcou3D::jump1(double * P, int i, int m)
 {
 	m += solver.id_norm;
-
 	B[i].shape->parametrization(P, 1);
-	B[i].shape->cpy(B[i].shape->p_cpy, B[i].shape->p_cmp);
-
-	B[i].shape->change();
-	B[i].shape->parametrization(P, 1);
-
-	B[i].shape->change_cmpl(B[i].shape->p_cpy, B[i].shape->p_cmp);
-	B[i].shape->admittance (B[i].shape->p_cmp, NULL, -1., 0); //...outgoing wave!!!
-
-	jump_cmpl_cpy(B[i].shape->p_cpy, B[i].shape->p_cmp, solver.hh[i][0][m], B[i].shape->get_NN());
-
-	B[i].shape->change_cmpl(B[i].shape->p_cpy, B[i].shape->p_cmp);
-	B[i].shape->change();
+	B[i].shape->cpy(0, B[i].shape->FULL(solver.hh[i][0][m]));
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -94,22 +81,9 @@ void  CAcou3D::jump1(double * P, int i, int m)
 void  CAcou3D::jump2(double * P, int i, int m)
 {
 	m += solver.id_norm;
-
 	B[i].shape->parametrization_grad(P);
 	B[i].shape->deriv_N();
-	B[i].shape->cpy(B[i].shape->deriv, B[i].shape->d_cmp);
-
-	B[i].shape->change();
-	B[i].shape->parametrization_grad(P);
-	B[i].shape->deriv_N();
-
-	B[i].shape->change_cmpl(B[i].shape->deriv, B[i].shape->d_cmp);
-	B[i].shape->admittance (B[i].shape->d_cmp, NULL, -1., 0); //...outgoing wave!!!
-
-	jump_cmpl_cpy(B[i].shape->deriv, B[i].shape->d_cmp, solver.hh[i][0][m], B[i].shape->get_NN());
-
-	B[i].shape->change_cmpl(B[i].shape->deriv, B[i].shape->d_cmp);
-	B[i].shape->change();
+	B[i].shape->cpy(0, B[i].shape->deriv, B[i].shape->FULL(solver.hh[i][0][m], 0));
 }
 
 ////////////////////////////////////////
@@ -117,31 +91,10 @@ void  CAcou3D::jump2(double * P, int i, int m)
 void CAcou3D::jump3(double * P, int i, int m)
 {
 	m += solver.id_norm;
-
 	B[i].shape->parametrization_grad(P);
 	B[i].shape->deriv_N();
-	B[i].shape->admittance (P[6]);
-
-	B[i].shape->cpy(B[i].shape->deriv, B[i].shape->d_cmp);
-	B[i].shape->cpy(B[i].shape->p_cpy, B[i].shape->p_cmp);
-
-	B[i].shape->change();
-	B[i].shape->parametrization_grad(P);
-	B[i].shape->deriv_N();
-	B[i].shape->admittance (P[6]);
-
-	B[i].shape->change_cmpl(B[i].shape->deriv, B[i].shape->d_cmp);
-	B[i].shape->change_cmpl(B[i].shape->p_cpy, B[i].shape->p_cmp);
-
-	B[i].shape->admittance (B[i].shape->deriv, B[i].shape->p_cmp, 1.,  P[7]); //...outgoing wave!!!
-	B[i].shape->admittance (B[i].shape->p_cpy, B[i].shape->d_cmp, P[7], -1.); //...outgoing wave!!!
-
-	jump_cmpl_cpy(B[i].shape->deriv, B[i].shape->p_cpy, solver.hh[i][0][m], B[i].shape->get_NN());
-
-	B[i].shape->change_cmpl(B[i].shape->deriv, B[i].shape->d_cmp);
-	B[i].shape->change_cmpl(B[i].shape->p_cpy, B[i].shape->p_cmp);
-
-	B[i].shape->change();
+	B[i].shape->admittance(0, comp(P[6], P[7]));
+	B[i].shape->cpy(0, B[i].shape->deriv, B[i].shape->FULL(solver.hh[i][0][m], 0));
 }
 
 /////////////////////////////
@@ -166,252 +119,252 @@ void CAcou3D::jump_conj_cpy(int i, int m, int k, complex adm)
 //...realization vibro displacements (Ux);
 void CAcou3D::jump1_common_x(double * P, int i, int m)
 {
-	double G0 = 1./get_param(NUM_SHEAR),
-			 C0 = 1./get_param(NUM_SHEAR-1); m += solver.id_norm;
-	B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 0), (complex *)NULL, 0., 0.);
-	B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 1), (complex *)NULL, 0., 0.);
-	B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 2), (complex *)NULL, 0., 0.);
+	//double G0 = 1./get_param(NUM_SHEAR),
+	//		 C0 = 1./get_param(NUM_SHEAR-1); m += solver.id_norm;
+	//B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 0), (complex *)NULL, 0., 0.);
+	//B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 1), (complex *)NULL, 0., 0.);
+	//B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 2), (complex *)NULL, 0., 0.);
 
-	B[i].shape->adm_xx(B[i].shape->FULL(solver.hh[i][0][m], 0, 0), C0);
-	B[i].shape->adm_xy(B[i].shape->FULL(solver.hh[i][0][m], 0, 1), C0);
-	B[i].shape->adm_xz(B[i].shape->FULL(solver.hh[i][0][m], 0, 2), C0);
+	//B[i].shape->adm_xx(B[i].shape->FULL(solver.hh[i][0][m], 0, 0), C0);
+	//B[i].shape->adm_xy(B[i].shape->FULL(solver.hh[i][0][m], 0, 1), C0);
+	//B[i].shape->adm_xz(B[i].shape->FULL(solver.hh[i][0][m], 0, 2), C0);
 
-	B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 0), B[i].shape->p_cpy, 1., G0);
+	//B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 0), B[i].shape->p_cpy, 1., G0);
 }
 
 ////////////////////////////////////////////////////
 //...additional vibro compression displacement (Ux);
 void CAcou3D::jump1_compress_x(double * P, int i, int m)
 {
-	double C0 = 1./get_param(NUM_SHEAR-1); m += solver.id_norm;
-	B[i].shape->adm_xx(B[i].shape->FULL(solver.hh[i][0][m], 0, 0), -C0);
-	B[i].shape->adm_xy(B[i].shape->FULL(solver.hh[i][0][m], 0, 1), -C0);
-	B[i].shape->adm_xz(B[i].shape->FULL(solver.hh[i][0][m], 0, 2), -C0);
+	//double C0 = 1./get_param(NUM_SHEAR-1); m += solver.id_norm;
+	//B[i].shape->adm_xx(B[i].shape->FULL(solver.hh[i][0][m], 0, 0), -C0);
+	//B[i].shape->adm_xy(B[i].shape->FULL(solver.hh[i][0][m], 0, 1), -C0);
+	//B[i].shape->adm_xz(B[i].shape->FULL(solver.hh[i][0][m], 0, 2), -C0);
 }
 
 //////////////////////////////////////////
 //...realization vibro displacements (Uy);
 void CAcou3D::jump1_common_y(double * P, int i, int m)
 {
-	double G0 = 1./get_param(NUM_SHEAR),
-			 C0 = 1./get_param(NUM_SHEAR-1); m += solver.id_norm;
-	B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 0), (complex *)NULL, 0., 0.);
-	B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 1), (complex *)NULL, 0., 0.);
-	B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 2), (complex *)NULL, 0., 0.);
+	//double G0 = 1./get_param(NUM_SHEAR),
+	//		 C0 = 1./get_param(NUM_SHEAR-1); m += solver.id_norm;
+	//B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 0), (complex *)NULL, 0., 0.);
+	//B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 1), (complex *)NULL, 0., 0.);
+	//B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 2), (complex *)NULL, 0., 0.);
 
-	B[i].shape->adm_xy(B[i].shape->FULL(solver.hh[i][0][m], 0, 0), C0);
-	B[i].shape->adm_yy(B[i].shape->FULL(solver.hh[i][0][m], 0, 1), C0);
-	B[i].shape->adm_yz(B[i].shape->FULL(solver.hh[i][0][m], 0, 2), C0);
+	//B[i].shape->adm_xy(B[i].shape->FULL(solver.hh[i][0][m], 0, 0), C0);
+	//B[i].shape->adm_yy(B[i].shape->FULL(solver.hh[i][0][m], 0, 1), C0);
+	//B[i].shape->adm_yz(B[i].shape->FULL(solver.hh[i][0][m], 0, 2), C0);
 
-	B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 1), B[i].shape->p_cpy, 1., G0);
+	//B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 1), B[i].shape->p_cpy, 1., G0);
 }
 
 ////////////////////////////////////////////////////
 //...additional vibro compression displacement (Uy);
 void CAcou3D::jump1_compress_y(double * P, int i, int m)
 {
-	double C0 = 1./get_param(NUM_SHEAR-1); m += solver.id_norm;
-	B[i].shape->adm_xy(B[i].shape->FULL(solver.hh[i][0][m], 0, 0), -C0);
-	B[i].shape->adm_yy(B[i].shape->FULL(solver.hh[i][0][m], 0, 1), -C0);
-	B[i].shape->adm_yz(B[i].shape->FULL(solver.hh[i][0][m], 0, 2), -C0);
+	//double C0 = 1./get_param(NUM_SHEAR-1); m += solver.id_norm;
+	//B[i].shape->adm_xy(B[i].shape->FULL(solver.hh[i][0][m], 0, 0), -C0);
+	//B[i].shape->adm_yy(B[i].shape->FULL(solver.hh[i][0][m], 0, 1), -C0);
+	//B[i].shape->adm_yz(B[i].shape->FULL(solver.hh[i][0][m], 0, 2), -C0);
 }
 
 //////////////////////////////////////////
 //...realization vibro displacements (Uz);
 void CAcou3D::jump1_common_z(double * P, int i, int m)
 {
-	double G0 = 1./get_param(NUM_SHEAR),
-			 C0 = 1./get_param(NUM_SHEAR-1); m += solver.id_norm;
-	B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 0), (complex *)NULL, 0., 0.);
-	B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 1), (complex *)NULL, 0., 0.);
-	B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 2), (complex *)NULL, 0., 0.);
+	//double G0 = 1./get_param(NUM_SHEAR),
+	//		 C0 = 1./get_param(NUM_SHEAR-1); m += solver.id_norm;
+	//B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 0), (complex *)NULL, 0., 0.);
+	//B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 1), (complex *)NULL, 0., 0.);
+	//B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 2), (complex *)NULL, 0., 0.);
 
-	B[i].shape->adm_xz(B[i].shape->FULL(solver.hh[i][0][m], 0, 0), C0);
-	B[i].shape->adm_yz(B[i].shape->FULL(solver.hh[i][0][m], 0, 1), C0);
-	B[i].shape->adm_zz(B[i].shape->FULL(solver.hh[i][0][m], 0, 2), C0);
+	//B[i].shape->adm_xz(B[i].shape->FULL(solver.hh[i][0][m], 0, 0), C0);
+	//B[i].shape->adm_yz(B[i].shape->FULL(solver.hh[i][0][m], 0, 1), C0);
+	//B[i].shape->adm_zz(B[i].shape->FULL(solver.hh[i][0][m], 0, 2), C0);
 
-	B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 2), B[i].shape->p_cpy, 1., G0);
+	//B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 2), B[i].shape->p_cpy, 1., G0);
 }
 
 ////////////////////////////////////////////////////
 //...additional vibro compression displacement (Uz);
 void CAcou3D::jump1_compress_z(double * P, int i, int m)
 {
-	double C0 = 1./get_param(NUM_SHEAR-1); m += solver.id_norm;
-	B[i].shape->adm_xz(B[i].shape->FULL(solver.hh[i][0][m], 0, 0), C0);
-	B[i].shape->adm_yz(B[i].shape->FULL(solver.hh[i][0][m], 0, 1), C0);
-	B[i].shape->adm_zz(B[i].shape->FULL(solver.hh[i][0][m], 0, 2), C0);
+	//double C0 = 1./get_param(NUM_SHEAR-1); m += solver.id_norm;
+	//B[i].shape->adm_xz(B[i].shape->FULL(solver.hh[i][0][m], 0, 0), C0);
+	//B[i].shape->adm_yz(B[i].shape->FULL(solver.hh[i][0][m], 0, 1), C0);
+	//B[i].shape->adm_zz(B[i].shape->FULL(solver.hh[i][0][m], 0, 2), C0);
 }
 
 ///////////////////////////////////////////////////////////////
 //...realization normal derivative of vibro displacements (Ux);
 void CAcou3D::jump2_common_x(double * P, int i, int m)
 {
-	double G0 = 1./get_param(NUM_SHEAR),
-			 C0 = 1./get_param(NUM_SHEAR-1); m += solver.id_norm;
-	int num_hess = NUM_HESS+solver.id_norm;
-	B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 0), B[i].shape->FULL(solver.hh[i][0][num_hess], 0, 0), 0., C0);
-	B[i].shape->adm_x     (B[i].shape->FULL(solver.hh[i][0][m], 0, 0), P[3]*G0);
-	B[i].shape->adm_y     (B[i].shape->FULL(solver.hh[i][0][m], 0, 0), P[4]*G0);
-	B[i].shape->adm_z     (B[i].shape->FULL(solver.hh[i][0][m], 0, 0), P[5]*G0);
-	B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 1), B[i].shape->FULL(solver.hh[i][0][num_hess], 0, 1), 0., C0);
-	B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 2), B[i].shape->FULL(solver.hh[i][0][num_hess+1], 0, 0), 0., C0);
+	//double G0 = 1./get_param(NUM_SHEAR),
+	//		 C0 = 1./get_param(NUM_SHEAR-1); m += solver.id_norm;
+	//int num_hess = NUM_HESS+solver.id_norm;
+	//B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 0), B[i].shape->FULL(solver.hh[i][0][num_hess], 0, 0), 0., C0);
+	//B[i].shape->adm_x     (B[i].shape->FULL(solver.hh[i][0][m], 0, 0), P[3]*G0);
+	//B[i].shape->adm_y     (B[i].shape->FULL(solver.hh[i][0][m], 0, 0), P[4]*G0);
+	//B[i].shape->adm_z     (B[i].shape->FULL(solver.hh[i][0][m], 0, 0), P[5]*G0);
+	//B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 1), B[i].shape->FULL(solver.hh[i][0][num_hess], 0, 1), 0., C0);
+	//B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 2), B[i].shape->FULL(solver.hh[i][0][num_hess+1], 0, 0), 0., C0);
 }
 
 //////////////////////////////////////////////////////////////////////////
 //...additional normal derivative of vibro compression displacements (Ux);
 void CAcou3D::jump2_compress_x(double * P, int i, int m)
 {
-	double C0 = 1./get_param(NUM_SHEAR-1); m += solver.id_norm;
-	int num_hess = NUM_HESS+solver.id_norm;
-	B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 0), B[i].shape->FULL(solver.hh[i][0][num_hess], 0, 0), 1., -C0);
-	B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 1), B[i].shape->FULL(solver.hh[i][0][num_hess], 0, 1), 1., -C0);
-	B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 2), B[i].shape->FULL(solver.hh[i][0][num_hess+1], 0, 0), 1., -C0);
+	//double C0 = 1./get_param(NUM_SHEAR-1); m += solver.id_norm;
+	//int num_hess = NUM_HESS+solver.id_norm;
+	//B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 0), B[i].shape->FULL(solver.hh[i][0][num_hess], 0, 0), 1., -C0);
+	//B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 1), B[i].shape->FULL(solver.hh[i][0][num_hess], 0, 1), 1., -C0);
+	//B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 2), B[i].shape->FULL(solver.hh[i][0][num_hess+1], 0, 0), 1., -C0);
 }
 
 ///////////////////////////////////////////////////////////////
 //...realization normal derivative of vibro displacements (Uy);
 void CAcou3D::jump2_common_y(double * P, int i, int m)
 {
-	double G0 = 1./get_param(NUM_SHEAR),
-			 C0 = 1./get_param(NUM_SHEAR-1); m += solver.id_norm;
-	int num_hess = NUM_HESS+solver.id_norm;
-	B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 0), B[i].shape->FULL(solver.hh[i][0][num_hess], 0, 1), 0., C0);
-	B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 1), B[i].shape->FULL(solver.hh[i][0][num_hess], 0, 2), 0., C0);
-	B[i].shape->adm_x     (B[i].shape->FULL(solver.hh[i][0][m], 0, 1), P[3]*G0);
-	B[i].shape->adm_y     (B[i].shape->FULL(solver.hh[i][0][m], 0, 1), P[4]*G0);
-	B[i].shape->adm_z     (B[i].shape->FULL(solver.hh[i][0][m], 0, 1), P[5]*G0);
-	B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 2), B[i].shape->FULL(solver.hh[i][0][num_hess+1], 0, 1), 0., C0);
+	//double G0 = 1./get_param(NUM_SHEAR),
+	//		 C0 = 1./get_param(NUM_SHEAR-1); m += solver.id_norm;
+	//int num_hess = NUM_HESS+solver.id_norm;
+	//B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 0), B[i].shape->FULL(solver.hh[i][0][num_hess], 0, 1), 0., C0);
+	//B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 1), B[i].shape->FULL(solver.hh[i][0][num_hess], 0, 2), 0., C0);
+	//B[i].shape->adm_x     (B[i].shape->FULL(solver.hh[i][0][m], 0, 1), P[3]*G0);
+	//B[i].shape->adm_y     (B[i].shape->FULL(solver.hh[i][0][m], 0, 1), P[4]*G0);
+	//B[i].shape->adm_z     (B[i].shape->FULL(solver.hh[i][0][m], 0, 1), P[5]*G0);
+	//B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 2), B[i].shape->FULL(solver.hh[i][0][num_hess+1], 0, 1), 0., C0);
 }
 
 //////////////////////////////////////////////////////////////////////////
 //...additional normal derivative of vibro compression displacements (Uy);
 void CAcou3D::jump2_compress_y(double * P, int i, int m)
 {
-	double C0 = 1./get_param(NUM_SHEAR-1); m += solver.id_norm;
-	int num_hess = NUM_HESS+solver.id_norm;
-	B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 0), B[i].shape->FULL(solver.hh[i][0][num_hess], 0, 1), 1., -C0);
-	B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 1), B[i].shape->FULL(solver.hh[i][0][num_hess], 0, 2), 1., -C0);
-	B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 2), B[i].shape->FULL(solver.hh[i][0][num_hess+1], 0, 1), 1., -C0);
+	//double C0 = 1./get_param(NUM_SHEAR-1); m += solver.id_norm;
+	//int num_hess = NUM_HESS+solver.id_norm;
+	//B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 0), B[i].shape->FULL(solver.hh[i][0][num_hess], 0, 1), 1., -C0);
+	//B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 1), B[i].shape->FULL(solver.hh[i][0][num_hess], 0, 2), 1., -C0);
+	//B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 2), B[i].shape->FULL(solver.hh[i][0][num_hess+1], 0, 1), 1., -C0);
 }
 
 ///////////////////////////////////////////////////////////////
 //...realization normal derivative of vibro displacements (Uz);
 void CAcou3D::jump2_common_z(double * P, int i, int m)
 {
-	double G0 = 1./get_param(NUM_SHEAR),
-			 C0 = 1./get_param(NUM_SHEAR-1); m += solver.id_norm;
-	int num_hess = NUM_HESS+solver.id_norm;
-	B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 0), B[i].shape->FULL(solver.hh[i][0][num_hess+1], 0, 0), 0., C0);
-	B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 1), B[i].shape->FULL(solver.hh[i][0][num_hess+1], 0, 1), 0., C0);
-	B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 2), B[i].shape->FULL(solver.hh[i][0][num_hess+1], 0, 2), 0., C0);
-	B[i].shape->adm_x     (B[i].shape->FULL(solver.hh[i][0][m], 0, 2), P[3]*G0);
-	B[i].shape->adm_y     (B[i].shape->FULL(solver.hh[i][0][m], 0, 2), P[4]*G0);
-	B[i].shape->adm_z     (B[i].shape->FULL(solver.hh[i][0][m], 0, 2), P[5]*G0);
+	//double G0 = 1./get_param(NUM_SHEAR),
+	//		 C0 = 1./get_param(NUM_SHEAR-1); m += solver.id_norm;
+	//int num_hess = NUM_HESS+solver.id_norm;
+	//B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 0), B[i].shape->FULL(solver.hh[i][0][num_hess+1], 0, 0), 0., C0);
+	//B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 1), B[i].shape->FULL(solver.hh[i][0][num_hess+1], 0, 1), 0., C0);
+	//B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 2), B[i].shape->FULL(solver.hh[i][0][num_hess+1], 0, 2), 0., C0);
+	//B[i].shape->adm_x     (B[i].shape->FULL(solver.hh[i][0][m], 0, 2), P[3]*G0);
+	//B[i].shape->adm_y     (B[i].shape->FULL(solver.hh[i][0][m], 0, 2), P[4]*G0);
+	//B[i].shape->adm_z     (B[i].shape->FULL(solver.hh[i][0][m], 0, 2), P[5]*G0);
 }
 
 //////////////////////////////////////////////////////////////////////////
 //...additional normal derivative of vibro compression displacements (Uz);
 void CAcou3D::jump2_compress_z(double * P, int i, int m)
 {
-	double C0 = 1./get_param(NUM_SHEAR-1); m += solver.id_norm;
-	int num_hess = NUM_HESS+solver.id_norm;
-	B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 0), B[i].shape->FULL(solver.hh[i][0][num_hess+1], 0, 0), 1., -C0);
-	B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 1), B[i].shape->FULL(solver.hh[i][0][num_hess+1], 0, 1), 1., -C0);
-	B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 2), B[i].shape->FULL(solver.hh[i][0][num_hess+1], 0, 2), 1., -C0);
+	//double C0 = 1./get_param(NUM_SHEAR-1); m += solver.id_norm;
+	//int num_hess = NUM_HESS+solver.id_norm;
+	//B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 0), B[i].shape->FULL(solver.hh[i][0][num_hess+1], 0, 0), 1., -C0);
+	//B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 1), B[i].shape->FULL(solver.hh[i][0][num_hess+1], 0, 1), 1., -C0);
+	//B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 2), B[i].shape->FULL(solver.hh[i][0][num_hess+1], 0, 2), 1., -C0);
 }
 
 ////////////////////////////////////////////////////////////////
 //...realization of surface forces for vibro displacements (Px);
 void CAcou3D::jump4_common_x(double * P, int i, int m)
 {
-	double C0 = get_param(NUM_SHEAR)/get_param(NUM_SHEAR-1)*2.; m += solver.id_norm;
-	int	 num_hess = NUM_HESS+solver.id_norm;
-	B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 0), B[i].shape->FULL(solver.hh[i][0][num_hess], 0, 0), 0., C0);
-	B[i].shape->adm_x     (B[i].shape->FULL(solver.hh[i][0][m], 0, 0), P[3]*2.);
-	B[i].shape->adm_y     (B[i].shape->FULL(solver.hh[i][0][m], 0, 0), P[4]);
-	B[i].shape->adm_z     (B[i].shape->FULL(solver.hh[i][0][m], 0, 0), P[5]);
-	B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 1), B[i].shape->FULL(solver.hh[i][0][num_hess], 0, 1), 0., C0);
-	B[i].shape->adm_x     (B[i].shape->FULL(solver.hh[i][0][m], 0, 1), P[4]);
-	B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 2), B[i].shape->FULL(solver.hh[i][0][num_hess+1], 0, 0), 0., C0);
-	B[i].shape->adm_x     (B[i].shape->FULL(solver.hh[i][0][m], 0, 2), P[5]);
+	//double C0 = get_param(NUM_SHEAR)/get_param(NUM_SHEAR-1)*2.; m += solver.id_norm;
+	//int	 num_hess = NUM_HESS+solver.id_norm;
+	//B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 0), B[i].shape->FULL(solver.hh[i][0][num_hess], 0, 0), 0., C0);
+	//B[i].shape->adm_x     (B[i].shape->FULL(solver.hh[i][0][m], 0, 0), P[3]*2.);
+	//B[i].shape->adm_y     (B[i].shape->FULL(solver.hh[i][0][m], 0, 0), P[4]);
+	//B[i].shape->adm_z     (B[i].shape->FULL(solver.hh[i][0][m], 0, 0), P[5]);
+	//B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 1), B[i].shape->FULL(solver.hh[i][0][num_hess], 0, 1), 0., C0);
+	//B[i].shape->adm_x     (B[i].shape->FULL(solver.hh[i][0][m], 0, 1), P[4]);
+	//B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 2), B[i].shape->FULL(solver.hh[i][0][num_hess+1], 0, 0), 0., C0);
+	//B[i].shape->adm_x     (B[i].shape->FULL(solver.hh[i][0][m], 0, 2), P[5]);
 }
 
 //////////////////////////////////////////////////////
 //...additional vibro compression surface forces (Px);
 void CAcou3D::jump4_compress_x(double * P, int i, int m)
 {
-	double C0 = -get_param(NUM_SHEAR  )/get_param(NUM_SHEAR-1)*2., 
-		 alpha = -get_param(NUM_SHEAR+1)/get_param(NUM_SHEAR+2)*4.; m += solver.id_norm;
-	int num_hess = NUM_HESS+solver.id_norm;
-	B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 0), B[i].shape->FULL(solver.hh[i][0][num_hess], 0, 0), 1., C0);
-	B[i].shape->adm_x     (B[i].shape->FULL(solver.hh[i][0][m], 0, 0), P[3]*alpha);
-	B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 1), B[i].shape->FULL(solver.hh[i][0][num_hess], 0, 1), 1., C0);
-	B[i].shape->adm_y     (B[i].shape->FULL(solver.hh[i][0][m], 0, 1), P[3]*alpha);
-	B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 2), B[i].shape->FULL(solver.hh[i][0][num_hess+1], 0, 0), 1., C0);
-	B[i].shape->adm_z     (B[i].shape->FULL(solver.hh[i][0][m], 0, 2), P[3]*alpha);
+	//double C0 = -get_param(NUM_SHEAR  )/get_param(NUM_SHEAR-1)*2., 
+	//	 alpha = -get_param(NUM_SHEAR+1)/get_param(NUM_SHEAR+2)*4.; m += solver.id_norm;
+	//int num_hess = NUM_HESS+solver.id_norm;
+	//B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 0), B[i].shape->FULL(solver.hh[i][0][num_hess], 0, 0), 1., C0);
+	//B[i].shape->adm_x     (B[i].shape->FULL(solver.hh[i][0][m], 0, 0), P[3]*alpha);
+	//B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 1), B[i].shape->FULL(solver.hh[i][0][num_hess], 0, 1), 1., C0);
+	//B[i].shape->adm_y     (B[i].shape->FULL(solver.hh[i][0][m], 0, 1), P[3]*alpha);
+	//B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 2), B[i].shape->FULL(solver.hh[i][0][num_hess+1], 0, 0), 1., C0);
+	//B[i].shape->adm_z     (B[i].shape->FULL(solver.hh[i][0][m], 0, 2), P[3]*alpha);
 }
 
 ////////////////////////////////////////////////////////////////
 //...realization of surface forces for vibro displacements (Pyx);
 void CAcou3D::jump4_common_y(double * P, int i, int m)
 {
-	double C0 = get_param(NUM_SHEAR)/get_param(NUM_SHEAR-1)*2.; m += solver.id_norm;
-	int	 num_hess = NUM_HESS+solver.id_norm;
-	B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 0), B[i].shape->FULL(solver.hh[i][0][num_hess], 0, 1), 0., C0);
-	B[i].shape->adm_y     (B[i].shape->FULL(solver.hh[i][0][m], 0, 0), P[3]);
-	B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 1), B[i].shape->FULL(solver.hh[i][0][num_hess], 0, 2), 0., C0);
-	B[i].shape->adm_x     (B[i].shape->FULL(solver.hh[i][0][m], 0, 1), P[3]);
-	B[i].shape->adm_y     (B[i].shape->FULL(solver.hh[i][0][m], 0, 1), P[4]*2.);
-	B[i].shape->adm_z     (B[i].shape->FULL(solver.hh[i][0][m], 0, 1), P[5]);
-	B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 2), B[i].shape->FULL(solver.hh[i][0][num_hess+1], 0, 1), 0., C0);
-	B[i].shape->adm_y     (B[i].shape->FULL(solver.hh[i][0][m], 0, 2), P[5]);
+	//double C0 = get_param(NUM_SHEAR)/get_param(NUM_SHEAR-1)*2.; m += solver.id_norm;
+	//int	 num_hess = NUM_HESS+solver.id_norm;
+	//B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 0), B[i].shape->FULL(solver.hh[i][0][num_hess], 0, 1), 0., C0);
+	//B[i].shape->adm_y     (B[i].shape->FULL(solver.hh[i][0][m], 0, 0), P[3]);
+	//B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 1), B[i].shape->FULL(solver.hh[i][0][num_hess], 0, 2), 0., C0);
+	//B[i].shape->adm_x     (B[i].shape->FULL(solver.hh[i][0][m], 0, 1), P[3]);
+	//B[i].shape->adm_y     (B[i].shape->FULL(solver.hh[i][0][m], 0, 1), P[4]*2.);
+	//B[i].shape->adm_z     (B[i].shape->FULL(solver.hh[i][0][m], 0, 1), P[5]);
+	//B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 2), B[i].shape->FULL(solver.hh[i][0][num_hess+1], 0, 1), 0., C0);
+	//B[i].shape->adm_y     (B[i].shape->FULL(solver.hh[i][0][m], 0, 2), P[5]);
 }
 
 //////////////////////////////////////////////////////
 //...additional vibro compression surface forces (Py);
 void CAcou3D::jump4_compress_y(double * P, int i, int m)
 {
-	double C0 = -get_param(NUM_SHEAR  )/get_param(NUM_SHEAR-1)*2., 
-		 alpha = -get_param(NUM_SHEAR+1)/get_param(NUM_SHEAR+2)*4.; m += solver.id_norm;
-	int num_hess = NUM_HESS+solver.id_norm;
-	B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 0), B[i].shape->FULL(solver.hh[i][0][num_hess], 0, 1), 1., C0);
-	B[i].shape->adm_x     (B[i].shape->FULL(solver.hh[i][0][m], 0, 0), P[4]*alpha);
-	B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 1), B[i].shape->FULL(solver.hh[i][0][num_hess], 0, 2), 1., C0);
-	B[i].shape->adm_y     (B[i].shape->FULL(solver.hh[i][0][m], 0, 1), P[4]*alpha);
-	B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 2), B[i].shape->FULL(solver.hh[i][0][num_hess+1], 0, 1), 1., C0);
-	B[i].shape->adm_z     (B[i].shape->FULL(solver.hh[i][0][m], 0, 2), P[4]*alpha);
+	//double C0 = -get_param(NUM_SHEAR  )/get_param(NUM_SHEAR-1)*2., 
+	//	 alpha = -get_param(NUM_SHEAR+1)/get_param(NUM_SHEAR+2)*4.; m += solver.id_norm;
+	//int num_hess = NUM_HESS+solver.id_norm;
+	//B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 0), B[i].shape->FULL(solver.hh[i][0][num_hess], 0, 1), 1., C0);
+	//B[i].shape->adm_x     (B[i].shape->FULL(solver.hh[i][0][m], 0, 0), P[4]*alpha);
+	//B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 1), B[i].shape->FULL(solver.hh[i][0][num_hess], 0, 2), 1., C0);
+	//B[i].shape->adm_y     (B[i].shape->FULL(solver.hh[i][0][m], 0, 1), P[4]*alpha);
+	//B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 2), B[i].shape->FULL(solver.hh[i][0][num_hess+1], 0, 1), 1., C0);
+	//B[i].shape->adm_z     (B[i].shape->FULL(solver.hh[i][0][m], 0, 2), P[4]*alpha);
 }
 
 ////////////////////////////////////////////////////////////////
 //...realization of surface forces for vibro displacements (Pz);
 void CAcou3D::jump4_common_z(double * P, int i, int m)
 {
-	double C0 = get_param(NUM_SHEAR)/get_param(NUM_SHEAR-1)*2.; m += solver.id_norm;
-	int	 num_hess = NUM_HESS+solver.id_norm;
-	B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 0), B[i].shape->FULL(solver.hh[i][0][num_hess+1], 0, 0), 0., C0);
-	B[i].shape->adm_z     (B[i].shape->FULL(solver.hh[i][0][m], 0, 0), P[3]);
-	B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 1), B[i].shape->FULL(solver.hh[i][0][num_hess+1], 0, 1), 0., C0);
-	B[i].shape->adm_z     (B[i].shape->FULL(solver.hh[i][0][m], 0, 1), P[4]);
-	B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 2), B[i].shape->FULL(solver.hh[i][0][num_hess+1], 0, 2), 0., C0);
-	B[i].shape->adm_x     (B[i].shape->FULL(solver.hh[i][0][m], 0, 2), P[3]);
-	B[i].shape->adm_y     (B[i].shape->FULL(solver.hh[i][0][m], 0, 2), P[4]);
-	B[i].shape->adm_z     (B[i].shape->FULL(solver.hh[i][0][m], 0, 2), P[5]*2.);
+	//double C0 = get_param(NUM_SHEAR)/get_param(NUM_SHEAR-1)*2.; m += solver.id_norm;
+	//int	 num_hess = NUM_HESS+solver.id_norm;
+	//B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 0), B[i].shape->FULL(solver.hh[i][0][num_hess+1], 0, 0), 0., C0);
+	//B[i].shape->adm_z     (B[i].shape->FULL(solver.hh[i][0][m], 0, 0), P[3]);
+	//B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 1), B[i].shape->FULL(solver.hh[i][0][num_hess+1], 0, 1), 0., C0);
+	//B[i].shape->adm_z     (B[i].shape->FULL(solver.hh[i][0][m], 0, 1), P[4]);
+	//B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 2), B[i].shape->FULL(solver.hh[i][0][num_hess+1], 0, 2), 0., C0);
+	//B[i].shape->adm_x     (B[i].shape->FULL(solver.hh[i][0][m], 0, 2), P[3]);
+	//B[i].shape->adm_y     (B[i].shape->FULL(solver.hh[i][0][m], 0, 2), P[4]);
+	//B[i].shape->adm_z     (B[i].shape->FULL(solver.hh[i][0][m], 0, 2), P[5]*2.);
 }
 
 //////////////////////////////////////////////////////
 //...additional vibro compression surface forces (Pz);
 void CAcou3D::jump4_compress_z(double * P, int i, int m)
 {
-	double C0 = -get_param(NUM_SHEAR  )/get_param(NUM_SHEAR-1)*2., 
-		 alpha = -get_param(NUM_SHEAR+1)/get_param(NUM_SHEAR+2)*4.; m += solver.id_norm;
-	int num_hess = NUM_HESS+solver.id_norm;
-	B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 0), B[i].shape->FULL(solver.hh[i][0][num_hess+1], 0, 0), 1., C0);
-	B[i].shape->adm_x     (B[i].shape->FULL(solver.hh[i][0][m], 0, 0), P[5]*alpha);
-	B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 1), B[i].shape->FULL(solver.hh[i][0][num_hess+1], 0, 1), 1., C0);
-	B[i].shape->adm_y     (B[i].shape->FULL(solver.hh[i][0][m], 0, 1), P[5]*alpha);
-	B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 2), B[i].shape->FULL(solver.hh[i][0][num_hess+1], 0, 2), 1., C0);
-	B[i].shape->adm_z     (B[i].shape->FULL(solver.hh[i][0][m], 0, 2), P[5]*alpha);
+	//double C0 = -get_param(NUM_SHEAR  )/get_param(NUM_SHEAR-1)*2., 
+	//	 alpha = -get_param(NUM_SHEAR+1)/get_param(NUM_SHEAR+2)*4.; m += solver.id_norm;
+	//int num_hess = NUM_HESS+solver.id_norm;
+	//B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 0), B[i].shape->FULL(solver.hh[i][0][num_hess+1], 0, 0), 1., C0);
+	//B[i].shape->adm_x     (B[i].shape->FULL(solver.hh[i][0][m], 0, 0), P[5]*alpha);
+	//B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 1), B[i].shape->FULL(solver.hh[i][0][num_hess+1], 0, 1), 1., C0);
+	//B[i].shape->adm_y     (B[i].shape->FULL(solver.hh[i][0][m], 0, 1), P[5]*alpha);
+	//B[i].shape->admittance(B[i].shape->FULL(solver.hh[i][0][m], 0, 2), B[i].shape->FULL(solver.hh[i][0][num_hess+1], 0, 2), 1., C0);
+	//B[i].shape->adm_z     (B[i].shape->FULL(solver.hh[i][0][m], 0, 2), P[5]*alpha);
 }
 
 ///////////////////////////////////////////////
@@ -457,35 +410,35 @@ void CAcou3D::jump_make_local(int i, int m)
 {
 	if (! solver.dim || ! solver.hh[i][0].GetMatrix()) return;
 	m  += solver.id_norm;
-	for (int j = 0; j < solver.dim[i]; j++) {
-		complex P[] = {solver.hh[i][0][m  ][j], 
-							solver.hh[i][0][m+1][j], 
-							solver.hh[i][0][m+2][j] };
-		B[i].shape->norm_local(P);
-		solver.hh[i][0][m  ][j] = P[0];
-		solver.hh[i][0][m+1][j] = P[1];
-		solver.hh[i][0][m+2][j] = P[2];
-	}
+	//for (int j = 0; j < solver.dim[i]; j++) {
+	//	complex P[] = {solver.hh[i][0][m  ][j], 
+	//						solver.hh[i][0][m+1][j], 
+	//						solver.hh[i][0][m+2][j] };
+	//	B[i].shape->norm_local(P);
+	//	solver.hh[i][0][m  ][j] = P[0];
+	//	solver.hh[i][0][m+1][j] = P[1];
+	//	solver.hh[i][0][m+2][j] = P[2];
+	//}
 }
 
 void CAcou3D::jump_make_common(int i, int m)
 {
 	if (! solver.dim || ! solver.hh[i][0].GetMatrix()) return;
 	m  += solver.id_norm;
-	for (int j = 0; j < solver.dim[i]; j++) {
-		complex P[] = { solver.hh[i][0][m  ][j], 
-							 solver.hh[i][0][m+1][j], 
-							 solver.hh[i][0][m+2][j] };
-		B[i].shape->norm_common(P);
-		solver.hh[i][0][m  ][j] = P[0];
-		solver.hh[i][0][m+1][j] = P[1];
-		solver.hh[i][0][m+2][j] = P[2];
-	}
+	//for (int j = 0; j < solver.dim[i]; j++) {
+	//	complex P[] = { solver.hh[i][0][m  ][j], 
+	//						 solver.hh[i][0][m+1][j], 
+	//						 solver.hh[i][0][m+2][j] };
+	//	B[i].shape->norm_common(P);
+	//	solver.hh[i][0][m  ][j] = P[0];
+	//	solver.hh[i][0][m+1][j] = P[1];
+	//	solver.hh[i][0][m+2][j] = P[2];
+	//}
 }
 
 ///////////////////////////////////////////////////////////////////
 //...формирование матрицы Грама для акустической фазы пространства;
-int CAcou3D::gram1_phase1(CGrid * nd, int i, int id_local)
+Num_State CAcou3D::gram1_phase1(CGrid * nd, int i, int id_local)
 {
 	if (nd && 0 <= i && i < solver.N && B[i].shape && B[i].mp) {
 		complex h, hh, attm;
@@ -555,7 +508,7 @@ int CAcou3D::gram1_phase1(CGrid * nd, int i, int id_local)
 
 ///////////////////////////////////////////////////////////////////
 //...формирование матрицы Грама для механической фазы пространства;
-int CAcou3D::gram1_phase2(CGrid * nd, int i, int id_local)
+Num_State CAcou3D::gram1_phase2(CGrid * nd, int i, int id_local)
 {
 	if (nd && 0 <= i && i < solver.N && B[i].shape && B[i].mp) {
 		double G1 = get_param(NUM_SHEAR), nu1 = get_param(NUM_SHEAR+1), hx, hy, hz, p4, f, P[6];
@@ -685,7 +638,7 @@ int CAcou3D::gram1_phase2(CGrid * nd, int i, int id_local)
 
 //////////////////////////////////////////////////////////////////////////////
 //...формирование матриц перехода на границе акустическая - акустическая фаза;
-int CAcou3D::transfer1_phase1(CGrid * nd, int i, int k, int id_local)
+Num_State CAcou3D::transfer1_phase1(CGrid * nd, int i, int k, int id_local)
 {
 	if (nd && 0 <= i && i < solver.N) {
       complex f0 = comp(1.), g1 = comp(.5), g2 = comp(-.5/(get_param(NUM_KAPPA))), g0 = comp(-1.);
@@ -745,7 +698,7 @@ int CAcou3D::transfer1_phase1(CGrid * nd, int i, int k, int id_local)
 
 //////////////////////////////////////////////////////////////////////////////
 //...формирование матриц перехода на границе механическая - механическая фаза;
-int CAcou3D::transfer1_phase2(CGrid * nd, int i, int k, int id_local)
+Num_State CAcou3D::transfer1_phase2(CGrid * nd, int i, int k, int id_local)
 {
 	if (nd && 0 <= i && i < solver.N) {
       double G1 = get_param(NUM_SHEAR), f, P[6], f0 = 1., g1 = G1*.5, g2 = G1*.5, g0 = -G1;
@@ -854,7 +807,7 @@ int CAcou3D::transfer1_phase2(CGrid * nd, int i, int k, int id_local)
 
 //////////////////////////////////////////////////////////////////////////////
 //...формирование матриц перехода на границе акустическая - механическая фаза;
-int CAcou3D::transfer2(CGrid * nd, int i, int k, int id_local)
+Num_State CAcou3D::transfer2(CGrid * nd, int i, int k, int id_local)
 {
 	if (nd && 0 <= i && i < solver.N && B && B[i].link && B[i].link[0] > NUM_PHASE) {
       double G1 = get_param(NUM_KAPPA+2)/get_param(NUM_KAPPA), f, P[6], 
@@ -991,7 +944,7 @@ int CAcou3D::transfer2(CGrid * nd, int i, int k, int id_local)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 //...формирование матриц перехода на границе акустическая - механическая фаза энергетическим методом;
-int CAcou3D::transfer3(CGrid * nd, int i, int k, int id_local)
+Num_State CAcou3D::transfer3(CGrid * nd, int i, int k, int id_local)
 {
 	if (nd && 0 <= i && i < solver.N && B && B[i].link && B[i].link[0] > NUM_PHASE) {
       double G1 = get_param(NUM_KAPPA+2)/get_param(NUM_KAPPA), f, P[6],
@@ -1144,7 +1097,7 @@ int CAcou3D::transfer3(CGrid * nd, int i, int k, int id_local)
 
 ///////////////////////////////////////////////////////////////////////////////////
 //...формирование матрицы Грама с учетом функционала энергии для акустической фазы;
-int CAcou3D::gram4_phase1(CGrid * nd, int i, int id_local)
+Num_State CAcou3D::gram4_phase1(CGrid * nd, int i, int id_local)
 {
 	if (nd && 0 <= i && i < solver.N && B[i].shape && B[i].mp) {
 		double f, P[8];
@@ -1220,7 +1173,7 @@ int CAcou3D::gram4_phase1(CGrid * nd, int i, int id_local)
 
 ///////////////////////////////////////////////////////////////////////////////////
 //...формирование матрицы Грама с учетом функционала энергии для механической фазы;
-int CAcou3D::gram4_phase2(CGrid * nd, int i, int id_local)
+Num_State CAcou3D::gram4_phase2(CGrid * nd, int i, int id_local)
 {
 	if (nd && 0 <= i && i < solver.N && B[i].shape && B[i].mp) {
 		double G1 = get_param(NUM_KAPPA+2), nu1 = get_param(NUM_SHEAR+1), hx, hy, hz, p4, f, P[6];
@@ -1343,7 +1296,7 @@ int CAcou3D::gram4_phase2(CGrid * nd, int i, int id_local)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 //...формирование матриц перехода на границе акустическая - акустическая фаза энергетическим методом;
-int CAcou3D::transfer4_phase1(CGrid * nd, int i, int k, int id_local)
+Num_State CAcou3D::transfer4_phase1(CGrid * nd, int i, int k, int id_local)
 {
 	if (nd && 0 <= i && i < solver.N && ! src) {
 		int j, l, m = solver.id_norm;
@@ -1406,7 +1359,7 @@ int CAcou3D::transfer4_phase1(CGrid * nd, int i, int k, int id_local)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 //...формирование матриц перехода на границе механическая - механическая фаза энергетическим методом;
-int CAcou3D::transfer4_phase2(CGrid * nd, int i, int k, int id_local)
+Num_State CAcou3D::transfer4_phase2(CGrid * nd, int i, int k, int id_local)
 {
 	if (nd && 0 <= i && i < solver.N) {
       int    j, l, m = solver.id_norm;
@@ -1591,7 +1544,7 @@ void CAcou3D::set_fasa_hmg(double Hz, double Ro1, double nju1, double G1)
 
 //////////////////////////////////////////////////
 //...counting header for solving acoustic problem;
-int CAcou3D::counting_header(int Num_counting)
+Num_State CAcou3D::counting_header(Num_State Num_counting)
 {
 	int N_elem = UnPackInts(get_param(3)), i, j, k, n_rhs = max(2, src ? (int)src[0] : 1);
 	char msg[201];
@@ -1606,8 +1559,7 @@ int CAcou3D::counting_header(int Num_counting)
 		Message("Junction counting...");
 
 		switch (Num_counting){
-			case 		  BASIC_COUNTING: Message("FEM Blocks...");			break;
-			case  ANALYTICAL_COUNTING: Message("Analytical Blocks..."); break;
+			case BASIC_COMPUT: Message("FEM Blocks...");	break;
 		}
 		Message(" ");
 	}
@@ -1636,13 +1588,13 @@ int CAcou3D::counting_header(int Num_counting)
 		  solver.set_links(k, B[k].link);
 
 	shapes_init(INITIAL_STATE);
-	shapes_init(ZERO_STATE);
+	shapes_init(NULL_STATE);
 
 /////////////////////////////////////////////////////////
 //...делаем перенумерацию структуры и задаем размерность;
 	if (! solver.struct_permutat(solver.id_change == EXTERN_STATE ? NULL_STATE : OK_STATE) || 
 		 ! solver.inverse_index()) {
-		return ERR_ORDERN_COUNTING;
+		return ERR_STATE;
 	}
 	for (k = 0; k < solver.N; k++)
 		solver.set_dimension(k, freedom_block(k));
@@ -1665,13 +1617,13 @@ void CAcou3D::block_descrap(char * OUT_FILE)
 
 ////////////////////////////////////////
 //...auxilliary grids for discrete norm;
-   CGrid_el * bnd = (CGrid_el *)CreateNodes(GRID_EL_NODES);
+   CGrid * bnd = CreateNodes();
 
 	CGrid * block_bnd = CreateNodes();
 			  block_bnd->add_params(3);
 
-	CGrid_el * gauss_bnd = (CGrid_el * )CreateNodes(GRID_EL_NODES);
-				gauss_bnd->add_params(1);
+	CGrid * gauss_bnd = CreateNodes(GRID_QG_NODES);
+			  gauss_bnd->add_params(1);
 
 ///////////////////////////////////////////
 //...вычисление среднеквадраимчной невязки;
@@ -1688,7 +1640,7 @@ void CAcou3D::block_descrap(char * OUT_FILE)
 
 		for (i = 0; i < B[k].link[0]; i++) if ((j = B[k].link[i+1]) >= 0) {
 			bnd->zero_grid(); 
-			m = block_counter(bnd, k, j, sqr(get_param(4)), j_surf, 1);
+			m = block_comput(bnd, k, j, sqr(get_param(4)), j_surf, 1);
        
 /////////////////////////////////
 //...накапливаем граничные точки;
@@ -1706,7 +1658,7 @@ void CAcou3D::block_descrap(char * OUT_FILE)
 						Po[cnt++] = bnd->Y[bnd->geom[num+2]];
 						Po[cnt++] = bnd->Z[bnd->geom[num+2]];
 					}
-					gauss_bnd->QG(Po, N_elem, NULL_STATE, NULL_STATE);
+					gauss_bnd->facet_QG(Po, N_elem, NULL_STATE, NULL_STATE);
 					if (NUM_PHASE >= i+1) { //...коррекция квадратур;
 						if (m && bar && bar->graph && -j_surf+SRF_STATE < bar->graph[0]) gauss_bnd->QG_tria_surface(bar->ce[-j_surf+SRF_STATE]->mp, Po);
 						for (int lp = 0; lp < gauss_bnd->N; lp++) {
@@ -1735,7 +1687,7 @@ void CAcou3D::block_descrap(char * OUT_FILE)
 						Po[10] = bnd->Y[bnd->geom[num+5]];
 						Po[11] = bnd->Z[bnd->geom[num+5]];
 
-						gauss_bnd->QG(Po, N_elem, OK_STATE, NULL_STATE);
+						gauss_bnd->facet_QG(Po, N_elem, OK_STATE, NULL_STATE);
 						if (NUM_PHASE >= i+1) { //...коррекция квадратур;
 							if (m && bar && bar->graph && -j_surf+SRF_STATE < bar->graph[0]) gauss_bnd->QG_quad_surface(bar->ce[-j_surf+SRF_STATE]->mp, NULL, Po);
 							for (int lp = 0; lp < gauss_bnd->N; lp++) {
@@ -1755,8 +1707,8 @@ void CAcou3D::block_descrap(char * OUT_FILE)
 				for (int lp = 0; lp < block_bnd->N; lp++) if (block_bnd->hit[lp]) {
 
 					memset(F, 0, 6*sizeof(double));
-					GetFuncAllValues(block_bnd->X[lp], block_bnd->Y[lp], block_bnd->Z[lp], F,   k, 0);
-					GetFuncAllValues(block_bnd->X[lp], block_bnd->Y[lp], block_bnd->Z[lp], F+3, j, 0);
+					GetFuncAllValues(block_bnd->X[lp], block_bnd->Y[lp], block_bnd->Z[lp], F,   k, SPL_VALUE);
+					GetFuncAllValues(block_bnd->X[lp], block_bnd->Y[lp], block_bnd->Z[lp], F+3, j, SPL_VALUE);
 
 					sum  += (sqr(F[0]-F[3])+sqr(F[1]-F[4])+sqr(F[2]-F[5]))*block_bnd->get_param(0, lp);
 					norm += (sqr(F[0])+sqr(F[1])+sqr(F[2]))*block_bnd->get_param(0, lp);
@@ -1781,7 +1733,7 @@ void CAcou3D::block_descrap(char * OUT_FILE)
 
 //////////////////////////////////////////////////////////////////////////
 //...calculation of function values (in common coordinate system) on grid;
-void CAcou3D::GetFuncAllValues(double X, double Y, double Z, double * F, int i, int id_F, int id_variant, int iparam)
+void CAcou3D::GetFuncAllValues(double X, double Y, double Z, double * F, int i, Num_Value id_F, int id_variant, int iparam)
 {
 	if (! F) return;
 	double P[6]  = { X, Y, Z, 0., 0., 1.}, L1 = 0.8, L2 = 1.1, L = 3., Vn = .001, f;
@@ -2066,50 +2018,50 @@ void CAcou3D::GetFuncAllValues(double X, double Y, double Z, double * F, int i, 
 		case ANALYT_VALUE: { //...аналитическое решение ONO BOX с полным поглощением на концевом торце (давление);
 				double A_inv = 1./.6, B_inv = 1./.5, tx = .25*A_inv, ty = .25*B_inv, length = 2.5;
 				int N = id_variant;
-				zz = Box_Pressure_Stair(tx, ty, A_inv, B_inv, length, N, N, X-.6, Y-.5, Z, 
-												get_param(NUM_KAPPA), get_param(NUM_KAPPA-2)*get_param(NUM_KAPPA-1));
-				f  = abs(zz)*.25e5*M_SQRT2;
-				F[0] = 20.*log10(f >  1./*EE_ker*/ ? f : 1.);
+				//zz = Box_Pressure_Stair(tx, ty, A_inv, B_inv, length, N, N, X-.6, Y-.5, Z, 
+				//								get_param(NUM_KAPPA), get_param(NUM_KAPPA-2)*get_param(NUM_KAPPA-1));
+				//f  = abs(zz)*.25e5*M_SQRT2;
+				//F[0] = 20.*log10(f >  1./*EE_ker*/ ? f : 1.);
 		}		break;
 		case ANALYT2VALUE: { //...аналитическое решение ONO BOX с полным поглощением на концевом торце (комплексная скорость Vz);
 				double A_inv = 1./.6, B_inv = 1./.5, tx = .25*A_inv, ty = .25*B_inv, length = 2.5;
 				int N = id_variant;
-				zz = Box_VelocityZ_Stair(tx, ty, A_inv, B_inv, length, N, N, X-.6, Y-.5, Z, 
-												get_param(NUM_KAPPA), get_param(NUM_KAPPA-2)*get_param(NUM_KAPPA-1));
-				F[0] = real(zz);
-				F[1] = imag(zz);
+				//zz = Box_VelocityZ_Stair(tx, ty, A_inv, B_inv, length, N, N, X-.6, Y-.5, Z, 
+				//								get_param(NUM_KAPPA), get_param(NUM_KAPPA-2)*get_param(NUM_KAPPA-1));
+				//F[0] = real(zz);
+				//F[1] = imag(zz);
 		}		break;
 		case ANALYT3VALUE: { //...аналитическое решение ONO BOX (давление);
 				double A_inv = 1./.6, B_inv = 1./.5, tx = .25*A_inv, ty = .25*B_inv, length = 2.5;
 				int N = id_variant;
-				zz = Box_Pressure_Stair_abs(tx, ty, A_inv, B_inv, length, N, N, X-.6, Y-.5, Z, 
-												get_param(NUM_KAPPA), get_param(NUM_KAPPA-2)*get_param(NUM_KAPPA-1));
-				f  = abs(zz)*.25e5*M_SQRT2;
-				F[0] = 20.*log10(f >  1./*EE_ker*/ ? f : 1.);
+				//zz = Box_Pressure_Stair_abs(tx, ty, A_inv, B_inv, length, N, N, X-.6, Y-.5, Z, 
+				//								get_param(NUM_KAPPA), get_param(NUM_KAPPA-2)*get_param(NUM_KAPPA-1));
+				//f  = abs(zz)*.25e5*M_SQRT2;
+				//F[0] = 20.*log10(f >  1./*EE_ker*/ ? f : 1.);
 		}		break;
 		case ANALYT4VALUE: { //...аналитическое решение ONO BOX (комплексная скорость Vz);
 				double A_inv = 1./.6, B_inv = 1./.5, tx = .25*A_inv, ty = .25*B_inv, length = 2.5;
-				int N = id_variant;
-				zz = Box_VelocityZ_Stair_abs(tx, ty, A_inv, B_inv, length, N, N, X-.6, Y-.5, Z, 
-												get_param(NUM_KAPPA), get_param(NUM_KAPPA-2)*get_param(NUM_KAPPA-1));
-				F[0] = real(zz);
-				F[1] = imag(zz);
+				//int N = id_variant;
+				//zz = Box_VelocityZ_Stair_abs(tx, ty, A_inv, B_inv, length, N, N, X-.6, Y-.5, Z, 
+				//								get_param(NUM_KAPPA), get_param(NUM_KAPPA-2)*get_param(NUM_KAPPA-1));
+				//F[0] = real(zz);
+				//F[1] = imag(zz);
 		}		break;
 		case ANALYT5VALUE: { //...аналитическое решение в трубе с излучателем (давление);
 				double t0 = .25, RR_inv = 1./.55, length = 2.5;
 				int N = id_variant;
-				zz = Cyl_Pressure_Stair(t0, RR_inv, length, F+3, N, sqrt(sqr(X)+sqr(Y)), Z, 
-												get_param(12)*get_param(6), get_param(10)*get_param(11));
-				f  = abs(zz)*.25e5*M_SQRT2;
-				F[0] = 20.*log10(f >  1./*EE_ker*/ ? f : 1.);
+				//zz = Cyl_Pressure_Stair(t0, RR_inv, length, F+3, N, sqrt(sqr(X)+sqr(Y)), Z, 
+				//								get_param(12)*get_param(6), get_param(10)*get_param(11));
+				//f  = abs(zz)*.25e5*M_SQRT2;
+				//F[0] = 20.*log10(f >  1./*EE_ker*/ ? f : 1.);
 		}		break;
 		case ANALYT6VALUE: { //...аналитическое решение в трубе с излучателем (комплексная скорость Vz);
 				double t0 = .25, RR_inv = 1./.55, length = 2.5;
 				int N = id_variant;
-				zz = Cyl_VelocityZ_Stair(t0, RR_inv, length, F+3, N, sqrt(sqr(X)+sqr(Y)), Z, 
-												get_param(NUM_KAPPA), get_param(NUM_KAPPA-2)*get_param(NUM_KAPPA-1));
-				F[0] = real(zz);
-				F[1] = imag(zz);
+				//zz = Cyl_VelocityZ_Stair(t0, RR_inv, length, F+3, N, sqrt(sqr(X)+sqr(Y)), Z, 
+				//								get_param(NUM_KAPPA), get_param(NUM_KAPPA-2)*get_param(NUM_KAPPA-1));
+				//F[0] = real(zz);
+				//F[1] = imag(zz);
 		}		break;
 ////////////////////////////////////////////////
 //...для тестирования акустического виброкласса;
@@ -2186,117 +2138,11 @@ void CAcou3D::GetFuncAllValues(double X, double Y, double Z, double * F, int i, 
 	}
 }
 
-/////////////////////////////////////////////////////////////////
-//...подготовка данных в формате CSV для пространственной задачи;
-void CAcou3D::GetCsvFormat(char * CSV_FILE, CGrid * nd, int id_variant, int id_centroid, CGrid * bnd)
-{
-  FILE * CSV = fopen(CSV_FILE, "w");
-  if (CSV && nd) {
-      double * out_F = (double *)new_struct(9*sizeof(double));
-      if (out_F && nd->X && nd->Y && nd->Z && nd->geom) {
-			switch (id_variant) {
-			case 0: fprintf(CSV, ",\"Ux\",\"Uy\",\"Uz\"\n"); break;
-			case 1: fprintf(CSV, ",\"txx\",\"tyy\",\"tzz\",\"txy\",\"txz\",\"tyz\"\n"); break;
-			}
-			int _FU0 = 0, _FU1 = 4, _FU2 = 5, _FU3 = 6;
-
-//////////////////////////////////////////////////////////////////
-//...записываем результаты на диск в узлах визуализационной сетки;
-          if (! id_centroid && nd->hit)
-          for (int k = 0;  k < nd->N; k++) {
-				 if (id_variant == 0) {
-               GetFuncAllValues(nd->X[k], nd->Y[k], nd->Z[k], out_F,    nd->hit[k], _FU0, id_variant);
-               fprintf(CSV, "%d,%0.15lg,%0.15lg,%0.15lg\n", k+1/*(nd->hit ? nd->hit[k] : (k+1))*/, 
-						out_F[0], out_F[1], out_F[2]);
-				 }
-				 if (id_variant == 1) {
-               GetFuncAllValues(nd->X[k], nd->Y[k], nd->Z[k], out_F,    nd->hit[k], _FU1, id_variant);
-               GetFuncAllValues(nd->X[k], nd->Y[k], nd->Z[k], out_F+3,  nd->hit[k], _FU2, id_variant);
-               GetFuncAllValues(nd->X[k], nd->Y[k], nd->Z[k], out_F+6,  nd->hit[k], _FU3, id_variant);
-
-               fprintf(CSV, "%d,%0.15lg,%0.15lg,%0.15lg,%0.15lg,%0.15lg,%0.15lg\n", k+1/*(nd->hit ? nd->hit[k] : (k+1))*/, 
-						out_F[0], out_F[4], out_F[8], 
-						out_F[1], out_F[2], out_F[5]);
-				 }
-          }
-          else
-
-/////////////////////////////////////////////////////////
-//...записываем результаты на диск в цетроидах элементов;
-          if (! bnd)
-          for (int j = 1, k = 0;  k < N; k++) {
-               double X0 = 0., Y0 = 0., Z0 = 0., f;
-               int id_set_centroid = (B[k].type & ERR_CODE) == ZOOM_BLOCK, l, m, i, num;
-//////////////////////
-//...centroid setting;
-               if (id_set_centroid && B[k].bar->graph) {
-                   for (i = num = 0; num < B[k].bar->graph[0]; num++) 
-                   if  (1 == B[k].bar->ce[num]->cells_dim()) 
-                   for (l = 0;  l < B[k].bar->ce[num]->graph[1];   l++) {
-                        X0 += B[k].bar->ce[m = B[k].bar->ce[num]->graph[l+2]]->mp[1];
-								Y0 += B[k].bar->ce[m                                ]->mp[2];
-                        Z0 += B[k].bar->ce[m                                ]->mp[3];
-                        i  += 1;
-                   }
-                   if (i) {
-                       X0 *= (f = 1./i);
-                       Y0 *=  f;
-                       Z0 *=  f;
-                   }
-               }
-               else {
-                   X0 = B[k].mp[1];
-                   Y0 = B[k].mp[2];
-                   Z0 = B[k].mp[3];
-               }
-               GetFuncAllValues(X0, Y0, Z0, out_F, k, _FU0, id_variant);
-
-               fprintf(CSV, "%d,%0.15lg,%0.15lg,%0.15lg\n", -nd->geom[j+2], out_F[0], out_F[1], out_F[2]);
-               j += nd->geom[++j]+1;
-          }
-          else
-
-///////////////////////////////////////////////////////////////////////////////
-//...записываем результаты на диск в цетроидах элементов более подробной сетки;
-          if (bnd->geom && 0 < id_centroid && id_centroid <= bnd->geom[0])
-			 for (int k = bnd->geom[4*(id_centroid-1)+3]; k < bnd->geom[4*(id_centroid-1)+4]; k++) {
-               double X = bnd->X[k], Y = bnd->Y[k], Z = bnd->Z[k];
-               int id_block = (int)bnd->hit[k], 
-                   ex_block = (int)bnd->nY[k];
-
-               GetFuncAllValues(X, Y, Z, out_F, id_block, _FU0, id_variant);
-
-               fprintf(CSV, "%d,%0.15lg, %0.15lg,%0.15lg\n", ex_block, out_F[0], out_F[1], out_F[2]);
-          }
-      }
-///////////////////////
-//...addditional point;
-      double X0, Y0, Z0;
-		int hit = -1;
-		X0 = .5;
-		Y0 =  1.;
-		Z0 = .5;
-      Poly_struc_in3D (this, hit, X0, Y0, Z0);
-		GetFuncAllValues(X0, Y0, Z0, out_F, hit, 0, id_variant);
-
-//		fprintf(CSV, "additional point:%0.15lg,%0.15lg,%0.15lg\n", out_F[0], out_F[1], out_F[2]);
-
-      delete_struct(out_F);
-  }
-  if (CSV) fclose(CSV);
-}
-
 ////////////////////////////////////////////////////////////////////////////////////
 //...подготовка данных для визуализации в формате Surfer (для акустического класса);
-void CAcou3D::GetSurferFormat(char * SURF_FILE, CGrid * nd, int _FMF, int id_variant, int id_axis, int iparam)
+void CAcou3D::GetSurferFormat(FILE * SURF, FILE * SURF1, FILE * SURF2, CGrid * nd, Num_Value _FMF, int id_variant, int id_axis, int iparam)
 {
-  char buff[1000]; ::strcpy(buff, SURF_FILE); strcat(buff, ".grd");
-  FILE * SURF = fopen(buff, "w+b");
   size_t res;
-
-  ::strcpy(buff, SURF_FILE); strcat(buff, "_1.grd");
-  FILE * SURF1 = fopen(buff, "w+b");
-
   if (SURF && SURF1 && nd && nd->N > 0 && nd->N1 > 0) {
 		short int i0 = (short int)nd->N,
 					 j0 = (short int)nd->N1;
@@ -2346,8 +2192,8 @@ void CAcou3D::GetSurferFormat(char * SURF_FILE, CGrid * nd, int _FMF, int id_var
 		}
 		min1F = min2F = MAX_HIT;
 		max1F = max2F = MIN_HIT;
-		if (_FMF == ANALYT5VALUE || 
-			 _FMF == ANALYT6VALUE) Fourier_Bessel_utils(out_F+3, 2000);
+		//if (_FMF == ANALYT5VALUE || 
+		//	 _FMF == ANALYT6VALUE) Fourier_Bessel_utils(out_F+3, 2000);
 		for (int j = 0; j < nd->N1; j++)
 		for (int i = 0; i < nd->N;  i++) {
 			  if (id_axis == AXIS_X) {
@@ -2411,7 +2257,5 @@ void CAcou3D::GetSurferFormat(char * SURF_FILE, CGrid * nd, int _FMF, int id_var
       res = fwrite(& max2F, sizeof(double), 1, SURF1);
       res = fseek(SURF1, 0L, SEEK_END);
   }
-  fclose(SURF);
-  fclose(SURF1);
 }
 #undef  Message

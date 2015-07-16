@@ -55,7 +55,7 @@ public:
 ///////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////
 //...class of acoustic multipoles with polynomial behaviour along the line;
-class CAcou3DPoly : public CShape<double> {
+class CAcou3DPoly : public CShape<complex> {
 protected:
 		double * au, * E1;
 public:
@@ -67,9 +67,9 @@ public:
 //...calculation of multipoles;
 		void parametrization(double * P = NULL, int m_dop = 0);
 //...differentiation;
-		void deriv_X(double * deriv, double f = 1.);
-		void deriv_Y(double * deriv, double f = 1.);
-		void deriv_Z(double * deriv, double f = 1.);
+		void deriv_X(complex * deriv, double f = 1.);
+		void deriv_Y(complex * deriv, double f = 1.);
+		void deriv_Z(complex * deriv, double f = 1.);
 //...constructor;
 		CAcou3DPoly () {
 			delete_struct(param);
@@ -88,7 +88,6 @@ public:
 #undef  SHAPE_norm_kappa_sqr               //...param(2);
 #define SHAPE_kappa                     0. //...non-normalized wave number;
 #undef  SHAPE_kappa                        //...param(3);
-
 
 ////////////////////////////////////////////////////////////
 //																			 //
