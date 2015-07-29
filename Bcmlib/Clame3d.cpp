@@ -2531,17 +2531,17 @@ Num_State CLame3D::gram1(CGrid * nd, int i, int id_local)
 			B[i].shape->parametrization_hess(P, 1);
 
 			if (p4 == (double)(NORMS_BND-SPECIAL_BND) || p4 == (double)(SKEWS_BND-SPECIAL_BND)) { //...смешанные краевые условия; 
-				jump1_classic_x (P, i, 0); solver.admittance(i, 0, G1); solver.admittance (i, 7, 0., 0, P[3]);
-				jump1_classic_y (P, i, 1); solver.admittance(i, 1, G1); solver.admittance (i, 7, 1., 1, P[4]);
-				jump1_classic_z (P, i, 2); solver.admittance(i, 2, G1); solver.admittance (i, 7, 1., 2, P[5]);
+				jump1_x (P, i, 0); solver.admittance(i, 0, G1); solver.admittance (i, 7, 0., 0, P[3]);
+				jump1_y (P, i, 1); solver.admittance(i, 1, G1); solver.admittance (i, 7, 1., 1, P[4]);
+				jump1_z (P, i, 2); solver.admittance(i, 2, G1); solver.admittance (i, 7, 1., 2, P[5]);
 				jump_make_common(i, 0);
 				solver.admittance (i, 0, 1., 7, -nd->nX[l]);
 				solver.admittance (i, 1, 1., 7, -nd->nY[l]);
 				solver.admittance (i, 2, 1., 7, -nd->nZ[l]);
 
-				jump4_classic_x (P, i, 4); solver.admittance (i, 3, 0., 4, P[3]);
-				jump4_classic_y (P, i, 5); solver.admittance (i, 3, 1., 5, P[4]);
-				jump4_classic_z (P, i, 6); solver.admittance (i, 3, 1., 6, P[5]);
+				jump4_x (P, i, 4); solver.admittance (i, 3, 0., 4, P[3]);
+				jump4_y (P, i, 5); solver.admittance (i, 3, 1., 5, P[4]);
+				jump4_z (P, i, 6); solver.admittance (i, 3, 1., 6, P[5]);
 				jump_make_common(i, 4);
 				solver.admittance (i, 4, 1., 3, -nd->nX[l]);
 				solver.admittance (i, 5, 1., 3, -nd->nY[l]);
@@ -2600,8 +2600,8 @@ Num_State CLame3D::gram2(CGrid * nd, int i, int id_local)
 {
 	if (nd && nd->N && 0 <= i && i < solver.N && B[i].shape && B[i].mp) {
 		double G1 = get_param(NUM_SHEAR), AX, AY, AZ, f, P[6], TX, TY, TZ, hz, 
-				 g1 = G1*.5, f1 = 1., g2 = G1*.5, g0 = -G1,  requl = 1.;
-      int id_isolated = 0, m  = solver.id_norm, id_dir, k, j, first = 1, k0, j0;
+				 g1 = G1*.5, f1 = 1., g2 = G1*.5, g0 = -G1;
+      int id_isolated = 0, m  = solver.id_norm, id_dir, k, j;
 		if (id_isolated) {
 			g0 = g1 = G1;
 			f1 = g2 = 0.;
@@ -2635,8 +2635,8 @@ Num_State CLame3D::gram2(CGrid * nd, int i, int id_local)
 					case 2: TX = -AX; break;
 					case 3: TY =  AY; break;
 					case 4: TY = -AY; break;
-					case 5: TZ =  AZ; hz = -g1*AZ; break;
-					case 6: TZ = -AZ; hz =  g1*AZ; break;
+					case 5: TZ =  AZ; hz = -AZ; break;
+					case 6: TZ = -AZ; hz =  AZ; break;
 				}
 				B[k].mp[1] -= TX;
 				B[k].mp[2] -= TY;
@@ -2644,31 +2644,18 @@ Num_State CLame3D::gram2(CGrid * nd, int i, int id_local)
 
 /////////////////////////////
 //...reset auxilliary arrays;
-				for (int num = m+5; num >= m; num--) {
+				for (int num = m; num < solver.n; num++) {
 					 memset(solver.hh[i][0][num], 0, solver.dim[i]*sizeof(double));
 					 memset(solver.hh[k][0][num], 0, solver.dim[k]*sizeof(double));
-				}
-				if (first && solver.mode(REGULARIZATION) && (id_dir == 5 || id_dir == 6)) {
-					for (int num = m+6; num < solver.n; num++) {
-						 memset(solver.hh[i][0][num], 0, solver.dim[i]*sizeof(double));
-						 memset(solver.hh[k][0][num], 0, solver.dim[k]*sizeof(double));
-					}
-					first = 0; k0 = k; j0 = j;
 				}
 
 //////////////////////////////////////
 //...jump of all displacement moments;
 				B[i].shape->parametrization_hess(P, 1);
-				
-				jump1_classic_x (P, i, 0); jump1_classic_y (P, i, 1); jump1_classic_z(P, i, 2); 
-				jump2_classic_x (P, i, 3); jump2_classic_y (P, i, 4); jump2_classic_z(P, i, 5); 
-				jump_make_common(i, 0);	   jump_make_common(i, 3);	
-
-				if (! first) { //...интегрирование перемещений;
-					solver.admittance (i, 6, 1., 0, f*G1); 
-					solver.admittance (i, 7, 1., 1, f*G1);
-					solver.admittance (i, 8, 1., 2, f*G1);
-				}
+				jump1_x (P, i, 0); jump1_y (P, i, 1); jump1_z(P, i, 2); 
+				jump2_x (P, i, 3); jump2_y (P, i, 4); jump2_z(P, i, 5); 
+				jump_make_common(i, 0); jump_make_common(i, 3);	
+				solver.admittance(i, 6, 0., 0, G1); solver.admittance(i, 7, 0., 1, G1);	solver.admittance(i, 8, 0., 2, G1);
 				solver.admittance(i, 0, g1, 3, g2); solver.admittance(i, 3, g0, 0, f1); 
 				solver.admittance(i, 1, g1, 4, g2); solver.admittance(i, 4, g0, 1, f1); 
 				solver.admittance(i, 2, g1, 5, g2); solver.admittance(i, 5, g0, 2, f1); 
@@ -2680,16 +2667,10 @@ Num_State CLame3D::gram2(CGrid * nd, int i, int id_local)
 				B[k].shape->norm_local(P+3);
 				
 				B[k].shape->parametrization_hess(P, 1);
-
-				jump1_classic_x (P, k, 0); jump1_classic_y (P, k, 1); jump1_classic_z(P, k, 2); 
-				jump2_classic_x (P, k, 3); jump2_classic_y (P, k, 4); jump2_classic_z(P, k, 5); 
-				jump_make_common(k, 0);	   jump_make_common(k, 3);	
-
-				if (! first) { //...интегрирование перемещений;
-					solver.admittance (k, 6, 1., 0, -f*G1); 
-					solver.admittance (k, 7, 1., 1, -f*G1);
-					solver.admittance (k, 8, 1., 2, -f*G1);
-				}
+				jump1_x (P, k, 0); jump1_y (P, k, 1); jump1_z(P, k, 2); 
+				jump2_x (P, k, 3); jump2_y (P, k, 4); jump2_z(P, k, 5); 
+				jump_make_common(k, 0);	jump_make_common(k, 3);	
+				solver.admittance(k, 6, 0., 0, G1); solver.admittance(k, 7, 0., 1, G1);	solver.admittance(k, 8, 0., 2, G1);
 				solver.admittance(k, 0, g1, 3, g2); solver.admittance(k, 3, g0, 0, f1); 
 				solver.admittance(k, 1, g1, 4, g2); solver.admittance(k, 4, g0, 1, f1); 
 				solver.admittance(k, 2, g1, 5, g2); solver.admittance(k, 5, g0, 2, f1); 
@@ -2709,30 +2690,32 @@ Num_State CLame3D::gram2(CGrid * nd, int i, int id_local)
 				solver.to_transferTL(i, j, solver.hh[i][0][m+5], solver.hh[k][0][m+5], f);
 
 				if (fabs(hz) > EE) {
-				  solver.to_equationHH(i, 0, solver.hh[i][0][m+2],  hz*f);
-				  solver.to_equationHH(i, 1, solver.hh[i][0][m],    hz*f);
-				  solver.to_equationHL(k, 0, solver.hh[k][0][m+5], -hz*f);
-				  solver.to_equationHL(k, 1, solver.hh[k][0][m+3], -hz*f);
+				  solver.to_equationHH(i, 0, solver.hh[i][0][m+2],  g1*hz*f);
+				  solver.to_equationHH(i, 1, solver.hh[i][0][m],    g1*hz*f);
+				  solver.to_equationHL(k, 0, solver.hh[k][0][m+5], -g1*hz*f);
+				  solver.to_equationHL(k, 1, solver.hh[k][0][m+3], -g1*hz*f);
+				}
+				if (solver.mode(REGUL_BOUNDARY) && (id_dir == 5 || id_dir == 6)) {//...регуляризация матрицы через граничное условие;
+					solver.to_transferDD(i, j, solver.hh[i][0][m+6], solver.hh[i][0][m+6], f);
+					solver.to_transferDD(i, j, solver.hh[i][0][m+7], solver.hh[i][0][m+7], f);
+					solver.to_transferDD(i, j, solver.hh[i][0][m+8], solver.hh[i][0][m+8], f);
+
+					if (fabs(hz) > EE) {
+					  if (id_dir == 6) {
+						  solver.to_equationHH(i, 0, solver.hh[i][0][m+8], hz*f);
+						  solver.to_equationHH(i, 1, solver.hh[i][0][m+6],	hz*f);
+					  }
+					  if (id_dir == 5) {
+						  solver.to_equationHL(k, 0, solver.hh[k][0][m+8], -hz*f);
+						  solver.to_equationHL(k, 1, solver.hh[k][0][m+6], -hz*f);
+					  }
+					}
 				}
 				B[k].mp[1] += TX;
 				B[k].mp[2] += TY;
 				B[k].mp[3] += TZ; B[k].shape->set_local_P0(B[k].mp+1);
 			}
       }
-		if (! first) {//...регуляризация матрицы по интегралу первого блока;
-			solver.clean_mode(REGULARIZATION);
-			solver.to_transferTR(i, j0, solver.hh[i][0][m+6], solver.hh[k0][0][m+6], requl);
-			solver.to_transferDD(i, j0, solver.hh[i][0][m+6], solver.hh[k0][0][m+6], requl);
-			solver.to_transferTL(i, j0, solver.hh[i][0][m+6], solver.hh[k0][0][m+6], requl);
-
-			solver.to_transferTR(i, j0, solver.hh[i][0][m+7], solver.hh[k0][0][m+7], requl);
-			solver.to_transferDD(i, j0, solver.hh[i][0][m+7], solver.hh[k0][0][m+7], requl);
-			solver.to_transferTL(i, j0, solver.hh[i][0][m+7], solver.hh[k0][0][m+7], requl);
-
-			solver.to_transferTR(i, j0, solver.hh[i][0][m+8], solver.hh[k0][0][m+8], requl);
-			solver.to_transferDD(i, j0, solver.hh[i][0][m+8], solver.hh[k0][0][m+8], requl);
-			solver.to_transferTL(i, j0, solver.hh[i][0][m+8], solver.hh[k0][0][m+8], requl);
-		}
 /////////////////////////////////////////////////////////////////
 //memset(solver.hh[i][0][0], 0, solver.dim[i]*sizeof(double));
 //B[i].shape->FULL(solver.hh[i][0][0], 0, 2)[1] = 1.;	
@@ -2880,16 +2863,16 @@ Num_State CLame3D::transfer1(CGrid * nd, int i, int k, int id_local)
 //...jump of all displacement moments;
 				B[i].shape->parametrization_hess(P, 1);
 				
-				jump1_classic_x(P, i, 0); 
-				jump2_classic_x(P, i, 3); 
+				jump1_x(P, i, 0); 
+				jump2_x(P, i, 3); 
 				solver.admittance (i, 0, g1, 3, g2); solver.admittance(i, 3, g0, 0, f0); 
 				
-				jump1_classic_y(P, i, 1); 
-				jump2_classic_y(P, i, 4); 
+				jump1_y(P, i, 1); 
+				jump2_y(P, i, 4); 
 				solver.admittance (i, 1, g1, 4, g2); solver.admittance(i, 4, g0, 1, f0); 
 
-				jump1_classic_z(P, i, 2); 
-				jump2_classic_z(P, i, 5); 
+				jump1_z(P, i, 2); 
+				jump2_z(P, i, 5); 
 				solver.admittance (i, 2, g1, 5, g2); solver.admittance(i, 5, g0, 2, f0); 
 				
 				jump_make_common(i, 0);
@@ -2903,16 +2886,16 @@ Num_State CLame3D::transfer1(CGrid * nd, int i, int k, int id_local)
 				
 				B[k].shape->parametrization_hess(P, 1);
 
-				jump1_classic_x(P, k, 0); 
-				jump2_classic_x(P, k, 3); 
+				jump1_x(P, k, 0); 
+				jump2_x(P, k, 3); 
 				solver.admittance (k, 0, g1, 3, g2); solver.admittance(k, 3, g0, 0, f0); 
 
-				jump1_classic_y(P, k, 1); 
-				jump2_classic_y(P, k, 4); 
+				jump1_y(P, k, 1); 
+				jump2_y(P, k, 4); 
 				solver.admittance (k, 1, g1, 4, g2); solver.admittance(k, 4, g0, 1, f0); 
 
-				jump1_classic_z(P, k, 2); 
-				jump2_classic_z(P, k, 5); 
+				jump1_z(P, k, 2); 
+				jump2_z(P, k, 5); 
 				solver.admittance (k, 2, g1, 5, g2); solver.admittance(k, 5, g0, 2, f0); 
 				
 				jump_make_common(k, 0);
@@ -3193,8 +3176,8 @@ Num_State CLame3D::trans_esh(CGrid * nd, int i, int k, int id_local)
 Num_State CLame3D::gram3(CGrid * nd, int i, int id_local)
 {
 	if (nd && 0 <= i && i < solver.N && B[i].shape && B[i].mp) {
-		double G1 = get_param(NUM_SHEAR), AX, AY, AZ, f, P[6], TX, TY, TZ, hz, requl = 1.;
-      int	 m  = solver.id_norm, id_dir, k, j, first = 1, k0, j0;
+		double G1 = get_param(NUM_SHEAR), AX, AY, AZ, f, P[6], TX, TY, TZ, hz;
+      int	 m  = solver.id_norm, id_dir, k, j;
 
 /////////////////////////////////////
 //...тестовая печать множества узлов;
@@ -3233,31 +3216,18 @@ Num_State CLame3D::gram3(CGrid * nd, int i, int id_local)
 
 /////////////////////////////
 //...reset auxilliary arrays;
-				for (int num = m+5; num >= m; num--) {
+				for (int num = m; num < solver.n; num++) {
 					 memset(solver.hh[i][0][num], 0, solver.dim[i]*sizeof(double));
 					 memset(solver.hh[k][0][num], 0, solver.dim[k]*sizeof(double));
-				}
-				if (first && solver.mode(REGULARIZATION) && (id_dir == 5 || id_dir == 6)) {
-					for (int num = m+6; num < solver.n; num--) {
-						 memset(solver.hh[i][0][num], 0, solver.dim[i]*sizeof(double));
-						 memset(solver.hh[k][0][num], 0, solver.dim[k]*sizeof(double));
-					}
-					first = 0; k0 = k; j0 = j;
 				}
 
 //////////////////////////////////////
 //...jump of all displacement moments;
 				B[i].shape->parametrization_hess(P, 1);
 
-				jump1_classic_x(P, i, 0); jump1_classic_y(P, i, 1); jump1_classic_z(P, i, 2); 
-				jump4_classic_x(P, i, 3); jump4_classic_y(P, i, 4); jump4_classic_z(P, i, 5); 
-				jump_make_common(i, 0);	  jump_make_common(i, 3);
-
-				if (! first) { //...интегрирование перемещений;
-					solver.admittance (i, 6, 1., 0, f*G1); 
-					solver.admittance (i, 7, 1., 1, f*G1);
-					solver.admittance (i, 8, 1., 2, f*G1);
-				}
+				jump1_x(P, i, 0); jump1_y(P, i, 1); jump1_z(P, i, 2); 
+				jump4_x(P, i, 3); jump4_y(P, i, 4); jump4_z(P, i, 5); 
+				jump_make_common(i, 0);	jump_make_common(i, 3);
 				solver.admittance(i, 0, G1); solver.admittance(i, 1, G1); solver.admittance(i, 2, G1); 
 
 				B[i].shape->make_common(P);
@@ -3268,15 +3238,9 @@ Num_State CLame3D::gram3(CGrid * nd, int i, int id_local)
 
 				B[k].shape->parametrization_hess(P, 1);
 
-				jump1_classic_x(P, k, 0); jump1_classic_y(P, k, 1); jump1_classic_z(P, k, 2); 
-				jump4_classic_x(P, k, 3); jump4_classic_y(P, k, 4); jump4_classic_z(P, k, 5); 
-				jump_make_common(k, 0);	  jump_make_common(k, 3);
-
-				if (! first) { //...интегрирование перемещений;
-					solver.admittance (k, 6, 1., 0, f*G1); 
-					solver.admittance (k, 7, 1., 1, f*G1);
-					solver.admittance (k, 8, 1., 2, f*G1);
-				}
+				jump1_x(P, k, 0); jump1_y(P, k, 1); jump1_z(P, k, 2); 
+				jump4_x(P, k, 3); jump4_y(P, k, 4); jump4_z(P, k, 5); 
+				jump_make_common(k, 0);	jump_make_common(k, 3);
 				solver.admittance(k, 0, G1); solver.admittance(k, 1, G1); solver.admittance(k, 2, G1); 
 
 /////////////////////////////////////////////////
@@ -3299,6 +3263,22 @@ Num_State CLame3D::gram3(CGrid * nd, int i, int id_local)
 				  solver.to_equationHL(k, 0, solver.hh[k][0][m+2], -hz*f);
 				  solver.to_equationHL(k, 1, solver.hh[k][0][m],   -hz*f);
 				}
+				if (solver.mode(REGUL_BOUNDARY) && (id_dir == 5 || id_dir == 6)) {//...регуляризация матрицы через граничное условие;
+					solver.to_transferDD(i, j, solver.hh[i][0][m],	 solver.hh[i][0][m],	  f);
+					solver.to_transferDD(i, j, solver.hh[i][0][m+1], solver.hh[i][0][m+1], f);
+					solver.to_transferDD(i, j, solver.hh[i][0][m+2], solver.hh[i][0][m+2], f);
+
+					if (fabs(hz) > EE) {
+					  if (id_dir == 6) {
+						  solver.to_equationHH(i, 0, solver.hh[i][0][m+2], hz*f);
+						  solver.to_equationHH(i, 1, solver.hh[i][0][m],	hz*f);
+					  }
+					  if (id_dir == 5) {
+						  solver.to_equationHL(k, 0, solver.hh[k][0][m+2], -hz*f);
+						  solver.to_equationHL(k, 1, solver.hh[k][0][m],	-hz*f);
+					  }
+					}
+				}
 
 /////////////////////////////////////////////////
 //...энергетические слагаемые (нормированные G1);
@@ -3316,20 +3296,6 @@ Num_State CLame3D::gram3(CGrid * nd, int i, int id_local)
 				B[k].mp[3] += TZ; B[k].shape->set_local_P0(B[k].mp+1);
 			}
       }
-		if (! first) {//...регуляризация матрицы по интегралу первого блока;
-			solver.clean_mode(REGULARIZATION);
-			solver.to_transferTR(i, j0, solver.hh[i][0][m+6], solver.hh[k0][0][m+6], requl);
-			solver.to_transferDD(i, j0, solver.hh[i][0][m+6], solver.hh[k0][0][m+6], requl);
-			solver.to_transferTL(i, j0, solver.hh[i][0][m+6], solver.hh[k0][0][m+6], requl);
-
-			solver.to_transferTR(i, j0, solver.hh[i][0][m+7], solver.hh[k0][0][m+7], requl);
-			solver.to_transferDD(i, j0, solver.hh[i][0][m+7], solver.hh[k0][0][m+7], requl);
-			solver.to_transferTL(i, j0, solver.hh[i][0][m+7], solver.hh[k0][0][m+7], requl);
-
-			solver.to_transferTR(i, j0, solver.hh[i][0][m+8], solver.hh[k0][0][m+8], requl);
-			solver.to_transferDD(i, j0, solver.hh[i][0][m+8], solver.hh[k0][0][m+8], requl);
-			solver.to_transferTL(i, j0, solver.hh[i][0][m+8], solver.hh[k0][0][m+8], requl);
-		}
 		return(OK_STATE);
 	}
 	return(ERR_STATE);
@@ -3388,8 +3354,8 @@ Num_State CLame3D::gram4(CGrid * nd, int i, int id_local)
 //...jump of all displacement moments;
 			B[i].shape->parametrization_hess(P, 1);
 
-			jump1_classic_x(P, i, 0); jump1_classic_y(P, i, 1); jump1_classic_z(P, i, 2); 
-			jump4_classic_x(P, i, 3); jump4_classic_y(P, i, 4); jump4_classic_z(P, i, 5);
+			jump1_x(P, i, 0); jump1_y(P, i, 1); jump1_z(P, i, 2); 
+			jump4_x(P, i, 3); jump4_y(P, i, 4); jump4_z(P, i, 5);
 			jump_make_common(i, 0);	  jump_make_common(i, 3);
 			solver.admittance(i, 0, G1); 
 			solver.admittance(i, 1, G1); 
@@ -3398,9 +3364,9 @@ Num_State CLame3D::gram4(CGrid * nd, int i, int id_local)
 ////////////////////////////////////
 //...composition collocation vector;
 			if (p4 == (double)(SKEWS_BND-SPECIAL_BND)) { //...специальные краевые условия на ячейке периодичности; 
-				jump2_classic_x (P, i, 6); solver.admittance(i, 6, G1);
-				jump2_classic_y (P, i, 7); solver.admittance(i, 7, G1);
-				jump2_classic_z (P, i, 8); solver.admittance(i, 8, G1);
+				jump2_x (P, i, 6); solver.admittance(i, 6, G1);
+				jump2_y (P, i, 7); solver.admittance(i, 7, G1);
+				jump2_z (P, i, 8); solver.admittance(i, 8, G1);
 				jump_make_common(i, 6);
 
 				if (fabs(fabs(P[3])-1.) < EE_ker) solver.admittance (i, 6, 0., 0, 1.); else
@@ -3415,9 +3381,9 @@ Num_State CLame3D::gram4(CGrid * nd, int i, int id_local)
 			}
 			else
 			if (p4 == (double)(NORMS_BND-SPECIAL_BND)) {
-				jump2_classic_x(P, i, 6); solver.admittance(i, 6, G1);
-				jump2_classic_y(P, i, 7); solver.admittance(i, 7, G1);
-				jump2_classic_z(P, i, 8); solver.admittance(i, 8, G1);
+				jump2_x(P, i, 6); solver.admittance(i, 6, G1);
+				jump2_y(P, i, 7); solver.admittance(i, 7, G1);
+				jump2_z(P, i, 8); solver.admittance(i, 8, G1);
 				jump_make_common(i, 6);
 			}
 
@@ -3491,8 +3457,8 @@ Num_State CLame3D::transfer4(CGrid * nd, int i, int k, int id_local)
 //...jump of all displacement moments;
 				B[i].shape->parametrization_hess(P, 1);
 
-				jump1_classic_x(P, i, 0); jump1_classic_y(P, i, 1); jump1_classic_z(P, i, 2); 
-				jump4_classic_x(P, i, 3); jump4_classic_y(P, i, 4); jump4_classic_z(P, i, 5); 
+				jump1_x(P, i, 0); jump1_y(P, i, 1); jump1_z(P, i, 2); 
+				jump4_x(P, i, 3); jump4_y(P, i, 4); jump4_z(P, i, 5); 
 				jump_make_common(i, 0);	  jump_make_common(i, 3);
 				solver.admittance(i, 0, G1); 
 				solver.admittance(i, 1, G1); 
@@ -3506,8 +3472,8 @@ Num_State CLame3D::transfer4(CGrid * nd, int i, int k, int id_local)
 
 				B[k].shape->parametrization_hess(P, 1);
 
-				jump1_classic_x(P, k, 0); jump1_classic_y(P, k, 1); jump1_classic_z(P, k, 2); 
-				jump4_classic_x(P, k, 3); jump4_classic_y(P, k, 4); jump4_classic_z(P, k, 5); 
+				jump1_x(P, k, 0); jump1_y(P, k, 1); jump1_z(P, k, 2); 
+				jump4_x(P, k, 3); jump4_y(P, k, 4); jump4_z(P, k, 5); 
 				jump_make_common(k, 0);	  jump_make_common(k, 3);
 				solver.admittance(k, 0, G1); 
 				solver.admittance(k, 1, G1); 
@@ -3942,7 +3908,7 @@ Num_State CLame3D::computing_header(Num_Comput Num)
 		}
 		Message(" ");
 	}
-	if (N == 1 && (B[0].type & ERR_CODE) == CLAYER_BLOCK)
+	if (/*N == 1 && */(B[0].type & ERR_CODE) == CLAYER_BLOCK)
 		set_eshelby_matrix (UnPackInts(get_param(NUM_MPLS)));
 
 //////////////////////////////////

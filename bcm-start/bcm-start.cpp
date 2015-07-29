@@ -50,7 +50,7 @@ extern void Read_C3D_Data_float(unsigned short num_markers, unsigned short num_a
 #define n_TEST_DRAFT_LAME2D_INTERMEDIATE_PHASE
 #define n_TEST_DRAFT_LAME3D_INTERMEDIATE_PHASE
 #define n_TEST_DRAFT_HYDRO3D_INTERMEDIATE_PHASE
-#define TEST_DRAFT_HEAT2D_FROM_FEMAP
+#define n_TEST_DRAFT_HEAT2D_FROM_FEMAP
 #define n_TEST_DRAFT_HEAT3D_FROM_FEMAP
 #define n_TEST_DRAFT_LAME2D_FROM_FEMAP
 #define n_TEST_DRAFT_LAME3D_FROM_FEMAP
@@ -72,6 +72,7 @@ double CIdent_sphere3D(double * energy, double rad, double fV, double l1, double
 #define n_HEAT3D_RANDOM_HOMOGENIZATION
 #define n_LAME3D_RANDOM_HOMOGENIZATION
 #define n_TEST_HEAT3D_RANDOM_HOMOGENIZATION
+#define TEST_LAME3D_RANDOM_HOMOGENIZATION
 //----------------------------------------------------------------------------------------
 int	 strata_approx	 (int N, double * data, double * coef);
 double strata_approx	 (int N, double * data, double ll0);
@@ -154,9 +155,9 @@ int main(int argc, char* argv[])
 #ifdef MUNI_APPROXIMATION
 {
 /////////////////////
-//...\E8\F1\F5\EE\E4\ED\FB\E5 \E4\E0\ED\ED\FB\E5;
+//...исходные данные;
 	//int  N_muni = 269;
-	//double muni[][2] = {//...\ED\E5\ED\E0\EF\EE\EB\ED\E5\ED\ED\E0\FF \EC\E0\F2\F0\E8\F6\E0;
+	//double muni[][2] = {//...ненаполненная матрица;
 	//{1.,0.00173},		{1.00072,0.00496},{1.01092,0.03958},{1.02204,0.05216},{1.03496,0.04343},{1.04408,0.07734},{1.05296,0.11117},{1.06612,0.12612},{1.07748,0.08906},{1.08696,0.12368},
 	//{1.09688,0.15602},{1.10596,0.18592},{1.11556,0.16381},{1.1266, 0.17325},{1.13592,0.19371},{1.14536,0.20315},{1.15568,0.21574},{1.16528,0.22203},{1.1766, 0.22998},{1.18588,0.22596},
 	//{1.19436,0.25830},{1.20468,0.28104},{1.21412,0.26932},{1.22296,0.28655},{1.23188,0.29528},{1.241,  0.28733},{1.2502, 0.31731},{1.2606, 0.33462},{1.26884,0.31408},{1.279,  0.33304},
@@ -186,7 +187,7 @@ int main(int argc, char* argv[])
 	//{3.7948,	1.15122},{3.8068,	1.17168},{3.81916,1.15122},{3.82724,1.16617},{3.83652,1.16861},{3.84952,1.17246},{3.86108,1.18356},{3.87304,1.16774},{3.88356,1.19300}};
 
 	//int  N_muni = 610;
-	//double muni[][2] = {//...\EC\E8\EA\F0\EE\F8\F3\ED\E3\E8\F2;
+	//double muni[][2] = {//...микрошунгит;
 	//{0.088,  0.068044355},{0.976,  0.127688172},{1.628,  0.128528226},{2.264,  0.127688172},{2.704,  0.145329301},{3.176,  0.20749328 },{3.836,  0.229334677},{4.264,  0.260416667},{4.712,  0.268817204},{5.128,  0.267137097},
 	//{5.8,    0.320900538},{6.328,  0.326780914},{6.82,   0.366263441},{7.612,  0.400705645},{8.044,  0.404905914},{8.764,  0.430107527},{9.18,   0.439348118},{9.736,  0.499831989},{10.468, 0.491431452},{11.264, 0.523353495},
 	//{12.016, 0.558635753},{12.684, 0.551075269},{13.34,  0.59811828 },{14.1,   0.596438172},{14.868, 0.619119624},{15.488, 0.656081989},{16.112, 0.661122312},{16.876, 0.687163978},{17.3,   0.694724462},{17.704, 0.700604839},
@@ -250,7 +251,7 @@ int main(int argc, char* argv[])
 	//{382.364,5.571236559},{382.836,5.577116935},{383.476,5.583837366},{384.02, 5.608198925},{384.572,5.592237903},{385.216,5.619959677},{385.672,5.61827957 },{386.312,5.619119624},{386.832,5.637600806},{387.292,5.63844086 }};
 
 //int  N_muni = 77;
-//double muni[][2] = {//...\EC\E8\EA\F0\EE\F8\F3\ED\E3\E8\F2, \F0\E0\F1\F7\E5\F2;
+//double muni[][2] = {//...микрошунгит, расчет;
 //{2,   0.039709446},{4,  0.076892877},{6,  0.111837822},{8,  0.144793086},{10,	0.175975008},{12,	0.205572588},{14,	0.233751609},{16,	0.260658492},{18,	0.286422654},{20,	0.311159177},
 //{22,	0.334970885},{24,	0.357949936},{26,	0.380179215},{28,	0.401733677},{30,	0.422681279},{32,	0.443083898},{34,	0.462998121},{36,	0.482475842},{38,	0.501564882},{40,	0.520309544},
 //{42,	0.53875094 },{44,	0.556927441},{46,	0.574875016},{48,	0.592627557},{50,	0.610217125},{52,	0.62767417 },{54,	0.645027838},{56,	0.662306075},{58,	0.679535882},{60,	0.696743457},
@@ -261,7 +262,7 @@ int main(int argc, char* argv[])
 //{142, 1.70195096 },{144,1.743825072},{146,1.786986625},{148,1.831467297},{150,1.877351024},{152,1.924737135},{154,1.973722178}};
 
 //	int  N_muni = 1304;
-//	double muni[][2] = {//...\ED\E0\ED\EE\F8\F3\ED\E3\E8\F2;
+//	double muni[][2] = {//...наношунгит;
 //   {1.00096,0.06129 },{1.00412,0.091935},{1.00992,0.146774},{1.01704,0.158065},{ 1.024 ,0.157258},{1.02928,0.204032},{1.03224,0.237097},{1.03428,0.254032},{1.03692,0.28871 },{1.04092,0.341129},
 //	{1.04612,0.328226},{1.05164,0.356452},{1.05656,0.405645},{1.06076,  0.4   },{ 1.064 ,0.419355},{ 1.067 ,0.480645},{1.07048,0.487903},{ 1.075 ,0.491129},{1.08028,0.535484},{1.08576,0.550806},
 //	{1.09064,0.548387},{ 1.0944,0.579032},{1.09748,0.623387},{1.10076,0.617742},{1.10512,0.645161},{1.11092,0.678226},{1.11716,0.675806},{1.12284,0.678226},{1.12736,0.715323},{1.13104,0.729839},
@@ -395,7 +396,7 @@ int main(int argc, char* argv[])
 //	{4.63156,15.2129 },{ 4.6334,15.20806},{4.63524,15.22177},{4.63744,15.24919}};
 
 	int  N_muni = 81;
-	double muni[][2] = {//...\ED\E0\ED\EE\F8\F3\ED\E3\E8\F2, \F0\E0\F1\F7\E5\F2;
+	double muni[][2] = {//...наношунгит, расчет;
 {2	,	0.047193413	},{4	,	0.091290125	},{6	,	0.13274721	},{8	,	0.171945794	},{10,	0.20920766	},{12,	0.244807066	},{14,	0.278980133	},{16,	0.311932199	},{18,	0.343843668	},{20,	0.374874663	},
 {22,	0.405168834	},{24,	0.434856477	},{26,	0.464057097	},{28,	0.492881646	},{30,	0.521434363	},{32,	0.549814394	},{34,	0.578117282	},{36,	0.60643614	},{38,	0.634862837	},{40,	0.663489062	},
 {42,	0.692407133	},{44,	0.72171107	},{46,	0.751497173	},{48,	0.781864907	},{50,	0.812917568	},{52,	0.844762837	},{54,	0.877513626	},{56,	0.911288614	},{58,	0.946213025	},{60,	0.982419326	},
@@ -405,7 +406,7 @@ int main(int argc, char* argv[])
 {122,	4.037925944	},{124,	4.25820798	},{126,	4.489599341	},{128,	4.732182223	},{130,	4.985991632	},{132,	5.251019715	},{134,	5.527217883	},{136,	5.814500048	},{138,	6.112747277	},{140,	6.421751298	},
 {142,	6.740785797	},{144,	7.067903853	},{146,	7.403100592	},{148,	7.746328675	},{150,	8.097274092	},{152,	8.455488308	},{154,	8.820353716	},{156,	9.191225886	},{158,	9.305624539	},{160,	9.400229861	},
 {162,	9.426676049	}};
-	double muni_E[][2] = {//...\ED\E0\ED\EE\F8\F3\ED\E3\E8\F2, \FD\ED\E5\F0\E3\E8\FF, \F0\E0\F1\F7\E5\F2;
+	double muni_E[][2] = {//...наношунгит, энергия, расчет;
 {2	,	0.000470858	},{4	,	0.001817409	},{6	,	0.003951743	},{8	,	0.006798665	},{10,	0.010293542	},{12,	0.014380588	},{14,	0.019011477	},{16,	0.024144236	},{18,	0.02974233	},{20,	0.035773919	},
 {22,	0.042211241	},{24,	0.049030102	},{26,	0.056209446	},{28,	0.063731008	},{30,	0.071579008	},{32,	0.079739911	},{34,	0.088202218	},{36,	0.0969563	},{38,	0.105994254	},{40,	0.1153098	},
 {42,	0.12489819	},{44,	0.134756142	},{46,	0.144881796	},{48,	0.155274678	},{50,	0.165935683	},{52,	0.176867067	},{54,	0.18807244	},{56,	0.199556777	},{58,	0.211326422	},{60,	0.223389104	},
@@ -417,7 +418,7 @@ int main(int argc, char* argv[])
 {162,	1.769577784	}};
 
 ////////////////////////////////////////////////////////////////////////////////////
-//...\E0\EF\EF\F0\EE\EA\F1\E8\EC\E0\F6\E8\FF \EF\EE\F2\E5\ED\F6\E8\E0\EB\EE\EC \CC\F3\ED\E8-\D0\E8\E2\EB\E8\ED\E0 (\E2\F2\EE\F0\EE\E3\EE, \F2\F0\E5\F2\FC\E5\E3\EE, \F7\E5\F2\E2\E5\F0\F2\EE\E3\EE \EF\EE\F0\FF\E4\EA\E0);
+//...аппроксимация потенциалом Муни-Ривлина (второго, третьего, четвертого порядка);
 	int N_matr = 4;
 	double h1 = 0., h2 = 0., h3 = 0., h4 = 0., sigma = 0., F1, F2, F3, F4, C1, C2, C3, C4, eps, delta, lambda,
 		matr[4][4] = {
@@ -428,11 +429,11 @@ int main(int argc, char* argv[])
 	};
 
 //////////////////////////////////////////////////////////
-//...\F4\EE\F0\EC\E8\F0\EE\E2\E0\ED\E8\E5 \EA\EE\FD\F4\F4\E8\F6\E8\E5\ED\F2\EE\E2 \EA\E2\E0\E4\F0\E0\F2\E8\F7\ED\EE\E3\EE \F4\F3\ED\EA\F6\E8\EE\ED\E0\EB\E0;
+//...формирование коэффициентов квадратичного функционала;
 #define n___ALONGATION___
 	for (int i = 0; i < N_muni; i++) {
-		//lambda = muni[i][0]; //...\E8\F1\F5\EE\E4\ED\EE\E5 - \F3\E4\EB\E8\ED\E5\ED\E8\E5;
-		lambda = 1.+muni[i][0]/100.; //...\E8\F1\F5\EE\E4\ED\EE\E5 - \E4\E5\F4\EE\F0\EC\E0\F6\E8\FF \E2 %;
+		//lambda = muni[i][0]; //...исходное - удлинение;
+		lambda = 1.+muni[i][0]/100.; //...исходное - деформация в %;
 #ifdef ___ALONGATION___
 		sigma += sqr(muni[i][1]*lambda);
 #else
@@ -485,15 +486,15 @@ int main(int argc, char* argv[])
 	}
 
 /////////////////////////////////////////////////////////////////////////////////
-//...\F4\EE\F0\EC\E8\F0\EE\E2\E0\ED\E8\E5 \EA\EE\FD\F4\F4\E8\F6\E8\E5\ED\F2\EE\E2 \EA\E2\E0\E4\F0\E0\F2\E8\F7\ED\EE\E3\EE \F4\F3\ED\EA\F6\E8\EE\ED\E0\EB\E0 \E4\EB\FF \EF\EE\F2\E5\ED\F6\E8\E0\EB\E0 \FD\ED\E5\F0\E3\E8\E8;
+//...формирование коэффициентов квадратичного функционала для потенциала энергии;
 	h1 = 0., h2 = 0., h3 = 0., h4 = 0., sigma = 0.,
 		matr[0][0] = matr[0][1] = matr[0][2] =	matr[0][3] = 0.,
 		matr[1][0] = matr[1][1] = matr[1][2] =	matr[1][3] = 0.,
 		matr[2][0] = matr[2][1] = matr[2][2] =	matr[2][3] = 0.,
 		matr[3][0] = matr[3][1] = matr[3][2] =	matr[3][3] = 0.;
 	for (int i = 0; i < N_muni; i++) {
-		//lambda = muni[i][0]; //...\E8\F1\F5\EE\E4\ED\EE\E5 - \F3\E4\EB\E8\ED\E5\ED\E8\E5;
-		lambda = 1.+muni[i][0]/100.; //...\E8\F1\F5\EE\E4\ED\EE\E5 - \E4\E5\F4\EE\F0\EC\E0\F6\E8\FF \E2 %;
+		//lambda = muni[i][0]; //...исходное - удлинение;
+		lambda = 1.+muni[i][0]/100.; //...исходное - деформация в %;
 		sigma += sqr(muni[i][1]);
 		F1 = (sqr(lambda)+2./lambda-3.);
 		F2 = (1./sqr(lambda)+2.*lambda-3.);
@@ -526,7 +527,7 @@ int main(int argc, char* argv[])
 	}
 
 ////////////////////////////////////////////////////////
-//...\E2\FB\F7\E8\F1\EB\E5\ED\E8\E5 \EA\EE\FD\F4\F4\E8\F6\E8\E5\ED\F2\EE\E2 \EA\E2\E0\E4\F0\E0\F2\E8\F7\ED\EE\E3\EE \F4\F3\ED\EA\F6\E8\EE\ED\E0\EB\E0;
+//...вычисление коэффициентов квадратичного функционала;
 	int ii[4] = {0, 0, 0, 0}, kk[4], ll[4], k, l, k0, l0;
 	for (int  i = 0; i < N_matr; i++) {
 		double f = 0.;
@@ -582,7 +583,7 @@ int main(int argc, char* argv[])
 	delta = eps/sqrt(sigma);
 
 ////////////////////////
-//...\EF\E5\F7\E0\F2\E0\E5\EC \F0\E5\E7\F3\EB\FC\F2\E0\F2;
+//...печатаем результат;
 	FILE *  result = fopen("Muni-Rivlin_nano-calc4.dat", "w");
 	fprintf(result, " C1 = %g\n C2 = %g\n C3 = %g\n C4 = %g\n delta = %g\n ", C1, C2, C3, C4, delta);
 	fclose (result);
@@ -590,15 +591,16 @@ int main(int argc, char* argv[])
 #endif
 #ifdef INP_CONVERTOR
 {
-	char * name = "c:\\SIMULIA\\Job\\Abaqus\\2015\\Novogireevskaya_2015\\models\\results\\!!!test\\Novogireevskaya.inp";
-	int ID_elements[] = {4, -6, -7, -110, -111}, ID_part = 1;
+	//char * name = "c:\\SIMULIA\\Job\\Abaqus\\2015\\Novogireevskaya_2015\\models\\results\\Variant11 - full kotlovan, berma_force, big mesh\\Novogireevskaya.inp";
+	char * name = "c:\\SIMULIA\\Job\\Abaqus\\2015\\Novogireevskaya_2015\\models\\results\\Variant12 - full kotlovan, berma_surf, big mesh\\Novogireevskaya.inp";
+	int ID_elements[] = {1, -4}, ID_part = 1;
 
 //////////////////////////
-//...\E8\ED\E8\F6\E8\E0\EB\E8\E7\E0\F6\E8\FF \E7\E0\E4\E0\F7\E8;
-	CGrid * nd = CreateNodes()(;
+//...инициализация задачи;
+	CGrid * nd = CreateNodes();
 
 ///////////////////////////////////////////////////////
-//...\F7\F2\E5\ED\E8\E5 \EC\EE\E4\E5\EB\E8 \E8 \E3\F0\E0\ED\E8\F7\ED\FB\F5 \F3\F1\EB\EE\E2\E8\E9 \E8\E7 \F4\E0\E9\EB\E0 \E4\E0\ED\ED\FB\F5;
+//...чтение модели и граничных условий из файла данных;
 	if (nd) {
 		sprintf(buf, "Loading model from file '%s'", name);
 		Message(" ");
@@ -608,14 +610,15 @@ int main(int argc, char* argv[])
 		nd->nodes_inp(name);
 		Message("Finish!");
 	}
+	yes = 0;
 
 ////////////////////////////////////
-//...\E4\EE\E1\E0\E2\EB\E5\ED\E8\E5 \E2 \EC\EE\E4\E5\EB\FC \ED\EE\E2\FB\F5 \F3\E7\EB\EE\E2;
+//...добавление в модель новых узлов;
 //	int  ID_node_set, ID_element_set;
 //	Inp_nodes_add(name, nd, ID_node_set = -13, ID_element_set = -14);
 
 /////////////////////////////////////////
-//...\E4\EE\E1\E0\E2\EB\E5\ED\E8\E5 \E2 \EC\EE\E4\E5\EB\FC \ED\EE\E2\FB\F5 \FD\EB\E5\EC\E5\ED\F2\EE\E2;
+//...добавление в модель новых элементов;
 	Inp_elements_add(name, nd, ID_elements, ID_part);
 
 	delete nd;
@@ -630,12 +633,12 @@ int main(int argc, char* argv[])
 	int ID_part, k = 0;
 
 //////////////////////////
-//...\E8\ED\E8\F6\E8\E0\EB\E8\E7\E0\F6\E8\FF \E7\E0\E4\E0\F7\E8;
-	CGrid * nd = CreateNodes()(;
+//...инициализация задачи;
+	CGrid * nd = CreateNodes();
 	yes = 0;
 
 ///////////////////////////////////////////////////////
-//...\F7\F2\E5\ED\E8\E5 \EC\EE\E4\E5\EB\E8 \E8 \E3\F0\E0\ED\E8\F7\ED\FB\F5 \F3\F1\EB\EE\E2\E8\E9 \E8\E7 \F4\E0\E9\EB\E0 \E4\E0\ED\ED\FB\F5;
+//...чтение модели и граничных условий из файла данных;
 	if (nd) {
 		sprintf(buf, "Loading model from file '%s'", name);
 		Message(" ");
@@ -647,7 +650,7 @@ int main(int argc, char* argv[])
 	}
 
 ///////////////////////////////////////////////////////////
-//...\EA\EE\ED\E2\E5\F0\F2\E0\F6\E8\FF \E3\E5\EE\EC\E5\F2\F0\E8\E8 \E8 \E2\F1\E5\E9 \E7\E0\E4\E0\F7\E8 \E8\E7 \E2\F5\EE\E4\ED\EE\E3\EE \F4\E0\E9\EB\E0;
+//...конвертация геометрии и всей задачи из входного файла;
 	Convert3D_gmt(name, nd, ID_part = 1);
 	Convert3D_prb(name, nd, ID_part);
 
@@ -688,7 +691,7 @@ int main(int argc, char* argv[])
 	char  ** residual = NULL, ** num_cam = NULL;
 
 /////////////////////////////////////
-//...\F7\F2\E5\ED\E8\E5 \F0\E0\E7\E4\E5\EB\EE\E2 \E8\F1\F5\EE\E4\ED\EE\E3\EE \F4\E0\E9\EB\E0;
+//...чтение разделов исходного файла;
 	FILE * infile = fopen(name, "r+b");
 	Read_C3D_Header(&num_markers, &num_channels, &first_field, &last_field, &scale_factor, &start_record_num, &frames_per_field, &video_rate, infile);
 	Read_C3D_Parameters (mlabels, alabels, &gscale, ascale, zero_off, infile);
@@ -741,7 +744,7 @@ int main(int argc, char* argv[])
 	double time, P[3]; int k = 0, j;
 
 /////////////////////////////////////////////////////////////////////
-//...\F7\F2\E5\ED\E8\E5 \F2\F0\E0\E5\EA\F2\EE\F0\E8\E9 \E8\E7 \E8\F1\F5\EE\E4\ED\EE\E3\EE \F4\E0\E9\EB\E0 \E8 \E7\E0\EF\E8\F1\FC \E8\F5 \E2 \F4\EE\F0\EC\E0\F2\E5 iges;
+//...чтение траекторий из исходного файла и запись их в формате iges;
 	FILE * infile = fopen(name, "r+b");
 	Read_C3D_Header(&num_markers, &num_channels, &first_field, &last_field, &scale_factor, &start_record_num, &frames_per_field, &video_rate, infile);
 
@@ -755,8 +758,8 @@ int main(int argc, char* argv[])
 	fclose(infile); 
 
 ////////////////////////////////////////////////////////////////////////////////////
-//...\EF\E8\F8\E5\EC \E2\F1\E5 \EC\E0\F0\EA\E5\F0\FB \E2 CGrid \F1\EE \F1\E2\EE\E8\EC\E8 \ED\EE\EC\E5\F0\E0\EC\E8 \E8 \EA\EE\ED\E2\E5\F0\F2\E8\F0\F3\E5\EC \E2\F1\E5 \EC\E0\F0\EA\E5\F0\FB \E2 iges;
-	CGrid * marker_nd = CreateNodes()(;
+//...пишем все маркеры в CGrid со своими номерами и конвертируем все маркеры в iges;
+	CGrid * marker_nd = CreateNodes();
 	FILE	* TST = fopen("Ride6.dat", "w");
 
 	fprintf(TST, "   hit            X              Y              Z              time\n");
@@ -774,7 +777,7 @@ int main(int argc, char* argv[])
 	fclose(TST);
 
 ////////////////////////////////////////////
-//...\EA\EE\EE\F0\E4\E8\ED\E0\F2\FB \EC\E0\F0\EA\E5\F0\EE\E2 \E2 \ED\E0\F7\E0\EB\FC\ED\FB\E9 \EC\EE\EC\E5\ED\F2;
+//...координаты маркеров в начальный момент;
 	TST = fopen("marker_num_t90.dat", "w");
 
 	fprintf(TST, "   hit            X              Y              Z\n");
@@ -789,7 +792,7 @@ int main(int argc, char* argv[])
 	fclose(TST);
 
 //////////////////////////////////////
-//...\EF\E8\F8\E5\EC \E2\F1\E5 \EC\E0\F0\EA\E5\F0\FB \EF\EE \EE\F2\E4\E5\EB\FC\ED\EE\F1\F2\E8;
+//...пишем все маркеры по отдельности;
 	//marker_nd->add_buffer(marker_nd->N);
 	//for (k = 0; k < num_markers; k++) {
 	//	for (j = 0; j <= last_field-first_field; j++) {
@@ -817,12 +820,12 @@ int main(int argc, char* argv[])
 	char * name = "./Models_inp/Box3D_sph/Box3D_sph112.inp";
 
 ////////////////////////////////////////////
-//...\E7\E0\F7\E8\F2\FB\E2\E0\E5\EC \E3\E5\EE\EC\E5\F2\F0\E8\FE \E8\E7 \E2\F5\EE\E4\ED\EE\E3\EE \F4\E0\E9\EB\E0;
+//...зачитываем геометрию из входного файла;
 	CGrid stru;
 	stru.nodes_in(name);
 
 //////////////////////////////////////
-//...\EF\EE\F0\EE\E6\E4\E0\E5\EC \E3\E5\EE\EC\E5\F2\F0\E8\F7\E5\F1\EA\E8\E9 \FD\EB\E5\EC\E5\ED\F2;
+//...порождаем геометрический элемент;
 	CCells * ce = new CCells, * f0 = new CCells;
    //ce->get_nd_bar_directly(& stru, 1);
 	//ce->get_sheet(2., 1.);
@@ -844,12 +847,12 @@ int main(int argc, char* argv[])
 	//ce->cells_iso(pp, M_PI/6., M_PI/3.);
 
 /////////////////////////////////////
-//...\EF\E5\F7\E0\F2\E0\E5\EC \E3\E5\EE\EC\E5\F2\F0\E8\F7\E5\F1\EA\E8\E9 \FD\EB\E5\EC\E5\ED\F2;
+//...печатаем геометрический элемент;
 	//ce->bar_exc(1);
 	ce->cells_out("CCells");
 
 ///////////////////////////////////////////////
-//...\F1\F2\F0\EE\E8\EC \EF\EE\E2\E5\F0\F5\ED\EE\F1\F2\F0\F3\FE \F1\E5\F2\EA\F3 \E8\EB\E8 \EA\E2\E0\E4\F0\E0\F2\F3\F0\F3;
+//...строим поверхнострую сетку или квадратуру;
 	CGrid *  nd = CreateNodes(GRID_QG_NODES);
 	CGrid * bnd = CreateNodes();
 	int N_elem = 20, N_max = 3;
@@ -889,14 +892,14 @@ int main(int argc, char* argv[])
 	sp->set_local(mp);
 
 /////////////////////////////////////////
-//...\E2\E8\E7\F3\E0\EB\E8\E7\E0\F6\E8\FF \EF\EE\E2\E5\F0\F5\ED\EE\F1\F2\E8 \EC\F3\EB\FC\F2\E8\EF\EE\EB\FF;
+//...визуализация поверхности мультиполя;
 	double bound[5] = {-1.5, 1.5, -1.5, 1.5, 0.};
 	//double bound[5] = {0., M_PI, -M_PI, M_PI, kk};
 	sp->A[0][4] = 0.26788;
 	sp->GetSurferFormat("shapes_out", bound, AXIS_Y);
 
 //////////////////////////////////////////////////////////
-//...\EF\F0\EE\E2\E5\F0\EA\E0 \E4\E8\F4\F4\E5\F0\E5\ED\F6\E8\E0\EB\FC\ED\FB\F5 \E8 \E8\ED\F2\E5\E3\F0\E0\EB\FC\ED\FB\F5 \F1\EE\EE\F2\ED\EE\F8\E5\ED\E8\E9;
+//...проверка дифференциальных и интегральных соотношений;
 	FILE * TST = fopen("multipoles_test", "w");
 	p_cpy  = (double *)new_struct(sp->NN*sizeof(double));
 	p_cpy1 = (double *)new_struct(sp->NN*sizeof(double));
@@ -921,14 +924,14 @@ int main(int argc, char* argv[])
 		pp[10] = (pp[3] *= (f = 1./sqrt(pp[3]*pp[3]+pp[4]*pp[4]+pp[5]*pp[5])));
 		pp[11] = (pp[4] *=  f);
 		pp[12] = (pp[5] *=  f);
-		pp[13] =  pp[6] = 0.1;//...\E7\E0\E4\E0\ED\E8\E5 \E2\F0\E5\EC\E5\ED\E8;
+		pp[13] =  pp[6] = 0.1;//...задание времени;
 		fprintf(TST, "X = %g, Y = %g, Z = %g\n",  pp[0], pp[1], pp[2]);
 		fprintf(TST, "normal = (%g, %g, %g)\n\n", pp[3], pp[4], pp[5]);
 	
 ////////////////////////
-//...\EF\F0\EE\E2\E5\F0\EA\E0 \E3\F0\E0\E4\E8\E5\ED\F2\E0;
+//...проверка градиента;
 //*		
-		fprintf(TST, "\E3\F0\E0\E4\E8\E5\ED\F2:\n");
+		fprintf(TST, "градиент:\n");
 		sp->parametrization_hess(pp);
 		sp->deriv_N();
 		sp->cpy(sp->p_cpy, p_cpy);
@@ -951,7 +954,7 @@ int main(int argc, char* argv[])
 		fprintf(TST, "\n");/**/
 
 /////////////////////////////////
-//...\EF\F0\EE\E2\E5\F0\EA\E0 \E2\F2\EE\F0\EE\E9 \EF\F0\EE\E8\E7\E2\EE\E4\ED\EE\E9;
+//...проверка второй производной;
 //*		
 		fprintf(TST, "Dxx:\n");
 		sp->parametrization_hess(pp);
@@ -985,7 +988,7 @@ int main(int argc, char* argv[])
 		fprintf(TST, "\n");/**/
 
 /////////////////////////////////
-//...\EF\F0\EE\E2\E5\F0\EA\E0 \E2\F2\EE\F0\EE\E9 \EF\F0\EE\E8\E7\E2\EE\E4\ED\EE\E9;
+//...проверка второй производной;
 //*		
 		fprintf(TST, "Dyy:\n");
 		sp->parametrization_hess(pp);
@@ -1019,7 +1022,7 @@ int main(int argc, char* argv[])
 		fprintf(TST, "\n");/**/
 
 /////////////////////////////////
-//...\EF\F0\EE\E2\E5\F0\EA\E0 \E2\F2\EE\F0\EE\E9 \EF\F0\EE\E8\E7\E2\EE\E4\ED\EE\E9;
+//...проверка второй производной;
 //*		
 		fprintf(TST, "Dzz:\n");
 		sp->parametrization_hess(pp);
@@ -1053,14 +1056,14 @@ int main(int argc, char* argv[])
 		fprintf(TST, "\n");/**/
 
 /////////////////////////////////
-//...\EF\F0\EE\E2\E5\F0\EA\E0 \E2\F2\EE\F0\EE\E9 \EF\F0\EE\E8\E7\E2\EE\E4\ED\EE\E9;
+//...проверка второй производной;
 //*		
 		fprintf(TST, "Dxy:\n");
 		sp->parametrization_hess(pp);
 		sp->admittance(p_cpy,  NULL, 0., 0.);
 		sp->adm_xy(p_cpy, 1.);
 
-		sp->cpy_xy();//...\F1\EC\E5\F8\E0\ED\ED\E0\FF \EF\F0\EE\E8\E7\E2\EE\E4\ED\E0\FF; 
+		sp->cpy_xy();//...смешанная производная; 
 		sp->admittance(sp->deriv, NULL, 0., 0.);	
 		sp->deriv_Z(sp->deriv); 
 		sp->cpy_xy(); 
@@ -1098,7 +1101,7 @@ int main(int argc, char* argv[])
 		fprintf(TST, "\n");/**/
 
 /////////////////////////////////
-//...\EF\F0\EE\E2\E5\F0\EA\E0 \E2\F2\EE\F0\EE\E9 \EF\F0\EE\E8\E7\E2\EE\E4\ED\EE\E9;
+//...проверка второй производной;
 //*		
 		fprintf(TST, "Dxz:\n");
 		sp->parametrization_hess(pp);
@@ -1138,14 +1141,14 @@ int main(int argc, char* argv[])
 		fprintf(TST, "\n");/**/
 
 /////////////////////////////////
-//...\EF\F0\EE\E2\E5\F0\EA\E0 \E2\F2\EE\F0\EE\E9 \EF\F0\EE\E8\E7\E2\EE\E4\ED\EE\E9;
+//...проверка второй производной;
 //*		
 		fprintf(TST, "Dyz:\n");
 		sp->parametrization_hess(pp);
 		sp->admittance(p_cpy,  NULL, 0., 0.);
 		sp->adm_yz(p_cpy, 1.);
 
-		sp->cpy_yz();//...\F1\EC\E5\F8\E0\ED\ED\E0\FF \EF\F0\EE\E8\E7\E2\EE\E4\ED\E0\FF; 
+		sp->cpy_yz();//...смешанная производная; 
 		sp->admittance(sp->deriv, NULL, 0., 0.);	
 		sp->deriv_X(sp->deriv); 
 		sp->cpy_yz(); 
@@ -1202,33 +1205,33 @@ int main(int argc, char* argv[])
 	const char * name = "../Exe/Box2d_homog/ell_80_20q2.nas";
 
 //////////////////////////
-//...\E8\ED\E8\F6\E8\E0\EB\E8\E7\E0\F6\E8\FF \EC\EE\E4\E5\EB\E8;
+//...инициализация модели;
 	CDraft<double> * sm = CreateDraftR(LAME2D_DRAFT);
-	sm->set_mpls(PackInts(2, 2)); //...\F1\F2\E5\EF\E5\ED\FC \EC\F3\EB\FC\F2\E8\EF\EE\EB\E5\E9;
-	sm->set_quad(PackInts(8, 8)); //...\F1\F2\E5\EF\E5\ED\FC \EA\E2\E0\E4\F0\E0\F2\F3\F0\FB;
-	sm->set_normaliz(0.92);			//...\ED\EE\F0\EC\E8\F0\F3\FE\F9\E8\E9 \EC\ED\EE\E6\E8\F2\E5\EB\FC;
-	sm->set_lagrange(1e4);			//...\EA\EE\FD\F4\F4\E8\F6\E8\E5\ED\F2 \CB\E0\E3\F0\E0\ED\E6\E0; 
+	sm->set_mpls(PackInts(2, 2)); //...степень мультиполей;
+	sm->set_quad(PackInts(8, 8)); //...степень квадратуры;
+	sm->set_normaliz(0.92);			//...нормирующий множитель;
+	sm->set_lagrange(1e4);			//...коэффициент Лагранжа; 
 	sm->change_solv(PERIODIC_SOLVING);
 	sm->solver.change_state(EXTERN_STATE);
 	sm->solver.set_mode(REGUL_BOUNDARY/*PRINT_MODE*//*FULLY_MODE*/);
 	yes = 0;
 
 //////////////////////
-//...\EF\E0\F0\E0\EC\E5\F2\F0\FB \E7\E0\E4\E0\F7\E8;
-	//double K1 = 1.7, //...\EE\EA\F1\E8\E4 \F6\E8\F0\EA\EE\ED\E8\FF (matrtix);
-	//		 K2 = 30.,	 //...\EA\EE\F0\F3\ED\E4 (inclusion);
-	//		 K3 = 3.;	 //...\EF\F0\EE\EC\E5\E6\F3\F2\EE\F7\ED\FB\E9 \F1\EB\EE\E9;
+//...параметры задачи;
+	//double K1 = 1.7, //...оксид циркония (matrtix);
+	//		 K2 = 30.,	 //...корунд (inclusion);
+	//		 K3 = 3.;	 //...промежуточный слой;
 	//sm->set_fasa_hmg(K1, K2, K3);
-	double nj1 = 0.33, //...\EF\EE\EB\E8\EC\E5\F0\ED\E0\FF \EC\E0\F2\F0\E8\F6\E0; 
-			 nj2 = 0.20, //...\E3\F0\E0\F4\E8\F2\EE\E2\EE\E5 \E2\EA\EB\FE\F7\E5\ED\E8\E5; 
-			 nj3 = 0.30, //...\EC\E5\E6\F4\E0\E7\ED\FB\E9 \F1\EB\EE\E9; 
+	double nj1 = 0.33, //...полимерная матрица; 
+			 nj2 = 0.20, //...графитовое включение; 
+			 nj3 = 0.30, //...межфазный слой; 
 			 E1  = 18.,  //...GPa;
 			 E2  = 380., //...GPa; 
 			 E3  = 57.5; 
 	sm->set_fasa_hmg(nj1, nj2, nj3, E1/(1.+nj1)*.5, E2/(1.+nj2)*.5, E3/(1.+nj3)*.5);
 
 ///////////////////////////////////////////////////////
-//...\F7\F2\E5\ED\E8\E5 \EC\EE\E4\E5\EB\E8 \E8 \E3\F0\E0\ED\E8\F7\ED\FB\F5 \F3\F1\EB\EE\E2\E8\E9 \E8\E7 \F4\E0\E9\EB\E0 \E4\E0\ED\ED\FB\F5;
+//...чтение модели и граничных условий из файла данных;
 	int id_reading = 0, m;
 	double X0, Y0, ell_X = 0., ell_Y = 0., rot_Z = 0.;
 	if (sm) {
@@ -1278,9 +1281,9 @@ int main(int argc, char* argv[])
 	}
 
 ////////////////////
-//...\F0\E5\F8\E5\ED\E8\E5 \E7\E0\E4\E0\F7\E8;
+//...решение задачи;
 	if (sm->computing_kernel(MAPPING_COMPUT) != OK_STATE) {
-		Message("Error in sample counting...");
+		Message("Error in sample computing...");
 		delete sm;
 		goto err;
 	}
@@ -1366,38 +1369,38 @@ int main(int argc, char* argv[])
 	//char * name_ini = "./Box2d_homog/sph_025_16.nas";
 
 //////////////////////
-//...\EF\E0\F0\E0\EC\E5\F2\F0\FB \E7\E0\E4\E0\F7\E8;
-	double E1 = 6.0,	//...\EB\E5\E4\FF\ED\E0\FF \EC\E0\F2\F0\E8\F6\E0(GPa); 
-			 E2 = 50.,	//...\EC\E8\ED\E5\F0\E0\EB\FC\ED\E0\FF \F7\E0\F1\F2\E8\F6\E0 (\EF\E5\F1\EE\EA, GPa); 
-			 nju1 = 0.3,//...\EC\E0\F2\F0\E8\F6\E0;
-			 nju2 = 0.3,//...\E2\EA\EB\FE\F7\E5\ED\E8\E5; 
+//...параметры задачи;
+	double E1 = 6.0,	//...ледяная матрица(GPa); 
+			 E2 = 50.,	//...минеральная частица (песок, GPa); 
+			 nju1 = 0.3,//...матрица;
+			 nju2 = 0.3,//...включение; 
 			 G1   = E1/(1.+nju1)*.5,
 			 G2   = E2/(1.+nju2)*.5,
 			 K1   = E1/(3.-6.*nju1),
 			 K2   = E2/(3.-6.*nju2),
-			 AA   = E1*0.0, //...\ED\EE\F0\EC\E0\EB\FC\ED\FB\E9  \E0\E4\E3\E5\E7\E8\EE\ED\ED\FB\E9 \EC\EE\E4\F3\EB\FC (GPa);
-			 BB   = G1*0.0, //...\EA\E0\F1\E0\F2\E5\EB\FC\ED\FB\E9 \E0\E4\E3\E5\E7\E8\EE\ED\ED\FB\E9 \EC\EE\E4\F3\EB\FC (GPa);
-			 d0   = 0.,   //...\E4\EE\EB\FF \E0\E4\E3\E5\E7\E8\EE\ED\ED\EE\E9 \EA\EE\EC\EF\EB\E5\EA\F1\ED\EE\F1\F2\E8;
-			 l1   = 0.06, //...\EA\E0\F1\E0\F2\E5\EB\FC\ED\FB\E9 \EC\E0\F1\F8\F2\E0\E1\ED\FB\E9 \EF\E0\F0\E0\EC\E5\F2\F0;
-			 l2   = 0.06, //...\E4\EE\EF\EE\EB\ED\E8\F2\E5\EB\FC\ED\FB\E9 \EC\E0\F1\F8\F2\E0\E1\ED\FB\E9 \EF\E0\F0\E0\EC\E5\F2\F0;
-			 d1   = 0.0,  //...\E4\EE\EB\FF \EF\EE\F2\E5\F0\FC (\EA\EE\EC\EF\EB\E5\EA\F1\ED\EE\F1\F2\FC) \E2 \EC\E0\F2\F0\E8\F6\E5;
-			 d2   = 0.;   //...\E4\EE\EB\FF \EF\EE\F2\E5\F0\FC (\EA\EE\EC\EF\EB\E5\EA\F1\ED\EE\F1\F2\FC) \E2\EE \E2\EA\EB\FE\F7\E5\ED\E8\E8;
+			 AA   = E1*0.0, //...нормальный  адгезионный модуль (GPa);
+			 BB   = G1*0.0, //...касательный адгезионный модуль (GPa);
+			 d0   = 0.,   //...доля адгезионной комплексности;
+			 l1   = 0.06, //...касательный масштабный параметр;
+			 l2   = 0.06, //...дополнительный масштабный параметр;
+			 d1   = 0.0,  //...доля потерь (комплексность) в матрице;
+			 d2   = 0.;   //...доля потерь (комплексность) во включении;
 
 //////////////////////////
-//...\E8\ED\E8\F6\E8\E0\EB\E8\E7\E0\F6\E8\FF \EC\EE\E4\E5\EB\E8;
+//...инициализация модели;
 	CDraft<complex> * sm = CreateDraftC(VISCO2D_GRAD_DRAFT);
 	sm->set_fasa_hmg(K1, K2, G1, G2, l1, l2, d1, d2, AA, BB, d0);
-	sm->set_mpls(PackInts(1, 1)); //...\F1\F2\E5\EF\E5\ED\FC \EC\F3\EB\FC\F2\E8\EF\EE\EB\E5\E9;
-	sm->set_quad(PackInts(4, 2)); //...\F1\F2\E5\EF\E5\ED\FC \EA\E2\E0\E4\F0\E0\F2\F3\F0\FB;
-	sm->set_normaliz(0.92);			  //...\ED\EE\F0\EC\E8\F0\F3\FE\F9\E8\E9 \EC\ED\EE\E6\E8\F2\E5\EB\FC;
-	sm->set_lagrange(1e4);			  //...\EA\EE\FD\F4\F4\E8\F6\E8\E5\ED\F2 \CB\E0\E3\F0\E0\ED\E6\E0; 
+	sm->set_mpls(PackInts(1, 1)); //...степень мультиполей;
+	sm->set_quad(PackInts(4, 2)); //...степень квадратуры;
+	sm->set_normaliz(0.92);			  //...нормирующий множитель;
+	sm->set_lagrange(1e4);			  //...коэффициент Лагранжа; 
 	sm->change_solv(E_PERIODIC_SOLVING);
 	sm->solver.change_state(/*EXTERN_STATE*/);
 	sm->solver.set_mode(/*REGULARIZATION*//*PRINT_MODE*//*FULLY_MODE*/);
 	yes = 0;
 
 ///////////////////////////////////////////////////////
-//...\F7\F2\E5\ED\E8\E5 \EC\EE\E4\E5\EB\E8 \E8 \E3\F0\E0\ED\E8\F7\ED\FB\F5 \F3\F1\EB\EE\E2\E8\E9 \E8\E7 \F4\E0\E9\EB\E0 \E4\E0\ED\ED\FB\F5;
+//...чтение модели и граничных условий из файла данных;
 	double X0, Y0, ell_X = 0., ell_Y = 0., rot_Z = 0.;
 	int  id_reading = 0;
 	if (sm) {
@@ -1439,9 +1442,9 @@ int main(int argc, char* argv[])
 	}
 
 ////////////////////
-//...\F0\E5\F8\E5\ED\E8\E5 \E7\E0\E4\E0\F7\E8;
+//...решение задачи;
 	if (sm->computing_kernel(MAPPING_COMPUT) != OK_STATE) {
-		Message("Error in sample counting...");
+		Message("Error in sample computing...");
 		delete sm;
 		goto err;
 	}
@@ -1515,22 +1518,22 @@ int main(int argc, char* argv[])
 	int i, j, k, m, num; 
 
 //////////////////////////
-//...\E8\ED\E8\F6\E8\E0\EB\E8\E7\E0\F6\E8\FF \EC\EE\E4\E5\EB\E8;
+//...инициализация модели;
 #define real_T dd_real
 	CDraft<real_T> * sm = CreateDraftD(HYDRO3D_DRAFT, 8);		
-	sm->set_mpls(PackInts(3, 3)); //...\F1\F2\E5\EF\E5\ED\FC \EC\F3\EB\FC\F2\E8\EF\EE\EB\E5\E9;
-	sm->set_quad(PackInts(4, 4)); //...\F1\F2\E5\EF\E5\ED\FC \EA\E2\E0\E4\F0\E0\F2\F3\F0\FB;
-	sm->set_normaliz(1.*L*sqrt(3.)/(.5*rad));	//...\ED\EE\F0\EC\E8\F0\F3\FE\F9\E8\E9 \EC\ED\EE\E6\E8\F2\E5\EB\FC;
-	sm->set_geometry(rad);			//...\F0\E0\E4\E8\F3\F1 \F1\F4\E5\F0\E8\F7\E5\F1\EA\EE\E3\EE \E2\EA\EB\FE\F7\E5\ED\E8\FF; 
-	sm->set_lagrange(1e5);			//...\EA\EE\FD\F4\F4\E8\F6\E8\E5\ED\F2 \CB\E0\E3\F0\E0\ED\E6\E0; 
-	sm->set_fasa_hmg(k0);			//...\EA\EE\FD\F4\F4\E8\F6\E8\E5\ED\F2 \C1\F0\E8\ED\EA\EC\E0\ED\E0; 
+	sm->set_mpls(PackInts(3, 3)); //...степень мультиполей;
+	sm->set_quad(PackInts(4, 4)); //...степень квадратуры;
+	sm->set_normaliz(1.*L*sqrt(3.)/(.5*rad));	//...нормирующий множитель;
+	sm->set_geometry(rad);			//...радиус сферического включения; 
+	sm->set_lagrange(1e5);			//...коэффициент Лагранжа; 
+	sm->set_fasa_hmg(k0);			//...коэффициент Бринкмана; 
 	sm->change_solv(PERIODIC_SOLVING);
 	sm->solver.change_state(/*EXTERN_STATE*/);
 	sm->solver.set_mode(/*PRINT_MODE*/);
 	yes = 0;
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//...\F7\F2\E5\ED\E8\E5 \EC\EE\E4\E5\EB\E8 \E8 \E3\F0\E0\ED\E8\F7\ED\FB\F5 \F3\F1\EB\EE\E2\E8\E9 \E8\E7 \F4\E0\E9\EB\E0 \E4\E0\ED\ED\FB\F5 \E8\EB\E8 \E7\E0\E4\E0\ED\E8\E5 \E3\E5\EE\EC\E5\F2\F0\E8\E8 \E0\ED\E0\EB\E8\F2\E8\F7\E5\F1\EA\E8;
+//...чтение модели и граничных условий из файла данных или задание геометрии аналитически;
 	int id_analyt = 1;
 	if (sm && ! id_analyt) {
 		Message(" ");
@@ -1547,7 +1550,7 @@ int main(int argc, char* argv[])
 		Message("Finish!");
 	}
 	else 
-	if (id_analyt) {//...\E7\E0\E4\E0\ED\E8\E5 \E3\E5\EE\EC\E5\F2\F0\E8\E8 \E0\ED\E0\EB\E8\F2\E8\F7\E5\F1\EA\E8;
+	if (id_analyt) {//...задание геометрии аналитически;
 		if (rad < 0.5)
 		sm->GetSphBoxStruct(2.*L, 2.*L, 2.*L, rad, layer, OK_STATE); else
 		sm->GetPenetrateSphere(rad, L); 
@@ -1559,7 +1562,7 @@ int main(int argc, char* argv[])
 	}
 
 //////////////////////////////////////////////////
-//...\F3\F1\F2\E0\ED\E0\E2\EB\E8\E2\E0\E5\EC \E3\F0\E0\ED\E8\F7\ED\FB\E5 \EF\EE\E2\E5\F0\F5\ED\EE\F1\F2\E8 \E2 \EC\EE\E4\E5\EB\E8;
+//...устанавливаем граничные поверхности в модели;
 	if (! id_analyt && 0) {
 		double eps = 1e-6;
 		sm->BlockActivate();
@@ -1591,7 +1594,7 @@ int main(int argc, char* argv[])
 	}
 
 ////////////////////////////////////////////////////////////////////////////////////
-//...\E7\E0\E4\E0\ED\E8\E5 \E3\F0\E0\ED\E8\F7\ED\FB\F5 \E7\ED\E0\F7\E5\ED\E8\E9 \E2 \EC\EE\E4\E5\EB\E8 (\EF\E5\F0\E8\EE\E4\E8\F7\ED\EE\F1\F2\FC \E7\E0\E1\E8\E2\E0\E5\F2 \E3\F0\E0\ED\E8\F7\ED\FB\E5 \E7\ED\E0\F7\E5\ED\E8\FF);
+//...задание граничных значений в модели (периодичность забивает граничные значения);
 	int id_action = 0;
 	if (id_action) {
 		double po[6] = { 0., 0., 0., 0., 0., 0.};
@@ -1613,13 +1616,13 @@ int main(int argc, char* argv[])
 ////////////////////////////
 //...solving of the problem;
 	if (sm->computing_kernel(PERIOD_COMPUT) != OK_STATE) {
-		Message("Error in sample counting...");
+		Message("Error in sample computing...");
 		if (sm) delete sm;
 		goto err;
 	}
 
 ////////////////////////////////////////////////////////////////
-//..\E2\FB\F7\E8\F1\EB\FF\E5\EC \EE\F1\F0\E5\E4\ED\E5\ED\ED\FB\E5 \F5\E0\F0\E0\EA\F2\E5\F0\E8\F1\F2\E8\EA\E8 (\F2\E5\ED\E7\EE\F0 \EF\F0\EE\ED\E8\F6\E0\E5\EC\EE\F1\F2\E8);
+//..вычисляем осредненные характеристики (тензор проницаемости);
 		double nn, nn_cyl, nn_l, ff_vol, AX = 1., AY = 1., AZ = 1.;
 		real_T K[4]; memset(K, 0, 4*sizeof(real_T));
 		sm->GetRigidy(K, -1,  BASIC_COMPUT); 	
@@ -1695,7 +1698,7 @@ int main(int argc, char* argv[])
 			}
 #endif
 //////////////////////////////////////
-//...\EA\EE\F0\F0\E5\EA\F6\E8\FF \F1\F4\E5\F0\E8\F7\E5\F1\EA\EE\E3\EE \E2\EA\EB\FE\F7\E5\ED\E8\FF;
+//...коррекция сферического включения;
 			for (i = 0; i < nd->N;  i++)
 			for (j = 0; j < nd->N1; j++) {
 				if (sqr(nd->X[i])+sqr(nd->Y[j])+sqr(nd->Z[0]) < sqr(rad)) nd->hit[i+j*nd->N] = -1; else
@@ -1733,7 +1736,7 @@ int main(int argc, char* argv[])
 			axis = AXIS_Z;
 
 ////////////////////////////////////////////////
-//...\EF\EE\E2\F2\EE\F0\ED\E0\FF \EA\EE\F0\F0\E5\EA\F6\E8\FF \F1\F4\E5\F0\E8\F7\E5\F1\EA\EE\E3\EE \E2\EA\EB\FE\F7\E5\ED\E8\FF;
+//...повторная коррекция сферического включения;
 			for (i = 0; i < nd->N;  i++)
 			for (j = 0; j < nd->N1; j++) {
 				if (sqr(nd->X[i])+sqr(nd->Y[j])+sqr(nd->Z[0]) < sqr(rad)) nd->hit[i+j*nd->N] = -1; else
@@ -1783,7 +1786,7 @@ int main(int argc, char* argv[])
 //	char * name = "Models_nas/Acoustic/ono0half_120.nas";
 
 	int  i, j, k, l, N0, NN[] = {3, 1, 1, 1}, id_phase = OK_STATE;
-	double  par[6], LL[] = {1.2, 1.3, 2.5};//...//...\F3\EA\E0\E7\FB\E2\E0\FE\F2\F1\FF \E2\EE\E7\F0\E0\F1\F2\E0\FE\F9\E8\E5 \E7\ED\E0\F7\E5\ED\E8\FF \F2\EE\F7\E5\EA;
+	double  par[6], LL[] = {1.2, 1.3, 2.5};//...//...указываются возрастающие значения точек;
 
 ///////////////////////////`
 //...parameters of problem;
@@ -1795,14 +1798,14 @@ int main(int argc, char* argv[])
 			 G1  = 2.04e10/(1.+nj1)*.5; //...steel modulus (\EA\C3/\EC^2);
 
 /////////////////////////////////////////////////////////
-//...\E8\ED\E8\F6\E8\E0\EB\E8\E7\E0\F6\E8\FF \EE\E1\F0\E0\E7\F6\E0 \E8 \ED\E0\F1\F2\F0\EE\E9\EA\E0 \EF\E0\F0\E0\EC\E5\F2\F0\EE\E2 \E7\E0\E4\E0\F7\E8;
+//...инициализация образца и настройка параметров задачи;
 	CDraft<double> * sm = CreateDraftR(ACOU3D_DRAFT, 8);		
 	if (sm->type() == ACOU3D_DRAFT) sm->set_fasa_hmg(Hz, Ro0, C0);
 	else 									  sm->set_fasa_hmg(Hz, Ro0, C0, Ro1, nj1, G1);
-	sm->set_mpls(PackInts(3, 1)); //...\F1\F2\E5\EF\E5\ED\FC \EC\F3\EB\FC\F2\E8\EF\EE\EB\E5\E9;
-	sm->set_quad(PackInts(4, 4)); //...\F1\F2\E5\EF\E5\ED\FC \EA\E2\E0\E4\F0\E0\F2\F3\F0\FB;
-	sm->set_normaliz(.92);			//...\ED\EE\F0\EC\E8\F0\F3\FE\F9\E8\E9 \EC\ED\EE\E6\E8\F2\E5\EB\FC;
-	sm->set_lagrange(1e5);			//...\EC\ED\EE\E6\E8\F2\E5\EB\FC \CB\E0\E3\F0\E0\ED\E6\E0 \E4\EB\FF \F4\F3\ED\EA\F6\E8\EE\ED\E0\EB\E0 \FD\ED\E5\F0\E3\E8\E8;
+	sm->set_mpls(PackInts(3, 1)); //...степень мультиполей;
+	sm->set_quad(PackInts(4, 4)); //...степень квадратуры;
+	sm->set_normaliz(.92);			//...нормирующий множитель;
+	sm->set_lagrange(1e5);			//...множитель Лагранжа для функционала энергии;
 	sm->change_solv(/*PERIODIC_SOLVING*/SQUARE_SOLVING);
 	sm->solver.change_state(/*EXTERN_STATE*/);
 	sm->solver.set_mode(/*PRINT_MODE*/NO_PHASE);
@@ -1810,8 +1813,8 @@ int main(int argc, char* argv[])
 	sm->set_param(2, 100.);
 
 ////////////////////////////
-//...\EF\F0\E5\EE\E1\F0\E0\E7\EE\E2\E0\ED\E8\E5 \EE\E1\F0\E0\E7\F6\E0;
-	CGrid * nd = CreateNodes()(;
+//...преобразование образца;
+	CGrid * nd = CreateNodes();
 
 	N0 = sm->GetOnoBoxStruct(1.2, 1.0, 0.5, 0.5, 0.08, NN, LL, name, OK_STATE, id_phase);
 	//sm->B[0].bar->cells_out("bar");
@@ -1825,7 +1828,7 @@ int main(int argc, char* argv[])
 	par[1] = 0.6; par[3] = 0.5; par[5] = LL[NN[0]-1];
 
 //////////////////////////////////////////
-//...\EA\EE\F0\F0\E5\EA\F6\E8\FF \E3\F0\E0\ED\E8\F7\ED\FB\F5 \E7\ED\E0\F7\E5\ED\E8\E9 \E2\F0\F3\F7\ED\F3\FE;
+//...коррекция граничных значений вручную;
 	if (1) {
 		double pp[6] = { 0., 0., 0., 0., 0., 0.};
 		for (k = 0; k < sm->N; k++)
@@ -1844,7 +1847,7 @@ int main(int argc, char* argv[])
 	}
 
 //////////////////////////
-//...\F0\E0\F1\EF\E5\F7\E0\F2\EA\E0 \E3\E5\EE\EC\E5\F2\F0\E8\E8;
+//...распечатка геометрии;
 	for (k = 0; k < sm->N;  k++) {
 	sm->B[k].bar->cells_out("bar");
 	sm->B[k].bar->grid_skeleton(nd);
@@ -1855,7 +1858,7 @@ int main(int argc, char* argv[])
 ////////////////////////////
 //...solving of the problem;
 	if (sm->computing_kernel(BASIC_COMPUT) != OK_STATE) {
-		Message("Error in sample counting...");
+		Message("Error in sample computing...");
 		if (sm) delete sm;
 		goto err;
 	}
@@ -2152,7 +2155,7 @@ test:
 ///////////////////////////
 //...solving of the probem;
 	if (sm->computing_kernel(PERIOD_COMPUT) != OK_STATE) {
-		Message("Error in sample counting...");
+		Message("Error in sample computing...");
 		delete sm;
 		goto err;
 	}
@@ -2185,7 +2188,7 @@ test:
 		if (TST) fclose (TST);
 
 		if (id_visual) {//..visualization;
-			CGrid * nd = CreateNodes()(;
+			CGrid * nd = CreateNodes();
 			sm->BlockActivate(NULL_STATE);
 
 			for (i = 0; i <= 2*NX; i++) nd->add_new_point_X(.5*i/NX*(par[1]-par[0])+par[0]);
@@ -2334,14 +2337,14 @@ test:
 	//yes = 0;
 
 ////////////////////////////////////////////////////////
-//...\EF\E5\F0\E5\E1\E8\F0\E0\E5\EC \E2\F1\E5 \F0\E0\E4\E8\F3\F1\FB, \EE\F2\EA\EB\FE\F7\E0\FF \EF\F0\E5\E4\E5\EB\FC\ED\FB\E5 \F1\EB\F3\F7\E0\E8;
+//...перебираем все радиусы, отключая предельные случаи;
 	for (l = 0; l < N_rad; l++, rad += h_rad) { 
 		sprintf(buf, "rad = %g", rad);
 		Message(" ");
 		Message(buf);
 
 ////////////////////////////////////////////////////////////////////////////////
-//...\EF\E5\F0\E5\F1\F7\E5\F2 \EF\E0\F0\E0\EC\E5\F2\F0\EE\E2 \FF\F7\E5\E9\EA\E8 \E4\EB\FF \EE\E1\E5\F1\EF\E5\F7\E5\ED\E8\FF \EE\E4\E8\ED\E0\EA\EE\E2\EE\E9 \EA\EE\ED\F6\E5\ED\F2\F0\E0\F6\E8\E8 \F8\F3\ED\E3\E8\F2\E0;
+//...пересчет параметров ячейки для обеспечения одинаковой концентрации шунгита;
 		if (id_type == 1) A = B = C = pow(300.*M_PI,  1./3.)*(rad+10.)*.5;                                                                    //
 		if (id_type == 2) A = B = C = pow(300.*M_PI,  1./3.)*pow(rad*sqr(rad)+((rad+ll)*sqr(rad+ll)-rad*sqr(rad))*(K3-K1)/(K2-K1), 1./3.)*.5; //                                          //
 		if (id_type == 3) {
@@ -2352,7 +2355,7 @@ test:
 		if (rad > 0. && rad <= 0.5*A) {
 
 ///////////////////////////////////////////
-//...\E7\E0\E4\E0\E5\EC \E3\E5\EE\EC\E5\F2\F0\E8\FE \E8 \E8\F1\F5\EE\E4\ED\FB\E5 \EF\E0\F0\E0\EC\E5\F2\F0\FB;
+//...задаем геометрию и исходные параметры;
 			double fL = A, fL2 = fL*fL;
 			A /= fL; rad /= fL;
 			B /= fL;	ll  /= fL;
@@ -2370,13 +2373,13 @@ test:
 ///////////////////////////  
 //...solving of the probem;
 			if (sm->computing_kernel(PERIOD_COMPUT) != OK_STATE) {
-				Message("Error in sample counting...");
+				Message("Error in sample computing...");
 				delete sm;
 				goto err;
 			}
 
 //////////////////////////////////////////
-//..\E2\FB\F7\E8\F1\EB\FF\E5\EC \FD\F4\F4\E5\EA\F2\E8\E2\ED\FB\E5 \EC\EE\E4\F3\EB\E8 \EA\EE\EC\EF\EE\E7\E8\F2\E0;
+//..вычисляем эффективные модули композита;
 			double K[7] = {0.,0.,0.,0.,0.,0., min(A, min(B, C))*.5}, KH, kk, kk_low, kk_max, ff_vol, ll_vol;
 			sm->GetRigidy(K, -1, BASIC_COMPUT);
 			sm->GetRigidy(K, -1, COVERING_COMPUT);
@@ -2388,7 +2391,7 @@ test:
 			kk_max = (K[3]*K1+K[4]*K2+K[5]*K3)/(K[3]+K[4]+K[5]);
 
 ////////////////////////////////////////
-//...\F7\E5\F2\FB\F0\E5\F5\F4\E0\E7\ED\E0\FF \EC\EE\E4\E5\EB\FC, \EC\E5\F2\EE\E4 \DD\F8\E5\EB\E1\E8;
+//...четырехфазная модель, метод Эшелби;
 			KH = sm->TakeEshelby(ff_vol, ll_vol);
 
 			const char  * buf = id_type ? (id_type == 1 ? "heat3d_homog_kf1.dat" : (id_type == 2 ? "heat3d_homog_kf2.dat" : "heat3d_homog_kf3.dat")) : "heat3D_homog_kf0.dat";
@@ -2402,7 +2405,7 @@ test:
 //////////////////
 //..visualization;
 			if (id_visual) { //..visualization;
-				CGrid * nd = CreateNodes()(;
+				CGrid * nd = CreateNodes();
 				if (axis == AXIS_Z) {
 					for (i = 0; i <= 2*NX; i++) nd->add_new_point_X(.5*i/NX*(par[1]-par[0])+par[0]);
 					for (j = 0; j <= 2*NY; j++) nd->add_new_point_Y(.5*j/NY*(par[3]-par[2])+par[2]);
@@ -2435,7 +2438,7 @@ test:
 				sm->GetSurferFormat("pp", nd, id_bcond ? FLUX_VALUE : FLUX_COMPOS_VALUE, 0, axis);
 
 /////////////////////////////////////////
-//...\E4\EE\EF\EE\EB\ED\E8\F2\E5\EB\FC\ED\FB\E5 \F1\E5\F7\E5\ED\E8\FF (\E5\F1\EB\E8 \ED\F3\E6\ED\EE);
+//...дополнительные сечения (если нужно);
 				if (id_visual > 1) { 
 					nd->zero_grid();
 					if (axis_I == AXIS_Z) {
@@ -2640,24 +2643,24 @@ test:
 //...creating model from initiual data;
 test:
 	CDraft<double> * sm = CreateDraftR(LAME3D_DRAFT, 7);
-	sm->set_mpls(PackInts(N0, N0));			//...\F1\F2\E5\EF\E5\ED\FC \EC\F3\EB\FC\F2\E8\EF\EE\EB\E5\E9;
-	sm->set_quad(PackInts(N_elem, N_max)); //...\F1\F2\E5\EF\E5\ED\FC \EA\E2\E0\E4\F0\E0\F2\F3\F0\FB;
-	sm->set_normaliz(0.92);						//...\ED\EE\F0\EC\E8\F0\F3\FE\F9\E8\E9 \EC\ED\EE\E6\E8\F2\E5\EB\FC;
-	sm->set_lagrange(1.);						//...\EA\EE\FD\F4\F4\E8\F6\E8\E5\ED\F2 \CB\E0\E3\F0\E0\ED\E6\E0; 
+	sm->set_mpls(PackInts(N0, N0));			//...степень мультиполей;
+	sm->set_quad(PackInts(N_elem, N_max)); //...степень квадратуры;
+	sm->set_normaliz(0.92);						//...нормирующий множитель;
+	sm->set_lagrange(1.);						//...коэффициент Лагранжа; 
 	sm->change_solv(SPECIAL_SOLVING);
 	sm->solver.change_state(/*EXTERN_STATE*/);
 	sm->solver.set_mode(/*REDUCED_PRINT*//*PRINT_MODE*//*FULLY_MODE*/);
 	yes = 0;
 
 ////////////////////////////////////////////////////////
-//...\EF\E5\F0\E5\E1\E8\F0\E0\E5\EC \E2\F1\E5 \F0\E0\E4\E8\F3\F1\FB, \EE\F2\EA\EB\FE\F7\E0\FF \EF\F0\E5\E4\E5\EB\FC\ED\FB\E5 \F1\EB\F3\F7\E0\E8;
+//...перебираем все радиусы, отключая предельные случаи;
 	for (l = 0; l < N_rad; l++, rad += h_rad) { 
 		sprintf(buf, "rad = %g", rad);
 		Message(" ");
 		Message(buf);
 
 ////////////////////////////////////////////////////////////////////////////////
-//...\EF\E5\F0\E5\F1\F7\E5\F2 \EF\E0\F0\E0\EC\E5\F2\F0\EE\E2 \FF\F7\E5\E9\EA\E8 \E4\EB\FF \EE\E1\E5\F1\EF\E5\F7\E5\ED\E8\FF \EE\E4\E8\ED\E0\EA\EE\E2\EE\E9 \EA\EE\ED\F6\E5\ED\F2\F0\E0\F6\E8\E8 \F8\F3\ED\E3\E8\F2\E0;
+//...пересчет параметров ячейки для обеспечения одинаковой концентрации шунгита;
 		if (id_type == 1) A = B = C = pow(300.*M_PI,  1./3.)*(rad+10.)*.5;                                                                    
 		if (id_type == 2) A = B = C = pow(300.*M_PI,  1./3.)*pow(rad*sqr(rad)+((rad+ll)*sqr(rad+ll)-rad*sqr(rad))*(E3-E1)/(E2-E1), 1./3.)*.5;                                           
 		if (id_type == 3) {
@@ -2667,13 +2670,13 @@ test:
 		}
 		if (rad > 0. && rad <= 0.5*A) { 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//...\ED\EE\F0\EC\E8\F0\F3\E5\EC \E3\E5\EE\EC\E5\F2\F0\E8\FE \E8 \E7\E0\E4\E0\E5\EC \EF\E0\F0\E0\EC\E5\F2\F0\FB \EC\E0\F2\E5\F0\E8\E0\EB\EE\E2 (\E2 \F1\EB\F3\F7\E0\E5 ___2BODY_ESHELBY___ \E4\EB\FF \EC\E5\E6\F4\E0\E7\ED\EE\E3\EE \F1\EB\EE\FF \E7\E0\E4\E0\E5\EC \EF\E0\F0\E0\EC\E5\F2\F0\FB \EC\E0\F2\F0\E8\F6\FB!!!);
+//...нормируем геометрию и задаем параметры материалов (в случае ___2BODY_ESHELBY___ для межфазного слоя задаем параметры матрицы!!!);
 			double fL = A;	A /= fL; B /= fL; C /= fL; rad /= fL; ll /= fL;
 			sm->set_fasa_hmg(nj1, nj2, E1/(fL*(1.+nj1))*.5, E2/(fL*(1.+nj2))*.5, nj3, E3/(fL*(1.+nj3))*.5/*, nj1, E1/(fL*(1.+nj1))*.5*/);
 			sm->set_geometry(rad, ll);
 
 //////////////////////
-//...\E7\E0\E4\E0\E5\EC \E3\E5\EE\EC\E5\F2\F0\E8\FE;
+//...задаем геометрию;
 			if (id_bcond) sm->GetSphBoxStruct(A, B, C, rad, ll);
 			else {
 				sm->GetSphBoxStruct(A, B, C);
@@ -2685,13 +2688,13 @@ test:
 ///////////////////////////  
 //...solving of the probem;
 			if (sm->computing_kernel(PERIOD_COMPUT) != OK_STATE) {
-				Message("Error in sample counting...");
+				Message("Error in sample computing...");
 				delete sm;
 				goto err;
 			}
 
 //////////////////////////////////////////
-//..\E2\FB\F7\E8\F1\EB\FF\E5\EC \FD\F4\F4\E5\EA\F2\E8\E2\ED\FB\E5 \EC\EE\E4\F3\EB\E8 \EA\EE\EC\EF\EE\E7\E8\F2\E0;
+//..вычисляем эффективные модули композита;
 			double K[28], E0, nu, K0, m0, mu, lm, C0, KH, EH, mH, nH, ff_vol, ll_vol; memset(K, 0, 28*sizeof(double)); K[27] = A*.5;
 			sm->GetRigidy(K, -1, BASIC_COMPUT);
 			sm->GetRigidy(K, -1, COVERING_COMPUT);
@@ -2708,7 +2711,7 @@ test:
 			mu = K[15]/K[21]*.5*fL;
 
 ////////////////////////////////////////
-//...\F7\E5\F2\FB\F0\E5\F5\F4\E0\E7\ED\E0\FF \EC\EE\E4\E5\EB\FC, \EC\E5\F2\EE\E4 \DD\F8\E5\EB\E1\E8;
+//...четырехфазная модель, метод Эшелби;
 			KH = sm->TakeEshelby_volm(ff_vol, ll_vol)*fL;
 			mH = sm->TakeEshelby_shear_two(ff_vol+ll_vol)*fL;
 			mH = sm->TakeEshelby_shear(ff_vol, ll_vol)*fL;
@@ -2730,7 +2733,7 @@ test:
 //////////////////
 //..visualization;
 			if (id_visual) {
-				CGrid * nd = CreateNodes()(;
+				CGrid * nd = CreateNodes();
 				if (axis == AXIS_Z) {
 					for (i = 0; i <= 2*NX; i++) nd->add_new_point_X(.5*i/NX*(par[1]-par[0])+par[0]);
 					for (j = 0; j <= 2*NY; j++) nd->add_new_point_Y(.5*j/NY*(par[3]-par[2])+par[2]);
@@ -2765,7 +2768,7 @@ test:
 				sm->GetSurferFormat("tx", nd, STRESS_X_VALUE, 1, axis);
 
 /////////////////////////////////////////
-//...\E4\EE\EF\EE\EB\ED\E8\F2\E5\EB\FC\ED\FB\E5 \F1\E5\F7\E5\ED\E8\FF (\E5\F1\EB\E8 \ED\F3\E6\ED\EE);
+//...дополнительные сечения (если нужно);
 				if (id_visual > 1) { 
 					nd->zero_grid();
 					if (axis_I == AXIS_Z) {
@@ -2942,17 +2945,17 @@ test:
 test:
 #define real_T double
 	CDraft<real_T> * sm = CreateDraftR(HYDRO3D_DRAFT, 8);		
-	sm->set_fasa_hmg(alpha);					//...\EA\EE\FD\F4\F4\E8\F6\E8\E5\ED\F2 \C1\F0\E8\ED\EA\EC\E0\ED\E0; 
-	sm->set_mpls(PackInts(N0, N0));			//...\F1\F2\E5\EF\E5\ED\FC \EC\F3\EB\FC\F2\E8\EF\EE\EB\E5\E9;
-	sm->set_quad(PackInts(N_elem, N_max)); //...\F1\F2\E5\EF\E5\ED\FC \EA\E2\E0\E4\F0\E0\F2\F3\F0\FB;
-	sm->set_normaliz(L*sqrt(3.)/(.5*rad));	//...\ED\EE\F0\EC\E8\F0\F3\FE\F9\E8\E9 \EC\ED\EE\E6\E8\F2\E5\EB\FC; 
-	sm->set_lagrange(1e5);						//...\EA\EE\FD\F4\F4\E8\F6\E8\E5\ED\F2 \CB\E0\E3\F0\E0\ED\E6\E0; 
+	sm->set_fasa_hmg(alpha);					//...коэффициент Бринкмана; 
+	sm->set_mpls(PackInts(N0, N0));			//...степень мультиполей;
+	sm->set_quad(PackInts(N_elem, N_max)); //...степень квадратуры;
+	sm->set_normaliz(L*sqrt(3.)/(.5*rad));	//...нормирующий множитель; 
+	sm->set_lagrange(1e5);						//...коэффициент Лагранжа; 
 	sm->change_solv(structure ? SQUARE_SOLVING : SPECIAL_SOLVING);
 	sm->solver.set_mode(/*PRINT_MODE*/);
 	yes = 0;
 
 ///////////////////////////////////////////////////////
-//...\F7\F2\E5\ED\E8\E5 \EC\EE\E4\E5\EB\E8 \E8 \E3\F0\E0\ED\E8\F7\ED\FB\F5 \F3\F1\EB\EE\E2\E8\E9 \E8\E7 \F4\E0\E9\EB\E0 \E4\E0\ED\ED\FB\F5;
+//...чтение модели и граничных условий из файла данных;
 	if (sm && structure && structure != 3) {
 		Message(" ");
 		sprintf(buf, "Loading model from file '%s'", name);
@@ -2969,7 +2972,7 @@ test:
 		Message("Finish!");
 
 ///////////////////////////////////////////////////////////////////////////////////////////
-//...\E7\E0\E4\E0\ED\E8\E5 \E3\F0\E0\ED\E8\F7\ED\FB\F5 \E7\ED\E0\F7\E5\ED\E8\E9 \E2 \EC\EE\E4\E5\EB\E8 (\F1\EA\EE\F0\EE\F1\F2\FC \EF\EE\EF\E5\F0\E5\EA \EF\EE\F2\EE\EA\E0 \E8 \E4\E0\E2\EB\E5\ED\E8\E5 \E2\E4\EE\EB\FC \EF\EE\F2\EE\EA\E0);
+//...задание граничных значений в модели (скорость поперек потока и давление вдоль потока);
 		double po[6] = { 0., 0., 0., 0., 0., 0.};
 		sm->BlockActivate();
 		for (k = 0; k < sm->N; k++) 
@@ -2986,7 +2989,7 @@ test:
 	}
 
 ////////////////////////////////////////////////////////
-//...\EF\E5\F0\E5\E1\E8\F0\E0\E5\EC \E2\F1\E5 \F0\E0\E4\E8\F3\F1\FB, \EE\F2\EA\EB\FE\F7\E0\FF \EF\F0\E5\E4\E5\EB\FC\ED\FB\E5 \F1\EB\F3\F7\E0\E8;
+//...перебираем все радиусы, отключая предельные случаи;
 	res = system("mkdir ./bcm_results/hydro3d_homog"); char buff1[200], buff2[200], str[40];
 //	res = system("del *.grd");
 	for (l = 0; l < N_rad; l++, rad += h_rad) { 
@@ -2994,7 +2997,7 @@ test:
 		Message(" ");
 		Message(buf);
 		if (rad > 0. && rad < M_SQRT_2 || structure) {
-			if (! structure || structure == 3) { //...\E7\E0\E4\E0\ED\E8\E5 \E3\E5\EE\EC\E5\F2\F0\E8\E8 \E0\ED\E0\EB\E8\F2\E8\F7\E5\F1\EA\E8;
+			if (! structure || structure == 3) { //...задание геометрии аналитически;
 				if (rad < 0.5)
 				sm->GetSphBoxStruct(2.*L, 2.*L, 2.*L, rad, 0., OK_STATE); else
 				sm->GetPenetrateSphere(rad, L);
@@ -3002,7 +3005,7 @@ test:
 				sm->set_geometry(rad);
 				par[0] = -L; par[2] = -L; par[4] = -L;
 				par[1] =  L; par[3] =  L; par[5] =  L;
-				if (1) { //...\E7\E0\E4\E0\ED\E8\E5 \EA\F0\E0\E5\E2\FB\F5 \F3\F1\EB\EE\E2\E8\E9 \ED\E0 \E1\EE\EA\EE\E2\FB\F5 \E3\F0\E0\ED\FF\F5;
+				if (1) { //...задание краевых условий на боковых гранях;
 					double po[6] = { 0., 0., 0., 0., 0., 0.};
 					LOOP_FACET(sm->B[0].bar, num, m) {
 						sm->B[0].bar->SetFacetXParam(num, par[0], po, FSKEWS_BND);
@@ -3020,10 +3023,10 @@ test:
 ///////////////////////////
 //...solving of the probem;
 			if (sm->computing_kernel(structure ? BASIC_COMPUT : PERIOD_COMPUT) != OK_STATE)
-				Message("Error in sample counting...");
+				Message("Error in sample computing...");
 
 ////////////////////////////////////////////////////////////////
-//..\E2\FB\F7\E8\F1\EB\FF\E5\EC \F3\F1\F0\E5\E4\ED\E5\ED\ED\FB\E5 \F5\E0\F0\E0\EA\F2\E5\F0\E8\F1\F2\E8\EA\E8 (\F2\E5\ED\E7\EE\F0 \EF\F0\EE\ED\E8\F6\E0\E5\EC\EE\F1\F2\E8);
+//..вычисляем усредненные характеристики (тензор проницаемости);
 			double nn, nn_cyl, nn_cyl_alpha, nn_l, nn_l_alpha, ff_vol;
 			real_T K[4]; memset(K, 0, 4*sizeof(real_T));
 			sm->GetRigidy(K, -1,  BASIC_COMPUT); 	
@@ -3048,7 +3051,7 @@ test:
 //..visualization;
 			sprintf(str, "%g", rad); sprintf(buff1, "./bcm_results/hydro3d_homog/pp_%s", str); sprintf(buff2, "./bcm_results/hydro3d_homog/vv_%s", str);
 			if (id_visual) { //..visualization;
-				CGrid * nd = CreateNodes()(;
+				CGrid * nd = CreateNodes();
 				if (axis == AXIS_Z) {
 					for (i = 0; i <= 2*NX; i++) nd->add_new_point_X(.5*i/NX*(par[1]-par[0])+par[0]);
 					for (j = 0; j <= 2*NY; j++) nd->add_new_point_Y(.5*j/NY*(par[3]-par[2])+par[2]);
@@ -3072,7 +3075,7 @@ test:
 					if (axis == AXIS_Z) sm->Poly_struc_in3D(hit, nd->X[i], nd->Y[j], nd->Z[0]); else
 					if (axis == AXIS_Y) sm->Poly_struc_in3D(hit, nd->Y[j], nd->Z[0], nd->X[i]); else
 					if (axis == AXIS_X) sm->Poly_struc_in3D(hit, nd->Z[0], nd->X[i], nd->Y[j]);
-					//if (structure > 1) { //...\EA\EE\F0\F0\E5\EA\F6\E8\FF \EA\E0\ED\E0\EB\E0 \EC\E5\E6\E4\F3 \F1\F4\E5\F0\E8\F7\E5\F1\EA\E8\EC\E8 \F7\E0\F1\F2\E8\F6\E0\EC\E8;
+					//if (structure > 1) { //...коррекция канала между сферическими частицами;
 					//	if (sqr(nd->X[i]+L)+sqr(nd->Y[j]-L)+sqr(nd->Z[0]-L) < sqr(rad)) hit = -1;
 					//	if (sqr(nd->X[i]-L)+sqr(nd->Y[j]-L)+sqr(nd->Z[0]-L) < sqr(rad)) hit = -1;
 					//	if (sqr(nd->X[i]-L)+sqr(nd->Y[j]+L)+sqr(nd->Z[0]-L) < sqr(rad)) hit = -1;
@@ -3107,7 +3110,7 @@ test:
 				//}
 
 /////////////////////////////////////////
-//...\E4\EE\EF\EE\EB\ED\E8\F2\E5\EB\FC\ED\FB\E5 \F1\E5\F7\E5\ED\E8\FF (\E5\F1\EB\E8 \ED\F3\E6\ED\EE);
+//...дополнительные сечения (если нужно);
 				if (id_visual > 1) { 
 					nd->zero_grid();
 					if (axis_I == AXIS_Z) {
@@ -3133,7 +3136,7 @@ test:
 						if (axis_I == AXIS_Z) sm->Poly_struc_in3D(hit, nd->X[i], nd->Y[j], nd->Z[0]); else
 						if (axis_I == AXIS_Y) sm->Poly_struc_in3D(hit, nd->Y[j], nd->Z[0], nd->X[i]); else
 						if (axis_I == AXIS_X) sm->Poly_struc_in3D(hit, nd->Z[0], nd->X[i], nd->Y[j]);
-						//if (structure > 1) { //...\EA\EE\F0\F0\E5\EA\F6\E8\FF \EA\E0\ED\E0\EB\E0 \EC\E5\E6\E4\F3 \F1\F4\E5\F0\E8\F7\E5\F1\EA\E8\EC\E8 \F7\E0\F1\F2\E8\F6\E0\EC\E8;
+						//if (structure > 1) { //...коррекция канала между сферическими частицами;
 						//	if (sqr(nd->X[i]+L)+sqr(nd->Y[j]-L)+sqr(nd->Z[0]-L) < sqr(rad)) hit = -1;
 						//	if (sqr(nd->X[i]-L)+sqr(nd->Y[j]-L)+sqr(nd->Z[0]-L) < sqr(rad)) hit = -1;
 						//	if (sqr(nd->X[i]-L)+sqr(nd->Y[j]+L)+sqr(nd->Z[0]-L) < sqr(rad)) hit = -1;
@@ -3188,7 +3191,7 @@ test:
 							if (axis_II == AXIS_Z) sm->Poly_struc_in3D(hit, nd->X[i], nd->Y[j], nd->Z[0]); else
 							if (axis_II == AXIS_Y) sm->Poly_struc_in3D(hit, nd->Y[j], nd->Z[0], nd->X[i]); else
 							if (axis_II == AXIS_X) sm->Poly_struc_in3D(hit, nd->Z[0], nd->X[i], nd->Y[j]);
-							//if (id_structure > 1) { //...\EA\EE\F0\F0\E5\EA\F6\E8\FF \EA\E0\ED\E0\EB\E0 \EC\E5\E6\E4\F3 \F1\F4\E5\F0\E8\F7\E5\F1\EA\E8\EC\E8 \F7\E0\F1\F2\E8\F6\E0\EC\E8;
+							//if (id_structure > 1) { //...коррекция канала между сферическими частицами;
 							//	if (sqr(nd->X[i]+L)+sqr(nd->Y[j]-L)+sqr(nd->Z[0]-L) < sqr(rad)) hit = -1;
 							//	if (sqr(nd->X[i]-L)+sqr(nd->Y[j]-L)+sqr(nd->Z[0]-L) < sqr(rad)) hit = -1;
 							//	if (sqr(nd->X[i]-L)+sqr(nd->Y[j]+L)+sqr(nd->Z[0]-L) < sqr(rad)) hit = -1;
@@ -3251,7 +3254,7 @@ test:
 
 //////////////////////////////////
 //...reading model from data-file;
-	CGrid * nd = CreateNodes()(;
+	CGrid * nd = CreateNodes();
 	if (nd && sm) {
       sprintf(buf, "Loading model from file '%s'", name);
       Message(" ");
@@ -3310,7 +3313,7 @@ test:
 ///////////////////////////
 //...solving of the probem;
 		if (sm->computing_kernel(PERIOD_COMPUT/*BASIC_COMPUT*/) != OK_STATE) {
-			Message("Error in sample counting...");
+			Message("Error in sample computing...");
 			delete sm;
 			delete nd;
 
@@ -3365,8 +3368,8 @@ test:
 			//K[4] = M_PI*R2*R2-K[3];
 			//K[2] = 1.-K[3]-K[4];  
 
-			ff		 =  K[3]/(K[2]+K[3]+K[4]); //...\EE\E1\FA\B8\EC\ED\E0\FF \E4\EE\EB\FF \E2\EA\EB\FE\F7\E5\ED\E8\E9;
-			ff_l	 =  K[4]/(K[2]+K[3]+K[4]); //...\EE\E1\FA\B8\EC\ED\E0\FF \E4\EE\EB\FF \EC\E5\E6\F4\E0\E7\ED\EE\E3\EE \F1\EB\EE\FF;
+			ff		 =  K[3]/(K[2]+K[3]+K[4]); //...объёмная доля включений;
+			ff_l	 =  K[4]/(K[2]+K[3]+K[4]); //...объёмная доля межфазного слоя;
 			kk		 =  K[0]/(K[2]+K[3]+K[4]);
 			kk_low = (K[2]+K[3]+K[4])/(K[2]/K1+K[3]/K2+K[4]/K3);
 			kk_max = (K[2]*K1+K[3]*K2+K[4]*K3)/(K[2]+K[3]+K[4]);
@@ -3426,17 +3429,17 @@ test:
 
 ///////////////////////////
 //...parameters of problem;
-	double nju1 = 0.300,  //...\EB\E5\E4\FF\ED\E0\FF \EC\E0\F2\F0\E8\F6\E0; 
-			 nju2 = 0.100,  //...\EC\E8\ED\E5\F0\E0\EB\FC\ED\E0\FF \F7\E0\F1\F2\E8\F6\E0 (\EF\E5\F1\EE\EA); 
-			 nju3 = 0.499,  //...\E2\EE\E4\E0; 
-			 G1   = 6.0/(1.+nju1)*.5,	//...\EB\E5\E4\FF\ED\E0\FF \EC\E0\F2\F0\E8\F6\E0 (GPa);
-			 G2   = 50./(1.+nju2)*.5,	//...\E2\EA\EB\FE\F7\E5\ED\E8\E5 (\EF\E5\F1\EE\EA, GPa); 
-			 G3   = 1e-0/*5*//(1.+nju3)*.5; //...\EC\E5\E6\E0\E7\ED\FB\E9 \F1\EB\EE\E9 (\E2\EE\E4\E0, GPa); 
+	double nju1 = 0.300,  //...ледяная матрица; 
+			 nju2 = 0.100,  //...минеральная частица (песок); 
+			 nju3 = 0.499,  //...вода; 
+			 G1   = 6.0/(1.+nju1)*.5,	//...ледяная матрица (GPa);
+			 G2   = 50./(1.+nju2)*.5,	//...включение (песок, GPa); 
+			 G3   = 1e-0/*5*//(1.+nju3)*.5; //...межазный слой (вода, GPa); 
 	sm->set_fasa_hmg(nju1, nju2, nju3, G1, G2, G3);
 
 //////////////////////////////////
 //...reading model from data-file;
-	CGrid * nd = CreateNodes()(;
+	CGrid * nd = CreateNodes();
 	if (nd && sm) {
       sprintf(buf, "Loading model from file '%s'", name);
       Message(" ");
@@ -3479,7 +3482,7 @@ test:
 ///////////////////////////
 //...solving of the probem;
 		if (sm->computing_kernel(MAPPING_COMPUT) != OK_STATE) {
-			Message("Error in sample counting...");
+			Message("Error in sample computing...");
 			//delete sm;
 			//delete nd;
 
@@ -3585,17 +3588,17 @@ test:
 	yes = 0;
 
 //////////////////////
-//...\EF\E0\F0\E0\EC\E5\F2\F0\FB \E7\E0\E4\E0\F7\E8;
-	double nj1 = 0.33, //...\EF\EE\EB\E8\EC\E5\F0\ED\E0\FF \EC\E0\F2\F0\E8\F6\E0; 
-			 nj2 = 0.20, //...\E3\F0\E0\F4\E8\F2\EE\E2\EE\E5 \E2\EA\EB\FE\F7\E5\ED\E8\E5; 
-			 nj3 = 0.30, //...\EC\E5\E6\F4\E0\E7\ED\FB\E9 \F1\EB\EE\E9; 
+//...параметры задачи;
+	double nj1 = 0.33, //...полимерная матрица; 
+			 nj2 = 0.20, //...графитовое включение; 
+			 nj3 = 0.30, //...межфазный слой; 
 			 E1  = 18.,  //...GPa;
 			 E2  = 380., //...GPa; 
 			 E3  = 57.5, c0, c1, par[6]; 
 	sm->set_fasa_hmg(rad, rad+ll, nj2, nj3, nj1, E2/(1.+nj2)*.5, E3/(1.+nj3)*.5, E1/(1.+nj1)*.5);
 
 ///////////////////////////////
-//...\F6\E8\EA\EB \EF\EE \EF\E0\F0\E0\EC\E5\F2\F0\E0\EC \E7\E0\E4\E0\F7\E8;
+//...цикл по параметрам задачи;
 	int n_var;
 	res = system("mkdir var1_results");
 	for (rad = 0., c0 = 0., c1 = 0.4, n_var = 1; n_var <= 100; n_var++) {
@@ -3608,7 +3611,7 @@ test:
 		sm->set_geometry(rad, ll);
 
 ///////////////////////
-//...\E3\E5\EE\EC\E5\F2\F0\E8\FF \EE\E1\EB\E0\F1\F2\E8;
+//...геометрия области;
 		sm->GetSphBoxStruct(AX, AY, AZ, rad, ll);
 		par[0] = -AX*.5; par[2] = -AY*.5; par[4] = -AZ*.5;
 		par[1] =  AX*.5; par[3] =  AY*.5; par[5] =  AZ*.5;
@@ -3616,13 +3619,13 @@ test:
 ///////////////////////////
 //...solving of the probem;
 		if (sm->computing_kernel(PERIOD_COMPUT) != OK_STATE) {
-			Message("Error in sample counting...");
+			Message("Error in sample computing...");
 			delete sm;
 			goto err;
 		}
 
 ///////////////////////////////////////////////////////////////////////
-//..\E2\FB\F7\E8\F1\EB\FF\E5\EC \EE\F1\F0\E5\E4\ED\E5\ED\ED\FB\E5 \F5\E0\F0\E0\EA\F2\E5\F0\E8\F1\F2\E8\EA\E8 (\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \E8 \EC\EE\E4\F3\EB\FC \F1\E4\E2\E8\E3\E0);
+//..вычисляем осредненные характеристики (модуль Юнга и модуль сдвига);
 		double K[28], E0, K0, nu, mu, C0, lm, ff_vol, ll_vol; memset(K, 0, 28*sizeof(double)); K[27] = AX*.5;
 		sm->GetRigidy(K, -1, BASIC_COMPUT);
 		sm->GetRigidy(K, -1, COVERING_COMPUT);
@@ -3643,7 +3646,7 @@ test:
 		fclose (TST);
 
 //////////////////////////////////////////////////////////////
-//..\F2\E5\F1\F2\E8\F0\F3\E5\EC \EF\EE\E2\E5\F0\F5\ED\EE\F1\F2\ED\FB\E5 \E7\ED\E0\F7\E5\ED\E8\FF \ED\E0 \E3\F0\E0\ED\E8\F6\E5 \F4\E0\E7 \EC\E0\F2\E5\F0\E8\E0\EB\E0;
+//..тестируем поверхностные значения на границе фаз материала;
 	int id_testin = 0;
 	if (id_testin) {
 		extern int forced_phase;
@@ -3770,7 +3773,7 @@ test:
 	int i, j, k, m, num;
 
 ////////////////////////////
-//...\EF\F0\E5\EE\E1\F0\E0\E7\EE\E2\E0\ED\E8\E5 \EE\E1\F0\E0\E7\F6\E0;
+//...преобразование образца;
 	CDraft<double> * sm = CreateDraftR(HYDRO3D_DRAFT, 8);
 	sm->set_fasa_hmg(k0);			//...Brinkman's coefficient; 
 	sm->set_mpls(PackInts(3, 3)); //...space degree of multipoles;
@@ -3801,7 +3804,7 @@ test:
 		//par[1] =  sm->B[sm->N-1].mp[7]*M_SQRT_2/sm->get_param(sm->NUM_MPLS+1); par[3] = par[1]; par[5] = par[1];
 
 /////////////////////////////////////////
-//...\E7\E0\E4\E0\ED\E8\E5 \E3\F0\E0\ED\E8\F7\ED\FB\F5 \E7\ED\E0\F7\E5\ED\E8\E9 \E2 \EC\EE\E4\E5\EB\E8;
+//...задание граничных значений в модели;
 		int id_action = 0;
 		if (id_action) {
 			double pp[6] = { 0., 0., 0., 0., 0., 0.},
@@ -3823,13 +3826,13 @@ test:
 ///////////////////////////
 //...solving of the probem;
 		if (sm->computing_kernel(PERIOD_COMPUT/*BASIC_COMPUT*//*SPECIAL_COMPUT*/) != OK_STATE) {
-			Message("Error in sample counting...");
+			Message("Error in sample computing...");
 			delete sm;
 			goto err;
 		}
 
 ////////////////////////////////////////////////////////////////
-//..\E2\FB\F7\E8\F1\EB\FF\E5\EC \EE\F1\F0\E5\E4\ED\E5\ED\ED\FB\E5 \F5\E0\F0\E0\EA\F2\E5\F0\E8\F1\F2\E8\EA\E8 (\F2\E5\ED\E7\EE\F0 \EF\F0\EE\ED\E8\F6\E0\E5\EC\EE\F1\F2\E8);
+//..вычисляем осредненные характеристики (тензор проницаемости);
 		double K[4], nn, nn_cyl, nn_l; memset(K, 0, 4*sizeof(double));
 		sm->GetRigidy(K, -1,  BASIC_COMPUT); 	
 
@@ -3853,10 +3856,10 @@ test:
 		fclose (TST);
 
 //////////////////////////////////////////
-//..\F2\E5\F1\F2\E8\F0\F3\E5\EC \E3\F0\E0\ED\E8\F7\ED\FB\E5 \E7\ED\E0\F7\E5\ED\E8\FF \ED\E0 \F1\F4\E5\F0\E5;
+//..тестируем граничные значения на сфере;
 		int id_testin = 0;
 		if (id_testin) {
-			CGrid * nd = CreateNodes()(;
+			CGrid * nd = CreateNodes();
 			int NX = 40, NY = 40;
 			for (i = 0; i <= 2*NX; i++) 
 			for (j = 0; j <= 2*NY; j++) {
@@ -3886,7 +3889,7 @@ test:
 //..visualization;
 		int id_visual = 1;
 		if (id_visual) {
-			CGrid * nd = CreateNodes()(;
+			CGrid * nd = CreateNodes();
 			int NX = 100, NY = 100, axis = AXIS_Y; double alpha = 0;
 
 			if (axis == AXIS_Z) {
@@ -3928,7 +3931,7 @@ test:
 			sm->GetSurferFormat("vv", nd, VELOCITY_VALUE, 0, axis);
 
 //////////////////////////////
-//...\E4\EE\EF\EE\EB\ED\E8\F2\E5\EB\FC\ED\E0\FF \EF\EB\EE\F1\EA\EE\F1\F2\FC;
+//...дополнительная плоскость;
 			for (i = 0; i <= 2*NX; i++) nd->X[i] = (.5*i/NX*(par[1]-par[0])+par[0]);
 			for (j = 0; j <= 2*NY; j++) nd->Y[j] = (.5*j/NY*(par[3]-par[2])+par[2]);
 			nd->Z[0] = (par[4]+(par[5]-par[4])*(1.+alpha)*.5);
@@ -3961,9 +3964,9 @@ test:
 	int j, k, l, m, num, res;
 
 //////////////////////
-//...\EF\E0\F0\E0\EC\E5\F2\F0\FB \EC\EE\E4\E5\EB\E8;
+//...параметры модели;
 	CDraft<double> * sm = CreateDraftR(HEAT2D_DRAFT, 8);
-	sm->set_fasa_hmg(1., 2.);		  //...\EC\EE\E4\F3\EB\FC \F2\E5\EF\EB\EE\EF\F0\EE\E2\EE\E4\ED\EE\F1\F2\E8; 
+	sm->set_fasa_hmg(1., 2.);		  //...модуль теплопроводности; 
 	sm->set_mpls(PackInts(4, 4));   //...space degree of multipoles;
 	sm->set_quad(PackInts(8, 8));   //...N_elem, N_max -- parameters of quadrature;
 	sm->set_normaliz(0.92);			  //...normalization coefficient;
@@ -3974,7 +3977,7 @@ test:
 	yes = 0;
 
 ///////////////////////////////////////////////////////
-//...\F7\F2\E5\ED\E8\E5 \EC\EE\E4\E5\EB\E8 \E8 \E3\F0\E0\ED\E8\F7\ED\FB\F5 \F3\F1\EB\EE\E2\E8\E9 \E8\E7 \F4\E0\E9\EB\E0 \E4\E0\ED\ED\FB\F5;
+//...чтение модели и граничных условий из файла данных;
 	if (sm) {
 		Message(" ");
 		sprintf(buf, "Loading model from file '%s'", name);
@@ -4015,7 +4018,7 @@ test:
 	}
 
 /////////////////////////////////////////
-//...\E7\E0\E4\E0\ED\E8\E5 \E3\F0\E0\ED\E8\F7\ED\FB\F5 \E7\ED\E0\F7\E5\ED\E8\E9 \E2 \EC\EE\E4\E5\EB\E8;
+//...задание граничных значений в модели;
 	int id_action = 0;
 	if (id_action) {
 		double pp[6] = { 1., 0., 0., 0., 0., 0.},
@@ -4038,7 +4041,7 @@ test:
 //...solving of the problem;
 	res = system("mkdir ./bcm_results/heat2d_homog");
 	if (sm->computing_kernel(MAPPING_COMPUT) != OK_STATE) {
-		Message("Error in sample counting...");
+		Message("Error in sample computing...");
 		delete sm;
 		goto err;
 	}
@@ -4108,25 +4111,29 @@ test:
 #endif
 #ifdef TEST_DRAFT_HEAT3D_FROM_FEMAP
 {
-	const char * name = "./Parametric/Unit3d_001.nas";
+	const char * name = "../Exe/Box3d_homog/sph_025_octa.nas";
+	//const char * name = "../Exe/Box3d_homog/sph_025_full.nas";
+	//const char * name = "../Exe/Box3d_homog/sph_025th1.nas";
+	//const char * name = "../Exe/Box3d_homog/nano_35x25x246_octa.nas";
+	//const char * name = "../Exe/Parametric/Unit3d_001.nas";
 	double par[6];
 	int i, j, k, m, num;
 
 //////////////////////
-//...\EF\E0\F0\E0\EC\E5\F2\F0\FB \EC\EE\E4\E5\EB\E8;
-	CDraft<double> * sm = CreateDraftR(HEAT3D_DRAFT, 7);
-	sm->set_fasa_hmg(1., 2.);		  //...\EC\EE\E4\F3\EB\FC \F2\E5\EF\EB\EE\EF\F0\EE\E2\EE\E4\ED\EE\F1\F2\E8; 
+//...параметры модели;
+	CDraft<double> * sm = CreateDraftR(HEAT3D_DRAFT, 8);
+	sm->set_fasa_hmg(1., 2.);		  //...модуль теплопроводности; 
 	sm->set_mpls(PackInts(1, 1));   //...space degree of multipoles;
-	sm->set_quad(PackInts(4, 2));   //...N_elem, N_max -- parameters of quadrature;
+	sm->set_quad(PackInts(8, 4));   //...N_elem, N_max -- parameters of quadrature;
 	sm->set_normaliz(0.92);			  //...normalization coefficient;
 	sm->set_lagrange(1e3);			  //...Lagrange coefficient; 
-	sm->change_solv(/*ENERGY_SOLVING*/);
+	sm->change_solv(PERIODIC_SOLVING);
 	sm->solver.change_state(/*EXTERN_STATE*/);
-	sm->solver.set_mode(REGULARIZATION/*PRINT_MODE*//*FULLY_MODE*/);
+	sm->solver.set_mode(REGUL_BOUNDARY/*PRINT_MODE*//*FULLY_MODE*/);
 	//yes = 0;
 
 ///////////////////////////////////////////////////////
-//...\F7\F2\E5\ED\E8\E5 \EC\EE\E4\E5\EB\E8 \E8 \E3\F0\E0\ED\E8\F7\ED\FB\F5 \F3\F1\EB\EE\E2\E8\E9 \E8\E7 \F4\E0\E9\EB\E0 \E4\E0\ED\ED\FB\F5;
+//...чтение модели и граничных условий из файла данных;
 	if (sm) {
 		Message(" ");
 		sprintf(buf, "Loading model from file '%s'", name);
@@ -4143,7 +4150,7 @@ test:
 	}
 
 /////////////////////////////////////////
-//...\E7\E0\E4\E0\ED\E8\E5 \E3\F0\E0\ED\E8\F7\ED\FB\F5 \E7\ED\E0\F7\E5\ED\E8\E9 \E2 \EC\EE\E4\E5\EB\E8;
+//...задание граничных значений в модели;
 	int id_action = 0;
 	if (id_action) {
 		double pp[6] = { 1., 0., 0., 0., 0., 0.},
@@ -4165,7 +4172,7 @@ test:
 ////////////////////////////
 //...solving of the problem;
 	if (sm->computing_kernel(MAPPING_COMPUT) != OK_STATE) {
-		Message("Error in sample counting...");
+		Message("Error in sample computing...");
 		delete sm;
 		goto err;
 	}
@@ -4188,8 +4195,7 @@ test:
 			std::ofstream fout (strbuff);
 
 			sm->shapes_init(NO_STATE); 
-			BCM_draft<double> pBCM = {sm, BASIC_COMPUT};
-			//AbstractSolver		(& pBCM, 
+			BCM_draft<double> pBCM = {sm, MAPPING_COMPUT};
 			AbstractParSolver (& pBCM, 
 									(void *)&comm_mpi,
 									fout, params,
@@ -4208,7 +4214,7 @@ test:
 	{
 		int id_visual = 1;
 		if (id_visual) {
-			CGrid * nd = CreateNodes()(;
+			CGrid * nd = CreateNodes();
 			int NX = 100, NY = 100, axis;
 
 			sm->BlockActivate();
@@ -4281,7 +4287,7 @@ test:
 	int j, l;
 
 //////////////////////////
-//...\E8\ED\E8\F6\E8\E0\EB\E8\E7\E0\F6\E8\FF \EC\EE\E4\E5\EB\E8;
+//...инициализация модели;
 	CDraft<double> * sm = CreateDraftR(LAME2D_DRAFT);
 	sm->set_mpls(PackInts(4, 4));  //...space degree of multipoles;
 	sm->set_quad(PackInts(8, 8));	  //...N_elem, N_max -- parameters of quadrature;
@@ -4293,20 +4299,20 @@ test:
 	yes = 0;
 
 //////////////////////
-//...\EF\E0\F0\E0\EC\E5\F2\F0\FB \E7\E0\E4\E0\F7\E8;
-	double nju1 = 0.300, //...\EB\E5\E4\FF\ED\E0\FF \EC\E0\F2\F0\E8\F6\E0; 
-			 nju2 = 0.100, //...\EC\E8\ED\E5\F0\E0\EB\FC\ED\E0\FF \F7\E0\F1\F2\E8\F6\E0 (\EF\E5\F1\EE\EA); 
-			 nju3 = 0.499, //...\E2\EE\E4\E0; 
-			 E1   = 6.0,	//...\EB\E5\E4\FF\ED\E0\FF \EC\E0\F2\F0\E8\F6\E0 (GPa);
-			 E2   = 50.,	//...\E2\EA\EB\FE\F7\E5\ED\E8\E5 (\EF\E5\F1\EE\EA, GPa); 
-			 E3   = 1e-05, //...\EC\E5\E6\E0\E7\ED\FB\E9 \F1\EB\EE\E9 (\E2\EE\E4\E0, GPa); 
+//...параметры задачи;
+	double nju1 = 0.300, //...ледяная матрица; 
+			 nju2 = 0.100, //...минеральная частица (песок); 
+			 nju3 = 0.499, //...вода; 
+			 E1   = 6.0,	//...ледяная матрица (GPa);
+			 E2   = 50.,	//...включение (песок, GPa); 
+			 E3   = 1e-05, //...межазный слой (вода, GPa); 
 			 G1   = E1/(1.+nju1)*.5,
 			 G2   = E2/(1.+nju2)*.5,
 			 G3   = E3/(1.+nju3)*.5;
 	sm->set_fasa_hmg(nju1, nju2, nju3, G1, G2, G3);
 
 ///////////////////////////////////////////////////////
-//...\F7\F2\E5\ED\E8\E5 \EC\EE\E4\E5\EB\E8 \E8 \E3\F0\E0\ED\E8\F7\ED\FB\F5 \F3\F1\EB\EE\E2\E8\E9 \E8\E7 \F4\E0\E9\EB\E0 \E4\E0\ED\ED\FB\F5;
+//...чтение модели и граничных условий из файла данных;
 	if (sm) {
 		sprintf(buf, "Loading model from file '%s'", name);
 		Message(" ");
@@ -4350,7 +4356,7 @@ test:
 //...solving of the problem;
 	res = system("mkdir ./bcm_results/lame2d_homog");
 	if (sm->computing_kernel(MAPPING_COMPUT) != OK_STATE) {
-		Message("Error in sample counting...");
+		Message("Error in sample computing...");
 		delete sm;
 		goto err;
 	}
@@ -4440,11 +4446,11 @@ test:
 #endif
 #ifdef TEST_DRAFT_LAME3D_FROM_FEMAP
 {
-	char * name = "./Box3d_homog/nano_35x25x246_octa.nas";
+	const char * name = "../Exe/Box3d_homog/nano_35x25x246_octa.nas";
 	int i, j, k, m, num;
 
 ///////////////////////////////////
-//...\F7\F2\E5\ED\E8\E5 \EC\EE\E4\E5\EB\E8 \E8\E7 \F4\E0\E9\EB\E0 \E4\E0\ED\ED\FB\F5;
+//...чтение модели из файла данных;
 	CDraft<double> * sm = CreateDraftR(LAME3D_DRAFT, 7);
 	sm->set_mpls(PackInts(1, 1));   //...space degree of multipoles;
 	sm->set_quad(PackInts(2, 2));   //...N_elem, N_max -- parameters of quadrature;
@@ -4456,7 +4462,7 @@ test:
 	//yes = 0;
 
 ///////////////////////////////////////////////////////
-//...\F7\F2\E5\ED\E8\E5 \EC\EE\E4\E5\EB\E8 \E8 \E3\F0\E0\ED\E8\F7\ED\FB\F5 \F3\F1\EB\EE\E2\E8\E9 \E8\E7 \F4\E0\E9\EB\E0 \E4\E0\ED\ED\FB\F5;
+//...чтение модели и граничных условий из файла данных;
 	if (sm) {
 		sprintf(buf, "Loading model from file '%s'", name);
 		Message(" ");
@@ -4472,8 +4478,8 @@ test:
 	double par[6];	sm->SetGeomBounding(par);
 
 ////////////////////////////////////////
-//...\E7\E0\E4\E0\E5\EC \E3\F0\E0\ED\E8\F7\ED\FB\E5 \E7\ED\E0\F7\E5\ED\E8\FF \E2 \EC\EE\E4\E5\EB\E8;
-	int id_action = 1;
+//...задаем граничные значения в модели;
+	int id_action = 0;
 	if (id_action) {
 		sm->BlockActivate();
 		double pp[6] = {     0., 0., 0., 0., 0., 0.},
@@ -4491,7 +4497,7 @@ test:
 		}
 	}
 /////////////////////////////////////////
-//...\F3\F1\F2\E0\ED\E0\E2\EB\E8\E2\E0\E5\EC \E3\F0\E0\ED\E8\F7\ED\F3\FE \EF\EE\E2\E5\F0\F5\ED\EE\F1\F2\FC;
+//...устанавливаем граничную поверхность;
 /*	double rr0 = 0.25,
 			 fff = M_PI*rr0*rr0,
 			 rrr = pow(fff*.75/M_PI, 1./3.), 
@@ -4512,9 +4518,9 @@ test:
 */
 ///////////////////////////
 //...parameters of problem;
-	double nj1 = 0.4999,	//...\EF\EE\EB\E8\EC\E5\F0\ED\E0\FF \EC\E0\F2\F0\E8\F6\E0; 
-			 nj2 = 0.30,	//...\E3\F0\E0\F4\E8\F2\EE\E2\EE\E5 \E2\EA\EB\FE\F7\E5\ED\E8\E5; 
-			 nj3 = 0.30,   //...\EC\E5\E6\F4\E0\E7\ED\FB\E9 \F1\EB\EE\E9; 
+	double nj1 = 0.4999,	//...полимерная матрица; 
+			 nj2 = 0.30,	//...графитовое включение; 
+			 nj3 = 0.30,   //...межфазный слой; 
 			 E1  = 0.000135,
 			 E2  = 0.031, 
 			 E3  = 0.015; 
@@ -4522,8 +4528,8 @@ test:
 
 ////////////////////////////
 //...solving of the problem;
-	if (sm->computing_kernel(BASIC_COMPUT/*MAPPING_COMPUT*/) != OK_STATE) {
-		Message("Error in sample counting...");
+	if (sm->computing_kernel(/*BASIC_COMPUT*/MAPPING_COMPUT) != OK_STATE) {
+		Message("Error in sample computing...");
 		if (sm) delete sm;
 		goto err;
 	}
@@ -4567,7 +4573,7 @@ test:
 	{
 		int id_visual = 1;
 		if (id_visual) {
-			CGrid * nd = CreateNodes()(;
+			CGrid * nd = CreateNodes();
 			int NX = 100, NY = 100, axis;
 
 			sm->BlockActivate();
@@ -4631,24 +4637,24 @@ test:
 #endif
 #ifdef TEST_DRAFT_COHES2D_FROM_FEMAP
 {
-	//char * name_ini = "./Models_inp/Box2D_sph/sph_009_84.inp";
-	//char * name_ini = "./Models_inp/Box2D_sph/sph_009_172.inp";
-	char * name_ini = "./Models_inp/Box2D_sph/sph_009_184.inp";
-	//char * name_ini = "./Models_inp/Box2D_sph/sph_009_496.inp";
+	//const char * name_ini = "../Exe/Models_inp/Box2D_sph/sph_009_84.inp";
+	//const char * name_ini = "../Exe/Models_inp/Box2D_sph/sph_009_172.inp";
+	const char * name_ini = "../Exe/Models_inp/Box2D_sph/sph_009_184.inp";
+	//const char * name_ini = "../Exe/Models_inp/Box2D_sph/sph_009_496.inp";
 
-	//char * name_ini = "./Models_inp/Box2D_ellipt/Box2D_ellipt_1_4_480.inp";
-	//char * name_ini = "./Models_inp/Box2D_ellipt/Box2D_ellipt_2_4_148.inp";
-	//char * name_ini = "./Models_inp/Box2D_ellipt/Box2D_ellipt_05_4_160.inp";
-	//char * name_ini = "./Models_inp/Box2D_short cylinder/Box2D_short_cyl_1_4.inp";
-	//char * name_ini = "./Box2d_homog/ell_80_20_i.nas";
+	//const char * name_ini = "../Exe/Models_inp/Box2D_ellipt/Box2D_ellipt_1_4_480.inp";
+	//const char * name_ini = "../Exe/Models_inp/Box2D_ellipt/Box2D_ellipt_2_4_148.inp";
+	//const char * name_ini = "../Exe/Models_inp/Box2D_ellipt/Box2D_ellipt_05_4_160.inp";
+	//const char * name_ini = "../Exe/Models_inp/Box2D_short cylinder/Box2D_short_cyl_1_4.inp";
+	//const char * name_ini = "../Exe/Box2d_homog/ell_80_20_i.nas";
 	double X0, Y0, ell_X = 0., ell_Y = 0., rot_Z = 0.;
 	int  i, j, l, id_reading = 0;
 
 //////////////////////////
 //...model initialization;
 	CDraft<double> * sm = CreateDraftR(COHES2D_DRAFT, 8);
-	sm->set_mpls(PackInts(2, 2)); //...\F1\F2\E5\EF\E5\ED\FC \EC\F3\EB\FC\F2\E8\EF\EE\EB\E5\E9;
-	sm->set_quad(PackInts(8, 8)); //...\F1\F2\E5\EF\E5\ED\FC \EA\E2\E0\E4\F0\E0\F2\F3\F0\FB;
+	sm->set_mpls(PackInts(2, 2)); //...степень мультиполей;
+	sm->set_quad(PackInts(8, 8)); //...степень квадратуры;
 	sm->set_normaliz(0.92);
 	sm->set_param(sm->size_of_param()-1, 1e4);
 	sm->change_solv(E_PERIODIC_SOLVING);
@@ -4674,7 +4680,7 @@ test:
 	sm->set_fasa_hmg(nju1, nju2, E1/(1.+nju1)*.5, E2/(1.+nju2)*.5, E1/(1.+nju1)*.5/sqr(l1), E2/(1.+nju2)*.5/sqr(l2));
 
 ///////////////////////////////////////////////////////
-//...\F7\F2\E5\ED\E8\E5 \EC\EE\E4\E5\EB\E8 \E8 \E3\F0\E0\ED\E8\F7\ED\FB\F5 \F3\F1\EB\EE\E2\E8\E9 \E8\E7 \F4\E0\E9\EB\E0 \E4\E0\ED\ED\FB\F5;
+//...чтение модели и граничных условий из файла данных;
 	if (sm) {
       sprintf(buf, "Loading model from file '%s'", name_ini);
       Message(" ");
@@ -4724,7 +4730,7 @@ test:
 ///////////////////////////
 //...solving of the probem;
 	if (sm->computing_kernel(MAPPING_COMPUT) != OK_STATE) {
-		Message("Error in sample counting...");
+		Message("Error in sample computing...");
 		delete sm;
 		goto err;
 	}
@@ -4879,7 +4885,7 @@ test:
 	//char * name = "./Box2d_homog/sph285_01.inp";
 
 /////////////////////////////
-//...\E7\E0\E4\E0\E5\EC \EF\E0\F0\E0\EC\E5\F2\F0\FB \E7\E0\E4\E0\F7\E8;
+//...задаем параметры задачи;
 	double energy[] = {0., 0.}, EYoung, 
 			 nj1		= 0.39, //...matrix parameters; 
 			 nj2		= 0.20, //...inclusion parameters; 
@@ -4924,8 +4930,8 @@ test:
 //////////////////////////
 //...model initialization;
 	CDraft<double> * sm = CreateDraftR(MINDL2D_DRAFT, 8);
-	sm->set_mpls(PackInts(3, 3)); //...\F1\F2\E5\EF\E5\ED\FC \EC\F3\EB\FC\F2\E8\EF\EE\EB\E5\E9;
-	sm->set_quad(PackInts(16, 8)); //...\F1\F2\E5\EF\E5\ED\FC \EA\E2\E0\E4\F0\E0\F2\F3\F0\FB;
+	sm->set_mpls(PackInts(3, 3)); //...степень мультиполей;
+	sm->set_quad(PackInts(16, 8)); //...степень квадратуры;
 	sm->set_normaliz(0.92);
 	sm->set_lagrange(1e5);
 	sm->change_solv(E_PERIODIC_SOLVING);
@@ -4935,10 +4941,10 @@ test:
 
 ///////////////////////////
 //...parameters of problem;
-	double nju1 = 0.33,					//...\EF\EE\EB\E8\EC\E5\F0\ED\E0\FF \EC\E0\F2\F0\E8\F6\E0;
-			 nju2 = 0.16,					//...\E6\E5\F1\F2\EA\EE\E5 \E2\EA\EB\FE\F7\E5\ED\E8\E5;  
-			 E1   = 210.,					//...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \EC\E0\F2\F0\E8\F6\FB;
-			 E2   = 420.,					//...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \E2\EA\EB\FE\F7\E5\ED\E8\FF;
+	double nju1 = 0.33,					//...полимерная матрица;
+			 nju2 = 0.16,					//...жесткое включение;  
+			 E1   = 210.,					//...модуль Юнга матрицы;
+			 E2   = 420.,					//...модуль Юнга включения;
 			 AA	= E1*.0,					//...adhegion parameter;
 			 BB	= E1*.5/(1.+nju1)*.0,//...adhegion parameter;
 			 l1	= 0.3568*3.,			//...interphase layer for matrix;
@@ -4950,7 +4956,7 @@ test:
 	sm->set_fasa_hmg(nju1, nju2, G1 = E1/(1.+nju1)*.5, G2 = E2/(1.+nju2)*.5, l1, l1_dop = l1_dop/sqrt(1.-2.*nju1), l2, l2_dop = l2_dop/sqrt(1.-2.*nju2), AA, BB);
 
 ///////////////////////////////////////////////////////
-//...\F7\F2\E5\ED\E8\E5 \EC\EE\E4\E5\EB\E8 \E8 \E3\F0\E0\ED\E8\F7\ED\FB\F5 \F3\F1\EB\EE\E2\E8\E9 \E8\E7 \F4\E0\E9\EB\E0 \E4\E0\ED\ED\FB\F5;
+//...чтение модели и граничных условий из файла данных;
 	if (sm) {
       sprintf(buf, "Loading model from file '%s'", name_ini);
       Message(" ");
@@ -5000,7 +5006,7 @@ test:
 ///////////////////////////
 //...solving of the probem;
 	if (sm->computing_kernel(MAPPING_COMPUT) != OK_STATE) {
-		Message("Error in sample counting...");
+		Message("Error in sample computing...");
 		delete sm;
 		goto err;
 	}
@@ -5046,7 +5052,7 @@ test:
 		ff_vol = M_PI*ell_X*ell_Y/((par[1]-par[0])*(par[3]-par[2]));
 
 ///////////////////////
-//...\EC\E0\F2\F0\E8\F6\E0 \E6\E5\F1\F2\EA\EE\F1\F2\E8;
+//...матрица жесткости;
 		ku1 = K[0];
 		lm1 = K[2];
 		mu1 = K[7];
@@ -5059,7 +5065,7 @@ test:
 		mu2 = K[14]*G1+K[15]*G2;
 
 ///////////////////////////
-//...\F2\E5\F5\ED\E8\F7\E5\F1\EA\E8\E5 \EA\EE\ED\F1\F2\E0\ED\F2\FB;
+//...технические константы;
 		nxz = lm2/(ku1+lm1);
 		Kxy = 0.5*(ku1+lm1);	
 		Gxy = 0.5*(ku1-lm1);	
@@ -5067,7 +5073,7 @@ test:
 		Ez  = ku2-2.*lm2*nxz;
 
 ///////////////////////////////////////////////////////////////////
-//...\F0\E5\E7\F3\EB\FC\F2\E0\F2 \EF\F0\EE\F1\F2\F0\E0\ED\F1\F2\E2\E5\ED\ED\EE\E3\EE \EE\F1\F0\E5\E4\ED\E5\ED\E8\FF \E2\EE\EB\EE\EA\EE\ED \EF\EE \CA\F0\E8\F1\F2\E5\ED\F1\E5\ED\F3;
+//...результат пространственного осреднения волокон по Кристенсену;
 		KH = (Ez+4.*sqr(1.+nxz)*Kxy)/9.;
 		GH = (Ez+sqr(1.-2.*nxz)*Kxy+6.*(Gxy+Gxz))/15.;
 		nH = 1./(2.*(Ez+Gxy+Gxz)+(8.*sqr(nxz)+12.*nxz+7.)*Kxy);
@@ -5114,7 +5120,7 @@ test:
 	double par[6], RR = 1., rr = 1., AA = 3.;
 
 //////////////////////
-//...\EF\E0\F0\E0\EC\E5\F2\F0\FB \E7\E0\E4\E0\F7\E8;
+//...параметры задачи;
 	double K1 = 1.,	 //...heat conduction (matrix);
 			 K2 = 2.;	 //...heat conduction (inclusion);
 
@@ -5131,7 +5137,7 @@ test:
 
 for (int j = 1; j <= 1; j++) {
 ///////////////////////
-//...\E3\E5\EE\EC\E5\F2\F0\E8\FF \EE\E1\EB\E0\F1\F2\E8;
+//...геометрия области;
 	sm->GetSpheroidBoxStruct(AA, AA, AA, RR, rr); sm->B[1].type = ESHE_ZOOM_BLOCK;
 	par[0] = -AA*.5; par[2] = -AA*.5; par[4] = -AA*.5;
 	par[1] =  AA*.5; par[3] =  AA*.5; par[5] =  AA*.5;
@@ -5139,13 +5145,13 @@ for (int j = 1; j <= 1; j++) {
 ///////////////////////////
 //...solving of the probem;
 	if (sm->computing_kernel(ESHELBY_COMPUT) != OK_STATE) {
-		Message("Error in sample counting...");
+		Message("Error in sample computing...");
 		delete sm;
 		goto err;
 	}
 
 ///////////////////////////////////////////////////////////////////////
-//..\E2\FB\F7\E8\F1\EB\FF\E5\EC \EE\F1\F0\E5\E4\ED\E5\ED\ED\FB\E5 \F5\E0\F0\E0\EA\F2\E5\F0\E8\F1\F2\E8\EA\E8 (\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \E8 \EC\EE\E4\F3\EB\FC \F1\E4\E2\E8\E3\E0);
+//..вычисляем осредненные характеристики (модуль Юнга и модуль сдвига);
 	//double K[28], E0, K0, nu, mu, C0, lm, ff_vol, ll_vol; memset(K, 0, 28*sizeof(double)); K[27] = AX*.5;
 	//sm->GetRigidy(K, -1, VOLUME_COUNTING); for (i = 0; i < 25; i++) K[i] = -K[i];
 	//sm->GetRigidy(K, -1, BASIC_COUNTING);
@@ -5170,7 +5176,7 @@ for (int j = 1; j <= 1; j++) {
 //..visualization;
 	int id_visual = 1;
 	if (id_visual) {
-		CGrid * nd = CreateNodes()(;
+		CGrid * nd = CreateNodes();
 		int NX = 100, NY = 100, axis = AXIS_Y, alpha = 0, i, j;
 
 		if (axis == AXIS_Z) {
@@ -5228,9 +5234,9 @@ for (int j = 1; j <= 1; j++) {
 	double RR = 1., rr = 0.7, AA = 3.;
 
 //////////////////////
-//...\EF\E0\F0\E0\EC\E5\F2\F0\FB \E7\E0\E4\E0\F7\E8;
-	double nj1 = 0.30, //...\EF\EE\EB\E8\EC\E5\F0\ED\E0\FF \EC\E0\F2\F0\E8\F6\E0; 
-			 nj2 = 0.30, //...\E3\F0\E0\F4\E8\F2\EE\E2\EE\E5 \E2\EA\EB\FE\F7\E5\ED\E8\E5; 
+//...параметры задачи;
+	double nj1 = 0.30, //...полимерная матрица; 
+			 nj2 = 0.30, //...графитовое включение; 
 			 E1  = 0.135,
 			 E2  = 1.5, par[6]; 
 
@@ -5238,18 +5244,18 @@ for (int j = 1; j <= 1; j++) {
 //...model initialization;
 	CDraft<double> * sm = CreateDraftR(LAME3D_DRAFT, 8);
 	sm->set_fasa_hmg(RR, rr, nj2, nj1, nj1, E2/(1.+nj2)*.5, E1/(1.+nj1)*.5, E1/(1.+nj1)*.5);
-	sm->set_mpls(PackInts(11, 1)); //...\F1\F2\E5\EF\E5\ED\FC \EC\F3\EB\FC\F2\E8\EF\EE\EB\E5\E9;
-	sm->set_quad(PackInts(8, 4)); //...\F1\F2\E5\EF\E5\ED\FC \EA\E2\E0\E4\F0\E0\F2\F3\F0\FB;
-	sm->set_normaliz(0.92);			//...\ED\EE\F0\EC\E8\F0\F3\FE\F9\E8\E9 \EC\ED\EE\E6\E8\F2\E5\EB\FC;
+	sm->set_mpls(PackInts(11, 1)); //...степень мультиполей;
+	sm->set_quad(PackInts(8, 4)); //...степень квадратуры;
+	sm->set_normaliz(0.92);			//...нормирующий множитель;
 	sm->change_solv(/*SPECIAL_SOLVING*/);
 	sm->solver.set_mode(/*REDUCED_PRINT*//*PRINT_MODE*//*FULLY_MODE*/);
 	//yes = 0;
 
 ///////////////////////////////
-//...\F6\E8\EA\EB \EF\EE \EF\E0\F0\E0\EC\E5\F2\F0\E0\EC \E7\E0\E4\E0\F7\E8;
+//...цикл по параметрам задачи;
 	for (int j = 1; j <= 1; j++) {
 ///////////////////////
-//...\E3\E5\EE\EC\E5\F2\F0\E8\FF \EE\E1\EB\E0\F1\F2\E8;
+//...геометрия области;
 		sm->GetSpheroidBoxStruct(AA, AA, AA, RR, rr); sm->B[1].type = ESHE_ZOOM_BLOCK;
 		par[0] = -AA*.5; par[2] = -AA*.5; par[4] = -AA*.5;
 		par[1] =  AA*.5; par[3] =  AA*.5; par[5] =  AA*.5;
@@ -5257,7 +5263,7 @@ for (int j = 1; j <= 1; j++) {
 ///////////////////////////
 //...solving of the probem;
 		if (sm->computing_kernel(ESHELBY_COMPUT) != OK_STATE) {
-			Message("Error in sample counting...");
+			Message("Error in sample computing...");
 			delete sm;
 			goto err;
 		}
@@ -5322,10 +5328,17 @@ for (int j = 1; j <= 1; j++) {
 #ifdef DIFFUSION2D_HOMOGENIZATION
 {
 	double AA = 1., BB = 1., ff_vol = 0.1, RR = sqrt(0.1/M_PI), B1 = 20., B2 = 1.;
+	double fi=0.06, fk=0.06, gamma=0.8, kappa=0.4, Temper=413., Di=8.64e-1, Dk=8.64e-5, Ds=8.64e-1, mu=8.64e-3, Gconst=6.2e6, kk=2.e-16; 
 	int id_visual = 0, NX = 100, NY = 100, axis = AXIS_Y, N0 = 11, N_elem = 16, N_max = 4, i, j, k; 
 
-	const int N_X1 = 2, N_X2 = 2, N_C0 = 2;
-	double X1[N_X1][N_X2][N_C0], X2[N_X1][N_X2][N_C0], C0[N_X1][N_X2][N_C0], result[N_X1][N_X2][N_C0];
+	const int N_X1 = 10, N_X2 = 10, N_C0 = 10;
+	double *** X1 = NULL, *** X2 = NULL, *** C0 = NULL, *** result = NULL, *** BB1 = NULL, *** BB2 = NULL; 
+	set_matrix3(X1, N_X1, N_X2, N_C0); 
+	set_matrix3(X2, N_X1, N_X2, N_C0); 
+	set_matrix3(C0, N_X1, N_X2, N_C0); 
+	set_matrix3(result, N_X1, N_X2, N_C0); 
+	set_matrix3(BB1, N_X1, N_X2, N_C0); 
+	set_matrix3(BB2, N_X1, N_X2, N_C0); 
 
 //////////////////////////
 //...model initialization;
@@ -5367,27 +5380,29 @@ for (int j = 1; j <= 1; j++) {
 		sm->SetBUniStruct(CLAYER_BLOCK);
 		Message("Finish!");
 	}
-	yes = 0;
 
 ///////////////////////////
 //...parameters of problem;
-	for (i = 0; i < N_X1; i++)
+	double X1_0 = 0., h_X1 = 0.01,
+			 X2_0 = 0., h_X2 = 0.01,
+			 C0_0 = 1.68e-2, h_C0 = 0.158;
+   for (i = 0; i < N_X1; i++)
 	for (j = 0; j < N_X2; j++)
 	for (k = 0; k < N_C0; k++) {
 
 ////////////////////////////
-//...\EE\EF\F0\E5\E4\E5\EB\E5\ED\E8\E5 \EF\E0\F0\E0\EC\E5\F2\F0\EE\E2;
-		X1[i][j][k] = i;
-		X2[i][j][k] = j;
-		C0[i][j][k] = k;
-		B1 = 2.+i+j+k; 
-		B2 = 1.;
+//...определение параметров;
+		X1[i][j][k] = X1_0+i*h_X1;
+		X2[i][j][k] = X2_0+j*h_X2;
+		C0[i][j][k] = C0_0-k*h_C0;
+		BB1[i][j][k] = B1 = fk*Dk+(1.-fk)*gamma*kappa*Ds;
+		BB2[i][j][k] = B2 = fi*Di+(fi*kk*Gconst*Temper/mu)*C0[i][j][k]; 
 		sm->set_fasa_hmg(RR, RR, B2, B1, B1);
 
 ///////////////////////////
 //...solving of the probem;
 		if (sm->computing_kernel(PERIOD_COMPUT) != OK_STATE) {
-			Message("Error in sample computing...");
+			Message("Error in sample counting...");
 			delete sm;
 			goto err;
 		}
@@ -5408,7 +5423,7 @@ for (int j = 1; j <= 1; j++) {
 //////////////////
 //..visualization;
 		if (id_visual) {//..visualization;
-			CGrid * nd = CreateNodes()(;
+			CGrid_el * nd = new CGrid_el;
 			sm->BlockActivate(NULL_STATE);
 
 			for (i = 0; i <= 2*NX; i++) nd->add_new_point_X(.5*i/NX*(par[1]-par[0])+par[0]);
@@ -5426,15 +5441,23 @@ for (int j = 1; j <= 1; j++) {
 	delete sm;
 
 ////////////////////////
-//...\EF\E5\F7\E0\F2\FC \F0\E5\E7\F3\EB\FC\F2\E0\F2\EE\E2;
+//...печать результатов;
 	FILE * TST = fopen("result_homog.dat", "w");
-	fprintf(TST, "X1,   X2,   C0,   dd,   ff_vol\n");
+	fprintf(TST, "X1,       X2,       C0,       ff_vol,       result,       (B1, B2)\n");
 
 	for (i = 0; i < N_X1; i++)
 	for (j = 0; j < N_X2; j++)
 	for (k = 0; k < N_C0; k++)
-		fprintf(TST, "%g,  %g,  %g,  %g,  %g\n", X1[i][j][k], X2[i][j][k], C0[i][j][k], ff_vol, result[i][j][k]);
+		fprintf(TST, "%g,       %g,       %g,        %g,       %g,       (%g,  %g)\n", 
+						X1[i][j][k], X2[i][j][k], C0[i][j][k], ff_vol, result[i][j][k], BB1[i][j][k], BB2[i][j][k]);
 	if (TST) fclose (TST);
+
+	delete_struct(X1);
+	delete_struct(X2);
+	delete_struct(C0);
+	delete_struct(result);
+	delete_struct(BB1);
+	delete_struct(BB2);
 }
 #endif
 #ifdef HEAT2D_RANDOM_STRUCTURE
@@ -5493,7 +5516,7 @@ for (int j = 1; j <= 1; j++) {
 	fclose (TST);
 	for (int var = 50; var < 51; var++) {
 		if (sm->computing_kernel(MAPPING_COMPUT) != OK_STATE) {
-			Message("Error in sample counting...");
+			Message("Error in sample computing...");
 			delete sm;
 			goto err;
 		}
@@ -5590,14 +5613,14 @@ for (int j = 1; j <= 1; j++) {
 	double A = 1., B = 1., C = 1., rad = 0.1, ll = 0.05;
 	int i = 0, j, k, M = 1, m = 1;
 /////////////////////////////////////////////////////////////
-//...\E3\E5\ED\E5\F0\E0\F2\EE\F0 \F1\EB\F3\F7\E0\E9\ED\FB\F5 \F7\E8\F1\E5\EB;                            //
+//...генератор случайных чисел;                            //
 //	for (srand((unsigned)time(NULL)), i = 0; i < 10; i++) { //
 //	double random = (double) rand()/(double) RAND_MAX;      //
 //			i = i;                                            //
 //	}                                                       //
 /////////////////////////////////////////////////////////////
 //////////////////////////////////
-//...\E3\E5\ED\E5\F0\E8\EC \F1\F2\F0\F3\EA\F2\F3\F0\F3 \E2\EA\EB\EB\FE\F7\E5\ED\E8\E9;
+//...генерим структуру вкллючений;
 	const int N = 3;
 	double X[] = {0., 1., 2., 3., 4., 5., 6., 7., 8., 9., 10.}, 
 			 Y[] = {0., 1., 2., 3., 4., 5., 6., 7., 8., 9., 10.}, 
@@ -5630,7 +5653,7 @@ for (int j = 1; j <= 1; j++) {
 	//yes = 0;
 
 //////////////////////////////////////////////
-//...\EF\EE\F1\F2\F0\EE\E5\ED\E8\E5 \F0\E5\F8\E5\F2\EA\E8 \E4\EB\FF \F1\E8\F1\F2\E5\EC\FB \E2\EA\EB\FE\F7\E5\ED\E8\E9;
+//...построение решетки для системы включений;
 	CGrid * nd = CreateNodes(); nd->add_params(2);
 	CGrid * lt = CreateNodes();
 
@@ -5646,7 +5669,7 @@ for (int j = 1; j <= 1; j++) {
 
 
 /////////////////////////////////////////////////
-//...\E7\E0\E4\E0\ED\E8\E5 \EC\EE\E4\E5\EB\E8 \E8 \E3\F0\E0\ED\E8\F7\ED\FB\F5 \F3\F1\EB\EE\E2\E8\E9 \F4\F3\ED\EA\F6\E8\E5\E9;
+//...задание модели и граничных условий функцией;
 	if (sm && 1) {
 		sm->GetLatticeBox3DStruct(lt->X, lt->Y, lt->Z, lt->N, lt->N1, lt->N2, /*POLY_BLOCK*/CLAYER_BLOCK);
 		//sm->GetLatticeBox3DStruct(X, Y, Z, N+1, N+1, N+1, /*POLY_BLOCK*/CLAYER_BLOCK);
@@ -5659,7 +5682,7 @@ for (int j = 1; j <= 1; j++) {
 	}
 
 ///////////////////////////////////////////////////////
-//...\F7\F2\E5\ED\E8\E5 \EC\EE\E4\E5\EB\E8 \E8 \E3\F0\E0\ED\E8\F7\ED\FB\F5 \F3\F1\EB\EE\E2\E8\E9 \E8\E7 \F4\E0\E9\EB\E0 \E4\E0\ED\ED\FB\F5;
+//...чтение модели и граничных условий из файла данных;
 	if (sm && 0) {
 		Message(" ");
 		sprintf(buf, "Loading model from file '%s'", name);
@@ -5679,7 +5702,7 @@ for (int j = 1; j <= 1; j++) {
 //...solving of the probem;
 	for (int var = 50; var < 51; var++) {
 		if (sm->computing_kernel(/*BASIC_COMPUT*/MAPPING_COMPUT/*PERIOD_COMPUT*/) != OK_STATE) {
-			Message("Error in sample counting...");
+			Message("Error in sample computing...");
 			delete sm;
 			goto err;
 		}
@@ -5795,7 +5818,7 @@ for (int j = 1; j <= 1; j++) {
 				sm->GetSurferFormat("pp", nd, FLUX_COMPOS_VALUE, 0, axis);
 			}
 			int id_lines = 0;
-			if (id_lines) {//...\EE\E4\ED\EE\EC\E5\F0\ED\FB\E5 \E3\F0\E0\F4\E8\EA\E8;
+			if (id_lines) {//...одномерные графики;
 				double F[3];
 				FILE * TST = fopen("lines.dat", "w");
 				for (i = 0; i < nd->N;  i++){
@@ -5834,21 +5857,21 @@ for (int j = 1; j <= 1; j++) {
 ///////////////////////////
 //...parameters of problem;
 	double X[] = {0., 0.5, 1.}, Y[] = {0., 0.5, 1.}, Z[] = {0., 0.5, 1.}, par[6];
-	//double nj1 = 0.300,  //...\EB\E5\E4\FF\ED\E0\FF \EC\E0\F2\F0\E8\F6\E0; 
-	//		 nj2 = 0.100,  //...\EC\E8\ED\E5\F0\E0\EB\FC\ED\E0\FF \F7\E0\F1\F2\E8\F6\E0 (\EF\E5\F1\EE\EA); 
-	//		 nj3 = 0.499,  //...\E2\EE\E4\E0; 
+	//double nj1 = 0.300,  //...ледяная матрица; 
+	//		 nj2 = 0.100,  //...минеральная частица (песок); 
+	//		 nj3 = 0.499,  //...вода; 
 	//		 E1   = 6.0,
 	//		 E2   = 50.,
 	//		 E3   = 1e-0/*5*/, 
-	//double nj1 = 0.33, //...\EF\EE\EB\E8\EC\E5\F0\ED\E0\FF \EC\E0\F2\F0\E8\F6\E0; 
-	//		 nj2 = 0.20, //...\E3\F0\E0\F4\E8\F2\EE\E2\EE\E5 \E2\EA\EB\FE\F7\E5\ED\E8\E5; 
-	//		 nj3 = 0.30, //...\EC\E5\E6\F4\E0\E7\ED\FB\E9 \F1\EB\EE\E9; 
+	//double nj1 = 0.33, //...полимерная матрица; 
+	//		 nj2 = 0.20, //...графитовое включение; 
+	//		 nj3 = 0.30, //...межфазный слой; 
 	//		 E1  = 18.,  //...GPa;
 	//		 E2  = 380., //...GPa; 
 	//		 E3  = 57.5, 
-	double nj1 = 0.4999,	//...\EF\EE\EB\E8\EC\E5\F0\ED\E0\FF \EC\E0\F2\F0\E8\F6\E0; 
-			 nj2 = 0.30,	//...\E3\F0\E0\F4\E8\F2\EE\E2\EE\E5 \E2\EA\EB\FE\F7\E5\ED\E8\E5; 
-			 nj3 = 0.30,   //...\EC\E5\E6\F4\E0\E7\ED\FB\E9 \F1\EB\EE\E9; 
+	double nj1 = 0.4999,	//...полимерная матрица; 
+			 nj2 = 0.30,	//...графитовое включение; 
+			 nj3 = 0.30,   //...межфазный слой; 
 			 E1  = 0.135,
 			 E2  = 31.0, 
 			 E3  = 1.50, 
@@ -5869,7 +5892,7 @@ for (int j = 1; j <= 1; j++) {
 	yes = 0;
 	
 /////////////////////////////////////////////////
-//...\E7\E0\E4\E0\ED\E8\E5 \EC\EE\E4\E5\EB\E8 \E8 \E3\F0\E0\ED\E8\F7\ED\FB\F5 \F3\F1\EB\EE\E2\E8\E9 \F4\F3\ED\EA\F6\E8\E5\E9;
+//...задание модели и граничных условий функцией;
 	if (sm && 1) {
 		sm->GetLatticeBox3DStruct(X, Y, Z, 2, 2, 2/*, CLAYER_BLOCK*/);
 		sm->SetBounding(par);
@@ -5880,7 +5903,7 @@ for (int j = 1; j <= 1; j++) {
 	}
 
 ///////////////////////////////////////////////////////
-//...\F7\F2\E5\ED\E8\E5 \EC\EE\E4\E5\EB\E8 \E8 \E3\F0\E0\ED\E8\F7\ED\FB\F5 \F3\F1\EB\EE\E2\E8\E9 \E8\E7 \F4\E0\E9\EB\E0 \E4\E0\ED\ED\FB\F5;
+//...чтение модели и граничных условий из файла данных;
 	if (sm && 0) {
 		Message(" ");
 		sprintf(buf, "Loading model from file '%s'", name);
@@ -5899,7 +5922,7 @@ for (int j = 1; j <= 1; j++) {
 ////////////////////////////
 //...solving of the problem;
 	if (sm->computing_kernel(/*BASIC_COMPUT*//*MAPPING_COMPUT*/PERIOD_COMPUT) != OK_STATE) {
-		Message("Error in sample counting...");
+		Message("Error in sample computing...");
 		delete sm;
 		goto err;
 	}
@@ -5942,7 +5965,7 @@ for (int j = 1; j <= 1; j++) {
 	{
 		int id_visual = 1;
 		if (id_visual) {
-			CGrid * nd = CreateNodes()(;
+			CGrid * nd = CreateNodes();
 			int NX = 100, NY = 100, axis;
 
 			sm->BlockActivate();
@@ -6108,18 +6131,18 @@ test:
 	//yes = 0;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
-//...\E7\E0\F7\E8\F2\FB\E2\E0\E5\EC \F1\F2\F0\F3\EA\F2\F3\F0\F3 \E2\EA\EB\EB\FE\F7\E5\ED\E8\E9 (\E8 \EF\E5\F0\E5\F3\F1\F2\E0\ED\E0\E2\EB\E8\E2\E0\E5\EC \E3\E5\EE\EC\E5\F2\F0\E8\FE \E2\EA\EB\FE\F7\E5\ED\E8\E9 \EF\EE \EF\E5\F0\E2\EE\E9 \F2\EE\F7\EA\E5);
+//...зачитываем структуру вкллючений (и переустанавливаем геометрию включений по первой точке);
 	CGrid * nd_stru = CreateNodes();
 			  nd_stru->stru_in(name, par);
 	sm->set_geometry(rad = nd_stru->get_param(0, 0), ll = nd_stru->get_param(1, 0));
 
 //////////////////////////////////////////////
-//...\EF\EE\F1\F2\F0\EE\E5\ED\E8\E5 \F0\E5\F8\E5\F2\EA\E8 \E4\EB\FF \F1\E8\F1\F2\E5\EC\FB \E2\EA\EB\FE\F7\E5\ED\E8\E9;
+//...построение решетки для системы включений;
 	CGrid * lt = CreateNodes();
 			  lt->grid_lattice(nd_stru, par);
 
 /////////////////////////////////////////////////
-//...\E7\E0\E4\E0\ED\E8\E5 \EC\EE\E4\E5\EB\E8 \E8 \E3\F0\E0\ED\E8\F7\ED\FB\F5 \F3\F1\EB\EE\E2\E8\E9 \F4\F3\ED\EA\F6\E8\E5\E9;
+//...задание модели и граничных условий функцией;
 	if (sm) {
 		sm->GetLatticeBox3DStruct(lt->X, lt->Y, lt->Z, lt->N, lt->N1, lt->N2, CLAYER_BLOCK);
 		sm->SetBounding(par);
@@ -6132,7 +6155,7 @@ test:
 //...solving of the probem;
 	res = system("mkdir ./bcm_results/heat3d_homog"); Num_Comput temp_comput;
 	if (sm->computing_kernel(temp_comput = sm->N > 1 ? MAPPING_COMPUT : PERIOD_COMPUT) != OK_STATE) {
-		Message("Error in sample counting...");
+		Message("Error in sample computing...");
 		delete sm;
 		goto err;
 	}
@@ -6191,7 +6214,7 @@ test:
 //////////////////
 //..visualization;
 		if (id_visual) { //..visualization;
-			CGrid * nd = CreateNodes()(;
+			CGrid * nd = CreateNodes();
 			if (axis == AXIS_Z) {
 				for (i = 0; i <= 2*NX; i++) nd->add_new_point_X(.5*i/NX*(par[1]-par[0])+par[0]);
 				for (j = 0; j <= 2*NY; j++) nd->add_new_point_Y(.5*j/NY*(par[3]-par[2])+par[2]);
@@ -6220,7 +6243,7 @@ test:
 			sm->GetSurferFormat("./bcm_results/heat3d_homog/pp", nd, FLUX_COMPOS_VALUE, 0, axis);
 
 ///////////////////////////////////////////
-//...\E4\EE\EF\EE\EB\ED\E8\F2\E5\EB\FC\ED\FB\E5 \F1\E5\F7\E5\ED\E8\FF I (\E5\F1\EB\E8 \ED\F3\E6\ED\EE);
+//...дополнительные сечения I (если нужно);
 			if (id_visual > 1) { 
 				nd->zero_grid();
 				if (axis_I == AXIS_Z) {
@@ -6251,7 +6274,7 @@ test:
 				sm->GetSurferFormat("./bcm_results/heat3d_homog/pp_I", nd, FLUX_COMPOS_VALUE, 0, axis_I);
 
 ////////////////////////////////////////////
-//...\E4\EE\EF\EE\EB\ED\E8\F2\E5\EB\FC\ED\FB\E5 \F1\E5\F7\E5\ED\E8\FF II (\E5\F1\EB\E8 \ED\F3\E6\ED\EE);
+//...дополнительные сечения II (если нужно);
 				if (id_visual > 2) { 
 					nd->zero_grid();
 					if (axis_II == AXIS_Z) {
@@ -6398,21 +6421,21 @@ test:
 	sm->change_solv (lagrange ? E_PERIODIC_SOLVING : PERIODIC_SOLVING);
 	sm->solver.change_state(EXTERN_STATE);
 	sm->solver.set_mode(REGULARIZATION/* | PRINT_MODE*//*FULLY_MODE*//* | MASKS_MODE*//* | ACCUMULATION*/);
-	//yes = 0;
+	yes = 0;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
-//...\E7\E0\F7\E8\F2\FB\E2\E0\E5\EC \F1\F2\F0\F3\EA\F2\F3\F0\F3 \E2\EA\EB\EB\FE\F7\E5\ED\E8\E9 (\E8 \EF\E5\F0\E5\F3\F1\F2\E0\ED\E0\E2\EB\E8\E2\E0\E5\EC \E3\E5\EE\EC\E5\F2\F0\E8\FE \E2\EA\EB\FE\F7\E5\ED\E8\E9 \EF\EE \EF\E5\F0\E2\EE\E9 \F2\EE\F7\EA\E5);
+//...зачитываем структуру вкллючений (и переустанавливаем геометрию включений по первой точке);
 	CGrid * nd_stru = CreateNodes();
 			  nd_stru->stru_in(name, par);
 	sm->set_geometry(rad = nd_stru->get_param(0, 0), ll = nd_stru->get_param(1, 0));
 
 //////////////////////////////////////////////
-//...\EF\EE\F1\F2\F0\EE\E5\ED\E8\E5 \F0\E5\F8\E5\F2\EA\E8 \E4\EB\FF \F1\E8\F1\F2\E5\EC\FB \E2\EA\EB\FE\F7\E5\ED\E8\E9;
+//...построение решетки для системы включений;
 	CGrid * lt = CreateNodes();
 			  lt->grid_lattice(nd_stru, par);
 
 /////////////////////////////////////////////////
-//...\E7\E0\E4\E0\ED\E8\E5 \EC\EE\E4\E5\EB\E8 \E8 \E3\F0\E0\ED\E8\F7\ED\FB\F5 \F3\F1\EB\EE\E2\E8\E9 \F4\F3\ED\EA\F6\E8\E5\E9;
+//...задание модели и граничных условий функцией;
 	if (sm) {
 		sm->GetLatticeBox3DStruct(lt->X, lt->Y, lt->Z, lt->N, lt->N1, lt->N2, CLAYER_BLOCK);
 		sm->SetBounding(par);
@@ -6425,7 +6448,7 @@ test:
 //...solving of the probem;
 	res = system("mkdir ./bcm_results/lame3d_homog"); Num_Comput temp_comput;
 	if (sm->computing_kernel(temp_comput = sm->N > 1 ? MAPPING_COMPUT : PERIOD_COMPUT) != OK_STATE) {
-		Message("Error in sample counting...");
+		Message("Error in sample computing...");
 		delete sm;
 		goto err;
 	}
@@ -6435,7 +6458,7 @@ test:
 		params.msglev = 3;
 		params.ittype = 2;
 		params.sttype = 1;
-		params.niter = 700;
+		params.niter = 1000;
 		params.eps = 1.0e-9;
 
 		params.tau1 = 1.0e-2;
@@ -6467,7 +6490,7 @@ test:
 #endif
 	{
 //////////////////////////////////////////
-//..\E2\FB\F7\E8\F1\EB\FF\E5\EC \FD\F4\F4\E5\EA\F2\E8\E2\ED\FB\E5 \EC\EE\E4\F3\EB\E8 \EA\EE\EC\EF\EE\E7\E8\F2\E0;
+//..вычисляем эффективные модули композита;
 			double K[28], E0, nu, K0, m0, mu, lm, C0, KH, EH, mH, nH; memset(K, 0, 28*sizeof(double)); K[27] = (par[1]-par[0])*.5;
 			sm->GetRigidy(K, -1, BASIC_COMPUT);
 			sm->GetRigidy(K, -1, COVERING_COMPUT);
@@ -6481,7 +6504,7 @@ test:
 			mu = K[15]/K[21]*.5;
 
 ////////////////////////////////////////
-//...\F7\E5\F2\FB\F0\E5\F5\F4\E0\E7\ED\E0\FF \EC\EE\E4\E5\EB\FC, \EC\E5\F2\EE\E4 \DD\F8\E5\EB\E1\E8;
+//...четырехфазная модель, метод Эшелби;
 			KH = sm->TakeEshelby_volm(par[6], par[7]);
 			mH = sm->TakeEshelby_shear_two(par[6]+par[7]);
 			//mH = sm->TakeEshelby_shear(par[6], par[7]);
@@ -6496,7 +6519,7 @@ test:
 //////////////////
 //..visualization;
 		if (id_visual) { //..visualization;
-			CGrid * nd = CreateNodes()(;
+			CGrid * nd = CreateNodes();
 			if (axis == AXIS_Z) {
 				for (i = 0; i <= 2*NX; i++) nd->add_new_point_X(.5*i/NX*(par[1]-par[0])+par[0]);
 				for (j = 0; j <= 2*NY; j++) nd->add_new_point_Y(.5*j/NY*(par[3]-par[2])+par[2]);
@@ -6527,7 +6550,7 @@ test:
 			sm->GetSurferFormat("./bcm_results/lame3d_homog/tx", nd, STRESS_X_VALUE, 1, axis);
 
 ///////////////////////////////////////////
-//...\E4\EE\EF\EE\EB\ED\E8\F2\E5\EB\FC\ED\FB\E5 \F1\E5\F7\E5\ED\E8\FF I (\E5\F1\EB\E8 \ED\F3\E6\ED\EE);
+//...дополнительные сечения I (если нужно);
 			if (id_visual > 1) { 
 				nd->zero_grid();
 				if (axis_I == AXIS_Z) {
@@ -6560,7 +6583,7 @@ test:
 				sm->GetSurferFormat("./bcm_results/lame3d_homog/tx_I", nd, STRESS_X_VALUE, 1, axis);
 
 ////////////////////////////////////////////
-//...\E4\EE\EF\EE\EB\ED\E8\F2\E5\EB\FC\ED\FB\E5 \F1\E5\F7\E5\ED\E8\FF II (\E5\F1\EB\E8 \ED\F3\E6\ED\EE);
+//...дополнительные сечения II (если нужно);
 				if (id_visual > 2) { 
 					nd->zero_grid();
 					if (axis_II == AXIS_Z) {
@@ -6602,7 +6625,7 @@ test:
 #ifdef TEST_HEAT3D_RANDOM_HOMOGENIZATION
 {
 	int M = 3, M_max_add = 1, M_add;
-	double A = 1., B = 1., C = 1., section = 0., section_I = 0., section_II = 0., K1 = 1., K2 = 20., K3 = 0.01, lagrange = 0, par[8], pp[2], ll_rad = 7., c0, c1;
+	double A = 1., B = 1., C = 1., section = 0., section_I = 0., section_II = 0., K1 = 1., K2 = 20., K3 = 0.01, lagrange = 0, par[8], pp[2], cc_rad = .05, ll_rad = 7., c0, c1;
 	int i, j, k, NX = 100, NY = 100, id_visual = 1, N0 = 5, N_elem = 4, N_max = 4, axis = AXIS_Y, axis_I = AXIS_Z, axis_II = AXIS_X;
 
 //////////////////////////////////
@@ -6612,27 +6635,27 @@ test:
    Message(buf);
 
 	unsigned long count, upper_limit;
-	char        * id_DATA = read_struct_ascii("heat3d_initial.dat");
+	char        * id_DATA = read_struct_ascii("lame3d_initial.dat");
 	if         (! id_DATA) {
 		sprintf(buf, "Data not found..");
 		Message(" ");
 		Message(buf);
-		sprintf(buf, "Creating data file \"heat3d_initial.dat\"...");
+		sprintf(buf, "Creating data file \"lame3d_initial.dat\"...");
 		Message(buf);
 		Message(" ");
 
-		FILE  * TST = fopen("heat3d_initial.dat", "w");
+		FILE  * TST = fopen("lame3d_initial.dat", "w");
 		fprintf(TST, "N = %i\nN_elem = %i\nN_max = %i\nlagrange = %g\n\n", N0, N_elem, N_max, lagrange);
 		fprintf(TST, "id_visual = %i\nNX = %i\nNY = %i\naxis = %i  axis_I = %i  axis_II = %i\nsection = %g  section_I = %g  section_II = %g\n\n", 
 			id_visual, NX, NY, axis, axis_I, axis_II, section, section_I, section_II);
-		fprintf(TST, "K_matrix = %g\nK_inclusion = %g\nK_layer = %g\n\n", K1, K2, K3);
+		fprintf(TST, "K_matrix = %g\nK_inclusion = %g\nK_layer = %g\ncc_rad = %g     \tll_rad = %g\n\n", K1, K2, K3, cc_rad, ll_rad);
 		fprintf(TST, "M = %i\nM_max_add = %i\n\n", M, M_max_add);
 		fclose (TST);
 
 		printf("N = %i\nN_elem = %i\nN_max = %i\nlagrange = %g\n\n", N0, N_elem, N_max, lagrange);
 		printf("id_visual = %i\nNX = %i\nNY = %i\naxis = %i  axis_I = %i  axis_II = %i\nsection = %g  section_I = %g  section_II = %g\n\n", 
 			id_visual, NX, NY, axis, axis_I, axis_II, section, section_I, section_II);
-		printf("K_matrix = %g\nK_inclusion = %g\nK_layer = %g\n\n", K1, K2, K3);
+		printf("K_matrix = %g\nK_inclusion = %g\nK_layer = %g\ncc_rad = %g     \tll_rad = %g\n\n", K1, K2, K3, cc_rad, ll_rad);
 		printf("M = %i\nM_max_add = %i\n\n", M, M_max_add);
 
 		goto test;
@@ -6687,6 +6710,12 @@ test:
 		 user_Read (buf, id_DATA, count, upper_limit)) K3 = user_strtod(buf);
 
 	if (user_Count(id_DATA, count, count, '=') && 
+		 user_Read (buf, id_DATA, count, upper_limit)) cc_rad = user_strtod(buf);
+
+	if (user_Count(id_DATA, count, count, '=') && 
+		 user_Read (buf, id_DATA, count, upper_limit)) ll_rad = user_strtod(buf);
+
+	if (user_Count(id_DATA, count, count, '=') && 
 		 user_Read (buf, id_DATA, count, upper_limit)) M = atoi(buf);
 
 	if (user_Count(id_DATA, count, count, '=') && 
@@ -6695,8 +6724,8 @@ test:
 ///////////////////////////////////////
 //...creating model from initiual data;
 test:
-	CDraft<double> * sm = CreateDraftR(HEAT3D_DRAFT, 7);
-	sm->set_fasa_hmg(pp[0] = .05/(2.*M), pp[1] = (ll_rad+1.)*.05/(2.*M), K1, K2, K3);//...parameters of problem;
+	CDraft<double> * sm = CreateDraftR(HEAT3D_DRAFT, 8);
+	sm->set_fasa_hmg(pp[0] = cc_rad/(2.*M), pp[1] = (ll_rad+1.)*cc_rad/(2.*M), K1, K2, K3);//...parameters of problem;
 	sm->set_mpls(PackInts(N0, N0));				//...space degree of multipoles;
 	sm->set_quad(PackInts(N_elem, N_max));		//...N_elem, N_max -- parameters of quadrature;
 	sm->set_normaliz(0.92);							//...normalization coefficient;
@@ -6707,19 +6736,20 @@ test:
 	yes = 0;
 
 ////////////////////
-//...\EF\E5\F7\E0\F2\E0\E5\EC \F8\E0\EF\EA\F3;
+//...печатаем шапку;
+	res = system("mkdir ./bcm_results");
 	res = system("mkdir ./bcm_results/heat3d_homog");
 	FILE * TST = fopen("./bcm_results/heat3d_homog/heat3d_homog.dat", "a");
-	if (TST) fprintf(TST, "c0              c1            kk         kH          kk_low      kk_max      (N = %i, K_matrix = %g, K_inclu = %g, K_layer = %g))\n", N0, K1, K2, K3);
+	if (TST) fprintf(TST, "c0,              c1,            kk,         kH,          kk_low,      kk_max,      (N = %i, K_matrix = %g, K_inclu = %g, K_layer = %g))\n", N0, K1, K2, K3);
 	if (TST)	fclose (TST);
 
 //////////////////////////////////
-//...\F6\E8\EA\EB \EF\EE \EF\E0\F0\E0\EC\E5\F2\F0\F3 \E0\E3\E3\F0\E5\E3\E0\F6\E8\E8;
+//...цикл по параметру аггрегации;
 	for (k = 0; k <= M_max_add; k++) {
 		M_add = k;
 
 ////////////////////////////////////////////////////////////////////////////
-//...\E3\E5\ED\E5\F0\E8\EC \F1\F2\F0\F3\EA\F2\F3\F0\F3 \E2\EA\EB\EB\FE\F7\E5\ED\E8\E9 (\E8 \EF\E5\F0\E5\F3\F1\F2\E0\ED\E0\E2\EB\E8\E2\E0\E5\EC \E3\E5\EE\EC\E5\F2\F0\E8\FE \E2\EA\EB\FE\F7\E5\ED\E8\E9);
+//...генерим структуру вкллючений (и переустанавливаем геометрию включений);
 		CGrid * nd_stru = CreateNodes(); nd_stru->add_params(2);
 		par[0] = 0.; par[1] = A;
 		par[2] = 0.; par[3] = B;
@@ -6730,7 +6760,7 @@ test:
 			if (nd_stru->add_new_point(mX/(2.*(M+2*M_add)), mY/(2.*(M+2*M_add)), mZ/(2.*(M+2*M_add)), 0., 0., 1., pp)) nd_stru->hit[nd_stru->N-1] = nd_stru->N;
 
 //////////////////////////////////////////////
-//...\EF\EE\F1\F2\F0\EE\E5\ED\E8\E5 \F0\E5\F8\E5\F2\EA\E8 \E4\EB\FF \F1\E8\F1\F2\E5\EC\FB \E2\EA\EB\FE\F7\E5\ED\E8\E9;
+//...построение решетки для системы включений;
 		CGrid * lt = CreateNodes();
 				  lt->grid_lattice(nd_stru, par);
 		if (! k) {
@@ -6738,7 +6768,7 @@ test:
 		}
 
 /////////////////////////////////////////////////
-//...\E7\E0\E4\E0\ED\E8\E5 \EC\EE\E4\E5\EB\E8 \E8 \E3\F0\E0\ED\E8\F7\ED\FB\F5 \F3\F1\EB\EE\E2\E8\E9 \F4\F3\ED\EA\F6\E8\E5\E9;
+//...задание модели и граничных условий функцией;
 		if (sm) {
 			sm->GetLatticeBox3DStruct(lt->X, lt->Y, lt->Z, lt->N, lt->N1, lt->N2, CLAYER_BLOCK);
 			sm->SetBUniStruct (POLY_BLOCK, ERR_GENUS);
@@ -6754,7 +6784,7 @@ test:
 //...solving of the probem;
 		Num_Comput temp_comput;
 		if (sm->computing_kernel(temp_comput = sm->N > 1 ? MAPPING_COMPUT : PERIOD_COMPUT) != OK_STATE) {
-			Message("Error in sample counting...");
+			Message("Error in sample computing...");
 			delete sm;
 			goto err;
 		}
@@ -6764,7 +6794,7 @@ test:
 			params.msglev = 3;
 			params.ittype = 2;
 			params.sttype = 1;
-			params.niter = 300;
+			params.niter = 1500;
 			params.eps = 1.0e-12;
 
 			params.tau1 = 1.0e-2;
@@ -6807,13 +6837,13 @@ test:
 			kH = sm->TakeEshelby(c0, c1);
 
 			FILE * TST = fopen("./bcm_results/heat3d_homog/heat3d_homog.dat", "a");
-			if (TST) fprintf(TST, "%g    %g    %g    %g    %g    %g\n", c0, c1, kk, kH, kk_low, kk_max);
+			if (TST) fprintf(TST, "%g,    %g,    %g,    %g,    %g,    %g\n", c0, c1, kk, kH, kk_low, kk_max);
 			if (TST)	fclose (TST);
 
 	//////////////////
 	//..visualization;
 			if (id_visual) { //..visualization;
-			CGrid * nd = CreateNodes()(;
+			CGrid * nd = CreateNodes();
 				if (axis == AXIS_Z) {
 					for (i = 0; i <= 2*NX; i++) nd->add_new_point_X(.5*i/NX*(par[1]-par[0])+par[0]);
 					for (j = 0; j <= 2*NY; j++) nd->add_new_point_Y(.5*j/NY*(par[3]-par[2])+par[2]);
@@ -6842,7 +6872,7 @@ test:
 				sprintf(buf, "./bcm_results/heat3d_homog/pp(%i)", k);	sm->GetSurferFormat(buf, nd, FLUX_COMPOS_VALUE, 0, axis);
 
 	///////////////////////////////////////////
-	//...\E4\EE\EF\EE\EB\ED\E8\F2\E5\EB\FC\ED\FB\E5 \F1\E5\F7\E5\ED\E8\FF I (\E5\F1\EB\E8 \ED\F3\E6\ED\EE);
+	//...дополнительные сечения I (если нужно);
 				if (id_visual > 1) { 
 					nd->zero_grid();
 					if (axis_I == AXIS_Z) {
@@ -6873,7 +6903,7 @@ test:
 					sprintf(buf, "./bcm_results/heat3d_homog/pp(%i)_I", k);	sm->GetSurferFormat(buf, nd, FLUX_COMPOS_VALUE, 0, axis_I);
 
 	////////////////////////////////////////////
-	//...\E4\EE\EF\EE\EB\ED\E8\F2\E5\EB\FC\ED\FB\E5 \F1\E5\F7\E5\ED\E8\FF II (\E5\F1\EB\E8 \ED\F3\E6\ED\EE);
+	//...дополнительные сечения II (если нужно);
 					if (id_visual > 2) { 
 						nd->zero_grid();
 						if (axis_II == AXIS_Z) {
@@ -6911,6 +6941,356 @@ test:
 	delete sm;
 }
 #endif
+#ifdef TEST_LAME3D_RANDOM_HOMOGENIZATION
+{
+	int M = 3, M_max_add = 1, M_add;
+	double A = 1., B = 1., C = 1., section = 0., section_I = 0., section_II = 0., nj1 = 0.3, nj2 = 0.3, nj3 = 0.3, E1 = 1.0, E2 = 2.0, E3 = 3.0, lagrange = 0, par[8], pp[2], cc_rad = .05, ll_rad = 7., c0, c1;
+	int i, j, k, NX = 100, NY = 100, id_visual = 1, N0 = 5, N_elem = 4, N_max = 4, axis = AXIS_Y, axis_I = AXIS_Z, axis_II = AXIS_X;
+
+//////////////////////////////////
+//...reading model from data-file;
+   sprintf(buf, "Reading data...");
+   Message(" ");
+   Message(buf);
+
+	unsigned long count, upper_limit;
+	char        * id_DATA = read_struct_ascii("lame3d_initial.dat");
+	if         (! id_DATA) {
+		sprintf(buf, "Data not found..");
+		Message(" ");
+		Message(buf);
+		sprintf(buf, "Creating data file \"lame3d_initial.dat\"...");
+		Message(buf);
+		Message(" ");
+
+		FILE  * TST = fopen("lame3d_initial.dat", "w");
+		fprintf(TST, "N = %i\nN_elem = %i\nN_max = %i\nlagrange = %g\n\n", N0, N_elem, N_max, lagrange);
+		fprintf(TST, "id_visual = %i\nNX = %i\nNY = %i\naxis = %i  axis_I = %i  axis_II = %i\nsection = %g  section_I = %g  section_II = %g\n\n", 
+			id_visual, NX, NY, axis, axis_I, axis_II, section, section_I, section_II);
+		fprintf(TST, "E_matrix = %g     \tnju_matrix = %g\nE_inclusion = %g     \tnju_inclusion = %g\nE_layer = %g     \tnju_layer = %g\ncc_rad = %g     \tll_rad = %g\n\n", E1, nj1, E2, nj2, E3, nj3, cc_rad, ll_rad);
+		fprintf(TST, "M = %i\nM_max_add = %i\n\n", M, M_max_add);
+		fclose (TST);
+
+		printf("N = %i\nN_elem = %i\nN_max = %i\nlagrange = %g\n\n", N0, N_elem, N_max, lagrange);
+		printf("id_visual = %i\nNX = %i\nNY = %i\naxis = %i  axis_I = %i  axis_II = %i\nsection = %g  section_I = %g  section_II = %g\n\n", 
+			id_visual, NX, NY, axis, axis_I, axis_II, section, section_I, section_II);
+		printf("E_matrix = %g     \tnju_matrix = %g\nE_inclusion = %g     \tnju_inclusion = %g\nE_layer = %g     \tnju_layer = %g\ncc_rad = %g     \tll_rad = %g\n\n", E1, nj1, E2, nj2, E3, nj3, cc_rad, ll_rad);
+		printf("M = %i\nM_max_add = %i\n\n", M, M_max_add);
+
+		goto test;
+	}
+	user_Count    (id_DATA, 0, upper_limit, '\x0');
+	if (user_Count(id_DATA, count = 0, count, '=') && 
+		 user_Read (buf, id_DATA, count, upper_limit)) N0 = atoi(buf);
+
+	if (user_Count(id_DATA, count, count, '=') && 
+		 user_Read (buf, id_DATA, count, upper_limit)) N_elem = atoi(buf);
+
+	if (user_Count(id_DATA, count, count, '=') && 
+		 user_Read (buf, id_DATA, count, upper_limit)) N_max = atoi(buf);
+
+	if (user_Count(id_DATA, count, count, '=') && 
+		 user_Read (buf, id_DATA, count, upper_limit)) lagrange = user_strtod(buf);
+
+	if (user_Count(id_DATA, count, count, '=') && 
+		 user_Read (buf, id_DATA, count, upper_limit)) id_visual = atoi(buf);
+
+	if (user_Count(id_DATA, count, count, '=') && 
+		 user_Read (buf, id_DATA, count, upper_limit)) NX = atoi(buf);
+
+	if (user_Count(id_DATA, count, count, '=') && 
+		 user_Read (buf, id_DATA, count, upper_limit)) NY = atoi(buf);
+
+	if (user_Count(id_DATA, count, count, '=') && 
+		 user_Read (buf, id_DATA, count, upper_limit)) axis = atoi(buf);
+
+	if (user_Count(id_DATA, count, count, '=') && 
+		 user_Read (buf, id_DATA, count, upper_limit)) axis_I = atoi(buf);
+
+	if (user_Count(id_DATA, count, count, '=') && 
+		 user_Read (buf, id_DATA, count, upper_limit)) axis_II = atoi(buf);
+
+	if (user_Count(id_DATA, count, count, '=') && 
+		 user_Read (buf, id_DATA, count, upper_limit)) section = user_strtod(buf);
+
+	if (user_Count(id_DATA, count, count, '=') && 
+		 user_Read (buf, id_DATA, count, upper_limit)) section_I = user_strtod(buf);
+
+	if (user_Count(id_DATA, count, count, '=') && 
+		 user_Read (buf, id_DATA, count, upper_limit)) section_II = user_strtod(buf);
+
+	if (user_Count(id_DATA, count, count, '=') && 
+		 user_Read (buf, id_DATA, count, upper_limit)) E1 = user_strtod(buf);
+
+	if (user_Count(id_DATA, count, count, '=') && 
+		 user_Read (buf, id_DATA, count, upper_limit)) nj1 = user_strtod(buf);
+
+	if (user_Count(id_DATA, count, count, '=') && 
+		 user_Read (buf, id_DATA, count, upper_limit)) E2 = user_strtod(buf);
+
+	if (user_Count(id_DATA, count, count, '=') && 
+		 user_Read (buf, id_DATA, count, upper_limit)) nj2 = user_strtod(buf);
+
+	if (user_Count(id_DATA, count, count, '=') && 
+		 user_Read (buf, id_DATA, count, upper_limit)) E3 = user_strtod(buf);
+
+	if (user_Count(id_DATA, count, count, '=') && 
+		 user_Read (buf, id_DATA, count, upper_limit)) nj3 = user_strtod(buf);
+
+	if (user_Count(id_DATA, count, count, '=') && 
+		 user_Read (buf, id_DATA, count, upper_limit)) cc_rad = user_strtod(buf);
+
+	if (user_Count(id_DATA, count, count, '=') && 
+		 user_Read (buf, id_DATA, count, upper_limit)) ll_rad = user_strtod(buf);
+
+	if (user_Count(id_DATA, count, count, '=') && 
+		 user_Read (buf, id_DATA, count, upper_limit)) M = atoi(buf);
+
+	if (user_Count(id_DATA, count, count, '=') && 
+		 user_Read (buf, id_DATA, count, upper_limit)) M_max_add = atoi(buf);
+
+///////////////////////////////////////
+//...creating model from initiual data;
+test:
+	CDraft<double> * sm = CreateDraftR(LAME3D_DRAFT, 8);
+	sm->set_fasa_hmg(pp[0] = cc_rad/(2.*M), pp[1] = (ll_rad+1.)*cc_rad/(2.*M), 
+		nj2, nj3, nj1, E2/(1.+nj2)*.5, E3/(1.+nj3)*.5, E1/(1.+nj1)*.5);//...parameters of problem;
+	sm->set_mpls(PackInts(N0, N0));				//...space degree of multipoles;
+	sm->set_quad(PackInts(N_elem, N_max));		//...N_elem, N_max -- parameters of quadrature;
+	sm->set_normaliz(0.92);							//...normalization coefficient;
+	sm->set_lagrange(lagrange);					//...Lagrange coefficient for energy;
+	sm->change_solv (lagrange ? E_PERIODIC_SOLVING : PERIODIC_SOLVING);
+	sm->solver.change_state(EXTERN_STATE);
+	sm->solver.set_mode(REGUL_BOUNDARY/* | PRINT_MODE | REDUCED_PRINT | FULLY_MODE*//* | TESTI_GRAM*//* | MASKS_MODE*//* | ACCUMULATION*/);
+	yes = 0;
+
+////////////////////m
+//...печатаем шапку;
+	res = system("mkdir ./bcm_results");
+	res = system("mkdir ./bcm_results/lame3d_homog");
+	FILE * TST = fopen("./bcm_results/lame3d_homog/lame3d_homog.dat", "a");
+	if (TST) fprintf(TST, "c0,              c1,            E0,          EH,          E0_min,      E0_max,         K0,          KH,          m0,          mu,          nu,      (N = %i, E_matrix = %g, E_inclu = %g, E_layer = %g, nju_matrix = %g, nju_inclu = %g, nju_layer = %g))\n", 
+								  N0, E1, E2, E3, nj1, nj2, nj3);
+	if (TST)	fclose (TST);
+
+//////////////////////////////////
+//...цикл по параметру аггрегации;
+	for (k = 0; k <= M_max_add; k++) {
+		M_add = k;
+
+////////////////////////////////////////////////////////////////////////////
+//...генерим структуру вкллючений (и переустанавливаем геометрию включений);
+		CGrid * nd_stru = CreateNodes(); nd_stru->add_params(2);
+		par[0] = 0.; par[1] = A;
+		par[2] = 0.; par[3] = B;
+		par[4] = 0.; par[5] = C;
+		for (int mZ = 1; mZ < 2*(M+2*M_add); mZ += 2) 
+		for (int mY = 1; mY < 2*(M+2*M_add); mY += 2)
+		for (int mX = 1; mX < 2*(M+2*M_add); mX += 2)
+			if (nd_stru->add_new_point(mX/(2.*(M+2*M_add)), mY/(2.*(M+2*M_add)), mZ/(2.*(M+2*M_add)), 0., 0., 1., pp)) nd_stru->hit[nd_stru->N-1] = nd_stru->N;
+
+//////////////////////////////////////////////
+//...построение решетки для системы включений;
+		CGrid * lt = CreateNodes();
+				  lt->grid_lattice(nd_stru, par);
+		if (! k) {
+			c0 = par[6]; c1 = par[7];
+		}
+
+/////////////////////////////////////////////////
+//...задание модели и граничных условий функцией;
+		if (sm) {
+			sm->GetLatticeBox3DStruct(lt->X, lt->Y, lt->Z, lt->N, lt->N1, lt->N2, CLAYER_BLOCK);
+			sm->SetBUniStruct (POLY_BLOCK, ERR_GENUS);
+			for (int mZ = M_add; mZ < M+M_add; mZ++) 
+			for (int mY = M_add; mY < M+M_add; mY++)
+			for (int mX = M_add; mX < M+M_add; mX++)
+				sm->SetBUniStruct(mX+(M+2*M_add)*(mY+(M+2*M_add)*mZ), CLAYER_BLOCK, ERR_GENUS);
+		}
+		delete nd_stru;
+		delete lt;
+
+///////////////////////////
+//...solving of the probem;
+		Num_Comput temp_comput;
+		if (sm->computing_kernel(temp_comput = sm->N > 1 ? MAPPING_COMPUT : PERIOD_COMPUT) != OK_STATE) {
+			Message("Error in sample computing...");
+			delete sm;
+			goto err;
+		}
+#ifdef ___MPI_INIT___
+		if (sm->solver.id_change == EXTERN_STATE) {
+			CSlvParam params;
+			params.msglev = 3;
+			params.ittype = 2;
+			params.sttype = 1;
+			params.niter = 1500;
+			params.eps = 1.0e-12;
+
+			params.tau1 = 1.0e-2;
+			params.tau2 = 1.0e-4;
+			params.theta = 0.10e0;
+
+			char strbuff[256];
+			sprintf (strbuff,"%s%i%s","BsSolver_",comm_mpi.GetMyid(),".dat");
+
+			std::ofstream fout (strbuff);
+			params.collap = 4;
+
+			sm->shapes_init(NO_STATE); 
+			BCM_draft<double> pBCM = {sm, temp_comput};
+			AbstractParSolver (& pBCM, 
+									(void *)&comm_mpi,
+									fout, params,
+									Number_of_Blocks<double>, Blocks_Partitioning<double>, 
+									Blocks_Sparsity<double>, Blocks_Row<double>, 
+									Right_Handside<double>, Initial_Guess<double>, Store_Solution<double>);
+			sm->shapes_init(OK_STATE); 
+		}
+#endif
+
+//////////////////
+//..visualization;
+#ifdef ___MPI_INIT___
+		if (comm_mpi.GetMyid() == 0) 
+#endif
+		{
+//////////////////////////////////////////
+//..вычисляем эффективные модули композита;
+			double K[28], E0, E0_min, E0_max, nu, K0, m0, mu, lm, C0, KH, EH, mH, nH; memset(K, 0, 28*sizeof(double)); K[27] = (par[1]-par[0])*.5;
+			sm->GetRigidy(K, -1, BASIC_COMPUT);
+			sm->GetRigidy(K, -1, COVERING_COMPUT);
+			
+			C0 = (K[5]-2.*K[0]*K[6]/(K[6]+K[11]))/(K[11]-2.*K[6]*K[6]/(K[6]+K[11]));
+			lm = (K[0]-C0*K[6])/(K[6]+K[11]);
+			nu = lm/(C0+lm);
+			E0 = C0*(1.-2.*nu)*(1.+nu)/(1.-nu);
+			K0 = E0/(3.*(1.-2.*nu));
+			m0 = E0/(2.*(1.+nu));
+			mu = K[15]/K[21]*.5;
+			E0_min = (K[24]+K[25]+K[26])/(K[24]/E1+K[25]/E2+K[26]/E3);
+			E0_max = (K[24]*E1+K[25]*E2+K[26]*E3)/(K[24]+K[25]+K[26]);
+
+////////////////////////////////////////
+//...четырехфазная модель, метод Эшелби;
+			KH = sm->TakeEshelby_volm(par[6], par[7]);
+			//mH = sm->TakeEshelby_shear_two(par[6]+par[7]);
+			mH = sm->TakeEshelby_shear(par[6], par[7]);
+			EH = 9.*KH*mH/(3.*KH+mH);
+			nH = (1.5*KH-mH)/(3.*KH+mH);
+
+			FILE * TST = fopen("./bcm_results/lame3d_homog/lame3d_homog.dat", "a");
+			if (TST) fprintf(TST, "%g,    %g,    %g,    %g,    %g,    %g,  %g,    %g,    %g,    %g,    %g\n", 
+											c0, c1, E0, EH, E0_min, E0_max, K0, KH, m0, mu, nu);
+			if (TST)	fclose (TST);
+
+	//////////////////
+	//..visualization;
+			if (id_visual) { //..visualization;
+			CGrid * nd = CreateNodes();
+				if (axis == AXIS_Z) {
+					for (i = 0; i <= 2*NX; i++) nd->add_new_point_X(.5*i/NX*(par[1]-par[0])+par[0]);
+					for (j = 0; j <= 2*NY; j++) nd->add_new_point_Y(.5*j/NY*(par[3]-par[2])+par[2]);
+					nd->add_new_point_Z(par[4]+(par[5]-par[4])*(1.+section)*.5);
+				}
+				if (axis == AXIS_Y) {
+					for (i = 0; i <= 2*NX; i++) nd->add_new_point_X(.5*i/NX*(par[5]-par[4])+par[4]);
+					for (j = 0; j <= 2*NY; j++) nd->add_new_point_Y(.5*j/NY*(par[1]-par[0])+par[0]);
+					nd->add_new_point_Z(par[2]+(par[3]-par[2])*(1.+section)*.5);
+				}
+				if (axis == AXIS_X) {
+					for (i = 0; i <= 2*NX; i++) nd->add_new_point_X(.5*i/NX*(par[3]-par[2])+par[2]);
+					for (j = 0; j <= 2*NY; j++) nd->add_new_point_Y(.5*j/NY*(par[5]-par[4])+par[4]);
+					nd->add_new_point_Z(par[0]+(par[1]-par[0])*(1.+section)*.5);
+				}
+				nd->hit = (int *)new_struct(nd->N*nd->N1*sizeof(int));
+				for (i = 0; i < nd->N;  i++)
+				for (j = 0; j < nd->N1; j++) {
+					int hit = -1;
+					if (axis == AXIS_Z) sm->Poly_struc_in3D(hit, nd->X[i], nd->Y[j], nd->Z[0], NULL_STATE); else
+					if (axis == AXIS_Y) sm->Poly_struc_in3D(hit, nd->Y[j], nd->Z[0], nd->X[i], NULL_STATE); else
+					if (axis == AXIS_X) sm->Poly_struc_in3D(hit, nd->Z[0], nd->X[i], nd->Y[j], NULL_STATE);
+					nd->hit[i+j*nd->N] = hit;
+				}
+				sprintf(buf, "./bcm_results/lame3d_homog/rz(%i)", k);	sm->GetSurferFormat(buf, nd,    DISPL_VALUE, 0, axis);
+				sprintf(buf, "./bcm_results/lame3d_homog/rx(%i)", k);	sm->GetSurferFormat(buf, nd,    DISPL_VALUE, 1, axis);
+				sprintf(buf, "./bcm_results/lame3d_homog/tz(%i)", k);	sm->GetSurferFormat(buf, nd, STRESS_Z_VALUE, 0, axis);
+				sprintf(buf, "./bcm_results/lame3d_homog/tx(%i)", k);	sm->GetSurferFormat(buf, nd, STRESS_X_VALUE, 1, axis);
+
+	///////////////////////////////////////////
+	//...дополнительные сечения I (если нужно);
+				if (id_visual > 1) { 
+					nd->zero_grid();
+					if (axis_I == AXIS_Z) {
+						for (i = 0; i <= 2*NX; i++) nd->add_new_point_X(.5*i/NX*(par[1]-par[0])+par[0]);
+						for (j = 0; j <= 2*NY; j++) nd->add_new_point_Y(.5*j/NY*(par[3]-par[2])+par[2]);
+						nd->add_new_point_Z(par[4]+(par[5]-par[4])*(1.+section_I)*.5);
+					}
+					if (axis_I == AXIS_Y) {
+						for (i = 0; i <= 2*NX; i++) nd->add_new_point_X(.5*i/NX*(par[5]-par[4])+par[4]);
+						for (j = 0; j <= 2*NY; j++) nd->add_new_point_Y(.5*j/NY*(par[1]-par[0])+par[0]);
+						nd->add_new_point_Z(par[2]+(par[3]-par[2])*(1.+section_I)*.5);
+					}
+					if (axis_I == AXIS_X) {
+						for (i = 0; i <= 2*NX; i++) nd->add_new_point_X(.5*i/NX*(par[3]-par[2])+par[2]);
+						for (j = 0; j <= 2*NY; j++) nd->add_new_point_Y(.5*j/NY*(par[5]-par[4])+par[4]);
+						nd->add_new_point_Z(par[0]+(par[1]-par[0])*(1.+section_I)*.5);
+					}
+					nd->hit = (int *)new_struct(nd->N*nd->N1*sizeof(int));
+					for (i = 0; i < nd->N;  i++)
+					for (j = 0; j < nd->N1; j++) {
+						int hit = -1;
+						if (axis_I == AXIS_Z) sm->Poly_struc_in3D(hit, nd->X[i], nd->Y[j], nd->Z[0], NULL_STATE); else
+						if (axis_I == AXIS_Y) sm->Poly_struc_in3D(hit, nd->Y[j], nd->Z[0], nd->X[i], NULL_STATE); else
+						if (axis_I == AXIS_X) sm->Poly_struc_in3D(hit, nd->Z[0], nd->X[i], nd->Y[j], NULL_STATE);
+						nd->hit[i+j*nd->N] = hit;
+					}
+					sprintf(buf, "./bcm_results/lame3d_homog/rz(%i)_I", k);	sm->GetSurferFormat(buf, nd,    DISPL_VALUE, 0, axis_I);
+					sprintf(buf, "./bcm_results/lame3d_homog/rx(%i)_I", k);	sm->GetSurferFormat(buf, nd,    DISPL_VALUE, 1, axis_I);
+					sprintf(buf, "./bcm_results/lame3d_homog/tz(%i)_I", k);	sm->GetSurferFormat(buf, nd, STRESS_Z_VALUE, 0, axis_I);
+					sprintf(buf, "./bcm_results/lame3d_homog/tx(%i)_I", k);	sm->GetSurferFormat(buf, nd, STRESS_X_VALUE, 1, axis_I);
+
+	////////////////////////////////////////////
+	//...дополнительные сечения II (если нужно);
+					if (id_visual > 2) { 
+						nd->zero_grid();
+						if (axis_II == AXIS_Z) {
+							for (i = 0; i <= 2*NX; i++) nd->add_new_point_X(.5*i/NX*(par[1]-par[0])+par[0]);
+							for (j = 0; j <= 2*NY; j++) nd->add_new_point_Y(.5*j/NY*(par[3]-par[2])+par[2]);
+							nd->add_new_point_Z(par[4]+(par[5]-par[4])*(1.+section_II)*.5);
+						}
+						if (axis_II == AXIS_Y) {
+							for (i = 0; i <= 2*NX; i++) nd->add_new_point_X(.5*i/NX*(par[5]-par[4])+par[4]);
+							for (j = 0; j <= 2*NY; j++) nd->add_new_point_Y(.5*j/NY*(par[1]-par[0])+par[0]);
+							nd->add_new_point_Z(par[2]+(par[3]-par[2])*(1.+section_II)*.5);
+						}
+						if (axis_II == AXIS_X) {
+							for (i = 0; i <= 2*NX; i++) nd->add_new_point_X(.5*i/NX*(par[3]-par[2])+par[2]);
+							for (j = 0; j <= 2*NY; j++) nd->add_new_point_Y(.5*j/NY*(par[5]-par[4])+par[4]);
+							nd->add_new_point_Z(par[0]+(par[1]-par[0])*(1.+section_II)*.5);
+						}
+						nd->hit = (int *)new_struct(nd->N*nd->N1*sizeof(int));
+						for (i = 0; i < nd->N;  i++)
+						for (j = 0; j < nd->N1; j++) {
+							int hit = -1;
+							if (axis_II == AXIS_Z) sm->Poly_struc_in3D(hit, nd->X[i], nd->Y[j], nd->Z[0], NULL_STATE); else
+							if (axis_II == AXIS_Y) sm->Poly_struc_in3D(hit, nd->Y[j], nd->Z[0], nd->X[i], NULL_STATE); else
+							if (axis_II == AXIS_X) sm->Poly_struc_in3D(hit, nd->Z[0], nd->X[i], nd->Y[j], NULL_STATE);
+							nd->hit[i+j*nd->N] = hit;
+						}
+						sprintf(buf, "./bcm_results/lame3d_homog/rz(%i)_II", k);	sm->GetSurferFormat(buf, nd,    DISPL_VALUE, 0, axis_II);
+						sprintf(buf, "./bcm_results/lame3d_homog/rx(%i)_II", k);	sm->GetSurferFormat(buf, nd,    DISPL_VALUE, 1, axis_II);
+						sprintf(buf, "./bcm_results/lame3d_homog/tz(%i)_II", k);	sm->GetSurferFormat(buf, nd, STRESS_Z_VALUE, 0, axis_II);
+						sprintf(buf, "./bcm_results/lame3d_homog/tx(%i)_II", k);	sm->GetSurferFormat(buf, nd, STRESS_X_VALUE, 1, axis_II);
+					}
+				}
+				delete nd;
+			}
+		}
+	}
+	delete sm;
+}
+#endif
 #ifdef DRAFT_LAME_ESHELBY_NONLINEAR_DIAGRAM
 {
 double glina[][2] = {{0.4506, 9.727 },{0.5719,10.2481},{0.7106,10.9429},{0.8492,11.6377},{0.9705,12.5062},{1.0745,13.201 },{1.1958,13.7221},{1.3345,14.4169},{1.5078,15.4591},
@@ -6920,40 +7300,40 @@ double glina[][2] = {{0.4506, 9.727 },{0.5719,10.2481},{0.7106,10.9429},{0.8492,
 							{5.0607,32.8288},{5.2166,33.5236},{5.338 ,34.0447},{5.4766,34.5658},{5.6153,35.0868},{5.7366,35.6079},{5.8925,36.3027},{6.1352,37.1712},
 							{6.2738,37.5186},{6.4298,38.0397},{6.7244,39.0819},{6.8631,39.603 },{7.0191,39.9504},{7.1577,40.2978},{7.2964,40.8189},
 							{7.6256,41.861 },{7.7816,42.3821},{7.9203,42.7295},{8.0589,43.0769},{8.2496,43.4243},{8.3882,43.7717},{8.5442,44.1191},{8.7002,44.6402},{8.8562,44.9876},
-							{8.9775,45.335 },{9.1681,45.8561},{9.3241,46.2035},{9.4801,46.5509}};//...\E4\E0\ED\ED\FB\E5 \E4\EB\FF \EC\EE\E4\F3\EB\FF \DE\ED\E3\E0 \E2 MPa;
+							{8.9775,45.335 },{9.1681,45.8561},{9.3241,46.2035},{9.4801,46.5509}};//...данные для модуля Юнга в MPa;
 int N_glina = 59;
 
-double dural[][2] = {{20.,72.},{100.,63.5},{350.,48.}}, //...\E4\E0\ED\ED\FB\E5 \E4\EB\FF \EC\EE\E4\F3\EB\FF \DE\ED\E3\E0 \E2 GPa, \F2\E5\EC\EF\E5\F0\E0\F2\F3\F0\E0 \E2 C;
+double dural[][2] = {{20.,72.},{100.,63.5},{350.,48.}}, //...данные для модуля Юнга в GPa, температура в C;
 					A  = ((dural[0][1]-dural[1][1])/(dural[0][0]-dural[1][0])-(dural[0][1]-dural[2][1])/(dural[0][0]-dural[2][0]))/(dural[1][0]-dural[2][0]), 
 					B  =  (dural[0][1]-dural[1][1])/(dural[0][0]-dural[1][0])-(dural[0][0]+dural[1][0])*A, 
-					C  =   dural[0][1]-dural[0][0]*B-dural[0][0]*dural[0][0]*A;//...\EA\E2\E0\E4\F0\E0\F2\E8\F7\ED\E0\FF \E0\EF\EF\F0\EE\EA\F1\E8\EC\E0\F6\E8\FF;
+					C  =   dural[0][1]-dural[0][0]*B-dural[0][0]*dural[0][0]*A;//...квадратичная аппроксимация;
 int N_dural = 3;
 
 double spinel[][2] = {{20.,250.},{350.,440.}};//...C/GPa;
 int N_spinel = 2;
 //////////////////
 //...initial data;
-	double nju1 = 0.36, //...\EF\EE\EB\E8\EC\E5\F0\ED\E0\FF \EC\E0\F2\F0\E8\F6\E0;
-			 nju2 = 0.16, //...\E6\E5\F1\F2\EA\EE\E5 \E2\EA\EB\FE\F7\E5\ED\E8\E5;  
-			 nju3 = 0.30, //...\EF\F0\EE\EC\E5\E6\F3\F2\EE\F7\ED\FB\E9 \F1\EB\EE\E9;  
-			 E1   = 1.0,  //...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \EC\E0\F2\F0\E8\F6\FB;
-			 E2   = 380., //...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \E2\EA\EB\FE\F7\E5\ED\E8\FF;
-			 E3   = 1.0,  //...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \EF\F0\EE\EC\E5\E6\F3\F2\EE\F7\ED\EE\E3\EE \F1\EB\EE\FF;
-			 K1   = E1/(3.*(1.-2.*nju1)),//...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \EC\E0\F2\F0\E8\F6\FB;
-			 K2   = E2/(3.*(1.-2.*nju2)),//...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \E2\EA\EB\FE\F7\E5\ED\E8\FF;
-			 K3   = E3/(3.*(1.-2.*nju3)),//...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \EF\F0\EE\EC\E5\E6\F3\F2\EE\F7\ED\EE\E3\EE \F1\EB\EE\FF;
-			 G1   = E1/(2.*(1.+nju1)),   //...\EC\EE\E4\F3\EB\FC \F1\E4\E2\E8\E3\E0 \EC\E0\F2\F0\E8\F6\FB;
-			 G2   = E2/(2.*(1.+nju2)),   //...\EC\EE\E4\F3\EB\FC \F1\E4\E2\E8\E3\E0 \E2\EA\EB\FE\F7\E5\ED\E8\FF;
-			 G3   = E3/(2.*(1.+nju3)),   //...\EC\EE\E4\F3\EB\FC \F1\E4\E2\E8\E3\E0 \EF\F0\EE\EC\E5\E6\F3\F2\EE\F7\ED\EE\E3\EE \F1\EB\EE\FF;
-			 l1   = 0.15,			//...\E4\EE\EB\FF \EC\E5\E6\F4\E0\E7\ED\EE\E3\EE \F1\EB\EE\FF \EF\EE \EE\F2\ED\EE\F8\E5\ED\E8\FE \EA \F0\E0\E4\E8\F3\F1\F3 \E2\EA\EB\FE\F7\E5\ED\E8\FF;
+	double nju1 = 0.36, //...полимерная матрица;
+			 nju2 = 0.16, //...жесткое включение;  
+			 nju3 = 0.30, //...промежуточный слой;  
+			 E1   = 1.0,  //...модуль Юнга матрицы;
+			 E2   = 380., //...модуль Юнга включения;
+			 E3   = 1.0,  //...модуль Юнга промежуточного слоя;
+			 K1   = E1/(3.*(1.-2.*nju1)),//...модуль Юнга матрицы;
+			 K2   = E2/(3.*(1.-2.*nju2)),//...модуль Юнга включения;
+			 K3   = E3/(3.*(1.-2.*nju3)),//...модуль Юнга промежуточного слоя;
+			 G1   = E1/(2.*(1.+nju1)),   //...модуль сдвига матрицы;
+			 G2   = E2/(2.*(1.+nju2)),   //...модуль сдвига включения;
+			 G3   = E3/(2.*(1.+nju3)),   //...модуль сдвига промежуточного слоя;
+			 l1   = 0.15,			//...доля межфазного слоя по отношению к радиусу включения;
 			 c0   = 0.60,			//...volume fraction of inclusion; 
 			 c1   = l1*(l1+2.),	//...volume fraction of interface layer; 
-			 T0   = 20.0,			//...\ED\E0\F7\E0\EB\FC\ED\E0\FF \F2\E5\EC\EF\E5\F0\E0\F2\F3\F0\E0 \F1\F0\E5\E4\FB;
+			 T0   = 20.0,			//...начальная температура среды;
 			 KS, KC, KH, LH, nn, nc, ns, K_min, K_max, ES, EC, EH, GS, GC, GH, E_min, E_max, G_min, G_max;
 	yes = 0;
 
 /////////////////////
-//...\E4\E0\ED\ED\FB\E5 \EF\EE \F1\EB\EE\FF\EC;
+//...данные по слоям;
 	const int N = 3;
 	double ff[N] = {c0, c1, 1.-c1-c0}, kv[N] = {K2, K3, K1},
 			 mu[N] = {G2, G3, G1}, nj[N] = {nju2, nju3, nju1}, ee[N] = {E2, E3, E1},
@@ -6968,7 +7348,7 @@ int N_spinel = 2;
 	//		 lm[N] = {G2*2.*nju2/(1.-2.*nju2), G1*2.*nju1/(1.-2.*nju1)};
 
 ///////////////////////////////
-//...\F6\E8\EA\EB \EF\EE \EF\E0\F0\E0\EC\E5\F2\F0\E0\EC \E7\E0\E4\E0\F7\E8;
+//...цикл по параметрам задачи;
 	FILE * TST = fopen("homog_KK.dat", "w");
 	FILE * TSE = fopen("homog_EE.dat", "w");
 	for (int j = 20; j <= 350; j += 1) {
@@ -6997,10 +7377,10 @@ int N_spinel = 2;
 		EC = fabs(GC)*(3.*KC-fabs(GC))/KC;
 		nc = (1.-fabs(GC)/KC)*.5;
 
-		KH = TakeCylinder_EH(N, ff, kk);	//...\F4\EE\F0\EC\F3\EB\E0 \F1\EC\E5\F1\E8, \E4\EE\EF\EE\EB\ED\E8\F2\E5\EB\FC\ED\FB\E5 \F5\E0\F0\E0\EA\F2\E5\F0\E8\F1\F2\E8\EA\E8 \E2 \F6\E8\EB\E8\ED\E4\F0\E8\F7\E5\F1\EA\EE\E9 \F1\E8\EC\EC\E5\F2\F0\E8\E8; 
-		EH = TakeCylinder_EH(N, ff, ee);	//...\F4\EE\F0\EC\F3\EB\E0 \F1\EC\E5\F1\E8; 
+		KH = TakeCylinder_EH(N, ff, kk);	//...формула смеси, дополнительные характеристики в цилиндрической симметрии; 
+		EH = TakeCylinder_EH(N, ff, ee);	//...формула смеси; 
 		LH = TakeCylinder_LH(N, ff, lm, mu, nj);
-		GH = TakeCylinder_GH(N, ff, mu, nj); //...\EF\F0\EE\E4\EE\EB\FC\ED\FB\E9 \EC\EE\E4\F3\EB\FC \F1\E4\E2\E8\E3\E0; 
+		GH = TakeCylinder_GH(N, ff, mu, nj); //...продольный модуль сдвига; 
 		nn = LH/(LH+KH);
 
 		K_min = 1./(c0/K2+(1.-c0)/K1);
@@ -7021,22 +7401,22 @@ int N_spinel = 2;
 {
 //////////////////
 //...initial data;
-	double nju1 = 0.48, //...\EF\EE\EB\E8\EC\E5\F0\ED\E0\FF \EC\E0\F2\F0\E8\F6\E0;
-			 nju2 = 0.30, //...\E6\E5\F1\F2\EA\EE\E5 \E2\EA\EB\FE\F7\E5\ED\E8\E5;  
-			 E1   = 1.0,  //...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \EC\E0\F2\F0\E8\F6\FB;
-			 E2   = 20.0, //...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \E2\EA\EB\FE\F7\E5\ED\E8\FF;
-			 K1   = E1/(3.*(1.-2.*nju1)),//...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \EC\E0\F2\F0\E8\F6\FB;
-			 K2   = E2/(3.*(1.-2.*nju2)),//...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \E2\EA\EB\FE\F7\E5\ED\E8\FF;
-			 G1   = E1/(2.*(1.+nju1)),   //...\EC\EE\E4\F3\EB\FC \F1\E4\E2\E8\E3\E0 \EC\E0\F2\F0\E8\F6\FB;
-			 G2   = E2/(2.*(1.+nju2)),   //...\EC\EE\E4\F3\EB\FC \F1\E4\E2\E8\E3\E0 \E2\EA\EB\FE\F7\E5\ED\E8\FF;
-			 l1   = 0.10, //...\E4\EE\EB\FF \EC\E5\E6\F4\E0\E7\ED\EE\E3\EE \F1\EB\EE\FF \E2\EE \E2\EA\EB\FE\F7\E5\ED\E8\E8;
-			 l2   = 0.10, //...\E4\EE\EB\FF \EC\E5\E6\F4\E0\E7\ED\EE\E3\EE \F1\EB\EE\FF \EF\EE \EE\F2\ED\EE\F8\E5\ED\E8\FE \EA \F0\E0\E4\E8\F3\F1\F3 \E2\EA\EB\FE\F7\E5\ED\E8\FF \E2 \EC\E0\F2\F0\E8\F6\E5;
+	double nju1 = 0.48, //...полимерная матрица;
+			 nju2 = 0.30, //...жесткое включение;  
+			 E1   = 1.0,  //...модуль Юнга матрицы;
+			 E2   = 20.0, //...модуль Юнга включения;
+			 K1   = E1/(3.*(1.-2.*nju1)),//...модуль Юнга матрицы;
+			 K2   = E2/(3.*(1.-2.*nju2)),//...модуль Юнга включения;
+			 G1   = E1/(2.*(1.+nju1)),   //...модуль сдвига матрицы;
+			 G2   = E2/(2.*(1.+nju2)),   //...модуль сдвига включения;
+			 l1   = 0.10, //...доля межфазного слоя во включении;
+			 l2   = 0.10, //...доля межфазного слоя по отношению к радиусу включения в матрице;
 			 c0   = 0.10, //...volume fraction of inclusion; 
 			 KS, KH, K0, ES, EH, E0, GS, GH, G0, ns, nn, n0, K_min, K_max, E_min, E_max, G_min, G_max;
 	yes = 0;
 
 ///////////////////////////////
-//...\F6\E8\EA\EB \EF\EE \EF\E0\F0\E0\EC\E5\F2\F0\E0\EC \E7\E0\E4\E0\F7\E8;
+//...цикл по параметрам задачи;
 	FILE * TST = fopen("homog_EE.dat", "w");
 	for (int j = 1; j < 400; j += 1) {
 		l2 = 0.066+j*.00001;
@@ -7076,21 +7456,21 @@ int N_spinel = 2;
 {
 //////////////////
 //...initial data;
-	double nju1 = 0.40, //...\EF\EE\EB\E8\EC\E5\F0\ED\E0\FF \EC\E0\F2\F0\E8\F6\E0;
-			 nju2 = 0.22, //...\E6\E5\F1\F2\EA\EE\E5 \E2\EA\EB\FE\F7\E5\ED\E8\E5;  
-			 nju3 = 0.30, //...\EF\F0\EE\EC\E5\E6\F3\F2\EE\F7\ED\FB\E9 \F1\EB\EE\E9;  
-			 E1   = 1.0,//...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \EC\E0\F2\F0\E8\F6\FB;
-			 E2   = 12.,//...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \E2\EA\EB\FE\F7\E5\ED\E8\FF;
-			 E3   = 1.0,//...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \EF\F0\EE\EC\E5\E6\F3\F2\EE\F7\ED\EE\E3\EE \F1\EB\EE\FF;
-			 al1  = 0.001,//...KTE \EC\E0\F2\F0\E8\F6\FB;
-			 al2  = 0.010,//...KTE \E2\EA\EB\FE\F7\E5\ED\E8\FF;
-			 al3  = 0.0,  //...KTE \EF\F0\EE\EC\E5\E6\F3\F2\EE\F7\ED\EE\E3\EE \F1\EB\EE\FF;
-			 K1   = E1/(3.*(1.-2.*nju1)),//...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \EC\E0\F2\F0\E8\F6\FB;
-			 K2   = E2/(3.*(1.-2.*nju2)),//...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \E2\EA\EB\FE\F7\E5\ED\E8\FF;
-			 K3   = E3/(3.*(1.-2.*nju3)),//...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \EF\F0\EE\EC\E5\E6\F3\F2\EE\F7\ED\EE\E3\EE \F1\EB\EE\FF;
-			 G1   = E1/(2.*(1.+nju1)),   //...\EC\EE\E4\F3\EB\FC \F1\E4\E2\E8\E3\E0 \EC\E0\F2\F0\E8\F6\FB;
-			 G2   = E2/(2.*(1.+nju2)),   //...\EC\EE\E4\F3\EB\FC \F1\E4\E2\E8\E3\E0 \E2\EA\EB\FE\F7\E5\ED\E8\FF;
-			 G3   = E3/(2.*(1.+nju3)),   //...\EC\EE\E4\F3\EB\FC \F1\E4\E2\E8\E3\E0 \EF\F0\EE\EC\E5\E6\F3\F2\EE\F7\ED\EE\E3\EE \F1\EB\EE\FF;
+	double nju1 = 0.40, //...полимерная матрица;
+			 nju2 = 0.22, //...жесткое включение;  
+			 nju3 = 0.30, //...промежуточный слой;  
+			 E1   = 1.0,//...модуль Юнга матрицы;
+			 E2   = 12.,//...модуль Юнга включения;
+			 E3   = 1.0,//...модуль Юнга промежуточного слоя;
+			 al1  = 0.001,//...KTE матрицы;
+			 al2  = 0.010,//...KTE включения;
+			 al3  = 0.0,  //...KTE промежуточного слоя;
+			 K1   = E1/(3.*(1.-2.*nju1)),//...модуль Юнга матрицы;
+			 K2   = E2/(3.*(1.-2.*nju2)),//...модуль Юнга включения;
+			 K3   = E3/(3.*(1.-2.*nju3)),//...модуль Юнга промежуточного слоя;
+			 G1   = E1/(2.*(1.+nju1)),   //...модуль сдвига матрицы;
+			 G2   = E2/(2.*(1.+nju2)),   //...модуль сдвига включения;
+			 G3   = E3/(2.*(1.+nju3)),   //...модуль сдвига промежуточного слоя;
 			 l1	= 0.1,   //...interphase layer for matrix;
 			 l2	= 0.03,  //...interphase layer for inclusion;
 			 limit  = 10., //...maximal length of layer;
@@ -7099,7 +7479,7 @@ int N_spinel = 2;
 		yes = 0;
 
 /////////////////////
-//...\E4\E0\ED\ED\FB\E5 \EF\EE \F1\EB\EE\FF\EC;
+//...данные по слоям;
 	//const int N = 3;
 	//double ff[N] = {c0*.8, c0*.2, 1.-c0}, kv[N] = {K2, K3, K1},
 	//		 mu[N] = {G2, G3, G1}, ll[N] = {l2, 0., l1}, nj[N] = {nju2, nju3, nju1}, 
@@ -7114,7 +7494,7 @@ int N_spinel = 2;
 			 lm[N] = {G2*2.*nju2/(1.-2.*nju2), G1*2.*nju1/(1.-2.*nju1)};
 
 ///////////////////////////////
-//...\F6\E8\EA\EB \EF\EE \EF\E0\F0\E0\EC\E5\F2\F0\E0\EC \E7\E0\E4\E0\F7\E8;
+//...цикл по параметрам задачи;
 	FILE * TST = fopen("homog_KK.dat", "w");
 	FILE * TSG = fopen("homog_GG.dat", "w");
 	FILE * TSE = fopen("homog_EE.dat", "w");
@@ -7179,21 +7559,21 @@ int N_spinel = 2;
 {
 //////////////////
 //...initial data;
-	double nju1 = 0.165,//...\EF\EE\EB\E8\EC\E5\F0\ED\E0\FF \EC\E0\F2\F0\E8\F6\E0;
-			 nju2 = 0.12,//...\E6\E5\F1\F2\EA\EE\E5 \E2\EA\EB\FE\F7\E5\ED\E8\E5;  
-			 nju3 = 0.30,//...\EF\F0\EE\EC\E5\E6\F3\F2\EE\F7\ED\FB\E9 \F1\EB\EE\E9;  
-			 E1   = 73., //...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \EC\E0\F2\F0\E8\F6\FB;
-			 E2   = 480.,//...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \E2\EA\EB\FE\F7\E5\ED\E8\FF;
-			 E3   = 1.0, //...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \EF\F0\EE\EC\E5\E6\F3\F2\EE\F7\ED\EE\E3\EE \F1\EB\EE\FF;
-			 al1  = 0.001,//...KTE \EC\E0\F2\F0\E8\F6\FB;
-			 al2  = 0.010,//...KTE \E2\EA\EB\FE\F7\E5\ED\E8\FF;
-			 al3  = 0.0,  //...KTE \EF\F0\EE\EC\E5\E6\F3\F2\EE\F7\ED\EE\E3\EE \F1\EB\EE\FF;
-			 K1   = E1/(3.*(1.-2.*nju1)),//...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \EC\E0\F2\F0\E8\F6\FB;
-			 K2   = E2/(3.*(1.-2.*nju2)),//...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \E2\EA\EB\FE\F7\E5\ED\E8\FF;
-			 K3   = E3/(3.*(1.-2.*nju3)),//...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \EF\F0\EE\EC\E5\E6\F3\F2\EE\F7\ED\EE\E3\EE \F1\EB\EE\FF;
-			 G1   = E1/(2.*(1.+nju1)),   //...\EC\EE\E4\F3\EB\FC \F1\E4\E2\E8\E3\E0 \EC\E0\F2\F0\E8\F6\FB;
-			 G2   = E2/(2.*(1.+nju2)),   //...\EC\EE\E4\F3\EB\FC \F1\E4\E2\E8\E3\E0 \E2\EA\EB\FE\F7\E5\ED\E8\FF;
-			 G3   = E3/(2.*(1.+nju3)),   //...\EC\EE\E4\F3\EB\FC \F1\E4\E2\E8\E3\E0 \EF\F0\EE\EC\E5\E6\F3\F2\EE\F7\ED\EE\E3\EE \F1\EB\EE\FF;
+	double nju1 = 0.165,//...полимерная матрица;
+			 nju2 = 0.12,//...жесткое включение;  
+			 nju3 = 0.30,//...промежуточный слой;  
+			 E1   = 73., //...модуль Юнга матрицы;
+			 E2   = 480.,//...модуль Юнга включения;
+			 E3   = 1.0, //...модуль Юнга промежуточного слоя;
+			 al1  = 0.001,//...KTE матрицы;
+			 al2  = 0.010,//...KTE включения;
+			 al3  = 0.0,  //...KTE промежуточного слоя;
+			 K1   = E1/(3.*(1.-2.*nju1)),//...модуль Юнга матрицы;
+			 K2   = E2/(3.*(1.-2.*nju2)),//...модуль Юнга включения;
+			 K3   = E3/(3.*(1.-2.*nju3)),//...модуль Юнга промежуточного слоя;
+			 G1   = E1/(2.*(1.+nju1)),   //...модуль сдвига матрицы;
+			 G2   = E2/(2.*(1.+nju2)),   //...модуль сдвига включения;
+			 G3   = E3/(2.*(1.+nju3)),   //...модуль сдвига промежуточного слоя;
 			 //l1	= 0.1,   //...interphase layer for matrix;
 			 //l2	= 0.03,  //...interphase layer for inclusion;
 			 l1	= 10.00,    //...interphase layer for matrix;
@@ -7204,7 +7584,7 @@ int N_spinel = 2;
 	yes = 0;
 
 /////////////////////
-//...\E4\E0\ED\ED\FB\E5 \EF\EE \F1\EB\EE\FF\EC;
+//...данные по слоям;
 	//const int N = 3;
 	//double ff[N] = {c0*.8, c0*.2, 1.-c0}, kv[N] = {K2, K3, K1},
 	//		 mu[N] = {G2, G3, G1}, ll[N] = {l2, 0., l1}, nj[N] = {nju2, nju3, nju1}, 
@@ -7219,7 +7599,7 @@ int N_spinel = 2;
 			 lm[N] = {G2*2.*nju2/(1.-2.*nju2), G1*2.*nju1/(1.-2.*nju1)};
 
 ///////////////////////////////
-//...\F6\E8\EA\EB \EF\EE \EF\E0\F0\E0\EC\E5\F2\F0\E0\EC \E7\E0\E4\E0\F7\E8;
+//...цикл по параметрам задачи;
 	FILE * TST = fopen("homog_ALL.dat", "w");
 	for (int j = 0; j <= 1000; j += 1) {
 		c0 = j*.001; 
@@ -7252,22 +7632,22 @@ int N_spinel = 2;
 {
 //////////////////
 //...initial data;
-	double nju1 = 0.32, //...\EF\EE\EB\E8\EC\E5\F0\ED\E0\FF \EC\E0\F2\F0\E8\F6\E0;
-			 nju2 = 0.17, //...\E6\E5\F1\F2\EA\EE\E5 \E2\EA\EB\FE\F7\E5\ED\E8\E5;  
-			 nju3 = 0.30, //...\EF\F0\EE\EC\E5\E6\F3\F2\EE\F7\ED\FB\E9 \F1\EB\EE\E9;  
-			 E1   = 1.25, //...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \EC\E0\F2\F0\E8\F6\FB;
-			 E2   = 3900., //...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \E2\EA\EB\FE\F7\E5\ED\E8\FF;
-			 E3   = 60.,  //...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \EF\F0\EE\EC\E5\E6\F3\F2\EE\F7\ED\EE\E3\EE \F1\EB\EE\FF;
-			 al1  = 0.001,//...KTE \EC\E0\F2\F0\E8\F6\FB;
-			 al2  = 0.010,//...KTE \E2\EA\EB\FE\F7\E5\ED\E8\FF;
-			 al3  = 0.0,  //...KTE \EF\F0\EE\EC\E5\E6\F3\F2\EE\F7\ED\EE\E3\EE \F1\EB\EE\FF;
-			 K1   = E1/(3.*(1.-2.*nju1)),//...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \EC\E0\F2\F0\E8\F6\FB;
-			 K2   = E2/(3.*(1.-2.*nju2)),//...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \E2\EA\EB\FE\F7\E5\ED\E8\FF;
-			 K3   = E3/(3.*(1.-2.*nju3)),//...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \EF\F0\EE\EC\E5\E6\F3\F2\EE\F7\ED\EE\E3\EE \F1\EB\EE\FF;
-			 G1   = E1/(2.*(1.+nju1)),   //...\EC\EE\E4\F3\EB\FC \F1\E4\E2\E8\E3\E0 \EC\E0\F2\F0\E8\F6\FB;
-			 G2   = E2/(2.*(1.+nju2)),   //...\EC\EE\E4\F3\EB\FC \F1\E4\E2\E8\E3\E0 \E2\EA\EB\FE\F7\E5\ED\E8\FF;
-			 G3   = E3/(2.*(1.+nju3)),   //...\EC\EE\E4\F3\EB\FC \F1\E4\E2\E8\E3\E0 \EF\F0\EE\EC\E5\E6\F3\F2\EE\F7\ED\EE\E3\EE \F1\EB\EE\FF;
-			 l0	= 0.6,   //...\EE\F2\ED\EE\F1\E8\F2\E5\EB\FC\ED\E0\FF \F8\E8\F0\E8\ED\E0 \EC\E5\E6\F4\E0\E7\ED\EE\E3\EE \F1\EB\EE\FF;
+	double nju1 = 0.32, //...полимерная матрица;
+			 nju2 = 0.17, //...жесткое включение;  
+			 nju3 = 0.30, //...промежуточный слой;  
+			 E1   = 1.25, //...модуль Юнга матрицы;
+			 E2   = 3900., //...модуль Юнга включения;
+			 E3   = 60.,  //...модуль Юнга промежуточного слоя;
+			 al1  = 0.001,//...KTE матрицы;
+			 al2  = 0.010,//...KTE включения;
+			 al3  = 0.0,  //...KTE промежуточного слоя;
+			 K1   = E1/(3.*(1.-2.*nju1)),//...модуль Юнга матрицы;
+			 K2   = E2/(3.*(1.-2.*nju2)),//...модуль Юнга включения;
+			 K3   = E3/(3.*(1.-2.*nju3)),//...модуль Юнга промежуточного слоя;
+			 G1   = E1/(2.*(1.+nju1)),   //...модуль сдвига матрицы;
+			 G2   = E2/(2.*(1.+nju2)),   //...модуль сдвига включения;
+			 G3   = E3/(2.*(1.+nju3)),   //...модуль сдвига промежуточного слоя;
+			 l0	= 0.6,   //...относительная ширина межфазного слоя;
 			 l1	= 0.1,   //...interphase layer for matrix;
 			 l2	= 0.03,  //...interphase layer for inclusion;
 			 limit  = 10., //...maximal length of layer;
@@ -7276,7 +7656,7 @@ int N_spinel = 2;
 	yes = 0;
 
 /////////////////////
-//...\E4\E0\ED\ED\FB\E5 \EF\EE \F1\EB\EE\FF\EC;
+//...данные по слоям;
 	//const int N = 3;
 	//double ff[N] = {c0*.8, c0*.2, 1.-c0}, kv[N] = {K2, K3, K1},
 	//		 mu[N] = {G2, G3, G1}, ll[N] = {l2, 0., l1}, nj[N] = {nju2, nju3, nju1}, 
@@ -7291,7 +7671,7 @@ int N_spinel = 2;
 			 lm[N] = {G2*2.*nju2/(1.-2.*nju2), G1*2.*nju1/(1.-2.*nju1)};
 
 ///////////////////////////////
-//...\F6\E8\EA\EB \EF\EE \EF\E0\F0\E0\EC\E5\F2\F0\E0\EC \E7\E0\E4\E0\F7\E8;
+//...цикл по параметрам задачи;
 	FILE * TST = fopen("homog_ALL.dat", "w");
 	for (int j = 0; j <= 1000; j += 1) {
 		c0 = j*.001;
@@ -7320,21 +7700,21 @@ int N_spinel = 2;
 {
 //////////////////
 //...initial data;
-	double nju1 = 0.21, //...\EF\EE\EB\E8\EC\E5\F0\ED\E0\FF \EC\E0\F2\F0\E8\F6\E0;
-			 nju2 = 0.12, //...\E6\E5\F1\F2\EA\EE\E5 \E2\EA\EB\FE\F7\E5\ED\E8\E5;  
-			 nju3 = 0.30, //...\EF\F0\EE\EC\E5\E6\F3\F2\EE\F7\ED\FB\E9 \F1\EB\EE\E9;  
-			 E1   = 475., //...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \EC\E0\F2\F0\E8\F6\FB;
-			 E2   = 480., //...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \E2\EA\EB\FE\F7\E5\ED\E8\FF;
-			 E3   = 57.0, //...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \EF\F0\EE\EC\E5\E6\F3\F2\EE\F7\ED\EE\E3\EE \F1\EB\EE\FF;
-			 al1  = 0.001,//...KTE \EC\E0\F2\F0\E8\F6\FB;
-			 al2  = 0.010,//...KTE \E2\EA\EB\FE\F7\E5\ED\E8\FF;
-			 al3  = 0.0,  //...KTE \EF\F0\EE\EC\E5\E6\F3\F2\EE\F7\ED\EE\E3\EE \F1\EB\EE\FF;
-			 K1   = E1/(3.*(1.-2.*nju1)),//...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \EC\E0\F2\F0\E8\F6\FB;
-			 K2   = E2/(3.*(1.-2.*nju2)),//...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \E2\EA\EB\FE\F7\E5\ED\E8\FF;
-			 K3   = E3/(3.*(1.-2.*nju3)),//...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \EF\F0\EE\EC\E5\E6\F3\F2\EE\F7\ED\EE\E3\EE \F1\EB\EE\FF;
-			 G1   = E1/(2.*(1.+nju1)),   //...\EC\EE\E4\F3\EB\FC \F1\E4\E2\E8\E3\E0 \EC\E0\F2\F0\E8\F6\FB;
-			 G2   = E2/(2.*(1.+nju2)),   //...\EC\EE\E4\F3\EB\FC \F1\E4\E2\E8\E3\E0 \E2\EA\EB\FE\F7\E5\ED\E8\FF;
-			 G3   = E3/(2.*(1.+nju3)),   //...\EC\EE\E4\F3\EB\FC \F1\E4\E2\E8\E3\E0 \EF\F0\EE\EC\E5\E6\F3\F2\EE\F7\ED\EE\E3\EE \F1\EB\EE\FF;
+	double nju1 = 0.21, //...полимерная матрица;
+			 nju2 = 0.12, //...жесткое включение;  
+			 nju3 = 0.30, //...промежуточный слой;  
+			 E1   = 475., //...модуль Юнга матрицы;
+			 E2   = 480., //...модуль Юнга включения;
+			 E3   = 57.0, //...модуль Юнга промежуточного слоя;
+			 al1  = 0.001,//...KTE матрицы;
+			 al2  = 0.010,//...KTE включения;
+			 al3  = 0.0,  //...KTE промежуточного слоя;
+			 K1   = E1/(3.*(1.-2.*nju1)),//...модуль Юнга матрицы;
+			 K2   = E2/(3.*(1.-2.*nju2)),//...модуль Юнга включения;
+			 K3   = E3/(3.*(1.-2.*nju3)),//...модуль Юнга промежуточного слоя;
+			 G1   = E1/(2.*(1.+nju1)),   //...модуль сдвига матрицы;
+			 G2   = E2/(2.*(1.+nju2)),   //...модуль сдвига включения;
+			 G3   = E3/(2.*(1.+nju3)),   //...модуль сдвига промежуточного слоя;
 			 l1	= 1.0,   //...interphase layer for matrix;
 			 l2	= 1.0,   //...interphase layer for inclusion;
 			 l3	= 1.0,   //...interphase layer for interphase layer;
@@ -7345,7 +7725,7 @@ int N_spinel = 2;
 	yes = 0;
 
 /////////////////////
-//...\E4\E0\ED\ED\FB\E5 \EF\EE \F1\EB\EE\FF\EC;
+//...данные по слоям;
 	const int N = 3;
 	double ff[N] = {c0*.8, c0*.2, 1.-c0}, kv[N] = {K2, K3, K1},
 			 mu[N] = {G2, G3, G1}, ll[N] = {l2, l3, l1}, nj[N] = {nju2, nju3, nju1}, 
@@ -7358,7 +7738,7 @@ int N_spinel = 2;
 	//		 kk[N] = {E2*(1.-nju2)/((1.+nju2)*(1.-2.*nju2)), E1*(1.-nju1)/((1.+nju1)*(1.-2.*nju1))};
 
 ///////////////////////////////
-//...\F6\E8\EA\EB \EF\EE \EF\E0\F0\E0\EC\E5\F2\F0\E0\EC \E7\E0\E4\E0\F7\E8;
+//...цикл по параметрам задачи;
 	FILE * TST = fopen("homog_All.dat", "w");
 	for (int j = 0; j <= 500; j += 1) {
 		c0 = j*.001; 
@@ -7391,14 +7771,14 @@ int N_spinel = 2;
 //...model initialization;
 	CDraft<double> * sm = CreateDraftR(/*MINDL3D_DRAFT*/COHES3D_DRAFT, 8),
 						* el = CreateDraftR(LAME3D_DRAFT,  8);
-	double nju1 = 0.4, //...\EF\EE\EB\E8\EC\E5\F0\ED\E0\FF \EC\E0\F2\F0\E8\F6\E0;
-			 nju2 = 0.22, //...\E6\E5\F1\F2\EA\EE\E5 \E2\EA\EB\FE\F7\E5\ED\E8\E5;  
-			 K1   = 1.0,  //...\EE\E1\FA\E5\EC\ED\FB\E9 \EC\EE\E4\F3\EB\FC \EC\E0\F2\F0\E8\F6\FB;
-			 K2   = 40., //...\EE\E1\FA\E5\EC\ED\FB\E9 \EC\EE\E4\F3\EB\FC \E2\EA\EB\FE\F7\E5\ED\E8\FF;
-			 //E1   = 3.*(1.-2.*nju1)*K1,//...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \EC\E0\F2\F0\E8\F6\FB;
-			 //E2   = 3.*(1.-2.*nju2)*K2,//...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \E2\EA\EB\FE\F7\E5\ED\E8\FF;
-			 E1   = 1.0,//...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \EC\E0\F2\F0\E8\F6\FB;
-			 E2   = 56.,//...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \E2\EA\EB\FE\F7\E5\ED\E8\FF;
+	double nju1 = 0.4, //...полимерная матрица;
+			 nju2 = 0.22, //...жесткое включение;  
+			 K1   = 1.0,  //...объемный модуль матрицы;
+			 K2   = 40., //...объемный модуль включения;
+			 //E1   = 3.*(1.-2.*nju1)*K1,//...модуль Юнга матрицы;
+			 //E2   = 3.*(1.-2.*nju2)*K2,//...модуль Юнга включения;
+			 E1   = 1.0,//...модуль Юнга матрицы;
+			 E2   = 56.,//...модуль Юнга включения;
 			 AA	= E1*.0,			 //...adhegion parameter;
 			 BB	= E1*.5/(1.+nju1)*.0,//...adhegion parameter;
 			 l1	= 4.0,   //...interphase layer for matrix;
@@ -7411,7 +7791,7 @@ int N_spinel = 2;
 	yes = 0;
 
 ///////////////////////////////
-//...\F6\E8\EA\EB \EF\EE \EF\E0\F0\E0\EC\E5\F2\F0\E0\EC \E7\E0\E4\E0\F7\E8;
+//...цикл по параметрам задачи;
 	FILE * TST = fopen("mindl3D_homog.dat", "w");
 	for (int j = 1; j <= 1000; j += 1) {
 		//c0 = j*.001;
@@ -7447,22 +7827,22 @@ int N_spinel = 2;
 //...model initialization;
 	CDraft<double> * sm = CreateDraftR(COHES3D_DRAFT, 8),
 						* lm = CreateDraftR(LAME2D_DRAFT, 8);
-	double nju1 = 0.30, //...\EF\EE\EB\E8\EC\E5\F0\ED\E0\FF \EC\E0\F2\F0\E8\F6\E0;
-			 nju2 = 0.30, //...\F1\EB\EE\E9;
-			 nju3 = 0.22, //...\E6\E5\F1\F2\EA\EE\E5 \E2\EA\EB\FE\F7\E5\ED\E8\E5;  
-			 E1   = 0.012,//...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \EC\E0\F2\F0\E8\F6\FB;
-			 E2   = 0.045,//...\F1\EB\EE\E9;
-			 E3   = 30.,  //...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \E2\EA\EB\FE\F7\E5\ED\E8\FF;
-			 kk1	= E1*(.5+nju1)/(1.+nju1), //...\EC\EE\E4\F3\EB\FC \F0\E0\F1\F2\FF\E6\E5\ED\E8\FF/\F1\E6\E0\F2\E8\FF \EC\E0\F2\F0\E8\F6\FB;
-			 kk2	= E2*(.5+nju2)/(1.+nju2), //...\F1\EB\EE\E9;
-			 kk3	= E3*(.5+nju3)/(1.+nju3), //...\EC\EE\E4\F3\EB\FC \F0\E0\F1\F2\FF\E6\E5\ED\E8\FF/\F1\E6\E0\F2\E8\FF \E2\EA\EB\FE\F7\E5\ED\E8\FF;
+	double nju1 = 0.30, //...полимерная матрица;
+			 nju2 = 0.30, //...слой;
+			 nju3 = 0.22, //...жесткое включение;  
+			 E1   = 0.012,//...модуль Юнга матрицы;
+			 E2   = 0.045,//...слой;
+			 E3   = 30.,  //...модуль Юнга включения;
+			 kk1	= E1*(.5+nju1)/(1.+nju1), //...модуль растяжения/сжатия матрицы;
+			 kk2	= E2*(.5+nju2)/(1.+nju2), //...слой;
+			 kk3	= E3*(.5+nju3)/(1.+nju3), //...модуль растяжения/сжатия включения;
 			 l0	= 0.10, //...interphase layer;
 			 c0   = 0.20, //...volume fraction; 
 			 G1, G2, GH = 0., G0, EH, E_min, E_max, KH, KK = 0., KD;
 	yes = 0;
 
 ///////////////////////////////
-//...\F6\E8\EA\EB \EF\EE \EF\E0\F0\E0\EC\E5\F2\F0\E0\EC \E7\E0\E4\E0\F7\E8;
+//...цикл по параметрам задачи;
 	const int N = 3;
 	double ff[N] = {(1.-c0)*2./3., (1.-c0)*1./3., c0}, kk[N] = {kk1, kk2, kk3}, ll[N] = {l0, l0, l0}, 
 			 mu[N] = {2.*E1*(1.+nju1), 2.*E2*(1.+nju2), 2.*E3*(1.+nju3)}; 
@@ -7497,53 +7877,53 @@ int N_spinel = 2;
 	CDraft<double> * sm = CreateDraftR(MINDL3D_DRAFT, 8),
 						* el = CreateDraftR(LAME3D_DRAFT,  8);
 ////////////////////////////////////////////////////////
-//...\E4\E0\ED\ED\FB\E5 \E4\EB\FF \F0\E0\F1\F7\E5\F2\EE\E2 \F1 \E4\E8\F1\EF\E5\F0\F1\ED\FB\EC\E8 \F7\E0\F1\F2\E8\F6\E0\EC\E8 - \C2\CF\CC2;
-	//double nju1 = 0.33, //...\EF\EE\EB\E8\EC\E5\F0\ED\E0\FF \EC\E0\F2\F0\E8\F6\E0;
-	//		 //E1   = 210., //...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \EF\EE\EB\E8\EC\E5\F0\ED\EE\E9 \EC\E0\F2\F0\E8\F6\FB (GPa), \D2 = 20\D1;
-	//		 //E1   = 150., //...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \EF\EE\EB\E8\EC\E5\F0\ED\EE\E9 \EC\E0\F2\F0\E8\F6\FB (GPa), \D2 = 600\D1;
-	//		 E1   = 30.,  //...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \EF\EE\EB\E8\EC\E5\F0\ED\EE\E9 \EC\E0\F2\F0\E8\F6\FB (GPa), \D2 = 1400/1300\D1;
+//...данные для расчетов с дисперсными частицами - ВПМ2;
+	//double nju1 = 0.33, //...полимерная матрица;
+	//		 //E1   = 210., //...модуль Юнга полимерной матрицы (GPa), Т = 20С;
+	//		 //E1   = 150., //...модуль Юнга полимерной матрицы (GPa), Т = 600С;
+	//		 E1   = 30.,  //...модуль Юнга полимерной матрицы (GPa), Т = 1400/1300С;
 	//		 AA	= E1*.0,			 //...adhegion parameter;
 	//		 BB	= E1*.5/(1.+nju1)*.0,//...adhegion parameter;
-	//		 l1	= 15.,  //...\EC\E0\F1\F8\F2\E0\E1\ED\FB\E9 \EF\E0\F0\E0\EC\E5\F2\F0 \EC\E0\F2\F0\E8\F6\FB (\EC\EA\EC), \D2 = 20\D1;
-	//		 //l1	= 20.,  //...\EC\E0\F1\F8\F2\E0\E1\ED\FB\E9 \EF\E0\F0\E0\EC\E5\F2\F0 \EC\E0\F2\F0\E8\F6\FB (\EC\EA\EC), \D2 = 600\D1;
- //  		 //l1	= 25.,  //...\EC\E0\F1\F8\F2\E0\E1\ED\FB\E9 \EF\E0\F0\E0\EC\E5\F2\F0 \EC\E0\F2\F0\E8\F6\FB (\EC\EA\EC), \D2 = 1400/1300\D1;
+	//		 l1	= 15.,  //...масштабный параметр матрицы (мкм), Т = 20С;
+	//		 //l1	= 20.,  //...масштабный параметр матрицы (мкм), Т = 600С;
+ //  		 //l1	= 25.,  //...масштабный параметр матрицы (мкм), Т = 1400/1300С;
 	//		 l1_dop = 0.; //...interphase layer_dop;
 ///////////////////////////////////////////////////////////
-//...\E4\E0\ED\ED\FB\E5 \E4\EB\FF \F0\E0\F1\F7\E5\F2\EE\E2 \F1 \E4\E8\F1\EF\E5\F0\F1\ED\FB\EC\E8 \F7\E0\F1\F2\E8\F6\E0\EC\E8 - \C2\CA\CD\C0-1\D3;
-	double nju1 = 0.33, //...\EF\EE\EB\E8\EC\E5\F0\ED\E0\FF \EC\E0\F2\F0\E8\F6\E0;
-			 //E1   = 150., //...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \EF\EE\EB\E8\EC\E5\F0\ED\EE\E9 \EC\E0\F2\F0\E8\F6\FB (GPa), \D2 = 20\D1;
-			 //E1   = 135., //...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \EF\EE\EB\E8\EC\E5\F0\ED\EE\E9 \EC\E0\F2\F0\E8\F6\FB (GPa), \D2 = 600\D1;
-			 E1   = 40.,  //...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \EF\EE\EB\E8\EC\E5\F0\ED\EE\E9 \EC\E0\F2\F0\E8\F6\FB (GPa), \D2 = 1400/1300\D1;
+//...данные для расчетов с дисперсными частицами - ВКНА-1У;
+	double nju1 = 0.33, //...полимерная матрица;
+			 //E1   = 150., //...модуль Юнга полимерной матрицы (GPa), Т = 20С;
+			 //E1   = 135., //...модуль Юнга полимерной матрицы (GPa), Т = 600С;
+			 E1   = 40.,  //...модуль Юнга полимерной матрицы (GPa), Т = 1400/1300С;
 			 AA	= E1*.0,			 //...adhegion parameter;
 			 BB	= E1*.5/(1.+nju1)*.0,//...adhegion parameter;
-			 l1	= 15.,  //...\EC\E0\F1\F8\F2\E0\E1\ED\FB\E9 \EF\E0\F0\E0\EC\E5\F2\F0 \EC\E0\F2\F0\E8\F6\FB (\EC\EA\EC), \D2 = 20\D1;
-			 //l1	= 20.,  //...\EC\E0\F1\F8\F2\E0\E1\ED\FB\E9 \EF\E0\F0\E0\EC\E5\F2\F0 \EC\E0\F2\F0\E8\F6\FB (\EC\EA\EC), \D2 = 600\D1;
- 			 //l1	= 25.,  //...\EC\E0\F1\F8\F2\E0\E1\ED\FB\E9 \EF\E0\F0\E0\EC\E5\F2\F0 \EC\E0\F2\F0\E8\F6\FB (\EC\EA\EC), \D2 = 1400/1300\D1;
+			 l1	= 15.,  //...масштабный параметр матрицы (мкм), Т = 20С;
+			 //l1	= 20.,  //...масштабный параметр матрицы (мкм), Т = 600С;
+ 			 //l1	= 25.,  //...масштабный параметр матрицы (мкм), Т = 1400/1300С;
 			 l1_dop = 0.; //...interphase layer_dop;
 ///////////////////////////////////////////////////////
-//...\E4\E0\ED\ED\FB\E5 \E4\EB\FF \F0\E0\F1\F7\E5\F2\EE\E2 \F1 \E4\E8\F1\EF\E5\F0\F1\ED\FB\EC\E8 \F7\E0\F1\F2\E8\F6\E0\EC\E8 - AL2O3;
-	//double nju2 = 0.20, //...\E6\E5\F1\F2\EA\EE\E5 \E2\EA\EB\FE\F7\E5\ED\E8\E5;  
-	//		 E2   = 380., //...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \E6\E5\F1\F2\EA\EE\E3\EE \E2\EA\EB\FE\F7\E5\ED\E8\FF (GPa);
-	//		 l2	= 0.005,  //...\EC\E0\F1\F8\F2\E0\E1\ED\FB\E9 \EF\E0\F0\E0\EC\E5\F2\F0 \E2\EA\EB\FE\F7\E5\ED\E8\E9 (\EC\EA\EC);
+//...данные для расчетов с дисперсными частицами - AL2O3;
+	//double nju2 = 0.20, //...жесткое включение;  
+	//		 E2   = 380., //...модуль Юнга жесткого включения (GPa);
+	//		 l2	= 0.005,  //...масштабный параметр включений (мкм);
 	//		 l2_dop	= 0., //...interphase layer_dop;
-	//		 rad = 0.05,   //...\F5\E0\F0\E0\EA\F2\E5\F0\ED\FB\E9 \F0\E0\E4\E8\F3\F1 \E2\EA\EB\FE\F7\E5\ED\E8\E9 (\EC\EA\EC); 
-	//		 c0  = 0.035,  //...\EF\F0\E5\E4\E5\EB\FC\ED\E0\FF \EA\EE\ED\F6\E5\ED\F2\F0\E0\F6\E8\FF \E2\EA\EB\FE\F7\E5\ED\E8\E9; 
+	//		 rad = 0.05,   //...характерный радиус включений (мкм); 
+	//		 c0  = 0.035,  //...предельная концентрация включений; 
 	//		 G1, G2, GH = 0., KH, G0, K0, EH, nuH, E0, nu0, ff, ll;
 ///////////////////////////////////////////////////////////
-////...\E4\E0\ED\ED\FB\E5 \E4\EB\FF \F0\E0\F1\F7\E5\F2\EE\E2 \F1 \E4\E8\F1\EF\E5\F0\F1\ED\FB\EC\E8 \F7\E0\F1\F2\E8\F6\E0\EC\E8 - Y2O3;
-	double nju2 = 0.31, //...\E6\E5\F1\F2\EA\EE\E5 \E2\EA\EB\FE\F7\E5\ED\E8\E5;  
-			 //E2   = 225., //...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \E6\E5\F1\F2\EA\EE\E3\EE \EC\E0\F2\F0\E8\F6\FB (GPa), \D2 = 20\D1;
-			 //E2   = 215., //...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \E6\E5\F1\F2\EA\EE\E3\EE \EC\E0\F2\F0\E8\F6\FB (GPa), \D2 = 600\D1;
-			 E2   = 180.,  //...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \E6\E5\F1\F2\EA\EE\E3\EE \EC\E0\F2\F0\E8\F6\FB (GPa), \D2 = 1400/1300\D1;
-			 l2	= 0.005,  //...\EC\E0\F1\F8\F2\E0\E1\ED\FB\E9 \EF\E0\F0\E0\EC\E5\F2\F0 \E2\EA\EB\FE\F7\E5\ED\E8\E9 (\EC\EA\EC);
+////...данные для расчетов с дисперсными частицами - Y2O3;
+	double nju2 = 0.31, //...жесткое включение;  
+			 //E2   = 225., //...модуль Юнга жесткого матрицы (GPa), Т = 20С;
+			 //E2   = 215., //...модуль Юнга жесткого матрицы (GPa), Т = 600С;
+			 E2   = 180.,  //...модуль Юнга жесткого матрицы (GPa), Т = 1400/1300С;
+			 l2	= 0.005,  //...масштабный параметр включений (мкм);
 			 l2_dop	= 0., //...interphase layer_dop;
-			 rad = 0.025,   //...\F5\E0\F0\E0\EA\F2\E5\F0\ED\FB\E9 \F0\E0\E4\E8\F3\F1 \E2\EA\EB\FE\F7\E5\ED\E8\E9 (\EC\EA\EC); 
-			 c0  = 0.035,  //...\EF\F0\E5\E4\E5\EB\FC\ED\E0\FF \EA\EE\ED\F6\E5\ED\F2\F0\E0\F6\E8\FF \E2\EA\EB\FE\F7\E5\ED\E8\E9; 
+			 rad = 0.025,   //...характерный радиус включений (мкм); 
+			 c0  = 0.035,  //...предельная концентрация включений; 
 			 G1, G2, GH = 0., KH, G0, K0, EH, nuH, E0, nu0, ff, ll;
 	yes = 0;
 
 ///////////////////////////////  
-//...\F6\E8\EA\EB \EF\EE \EF\E0\F0\E0\EC\E5\F2\F0\E0\EC \E7\E0\E4\E0\F7\E8;
+//...цикл по параметрам задачи;
 	FILE * TST = fopen("mindl3D_homog.dat", "w");
 	for (int j = 0; j <= 500; j += 1) {
 		ff = 0.02+j*.00003; ll = 10./*(l1/rad)*/;
@@ -7579,80 +7959,80 @@ int N_spinel = 2;
 	CDraft<double> * sm = CreateDraftR(COHES3D_DRAFT, 8),
 						* el = CreateDraftR(LAME3D_DRAFT,  8);
 //////////////////////////////////////////////////////////////
-//...\E4\E0\ED\ED\FB\E5 \E4\EB\FF \F0\E0\F1\F7\E5\F2\EE\E2 \F1 \E4\E8\F1\EF\E5\F0\F1\ED\FB\EC\E8 \F7\E0\F1\F2\E8\F6\E0\EC\E8 - \EC\E0\F2\F0\E8\F6\E0 Al;
-	double nju1 = 0.33, //...\EF\EE\EB\E8\EC\E5\F0\ED\E0\FF \EC\E0\F2\F0\E8\F6\E0;
-			 nju3 = 0.30, //...\EC\E5\E6\F4\E0\E7\ED\FB\E9 \F1\EB\EE\E9;
-			 E1   = 62.0, //...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \EC\FF\E3\EA\EE\E9 \EC\E0\F2\F0\E8\F6\FB (GPa);
-			 //E1   = 70.0, //...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \EC\FF\E3\EA\EE\E9 \EC\E0\F2\F0\E8\F6\FB (GPa);
-			 E3   = 89.2, //...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \EC\E5\E6\F4\E0\E7\ED\EE\E3\EE \F1\EB\EE\FF (GPa);
-			 G1   = E1/(1.+nju1)*.5,  //...\EC\EE\E4\F3\EB\FC \F1\E4\E2\E8\E3\E0 \EC\FF\E3\EA\EE\E9 \EC\E0\F2\F0\E8\F6\FB (GPa);
-			 G3   = E3/(1.+nju3)*.5,  //...\EC\EE\E4\F3\EB\FC \F1\E4\E2\E8\E3\E0 \EC\E5\E6\F4\E0\E7\ED\EE\E3\EE \F1\EB\EE\FF (GPa);
-			 l1	= 0.2455,  //...\F0\E0\E7\EC\E5\F0 \EC\E5\E6\F4\E0\E7\ED\EE\E3\EE \F1\EB\EE\FF (\EC\EA\EC, 16.365*0.015);
-			 eps	= 26.; //...\EF\EE\F0\E8\F1\F2\EE\F1\F2\FC (%);
+//...данные для расчетов с дисперсными частицами - матрица Al;
+	double nju1 = 0.33, //...полимерная матрица;
+			 nju3 = 0.30, //...межфазный слой;
+			 E1   = 62.0, //...модуль Юнга мягкой матрицы (GPa);
+			 //E1   = 70.0, //...модуль Юнга мягкой матрицы (GPa);
+			 E3   = 89.2, //...модуль Юнга межфазного слоя (GPa);
+			 G1   = E1/(1.+nju1)*.5,  //...модуль сдвига мягкой матрицы (GPa);
+			 G3   = E3/(1.+nju3)*.5,  //...модуль сдвига межфазного слоя (GPa);
+			 l1	= 0.2455,  //...размер межфазного слоя (мкм, 16.365*0.015);
+			 eps	= 26.; //...пористость (%);
 ////////////////////////////////////////////////////////////////////
-////...\E4\E0\ED\ED\FB\E5 \E4\EB\FF \F0\E0\F1\F7\E5\F2\EE\E2 \F1 \E4\E8\F1\EF\E5\F0\F1\ED\FB\EC\E8 \F7\E0\F1\F2\E8\F6\E0\EC\E8 - \EC\E0\F2\F0\E8\F6\E0 Al-B95;
-//	double nju1 = 0.33, //...\EF\EE\EB\E8\EC\E5\F0\ED\E0\FF \EC\E0\F2\F0\E8\F6\E0;
-//			 nju3 = 0.30, //...\EC\E5\E6\F4\E0\E7\ED\FB\E9 \F1\EB\EE\E9;
-//			 E1   = 70.0, //...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \EC\FF\E3\EA\EE\E9 \EC\E0\F2\F0\E8\F6\FB (GPa);
-//			 G1   = E1/(1.+nju1)*.5,  //...\EC\EE\E4\F3\EB\FC \F1\E4\E2\E8\E3\E0 \EC\FF\E3\EA\EE\E9 \EC\E0\F2\F0\E8\F6\FB (GPa);
-//			 l1	= 0.160, //...\F0\E0\E7\EC\E5\F0 \EC\E5\E6\F4\E0\E7\ED\EE\E3\EE \F1\EB\EE\FF (\EC\EA\EC);
-//			 rad0 = 0.800, //...\F0\E0\E4\E8\F3\F1 \ED\E0\F7\E0\EB\E0 \EC\E0\F1\F8\F2\E0\E1\ED\EE\E3\EE \FD\F4\F4\E5\EA\F2\E0 (\EC\EA\EC);
-//			 rad1 = 1.00,  //...\F0\E0\E4\E8\F3\F1 \EE\EA\EE\ED\F7\E0\ED\E8\FF \EC\E0\F1\F8\F2\E0\E1\ED\EE\E3\EE \FD\F4\F4\E5\EA\F2\E0 (\EC\EA\EC);
-//			 rad_str	= 5.; //...\F0\E0\E7\EC\E5\F0 \E7\E5\F0\ED\E0 \E2 \F1\F2\F0\F3\EA\F2\F3\F0\E5 (\EC\EA\EC);
+////...данные для расчетов с дисперсными частицами - матрица Al-B95;
+//	double nju1 = 0.33, //...полимерная матрица;
+//			 nju3 = 0.30, //...межфазный слой;
+//			 E1   = 70.0, //...модуль Юнга мягкой матрицы (GPa);
+//			 G1   = E1/(1.+nju1)*.5,  //...модуль сдвига мягкой матрицы (GPa);
+//			 l1	= 0.160, //...размер межфазного слоя (мкм);
+//			 rad0 = 0.800, //...радиус начала масштабного эффекта (мкм);
+//			 rad1 = 1.00,  //...радиус окончания масштабного эффекта (мкм);
+//			 rad_str	= 5.; //...размер зерна в структуре (мкм);
 ///////////////////////////////////////////////////////
-//...\E4\E0\ED\ED\FB\E5 \E4\EB\FF \F0\E0\F1\F7\E5\F2\EE\E2 \F1 \E4\E8\F1\EF\E5\F0\F1\ED\FB\EC\E8 \F7\E0\F1\F2\E8\F6\E0\EC\E8 - AL2O3;
-	//double nju2 = 0.25, //...\E6\E5\F1\F2\EA\EE\E5 \E2\EA\EB\FE\F7\E5\ED\E8\E5;  
-	//		 E2   = 500., //...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \E6\E5\F1\F2\EA\EE\E3\EE \E2\EA\EB\FE\F7\E5\ED\E8\FF (GPa);
-	//		 G2   = E2/(1.+nju2)*.5,  //...\EC\EE\E4\F3\EB\FC \F1\E4\E2\E8\E3\E0 \E6\E5\F1\F2\EA\EE\E3\EE \EC\E0\F2\F0\E8\F6\FB (GPa);
-	//		 l2	= 0.0015, //...\EC\E0\F1\F8\F2\E0\E1\ED\FB\E9 \EF\E0\F0\E0\EC\E5\F2\F0 \E2\EA\EB\FE\F7\E5\ED\E8\E9 (\EC\EA\EC);
-	//		 rad = 0.1,  	 //...\EE\F2\ED\EE\F1\E8\F2\E5\EB\FC\ED\E0\FF \F8\E8\F0\E8\ED\E0 \EC\E5\E6\F4\E0\E7\ED\EE\E9 \E7\EE\ED\FB;
-	//		 c0  = 0.0001,  //...\EA\EE\ED\F6\E5\ED\F2\F0\E0\F6\E8\FF \E2\EA\EB\FE\F7\E5\ED\E8\E9; 
-	//		 \D11, \D12, GH = 0., KH, G0, K0, EH, nuH, E0, nu0, ff, ff_l, ll, kk;
+//...данные для расчетов с дисперсными частицами - AL2O3;
+	//double nju2 = 0.25, //...жесткое включение;  
+	//		 E2   = 500., //...модуль Юнга жесткого включения (GPa);
+	//		 G2   = E2/(1.+nju2)*.5,  //...модуль сдвига жесткого матрицы (GPa);
+	//		 l2	= 0.0015, //...масштабный параметр включений (мкм);
+	//		 rad = 0.1,  	 //...относительная ширина межфазной зоны;
+	//		 c0  = 0.0001,  //...концентрация включений; 
+	//		 С1, С2, GH = 0., KH, G0, K0, EH, nuH, E0, nu0, ff, ff_l, ll, kk;
 ///////////////////////////////////////////////////////////////////
-//...\E4\E0\ED\ED\FB\E5 \E4\EB\FF \F0\E0\F1\F7\E5\F2\EE\E2 \F1 \E4\E8\F1\EF\E5\F0\F1\ED\FB\EC\E8 \F7\E0\F1\F2\E8\F6\E0\EC\E8 - AL2O3, \EA\EB\E0\F1\F2\E5\F0\FB;
-	//double nju2 = 0.24, //...\E6\E5\F1\F2\EA\EE\E5 \E2\EA\EB\FE\F7\E5\ED\E8\E5;  
-	//		 E2   = 293., //...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \E6\E5\F1\F2\EA\EE\E3\EE \E2\EA\EB\FE\F7\E5\ED\E8\FF (GPa);
-	//		 G2   = E2/(1.+nju2)*.5,  //...\EC\EE\E4\F3\EB\FC \F1\E4\E2\E8\E3\E0 \E6\E5\F1\F2\EA\EE\E3\EE \EC\E0\F2\F0\E8\F6\FB (GPa);
-	//		 l2	= 0.1,	//...\EE\F2\ED\EE\F1\E8\F2\E5\EB\FC\ED\E0\FF \F8\E8\F0\E8\ED\E0 \EC\E5\E6\F4\E0\E7\ED\EE\E9 \E7\EE\ED\FB;
-	//		 rad = 0.500,  //...\F5\E0\F0\E0\EA\F2\E5\F0\ED\FB\E9 \F0\E0\E4\E8\F3\F1 \E2\EA\EB\FE\F7\E5\ED\E8\E9 (\EC\EA\EC); 
-	//		 c0  = 0.0001, //...\EA\EE\ED\F6\E5\ED\F2\F0\E0\F6\E8\FF \E2\EA\EB\FE\F7\E5\ED\E8\E9; 
-	//		 \D11, \D12, GH = 0., KH, G0, K0, EH, nuH, E0, nu0, ff, ff_l, ll, kk;
+//...данные для расчетов с дисперсными частицами - AL2O3, кластеры;
+	//double nju2 = 0.24, //...жесткое включение;  
+	//		 E2   = 293., //...модуль Юнга жесткого включения (GPa);
+	//		 G2   = E2/(1.+nju2)*.5,  //...модуль сдвига жесткого матрицы (GPa);
+	//		 l2	= 0.1,	//...относительная ширина межфазной зоны;
+	//		 rad = 0.500,  //...характерный радиус включений (мкм); 
+	//		 c0  = 0.0001, //...концентрация включений; 
+	//		 С1, С2, GH = 0., KH, G0, K0, EH, nuH, E0, nu0, ff, ff_l, ll, kk;
 /////////////////////////////////////////////////////////////////
-//...\E8\F1\F5\EE\E4\ED\FB\E5 \E4\E0\ED\ED\FB\E5 \E4\EB\FF \F0\E0\F1\F7\E5\F2\EE\E2 \F1 \E4\E8\F1\EF\E5\F0\F1\ED\FB\EC\E8 \F7\E0\F1\F2\E8\F6\E0\EC\E8 - ZrO2;
-	double nju2 = 0.31, //...\E6\E5\F1\F2\EA\EE\E5 \E2\EA\EB\FE\F7\E5\ED\E8\E5;  
-			 E2   = 205.,  //...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \E6\E5\F1\F2\EA\EE\E3\EE \EC\E0\F2\F0\E8\F6\FB (GPa);
-			 G2   = E2/(1.+nju2)*.5,  //...\EC\EE\E4\F3\EB\FC \F1\E4\E2\E8\E3\E0 \E6\E5\F1\F2\EA\EE\E3\EE \EC\E0\F2\F0\E8\F6\FB (GPa);
-			 l2	= 0.03,	 //...\EE\F2\ED\EE\F1\E8\F2\E5\EB\FC\ED\E0\FF \F8\E8\F0\E8\ED\E0 \EC\E5\E6\F4\E0\E7\ED\EE\E9 \E7\EE\ED\FB;
-			 rad = 0.015,   //...\F5\E0\F0\E0\EA\F2\E5\F0\ED\FB\E9 \F0\E0\E4\E8\F3\F1 \E2\EA\EB\FE\F7\E5\ED\E8\E9 (\EC\EA\EC); 
-			 c0  = 0.001,   //...\EA\EE\ED\F6\E5\ED\F2\F0\E0\F6\E8\FF \EC\E0\EA\F1\E8\EC\E0\EB\FC\ED\EE\E9 \EA\EB\E0\F1\F2\E5\F0\E8\E7\E0\F6\E8\E8 \E2\EA\EB\FE\F7\E5\ED\E8\E9; 
-			 \D11, \D12, GH = 0., KH, G0, K0, EH, E_min, E_max, nuH, E0, nu0, ff, ff_l, ll, ll0, kk, l1_limit, AA, BB;
+//...исходные данные для расчетов с дисперсными частицами - ZrO2;
+	double nju2 = 0.31, //...жесткое включение;  
+			 E2   = 205.,  //...модуль Юнга жесткого матрицы (GPa);
+			 G2   = E2/(1.+nju2)*.5,  //...модуль сдвига жесткого матрицы (GPa);
+			 l2	= 0.03,	 //...относительная ширина межфазной зоны;
+			 rad = 0.015,   //...характерный радиус включений (мкм); 
+			 c0  = 0.001,   //...концентрация максимальной кластеризации включений; 
+			 С1, С2, GH = 0., KH, G0, K0, EH, E_min, E_max, nuH, E0, nu0, ff, ff_l, ll, ll0, kk, l1_limit, AA, BB;
 ////////////////////////////////////////////////////////////////
-//...\E8\F1\F5\EE\E4\ED\FB\E5 \E4\E0\ED\ED\FB\E5 \E4\EB\FF \F0\E0\F1\F7\E5\F2\EE\E2 \F1 \E4\E8\F1\EF\E5\F0\F1\ED\FB\EC\E8 \F7\E0\F1\F2\E8\F6\E0\EC\E8 - SiC;
-	//double nju2 = 0.16, //...\E6\E5\F1\F2\EA\EE\E5 \E2\EA\EB\FE\F7\E5\ED\E8\E5;  
-	//		 E2   = 415.,  //...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \E6\E5\F1\F2\EA\EE\E3\EE \EC\E0\F2\F0\E8\F6\FB (GPa);
-	//		 G2   = E2/(1.+nju2)*.5,  //...\EC\EE\E4\F3\EB\FC \F1\E4\E2\E8\E3\E0 \E6\E5\F1\F2\EA\EE\E3\EE \EC\E0\F2\F0\E8\F6\FB (GPa);
-	//		 l2	= 0.0015, //...\EC\E0\F1\F8\F2\E0\E1\ED\FB\E9 \EF\E0\F0\E0\EC\E5\F2\F0 \E2\EA\EB\FE\F7\E5\ED\E8\E9 (\EC\EA\EC);
-	//		 rad = 0.015,   //...\EF\F0\E5\E4\E5\EB\FC\ED\FB\E9 \F0\E0\E4\E8\F3\F1 \E2\EA\EB\FE\F7\E5\ED\E8\E9 (\EC\EA\EC); 
-	//		 c0  = 0.300,   //...\EF\F0\E5\E4\E5\EB\FC\ED\E0\FF \EA\EE\ED\F6\E5\ED\F2\F0\E0\F6\E8\FF \E2\EA\EB\FE\F7\E5\ED\E8\E9; 
-	//		 \D11, \D12, GH = 0., KH, G0, K0, EH, nuH, E0, nu0, E_max, ff, ff_l, ll, kk;
+//...исходные данные для расчетов с дисперсными частицами - SiC;
+	//double nju2 = 0.16, //...жесткое включение;  
+	//		 E2   = 415.,  //...модуль Юнга жесткого матрицы (GPa);
+	//		 G2   = E2/(1.+nju2)*.5,  //...модуль сдвига жесткого матрицы (GPa);
+	//		 l2	= 0.0015, //...масштабный параметр включений (мкм);
+	//		 rad = 0.015,   //...предельный радиус включений (мкм); 
+	//		 c0  = 0.300,   //...предельная концентрация включений; 
+	//		 С1, С2, GH = 0., KH, G0, K0, EH, nuH, E0, nu0, E_max, ff, ff_l, ll, kk;
 ///////////////////////////////////////////////////////////////////////////
-//...\E4\E0\ED\ED\FB\E5 \E4\EB\FF \F0\E0\F1\F7\E5\F2\EE\E2 \FD\EF\EE\EA\F1\E8\E4\ED\EE\E9 \EC\E0\F2\F0\E8\F6\FB \F1 \E4\E8\F1\EF\E5\F0\F1\ED\FB\EC\E8 \F7\E0\F1\F2\E8\F6\E0\EC\E8 - SiO2;
-	//double nju1 = 0.39, //...\EF\EE\EB\E8\EC\E5\F0\ED\E0\FF \EC\E0\F2\F0\E8\F6\E0;
-	//		 nju2 = 0.20, //...\E6\E5\F1\F2\EA\EE\E5 \E2\EA\EB\FE\F7\E5\ED\E8\E5;  
-	//		 E1   = 2.51, //...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \FD\EF\EE\EA\F1\E8\E4\ED\EE\E9 \EC\E0\F2\F0\E8\F6\FB (GPa);
-	//		 E2   = 87.5, //...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \F1\F2\E5\EA\EB\FF\ED\ED\FB\F5 \F8\E0\F0\E8\EA\EE\E2 (GPa);
-	//		 //E2   = 56.0, //...\E0\EB\FC\F2\E5\F0\ED\E0\F2\E8\E2\ED\FB\E9 \EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \F1\F2\E5\EA\EB\FF\ED\ED\FB\F5 \F8\E0\F0\E8\EA\EE\E2 (GPa);
-	//		 G1   = E1/(1.+nju1)*.5,  //...\EC\EE\E4\F3\EB\FC \F1\E4\E2\E8\E3\E0 \EF\EE\EB\E8\EC\E5\F0\ED\EE\E9 \EC\E0\F2\F0\E8\F6\FB (GPa);
-	//		 G2   = E2/(1.+nju2)*.5,  //...\EC\EE\E4\F3\EB\FC \F1\E4\E2\E8\E3\E0 \E6\E5\F1\F2\EA\EE\E3\EE \E2\EA\EB\FE\F7\E5\ED\E8\FF (GPa);
-	//		 rad  = 0.015, //...\F5\E0\F0\E0\EA\F2\E5\F0\ED\FB\E9 \F0\E0\E4\E8\F3\F1 \ED\E0\ED\EE\E2\EA\EB\FE\F7\E5\ED\E8\E9 (\EC\EA\EC); 
-	//		 l1	= 0.100, //...\EE\F2\ED\EE\F1\E8\F2\E5\EB\FC\ED\FB\E9 \EC\E0\F1\F8\F2\E0\E1\ED\FB\E9 \EF\E0\F0\E0\EC\E5\F2\F0 \EC\E0\F2\F0\E8\F6\FB (\EC\EA\EC);
-	//		 l2	= 0.030, //...\EE\F2\ED\EE\F1\E8\F2\E5\EB\FC\ED\FB\E9 \EC\E0\F1\F8\F2\E0\E1\ED\FB\E9 \EF\E0\F0\E0\EC\E5\F2\F0 \E2\EA\EB\FE\F7\E5\ED\E8\E9 (\EC\EA\EC);
-	//		 c0   = 0.001, //...\EA\EE\ED\F6\E5\ED\F2\F0\E0\F6\E8\FF \E2\EA\EB\FE\F7\E5\ED\E8\E9; 
-	//		 \D11, \D12, GH = 0., KH, G0, K0, EH, E_min, E_max, nuH, E0, nu0, ff, ff_l, ll, kk;
+//...данные для расчетов эпоксидной матрицы с дисперсными частицами - SiO2;
+	//double nju1 = 0.39, //...полимерная матрица;
+	//		 nju2 = 0.20, //...жесткое включение;  
+	//		 E1   = 2.51, //...модуль Юнга эпоксидной матрицы (GPa);
+	//		 E2   = 87.5, //...модуль Юнга стеклянных шариков (GPa);
+	//		 //E2   = 56.0, //...альтернативный модуль Юнга стеклянных шариков (GPa);
+	//		 G1   = E1/(1.+nju1)*.5,  //...модуль сдвига полимерной матрицы (GPa);
+	//		 G2   = E2/(1.+nju2)*.5,  //...модуль сдвига жесткого включения (GPa);
+	//		 rad  = 0.015, //...характерный радиус нановключений (мкм); 
+	//		 l1	= 0.100, //...относительный масштабный параметр матрицы (мкм);
+	//		 l2	= 0.030, //...относительный масштабный параметр включений (мкм);
+	//		 c0   = 0.001, //...концентрация включений; 
+	//		 С1, С2, GH = 0., KH, G0, K0, EH, E_min, E_max, nuH, E0, nu0, ff, ff_l, ll, kk;
 	yes = 0;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//...\F6\E8\EA\EB \EF\EE \EF\E0\F0\E0\EC\E5\F2\F0\E0\EC \E7\E0\E4\E0\F7\E8 - \F0\E0\F1\F7\E5\F2 \E0\EB\FE\EC\EE\EA\EE\EC\EF\EE\E7\E8\F2\E0 (\F2\F0\E5\F5\F4\E0\E7\ED\E0\FF \EC\EE\E4\E5\EB\FC, \EE\F6\E5\ED\EA\E0 \EC\EE\E4\F3\EB\FF \DE\ED\E3\E0 \EF\EE \EF\EE\F0\E8\F1\F2\EE\F1\F2\E8);
+//...цикл по параметрам задачи - расчет алюмокомпозита (трехфазная модель, оценка модуля Юнга по пористости);
 	//FILE * TST = fopen("Alumo3D_eps.dat", "w");
 	//for (int j = 1; j <= 26; j += 1) {
 	//	ff = j*0.01;
@@ -7668,7 +8048,7 @@ int N_spinel = 2;
 	//fclose (TST);
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
-//...\F6\E8\EA\EB \EF\EE \EF\E0\F0\E0\EC\E5\F2\F0\E0\EC \E7\E0\E4\E0\F7\E8 - \F0\E0\F1\F7\E5\F2 \E0\EB\FE\EC\EE\EA\EE\EC\EF\EE\E7\E8\F2\E0 (\F7\E5\F2\FB\F0\E5\F5\F4\E0\E7\ED\E0\FF \EC\EE\E4\E5\EB\FC, \EE\F6\E5\ED\EA\E0 \EC\E5\E6\F4\E0\E7\ED\EE\E3\EE \F1\EB\EE\FF);
+//...цикл по параметрам задачи - расчет алюмокомпозита (четырехфазная модель, оценка межфазного слоя);
 int  N_data = 1;
 //double data[] = {0.1, 16.3647, 0.5, 9.15491, 1., 7.06, 1.5, 6.04102},
 double data[] = {0.1, 16.3647, 0.5, 8.14284, 1., 4.44806, 1.5, 3.02},
@@ -7692,7 +8072,7 @@ double data[] = {0.1, 16.3647, 0.5, 8.14284, 1., 4.44806, 1.5, 3.02},
 	//fclose (TST);
 
 /////////////////////////////////////////////////////////////////////////////////////////
-//...\F6\E8\EA\EB \EF\EE \EF\E0\F0\E0\EC\E5\F2\F0\E0\EC \E7\E0\E4\E0\F7\E8 - \F0\E0\F1\F7\E5\F2 \E0\EB\FE\EC\EE\EA\EE\EC\EF\EE\E7\E8\F2\E0 (\F7\E5\F2\FB\F0\E5\F5\F4\E0\E7\ED\E0\FF \EC\EE\E4\E5\EB\FC, \EE\F6\E5\ED\EA\E0 E3);
+//...цикл по параметрам задачи - расчет алюмокомпозита (четырехфазная модель, оценка E3);
 int  N_table = 5;
 //double table_EL[][2] = {{0.01, 89.2},{0.05, 71.8},{0.10, 60.},{0.15, 67.6},{0.20, 67.6}};
 //double table_EL[][2] = {{0.01, 89.2},{0.05, 75.8},{0.10, 55.7},{0.15, 100.},{0.20, 105.}};
@@ -7715,7 +8095,7 @@ double table_EL[][2] = {{0.01, 89.2},{0.05, 75.8},{0.10, 70.0},{0.15, 70.0},{0.2
 	//fclose (TST);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//...\F6\E8\EA\EB \EF\EE \EF\E0\F0\E0\EC\E5\F2\F0\E0\EC \E7\E0\E4\E0\F7\E8 - \F0\E0\F1\F7\E5\F2 \E0\EB\FE\EC\EE\EA\EE\EC\EF\EE\E7\E8\F2\E0 (\F7\E5\F2\FB\F0\E5\F5\F4\E0\E7\ED\E0\FF \EC\EE\E4\E5\EB\FC, \E0\EF\EF\F0\EE\EA\F1\E8\EC\E0\F6\E8\FF \EC\E5\E6\F4\E0\E7\ED\EE\E3\EE \F1\EB\EE\FF);
+//...цикл по параметрам задачи - расчет алюмокомпозита (четырехфазная модель, аппроксимация межфазного слоя);
 	kk  = strata_approx(N_data, data, ll0 = pow(M_PI/(6.*0.0001), 1./3.)-1.);
 	res = strata_approx(N_data, data, coef);
 
@@ -7745,7 +8125,7 @@ double table_EL[][2] = {{0.01, 89.2},{0.05, 75.8},{0.10, 70.0},{0.15, 70.0},{0.2
 	fclose (TST);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
-//...\F6\E8\EA\EB \EF\EE \EF\E0\F0\E0\EC\E5\F2\F0\E0\EC \E7\E0\E4\E0\F7\E8 - \F0\E0\F1\F7\E5\F2 \E0\EB\FE\EC\EE\EA\EE\EC\EF\EE\E7\E8\F2\E0 \EF\EE \E3\F0\E0\E4\E8\E5\ED\F2\ED\EE\E9 \EC\EE\E4\E5\EB\E8(\EE\F6\E5\ED\EA\E0 \EC\E5\E6\F4\E0\E7\ED\EE\E3\EE \F1\EB\EE\FF);
+//...цикл по параметрам задачи - расчет алюмокомпозита по градиентной модели(оценка межфазного слоя);
 double data_grad[] = {0.1, 16.3647, 0.5, 5.3992/*4.8*//*4.46*/, 1., 0.01, 1.5, 1.86};
 
 //	FILE * TST = fopen("Alumo3D_strata_grad.dat", "w");
@@ -7762,7 +8142,7 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992/*4.8*//*4.46*/, 1., 0.01, 1.5, 1
 //	fclose (TST);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//...\F6\E8\EA\EB \EF\EE \EF\E0\F0\E0\EC\E5\F2\F0\E0\EC \E7\E0\E4\E0\F7\E8, \F2\F0\E5\F5\F4\E0\E7\ED\E0\FF \EC\EE\E4\E5\EB\FC - \F0\E0\F1\F7\E5\F2 \EA\EE\EC\EF\EE\E7\E8\F2\E0 \EF\EE \E3\F0\E0\E4\E8\E5\ED\F2\ED\EE\E9 \EC\EE\E4\E5\EB\E8 (\EE\F6\E5\ED\EA\E0 \E0\E4\E3\E5\E7\E8\E8);
+//...цикл по параметрам задачи, трехфазная модель - расчет композита по градиентной модели (оценка адгезии);
 	double table_AA[][2] = {{0.01, 55270.2},{0.05, 53936.2},{0.10, 1000.2},{0.15, 55270.2},{0.20, 70000.2}};
 
 	//FILE * TST = fopen("Alumo3D_adhes.dat", "w");
@@ -7785,7 +8165,7 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992/*4.8*//*4.46*/, 1., 0.01, 1.5, 1
 	//fclose (TST);
 
 ////////////////////////////////////////////////////////////////////////////////////////
-//...\F6\E8\EA\EB \EF\EE \EF\E0\F0\E0\EC\E5\F2\F0\E0\EC \E7\E0\E4\E0\F7\E8 - \F0\E0\F1\F7\E5\F2 \E0\EB\FE\EC\EE\EA\EE\EC\EF\EE\E7\E8\F2\E0 \EF\EE \E3\F0\E0\E4\E8\E5\ED\F2\ED\EE\E9 \EC\EE\E4\E5\EB\E8 \F1 \E0\E4\E3\E5\E7\E8\E5\E9;
+//...цикл по параметрам задачи - расчет алюмокомпозита по градиентной модели с адгезией;
 	//kk  = strata_approx(N_data, data_grad, ll0 = pow(M_PI/(6.*0.0001), 1./3.)-1.);
 
 	//FILE * TST = fopen("Alumo3D_grad.dat", "w");
@@ -7808,7 +8188,7 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992/*4.8*//*4.46*/, 1., 0.01, 1.5, 1
 	//fclose (TST);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//...\F6\E8\EA\EB \EF\EE \EF\E0\F0\E0\EC\E5\F2\F0\E0\EC \E7\E0\E4\E0\F7\E8 - \F0\E0\F1\F7\E5\F2 \E0\EB\FE\EC\EE\EA\EE\EC\EF\EE\E7\E8\F2\E0 \E2 \E7\E0\E2\E8\F1\E8\EC\EE\F1\F2\E8 \EE\F2 \F0\E0\E4\E8\F3\F1\E0 \EF\EE \E3\F0\E0\E4\E8\E5\ED\F2\ED\EE\E9 \EC\EE\E4\E5\EB\E8 (\EF\E5\F0\E5\F5\EE\E4 \EE\F2 \ED\E0\ED\EE \EA \EC\E8\EA\F0\EE);
+//...цикл по параметрам задачи - расчет алюмокомпозита в зависимости от радиуса по градиентной модели (переход от нано к микро);
 	//FILE * TST = fopen("Alumo3D_homog.dat", "w");
 	//for (int j = 1; j <= 5000; j += 1) {
 	//	rad = j*0.002; ll = l1/rad; E_max = (1.-c0)*E1+c0*E2; 
@@ -7816,7 +8196,7 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992/*4.8*//*4.46*/, 1., 0.01, 1.5, 1
 	//	kk  = rad1-0.5*l1/l2-sqrt(0.25*sqr(l1/l2)+rad0-rad1*l1/l2); if (rad >= rad1) ll *= (rad1-kk)/(rad-kk); 
 	//	kk  = l1+l2*(rad1-rad0)/4.; if (rad0 < rad && rad < rad1) ll = (kk-l2/(rad1-rad0)*sqr(rad-0.5*(rad1+rad0)))/rad; 
 	//	
-	//	sm->set_fasa_hmg(nju1, nju2, G1, G2, \D11 = G1/sqr(ll), G2*100.);
+	//	sm->set_fasa_hmg(nju1, nju2, G1, G2, С1 = G1/sqr(ll), G2*100.);
 	//	el->set_fasa_hmg(nju1, nju2, G1, G2);
 
 	//	KH = sm->TakeEshelby_volm_two (c0);
@@ -7846,29 +8226,29 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992/*4.8*//*4.46*/, 1., 0.01, 1.5, 1
 //...model initialization;
 	CDraft<double> * el = CreateDraftR(LAME3D_DRAFT,  8);
 ///////////////////////////////////////////////////////////////////////
-//...\E4\E0\ED\ED\FB\E5 \E4\EB\FF \F0\E0\F1\F7\E5\F2\EE\E2 \F1 \E4\E8\F1\EF\E5\F0\F1\ED\FB\EC\E8 \F7\E0\F1\F2\E8\F6\E0\EC\E8 - \EC\E0\F2\F0\E8\F6\E0 \EF\EE\F0\E8\F1\F2\FB\E9 Al;
-	double nju1 = 0.33, //...\EF\EE\EB\E8\EC\E5\F0\ED\E0\FF \EC\E0\F2\F0\E8\F6\E0;
-			 nju3 = 0.30, //...\EC\E5\E6\F4\E0\E7\ED\FB\E9 \F1\EB\EE\E9;
-			 //E1   = 70.0, //...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \F1\EF\EB\EE\F8\ED\EE\E9 \EC\E0\F2\F0\E8\F6\FB (GPa);
-			 E1   = 62.0, //...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \EF\EE\F0\E8\F1\F2\EE\E9 \EC\E0\F2\F0\E8\F6\FB (GPa);
-			 E3   = 57.5, //...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \EC\E5\E6\F4\E0\E7\ED\EE\E3\EE \F1\EB\EE\FF (GPa);
-			 G1   = E1/(1.+nju1)*.5,  //...\EC\EE\E4\F3\EB\FC \F1\E4\E2\E8\E3\E0 \EC\FF\E3\EA\EE\E9 \EC\E0\F2\F0\E8\F6\FB (GPa);
-			 G3   = E3/(1.+nju3)*.5,  //...\EC\EE\E4\F3\EB\FC \F1\E4\E2\E8\E3\E0 \EC\E5\E6\F4\E0\E7\ED\EE\E3\EE \F1\EB\EE\FF (GPa);
-			 l1	= 0.200, //...\F0\E0\E7\EC\E5\F0 \EC\E5\E6\F4\E0\E7\ED\EE\E3\EE \F1\EB\EE\FF (\EC\EA\EC);
-			 eps	= 12.0,   //...\EF\EE\F0\E8\F1\F2\EE\F1\F2\FC (%);
-			 rad_str	= 3.5; //...\F0\E0\E7\EC\E5\F0 \E7\E5\F0\ED\E0 \E2 \F1\F2\F0\F3\EA\F2\F3\F0\E5 (\EC\EA\EC);
+//...данные для расчетов с дисперсными частицами - матрица пористый Al;
+	double nju1 = 0.33, //...полимерная матрица;
+			 nju3 = 0.30, //...межфазный слой;
+			 //E1   = 70.0, //...модуль Юнга сплошной матрицы (GPa);
+			 E1   = 62.0, //...модуль Юнга пористой матрицы (GPa);
+			 E3   = 57.5, //...модуль Юнга межфазного слоя (GPa);
+			 G1   = E1/(1.+nju1)*.5,  //...модуль сдвига мягкой матрицы (GPa);
+			 G3   = E3/(1.+nju3)*.5,  //...модуль сдвига межфазного слоя (GPa);
+			 l1	= 0.200, //...размер межфазного слоя (мкм);
+			 eps	= 12.0,   //...пористость (%);
+			 rad_str	= 3.5; //...размер зерна в структуре (мкм);
 /////////////////////////////////////////////////////////
-//...\E4\E0\ED\ED\FB\E5 \E4\EB\FF \F0\E0\F1\F7\E5\F2\EE\E2 \F1 \E4\E8\F1\EF\E5\F0\F1\ED\FB\EC\E8 \F7\E0\F1\F2\E8\F6\E0\EC\E8 - AL2O3;
-	double nju2 = 0.31, //...\E6\E5\F1\F2\EA\EE\E5 \E2\EA\EB\FE\F7\E5\ED\E8\E5;  
-			 E2   = 205., //...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \E6\E5\F1\F2\EA\EE\E3\EE \E2\EA\EB\FE\F7\E5\ED\E8\FF (GPa);
-			 G2   = E2/(1.+nju2)*.5,  //...\EC\EE\E4\F3\EB\FC \F1\E4\E2\E8\E3\E0 \E4\E8\F1\EF\E5\F0\F1\ED\EE\E3\EE \E2\EA\EB\FE\F7\E5\ED\E8\FF (GPa);
-			 rad = 0.015,  //...\F5\E0\F0\E0\EA\F2\E5\F0\ED\FB\E9 \F0\E0\E4\E8\F3\F1 \ED\E0\ED\EE\E2\EA\EB\FE\F7\E5\ED\E8\E9 (\EC\EA\EC); 
-			 c0  = 0.001,  //...\EA\EE\ED\F6\E5\ED\F2\F0\E0\F6\E8\FF \E2\EA\EB\FE\F7\E5\ED\E8\E9; 
+//...данные для расчетов с дисперсными частицами - AL2O3;
+	double nju2 = 0.31, //...жесткое включение;  
+			 E2   = 205., //...модуль Юнга жесткого включения (GPa);
+			 G2   = E2/(1.+nju2)*.5,  //...модуль сдвига дисперсного включения (GPa);
+			 rad = 0.015,  //...характерный радиус нановключений (мкм); 
+			 c0  = 0.001,  //...концентрация включений; 
 			 G0, K0, E0, nu0, ff, ff_l, ll, l2, kk, GH, KH, EH;
 	yes = 0;
 
 //////////////////////////////////////////////////////////////
-//...\F6\E8\EA\EB \EF\EE \EF\E0\F0\E0\EC\E5\F2\F0\E0\EC \E7\E0\E4\E0\F7\E8 - \F0\E0\F1\F7\E5\F2 \EC\E0\F2\F0\E8\F6\FB \EF\EE \EF\EE\F0\E8\F1\F2\EE\F1\F2\E8;
+//...цикл по параметрам задачи - расчет матрицы по пористости;
 	//FILE * TST = fopen("Alumo3D_eps.dat", "w");
 	//for (int j = 0; j <= 0; j += 1) {
 	//	ff = eps*0.01;
@@ -7885,7 +8265,7 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992/*4.8*//*4.46*/, 1., 0.01, 1.5, 1
 	//fclose (TST);
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
-//...\F6\E8\EA\EB \EF\EE \EF\E0\F0\E0\EC\E5\F2\F0\E0\EC \E7\E0\E4\E0\F7\E8 - \F0\E0\F1\F7\E5\F2 \E0\EB\FE\EC\EE\EA\EE\EC\EF\EE\E7\E8\F2\E0 (\F7\E5\F2\FB\F0\E5\F5\F4\E0\E7\ED\E0\FF \EC\EE\E4\E5\EB\FC, \F4\E8\EA\F1\E8\F0\EE\E2\E0\ED\ED\FB\E9 \F1\EB\EE\E9);
+//...цикл по параметрам задачи - расчет алюмокомпозита (четырехфазная модель, фиксированный слой);
 	//FILE * TST = fopen("Alumo3D_layer.dat", "w");
 	//for (int j = 0; j <= 5000; j += 1) {
 	//	rad = j*0.001; kk = (ff = pow(1./c0, 1./3.)-1.)*rad/l1; if (kk > 1.) ll = l1/rad; else ll = ff; 
@@ -7906,7 +8286,7 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992/*4.8*//*4.46*/, 1., 0.01, 1.5, 1
 	//fclose (TST);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//...\F6\E8\EA\EB \EF\EE \EF\E0\F0\E0\EC\E5\F2\F0\E0\EC \E7\E0\E4\E0\F7\E8 - \F0\E0\F1\F7\E5\F2 \E0\EB\FE\EC\EE\EA\EE\EC\EF\EE\E7\E8\F2\E0 (\F7\E5\F2\FB\F0\E5\F5\F4\E0\E7\ED\E0\FF \EC\EE\E4\E5\EB\FC, \EB\E8\ED\E5\E9\ED\FB\E9 \F0\EE\F1\F2 \F0\E0\E4\E8\F3\F1\E0 \EE\F2 \EA\EE\ED\F6\E5\ED\F2\F0\E0\F6\E8\E8);
+//...цикл по параметрам задачи - расчет алюмокомпозита (четырехфазная модель, линейный рост радиуса от концентрации);
 	//FILE * TST = fopen("Alumo3D_layer.dat", "w");
 	//for (int j = 1; j <= 3500; j += 1) {
 	//	ff = j*.00001; kk = pow(6.e2, 1./3.)-1.;	ll = kk/sqrt(1.+sqr(0.3*ff/c0)); 
@@ -7926,7 +8306,7 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992/*4.8*//*4.46*/, 1., 0.01, 1.5, 1
 	//}
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//...\F6\E8\EA\EB \EF\EE \EF\E0\F0\E0\EC\E5\F2\F0\E0\EC \E7\E0\E4\E0\F7\E8 - \F0\E0\F1\F7\E5\F2 \EA\EE\EC\EF\EE\E7\E8\F2\E0 \EF\EE \E3\F0\E0\E4\E8\E5\ED\F2\ED\EE\E9 \EC\EE\E4\E5\EB\E8 \F1 \E0\E4\E3\E5\E7\E8\E5\E9;
+//...цикл по параметрам задачи - расчет композита по градиентной модели с адгезией;
 	FILE * TST = fopen("Alumo3D_adhes.dat", "w");
 	for (int j = 1; j <= 5000; j += 1) {
 		//ff = j*.00001; ll = 7.; l2 = 0.03;
@@ -7956,8 +8336,8 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992/*4.8*//*4.46*/, 1., 0.01, 1.5, 1
 //////////////////////////
 //...model initialization;
 	CDraft<double> * sm = CreateDraftR(MINDL2D_DRAFT, 8);
-	sm->set_mpls(PackInts(9, 9)); //...\F1\F2\E5\EF\E5\ED\FC \EC\F3\EB\FC\F2\E8\EF\EE\EB\E5\E9;
-	sm->set_quad(PackInts(16, 8)); //...\F1\F2\E5\EF\E5\ED\FC \EA\E2\E0\E4\F0\E0\F2\F3\F0\FB;
+	sm->set_mpls(PackInts(9, 9)); //...степень мультиполей;
+	sm->set_quad(PackInts(16, 8)); //...степень квадратуры;
 	sm->set_normaliz(0.92);
 	sm->set_lagrange(1e5);
 	sm->change_solv(E_PERIODIC_SOLVING);
@@ -7966,50 +8346,50 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992/*4.8*//*4.46*/, 1., 0.01, 1.5, 1
 	yes = 0;
 
 /////////////////////////////////////////////////////////
-//...\E4\E0\ED\ED\FB\E5 \E4\EB\FF \F0\E0\F1\F7\E5\F2\EE\E2 \F1 \ED\E8\F2\E5\E2\E8\E4\FB\EC\E8 \EA\F0\E8\F1\F2\E0\EB\EB\E0\EC\E8 - \C2\CF\CC2;
-	//double nju1 = 0.33, //...\EF\EE\EB\E8\EC\E5\F0\ED\E0\FF \EC\E0\F2\F0\E8\F6\E0;
-	//		 //E1   = 210., //...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \EF\EE\EB\E8\EC\E5\F0\ED\EE\E9 \EC\E0\F2\F0\E8\F6\FB (GPa), \D2 = 20\D1;
-	//		 //E1   = 150., //...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \EF\EE\EB\E8\EC\E5\F0\ED\EE\E9 \EC\E0\F2\F0\E8\F6\FB (GPa), \D2 = 600\D1;
-	//		 E1   = 30.,  //...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \EF\EE\EB\E8\EC\E5\F0\ED\EE\E9 \EC\E0\F2\F0\E8\F6\FB (GPa), \D2 = 1400/1300\D1;
+//...данные для расчетов с нитевидыми кристаллами - ВПМ2;
+	//double nju1 = 0.33, //...полимерная матрица;
+	//		 //E1   = 210., //...модуль Юнга полимерной матрицы (GPa), Т = 20С;
+	//		 //E1   = 150., //...модуль Юнга полимерной матрицы (GPa), Т = 600С;
+	//		 E1   = 30.,  //...модуль Юнга полимерной матрицы (GPa), Т = 1400/1300С;
 	//		 AA	= E1*.0,			 //...adhegion parameter;
 	//		 BB	= E1*.5/(1.+nju1)*.0,//...adhegion parameter;
-	//		 l1	= 15.,  //...\EC\E0\F1\F8\F2\E0\E1\ED\FB\E9 \EF\E0\F0\E0\EC\E5\F2\F0 \EC\E0\F2\F0\E8\F6\FB (\EC\EA\EC), \D2 = 20\D1;
-	//		 //l1	= 20.,  //...\EC\E0\F1\F8\F2\E0\E1\ED\FB\E9 \EF\E0\F0\E0\EC\E5\F2\F0 \EC\E0\F2\F0\E8\F6\FB (\EC\EA\EC), \D2 = 600\D1;
-   //  	 //l1	= 25.,  //...\EC\E0\F1\F8\F2\E0\E1\ED\FB\E9 \EF\E0\F0\E0\EC\E5\F2\F0 \EC\E0\F2\F0\E8\F6\FB (\EC\EA\EC), \D2 = 1400/1300\D1;
+	//		 l1	= 15.,  //...масштабный параметр матрицы (мкм), Т = 20С;
+	//		 //l1	= 20.,  //...масштабный параметр матрицы (мкм), Т = 600С;
+   //  	 //l1	= 25.,  //...масштабный параметр матрицы (мкм), Т = 1400/1300С;
 	//		 l1_dop = 0.; //...interphase layer_dop;
 ////////////////////////////////////////////////////////////
-//...\E4\E0\ED\ED\FB\E5 \E4\EB\FF \F0\E0\F1\F7\E5\F2\EE\E2 \F1 \ED\E8\F2\E5\E2\E8\E4\FB\EC\E8 \EA\F0\E8\F1\F2\E0\EB\EB\E0\EC\E8 - \C2\CA\CD\C0-1\D3;
-	double nju1 = 0.33, //...\EF\EE\EB\E8\EC\E5\F0\ED\E0\FF \EC\E0\F2\F0\E8\F6\E0;
-			 //E1   = 150., //...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \EF\EE\EB\E8\EC\E5\F0\ED\EE\E9 \EC\E0\F2\F0\E8\F6\FB (GPa), \D2 = 20\D1;
-			 //E1   = 135., //...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \EF\EE\EB\E8\EC\E5\F0\ED\EE\E9 \EC\E0\F2\F0\E8\F6\FB (GPa), \D2 = 600\D1;
-			 E1   = 40.,  //...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \EF\EE\EB\E8\EC\E5\F0\ED\EE\E9 \EC\E0\F2\F0\E8\F6\FB (GPa), \D2 = 1400/1300\D1;
+//...данные для расчетов с нитевидыми кристаллами - ВКНА-1У;
+	double nju1 = 0.33, //...полимерная матрица;
+			 //E1   = 150., //...модуль Юнга полимерной матрицы (GPa), Т = 20С;
+			 //E1   = 135., //...модуль Юнга полимерной матрицы (GPa), Т = 600С;
+			 E1   = 40.,  //...модуль Юнга полимерной матрицы (GPa), Т = 1400/1300С;
 			 AA	= E1*.0,			 //...adhegion parameter;
 			 BB	= E1*.5/(1.+nju1)*.0,//...adhegion parameter;
-			 l1	= 15.,  //...\EC\E0\F1\F8\F2\E0\E1\ED\FB\E9 \EF\E0\F0\E0\EC\E5\F2\F0 \EC\E0\F2\F0\E8\F6\FB (\EC\EA\EC), \D2 = 20\D1;
-			 //l1	= 20.,  //...\EC\E0\F1\F8\F2\E0\E1\ED\FB\E9 \EF\E0\F0\E0\EC\E5\F2\F0 \EC\E0\F2\F0\E8\F6\FB (\EC\EA\EC), \D2 = 600\D1;
-			 //l1	= 25.,  //...\EC\E0\F1\F8\F2\E0\E1\ED\FB\E9 \EF\E0\F0\E0\EC\E5\F2\F0 \EC\E0\F2\F0\E8\F6\FB (\EC\EA\EC), \D2 = 1400/1300\D1;
+			 l1	= 15.,  //...масштабный параметр матрицы (мкм), Т = 20С;
+			 //l1	= 20.,  //...масштабный параметр матрицы (мкм), Т = 600С;
+			 //l1	= 25.,  //...масштабный параметр матрицы (мкм), Т = 1400/1300С;
 			 l1_dop = 0.; //...interphase layer_dop;
 ////////////////////////////////////////////////////////
-//...\E4\E0\ED\ED\FB\E5 \E4\EB\FF \F0\E0\F1\F7\E5\F2\EE\E2 \F1 \ED\E8\F2\E5\E2\E8\E4\FB\EC\E8 \EA\F0\E8\F1\F2\E0\EB\EB\E0\EC\E8 AL2O3;
-	double nju2 = 0.16, //...\E6\E5\F1\F2\EA\EE\E5 \E2\EA\EB\FE\F7\E5\ED\E8\E5;  
-			 //E2   = 420., //...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \E6\E5\F1\F2\EA\EE\E3\EE \E2\EA\EB\FE\F7\E5\ED\E8\FF (GPa), \D2 = 20/600\D1;
-			 E2   = 380., //...\EC\EE\E4\F3\EB\FC \DE\ED\E3\E0 \E6\E5\F1\F2\EA\EE\E3\EE \E2\EA\EB\FE\F7\E5\ED\E8\FF (GPa), \D2 = 1400/1300\D1;
-			 l2	= 0.05, //...\EC\E0\F1\F8\F2\E0\E1\ED\FB\E9 \EF\E0\F0\E0\EC\E5\F2\F0 \E2\EA\EB\FE\F7\E5\ED\E8\E9 (\EC\EA\EC);
+//...данные для расчетов с нитевидыми кристаллами AL2O3;
+	double nju2 = 0.16, //...жесткое включение;  
+			 //E2   = 420., //...модуль Юнга жесткого включения (GPa), Т = 20/600С;
+			 E2   = 380., //...модуль Юнга жесткого включения (GPa), Т = 1400/1300С;
+			 l2	= 0.05, //...масштабный параметр включений (мкм);
 			 l2_dop	= 0.,//...interphase layer_dop;
-			 rad = 0.5,   //...\F5\E0\F0\E0\EA\F2\E5\F0\ED\FB\E9 \F0\E0\E4\E8\F3\F1 \E2\EA\EB\FE\F7\E5\ED\E8\E9 (\EC\EA\EC); 
-			 c0  = 0.45,  //...\EF\F0\E5\E4\E5\EB\FC\ED\E0\FF \EA\EE\ED\F6\E5\ED\F2\F0\E0\F6\E8\FF \E2\EA\EB\FE\F7\E5\ED\E8\E9; 
+			 rad = 0.5,   //...характерный радиус включений (мкм); 
+			 c0  = 0.45,  //...предельная концентрация включений; 
 			 G1, G2, KH, GH, EH, nH, KM = E1/(1.-2.*nju1)/3., GM = E1/(1.+nju1)*.5, EM = E1, nM = nju1;
 	sm->set_fasa_hmg(nju1, nju2, G1 = E1/(1.+nju1)*.5, G2 = E2/(1.+nju2)*.5, l1, l1_dop = l1_dop/sqrt(1.-2.*nju1), l2, l2_dop = l2_dop/sqrt(1.-2.*nju2), AA, BB);
 
 ///////////////////////////////  
-//...\F6\E8\EA\EB \EF\EE \EF\E0\F0\E0\EC\E5\F2\F0\E0\EC \E7\E0\E4\E0\F7\E8;
+//...цикл по параметрам задачи;
 	FILE * TST = fopen("mindl2D_homog.dat", "a");
 	for (int jj = 30; jj <= 45; jj += 5) {
 		double X0, Y0, ell_X = 0., ell_Y = 0., rot_Z = 0.;
 		sprintf(name, "%s%i%s", name_ini, jj, "_M208.inp"); 
 
 ///////////////////////////////////////////////////////
-//...\F7\F2\E5\ED\E8\E5 \EC\EE\E4\E5\EB\E8 \E8 \E3\F0\E0\ED\E8\F7\ED\FB\F5 \F3\F1\EB\EE\E2\E8\E9 \E8\E7 \F4\E0\E9\EB\E0 \E4\E0\ED\ED\FB\F5;
+//...чтение модели и граничных условий из файла данных;
 		int id_reading = 0, i, j, l;
 		if (sm) {
 			sprintf(buf, "Loading model from file '%s'", name);
@@ -8071,12 +8451,12 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992/*4.8*//*4.46*/, 1., 0.01, 1.5, 1
 			sm->GetRigidy(K);
 
 /////////////////////
-//...\EE\E1\FA\E5\EC\ED\FB\E9 \EC\EE\E4\F3\EB\FC;
+//...объемный модуль;
 			ff_vol = K[15];
 			//ff_vol = M_PI*ell_X*ell_Y/((par[1]-par[0])*(par[3]-par[2]));
 
 ///////////////////////
-//...\EC\E0\F2\F0\E8\F6\E0 \E6\E5\F1\F2\EA\EE\F1\F2\E8;
+//...матрица жесткости;
 			ku1 = K[0];
 			lm1 = K[2];
 			mu1 = K[7];
@@ -8087,7 +8467,7 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992/*4.8*//*4.46*/, 1., 0.01, 1.5, 1
 			mu2 = K[14]*G1+K[15]*G2;
 
 ///////////////////////////
-//...\F2\E5\F5\ED\E8\F7\E5\F1\EA\E8\E5 \EA\EE\ED\F1\F2\E0\ED\F2\FB;
+//...технические константы;
   			nxz = lm2/(ku1+lm1);
 			Kxy = 0.5*(ku1+lm1);	
 			Gxy = 0.5*(ku1-lm1);	
@@ -8095,7 +8475,7 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992/*4.8*//*4.46*/, 1., 0.01, 1.5, 1
 			Ez  = ku2-2.*lm2*nxz;
 
 ///////////////////////////////////////////////////////////////////
-//...\F0\E5\E7\F3\EB\FC\F2\E0\F2 \EF\F0\EE\F1\F2\F0\E0\ED\F1\F2\E2\E5\ED\ED\EE\E3\EE \EE\F1\F0\E5\E4\ED\E5\ED\E8\FF \E2\EE\EB\EE\EA\EE\ED \EF\EE \CA\F0\E8\F1\F2\E5\ED\F1\E5\ED\F3;
+//...результат пространственного осреднения волокон по Кристенсену;
 			KH = (Ez+4.*sqr(1.+nxz)*Kxy)/9.;
 			GH = (Ez+sqr(1.-2.*nxz)*Kxy+6.*(Gxy+Gxz))/15.;
 			EH = 9.*KH*GH/(3.*KH+GH);
@@ -8143,10 +8523,10 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992/*4.8*//*4.46*/, 1., 0.01, 1.5, 1
 #ifdef TEST_DRAFT_HEAT_ESHELBY
 {
 //////////////////////
-//...\EF\E0\F0\E0\EC\E5\F2\F0\FB \E7\E0\E4\E0\F7\E8;
-	double K1 = 1.7,	//...\EE\EA\F1\E8\E4 \F6\E8\F0\EA\EE\ED\E8\FF (matrtix);
-			 K2 = 30.,	//...\EA\EE\F0\F3\ED\E4 (inclusion);
-			 K3 = 3.,	//...\EF\F0\EE\EC\E5\E6\F3\F2\EE\F7\ED\FB\E9 \F1\EB\EE\E9;
+//...параметры задачи;
+	double K1 = 1.7,	//...оксид циркония (matrtix);
+			 K2 = 30.,	//...корунд (inclusion);
+			 K3 = 3.,	//...промежуточный слой;
 			 c1 = 0.70, //...interphase layer;
 			 c0 = 0.20, ll = 0.7, R1 = 1.5, KH, KH_cl, KH2; //...volume fraction;
 
@@ -8157,7 +8537,7 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992/*4.8*//*4.46*/, 1., 0.01, 1.5, 1
 	yes = 0;
 
 ///////////////////////////////
-//...\F6\E8\EA\EB \EF\EE \EF\E0\F0\E0\EC\E5\F2\F0\E0\EC \E7\E0\E4\E0\F7\E8;
+//...цикл по параметрам задачи;
 	FILE * TST = fopen("heat3D_homog.dat", "w");
 	for (int j = 200; j <= 1000; j += 10) {
 		c0 = j*.001;
@@ -8166,7 +8546,7 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992/*4.8*//*4.46*/, 1., 0.01, 1.5, 1
 		KH	= sm->TakeEshelby_grad(c0);
 		KH_cl = sm->TakeEshelby_two(c0);
 
-		fprintf(TST, " c0 = %g, \F11 = %g, KH = %g\n", c0, c1, KH);
+		fprintf(TST, " c0 = %g, с1 = %g, KH = %g\n", c0, c1, KH);
 	}
 	fclose (TST);
 	delete sm;
@@ -8187,7 +8567,7 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992/*4.8*//*4.46*/, 1., 0.01, 1.5, 1
 	set_matrix(out, NN+2, M0+1);
 
 ////////////////////////////////////////////////////
-//...\ED\E0\F7\E0\EB\FC\ED\FB\E5 \E8 \E3\F0\E0\ED\E8\F7\ED\FB\E5 \E4\E0\ED\ED\FB\E5, \F0\E0\F1\EF\E5\F7\E0\F2\EA\E0 \F1\E5\F2\EA\E8;
+//...начальные и граничные данные, распечатка сетки;
 	for (T[0] = TS, k = 1; k <= NN; k++) T[k] = T0;
 
 	for (l = 0, k = 0; k <= NN; k++, x += h) out[k][l] = x; 
@@ -8197,7 +8577,7 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992/*4.8*//*4.46*/, 1., 0.01, 1.5, 1
 	out[k][l] = t;
 
 ///////////////////////////////
-//...\F6\E8\EA\EB \EF\EE \EF\E0\F0\E0\EC\E5\F2\F0\E0\EC \E7\E0\E4\E0\F7\E8;
+//...цикл по параметрам задачи;
 	for (j = 1; j < MM; j++) {
 		//sm->TakeStabStep(T, NN, alpha); t += dt;
 		sm->TakeStabStep_layer(T, N1, N2, N_cells, alpha); t += dt;
@@ -8208,7 +8588,7 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992/*4.8*//*4.46*/, 1., 0.01, 1.5, 1
 	}
 
 ////////////////////////////
-//...\F0\E0\F1\EF\E5\F7\E0\F2\EA\E0 \F0\E5\E7\F3\EB\FC\F2\E0\F2\EE\E2;
+//...распечатка результатов;
 	FILE *  TST = fopen(name, "w");
 	fprintf(TST, "h = %g", out[NN+1][0]);
 	for (j = 1; j <= M0; j++) fprintf(TST, ", t = %g", out[NN+1][j]);
@@ -8236,7 +8616,7 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992/*4.8*//*4.46*/, 1., 0.01, 1.5, 1
 //	char * name = "./Box2d_homog/sph_025_16.nas";
 
 //////////////////////
-//...\EF\E0\F0\E0\EC\E5\F2\F0\FB \E7\E0\E4\E0\F7\E8;
+//...параметры задачи;
 	double L = 0.5, eps_in = 1e-2;
 	int i, k, j, l; 
 	double KK1 = 1.,		//...heat conduction (matrix);
@@ -8246,11 +8626,11 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992/*4.8*//*4.46*/, 1., 0.01, 1.5, 1
 			 R2 = 0.3125;		//...intermediate geometry; 
 
 //////////////////////////
-//...\E8\ED\E8\F6\E8\E0\EB\E8\E7\E0\F6\E8\FF \EC\EE\E4\E5\EB\E8;
+//...инициализация модели;
 	CDraft<double> * sm = CreateDraftR(HEAT2D_DRAFT, 8);		
 	sm->set_fasa_hmg(R1, R2, KK1, KK2, KK3);
-	sm->set_mpls(PackInts(13, 13)); //...\F1\F2\E5\EF\E5\ED\FC \EC\F3\EB\FC\F2\E8\EF\EE\EB\E5\E9;
-	sm->set_quad(PackInts(16, 8)); //...\F1\F2\E5\EF\E5\ED\FC \EA\E2\E0\E4\F0\E0\F2\F3\F0\FB;
+	sm->set_mpls(PackInts(13, 13)); //...степень мультиполей;
+	sm->set_quad(PackInts(16, 8)); //...степень квадратуры;
 	sm->set_normaliz(0.92);			//...normalization coefficient;
 	sm->set_lagrange(1e-4);		  //...Lagrange coefficient for energy;
 	sm->solver.set_mode(/*PRINT_MODE | FULLY_MODE | MASKS_MODE | ACCUMULATION*/);
@@ -8259,7 +8639,7 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992/*4.8*//*4.46*/, 1., 0.01, 1.5, 1
 	yes = 0;
 
 ///////////////////////////////////
-//...\F7\F2\E5\ED\E8\E5 \EC\EE\E4\E5\EB\E8 \E8\E7 \F4\E0\E9\EB\E0 \E4\E0\ED\ED\FB\F5;
+//...чтение модели из файла данных;
 	if (sm) {
       sprintf(buf, "Loading model from file '%s'", name);
       Message(" ");
@@ -8276,7 +8656,7 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992/*4.8*//*4.46*/, 1., 0.01, 1.5, 1
 ////////////////////////////
 //...solving of the problem;
 	if (sm->computing_kernel(PERIOD_COMPUT) != OK_STATE) {
-		Message("Error in sample counting...");
+		Message("Error in sample computing...");
 		if (sm) delete sm;
 		goto err;
 	}
@@ -8321,7 +8701,7 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992/*4.8*//*4.46*/, 1., 0.01, 1.5, 1
 	set_matrix(out, NN+2, M0+1);
 
 ////////////////////////////////////////////////////
-//...\ED\E0\F7\E0\EB\FC\ED\FB\E5 \E8 \E3\F0\E0\ED\E8\F7\ED\FB\E5 \E4\E0\ED\ED\FB\E5, \F0\E0\F1\EF\E5\F7\E0\F2\EA\E0 \F1\E5\F2\EA\E8;
+//...начальные и граничные данные, распечатка сетки;
 	for (T[0] = TS, k = 1; k <= NN; k++) T[k] = T0;
 
 	for (l = 0, k = 0; k <= NN; k++, x += h) out[k][l] = x; 
@@ -8331,7 +8711,7 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992/*4.8*//*4.46*/, 1., 0.01, 1.5, 1
 	out[k][l] = t;
 
 ///////////////////////////////
-//...\F6\E8\EA\EB \EF\EE \EF\E0\F0\E0\EC\E5\F2\F0\E0\EC \E7\E0\E4\E0\F7\E8;
+//...цикл по параметрам задачи;
 	for (j = 1; j < MM; j++) {
 		sm->TakeStabStep(T, NN, alpha); t += dt;
 		//sm->TakeStabStep_layer(T, N1, N2, N_cells, alpha); t += dt;
@@ -8342,7 +8722,7 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992/*4.8*//*4.46*/, 1., 0.01, 1.5, 1
 	}
 
 ////////////////////////////
-//...\F0\E0\F1\EF\E5\F7\E0\F2\EA\E0 \F0\E5\E7\F3\EB\FC\F2\E0\F2\EE\E2;
+//...распечатка результатов;
 	FILE *  TST = fopen(name_out, "w");
 	fprintf(TST, "h = %g", out[NN+1][0]);
 	for (j = 1; j <= M0; j++) fprintf(TST, ", t = %g", out[NN+1][j]);
@@ -8356,22 +8736,22 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992/*4.8*//*4.46*/, 1., 0.01, 1.5, 1
 	fclose(TST);
 
 //////////////////////////////////////////////////////////
-//...\F0\E0\F1\F7\E5\F2 \F4\F3\ED\EA\F6\E8\E9 \E1\FB\F1\F2\F0\FB\F5 \EF\E5\F0\E5\EC\E5\ED\ED\FB\F5 (\E4\EB\FF \F0\E0\E7\ED\FB\F5 \FF\F7\E5\E5\EA);
+//...расчет функций быстрых переменных (для разных ячеек);
 	int nn = 7, mm = 3, n, ii = (int)(t0/dt)/m+2-m_shift, nn_fast = 40;
 	CDraft<double> ** dr = (CDraft<double> **)new_struct(nn*sizeof(CDraft<double> *)*nn_fast);
 	double * K1 = (double *)new_struct(nn*sizeof(double)*nn_fast), 
 			 * K2 = (double *)new_struct(nn*sizeof(double)*nn_fast), eps = 1.6e-3; 
 	for (n = 0; n < nn*nn_fast; n++) {
 		dr[n] = CreateDraftR(HEAT2D_DRAFT, 8);		
-		dr[n]->set_mpls(PackInts(13, 13)); //...\F1\F2\E5\EF\E5\ED\FC \EC\F3\EB\FC\F2\E8\EF\EE\EB\E5\E9;
-		dr[n]->set_quad(PackInts(16, 8)); //...\F1\F2\E5\EF\E5\ED\FC \EA\E2\E0\E4\F0\E0\F2\F3\F0\FB;
+		dr[n]->set_mpls(PackInts(13, 13)); //...степень мультиполей;
+		dr[n]->set_quad(PackInts(16, 8)); //...степень квадратуры;
 		dr[n]->set_normaliz(0.92);			//...normalization coefficient;
 		dr[n]->set_lagrange(1e-4);		  //...Lagrange coefficient for energy;
 		dr[n]->solver.set_mode(/*PRINT_MODE | FULLY_MODE | MASKS_MODE | ACCUMULATION*/);
 		dr[n]->solver.change_state(/*EXTERN_STATE*/);
 		dr[n]->change_solv(SPECIAL_SOLVING);
 ///////////////////////////////////
-//...\F5\E0\F0\E0\EA\F2\E5\F0\E8\F1\F2\E8\EA\E8 \EA\F0\E5\EC\ED\E8\FF \E8 \EC\E5\E4\E8;
+//...характеристики кремния и меди;
 		int n0 = 12, id_num; k = (int)((n+0.5)*eps/(h*nn_fast));
 		double K_SC[] = {300.,2300.,5000.,3500.,1340.,410.,260.,150.,99.,62.,42.,31.},
 				 K_CU[] = {16200.,24000.,10800.,2170.,560.,429.,413.,401.,393.,379.,366.,352.},
@@ -8389,7 +8769,7 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992/*4.8*//*4.46*/, 1., 0.01, 1.5, 1
 		if (id_num == nn) K2[n] = K_CU[id_num-1];
 
 ///////////////////////////////////
-//...\F7\F2\E5\ED\E8\E5 \EC\EE\E4\E5\EB\E8 \E8\E7 \F4\E0\E9\EB\E0 \E4\E0\ED\ED\FB\F5;
+//...чтение модели из файла данных;
 		dr[n]->stru.nodes_in(name);
 		dr[n]->bar_condit_in(name);
 		dr[n]->LinkUniStruct();
@@ -8399,7 +8779,7 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992/*4.8*//*4.46*/, 1., 0.01, 1.5, 1
 //...solving of the problem;
 		dr[n]->set_fasa_hmg(0.3, 0.3125, 1., K2[n]/K1[n], K2[n]/K1[n]);
 		if (dr[n]->computing_kernel(PERIOD_COMPUT) != OK_STATE) {
-			Message("Error in sample counting...");
+			Message("Error in sample computing...");
 			if (dr[n]) delete dr[n];
 			goto err;
 		}
@@ -8424,7 +8804,7 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992/*4.8*//*4.46*/, 1., 0.01, 1.5, 1
 	}
 
 ////////////////////////////
-//..\EF\E5\F0\E2\FB\E9 \F7\EB\E5\ED \E0\F1\E8\EC\EF\F2\EE\F2\E8\EA\E8;
+//..первый член асимптотики;
 	int id_visual = 1;
 	if (id_visual) {
 		CGrid * nd = CreateNodes();
@@ -8477,7 +8857,7 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992/*4.8*//*4.46*/, 1., 0.01, 1.5, 1
 				if (nd->hit) hit = nd->hit[i+j*nd->N];
 				if (hit != -1)  {
 /////////////////////////////////////////////////////////
-//..\E2\FB\F7\E8\F1\EB\FF\E5\EC \E8\F1\F2\E8\ED\ED\FB\E5 \EA\EE\EE\F0\E4\E8\ED\E0\F2\FB, \F4\F3\ED\EA\F6\E8\FE \E8 \EF\F0\EE\E8\E7\E2\EE\E4\ED\F3\FE;
+//..вычисляем истинные координаты, функцию и производную;
 					k = (int)(x = (X+n)*eps/h);
 					d = (x-k)*(out[k+1][ii]-out[k][ii])+out[k][ii];
 					dd = (out[k+1][ii]-out[k][ii])/h;
@@ -8509,7 +8889,7 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992/*4.8*//*4.46*/, 1., 0.01, 1.5, 1
 			delete_struct(out_F1);
 
 //////////////////////////////////////////////////////////////
-//...\EF\E5\F0\E5\E7\E0\EF\E8\F1\FC \EC\E0\EA\F1\E8\EC\E0\EB\FC\ED\EE\E3\EE \E8 \EC\E8\ED\E8\EC\E0\EB\FC\ED\EE\E3\EE \E7\ED\E0\F7\E5\ED\E8\FF \F4\F3\ED\EA\F6\E8\E8;
+//...перезапись максимального и минимального значения функции;
 			if (SURF) {
 				res = fseek(SURF, sizeof(char)*4+sizeof(short int)*2+sizeof(double)*4, SEEK_SET);
 				res = fwrite(& min1F, sizeof(double), 1, SURF);
@@ -8542,7 +8922,7 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992/*4.8*//*4.46*/, 1., 0.01, 1.5, 1
 	char * name_out = "heat1D_nonlinear_layer.dat";
 
 //////////////////////
-//...\EF\E0\F0\E0\EC\E5\F2\F0\FB \E7\E0\E4\E0\F7\E8;
+//...параметры задачи;
 	double L = 0.5, eps_in = 1e-2;
 	int i, k, j, l; 
 	double KK1 = 1.,				  //...heat conduction (matrix);
@@ -8552,17 +8932,17 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992/*4.8*//*4.46*/, 1., 0.01, 1.5, 1
 			 R2 = 0.3125;		 //...intermediate geometry; 
 
 //////////////////////////
-//...\E8\ED\E8\F6\E8\E0\EB\E8\E7\E0\F6\E8\FF \EC\EE\E4\E5\EB\E8;
+//...инициализация модели;
 	CDraft<double> * sm = CreateDraftR(HEAT2D_DRAFT, 8);		
 	sm->set_fasa_hmg(R1, R2, KK1, KK2, KK3);
-	sm->set_mpls(PackInts(1, 1)); //...\F1\F2\E5\EF\E5\ED\FC \EC\F3\EB\FC\F2\E8\EF\EE\EB\E5\E9;
-	sm->set_quad(PackInts(1, 1)); //...\F1\F2\E5\EF\E5\ED\FC \EA\E2\E0\E4\F0\E0\F2\F3\F0\FB;
+	sm->set_mpls(PackInts(1, 1)); //...степень мультиполей;
+	sm->set_quad(PackInts(1, 1)); //...степень квадратуры;
 	sm->set_normaliz(0.92);			//...normalization coefficient;
 	sm->change_solv(SPECIAL_SOLVING);
 	yes = 0;
 
 ///////////////////////////////////
-//...\F7\F2\E5\ED\E8\E5 \EC\EE\E4\E5\EB\E8 \E8\E7 \F4\E0\E9\EB\E0 \E4\E0\ED\ED\FB\F5;
+//...чтение модели из файла данных;
 	if (sm) {
       sprintf(buf, "Loading model from file '%s'", name);
       Message(" ");
@@ -8579,7 +8959,7 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992/*4.8*//*4.46*/, 1., 0.01, 1.5, 1
 ////////////////////////////
 //...solving of the problem;
 	if (sm->computing_kernel(PERIOD_COMPUT) != OK_STATE) {
-		Message("Error in sample counting...");
+		Message("Error in sample computing...");
 		if (sm) delete sm;
 		goto err;
 	}
@@ -8618,7 +8998,7 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992/*4.8*//*4.46*/, 1., 0.01, 1.5, 1
 	set_matrix(out, NN+2, M0+1);
 
 ////////////////////////////////////////////////////
-//...\ED\E0\F7\E0\EB\FC\ED\FB\E5 \E8 \E3\F0\E0\ED\E8\F7\ED\FB\E5 \E4\E0\ED\ED\FB\E5, \F0\E0\F1\EF\E5\F7\E0\F2\EA\E0 \F1\E5\F2\EA\E8;
+//...начальные и граничные данные, распечатка сетки;
 	for (T[0] = TS, k = 1; k <= NN; k++) T[k] = T0;
 
 	for (l = 0, k = 0; k <= NN; k++, x += h) out[k][l] = x; 
@@ -8628,7 +9008,7 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992/*4.8*//*4.46*/, 1., 0.01, 1.5, 1
 	out[k][l] = t;
 
 ///////////////////////////////
-//...\F6\E8\EA\EB \EF\EE \EF\E0\F0\E0\EC\E5\F2\F0\E0\EC \E7\E0\E4\E0\F7\E8;
+//...цикл по параметрам задачи;
 	for (j = 1; j < MM; j++) {
 		//sm->TakeStabStep(T, NN, alpha); t += dt;
 		sm->TakeStabStep_layer(T, N1, N2, N_cells, alpha); t += dt;
@@ -8639,7 +9019,7 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992/*4.8*//*4.46*/, 1., 0.01, 1.5, 1
 	}
 
 ////////////////////////////
-//...\F0\E0\F1\EF\E5\F7\E0\F2\EA\E0 \F0\E5\E7\F3\EB\FC\F2\E0\F2\EE\E2;
+//...распечатка результатов;
 	FILE *  TST = fopen(name_out, "w");
 	fprintf(TST, "h = %g", out[NN+1][0]);
 	for (j = 1; j <= M0; j++) fprintf(TST, ", t = %g", out[NN+1][j]);
@@ -8653,22 +9033,22 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992/*4.8*//*4.46*/, 1., 0.01, 1.5, 1
 	fclose(TST);
 
 //////////////////////////////////////////////////////////
-//...\F0\E0\F1\F7\E5\F2 \F4\F3\ED\EA\F6\E8\E9 \E1\FB\F1\F2\F0\FB\F5 \EF\E5\F0\E5\EC\E5\ED\ED\FB\F5 (\E4\EB\FF \F0\E0\E7\ED\FB\F5 \FF\F7\E5\E5\EA);
+//...расчет функций быстрых переменных (для разных ячеек);
 	int nn = 7, mm = 3, n, ii = (int)(t0/dt)/m+2-m_shift, nn_fast = 40;
 	CDraft<double> ** dr = (CDraft<double> **)new_struct(nn*sizeof(CDraft<double> *)*nn_fast);
 	double * K1 = (double *)new_struct(nn*sizeof(double)*nn_fast), 
 			 * K2 = (double *)new_struct(nn*sizeof(double)*nn_fast), eps = 1.6e-3; 
 	for (n = 0; n < nn*nn_fast; n++) {
 		dr[n] = CreateDraftR(HEAT2D_DRAFT, 8);		
-		dr[n]->set_mpls(PackInts(13, 13)); //...\F1\F2\E5\EF\E5\ED\FC \EC\F3\EB\FC\F2\E8\EF\EE\EB\E5\E9;
-		dr[n]->set_quad(PackInts(16, 8)); //...\F1\F2\E5\EF\E5\ED\FC \EA\E2\E0\E4\F0\E0\F2\F3\F0\FB;
+		dr[n]->set_mpls(PackInts(13, 13)); //...степень мультиполей;
+		dr[n]->set_quad(PackInts(16, 8)); //...степень квадратуры;
 		dr[n]->set_normaliz(0.92);			//...normalization coefficient;
 		dr[n]->set_lagrange(1e-4);		  //...Lagrange coefficient for energy;
 		dr[n]->solver.set_mode(/*PRINT_MODE | FULLY_MODE | MASKS_MODE | ACCUMULATION*/);
 		dr[n]->solver.change_state(/*EXTERN_STATE*/);
 		dr[n]->change_solv(SPECIAL_SOLVING);
 ///////////////////////////////////
-//...\F5\E0\F0\E0\EA\F2\E5\F0\E8\F1\F2\E8\EA\E8 \EA\F0\E5\EC\ED\E8\FF \E8 \EC\E5\E4\E8;
+//...характеристики кремния и меди;
 		int n0 = 12, id_num; k = (int)((n+0.5)*eps/(h*nn_fast));
 		double K_SC[] = {300.,2300.,5000.,3500.,1340.,410.,260.,150.,99.,62.,42.,31.},
 				 K_CU[] = {16200.,24000.,10800.,2170.,560.,429.,413.,401.,393.,379.,366.,352.},
@@ -8686,7 +9066,7 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992/*4.8*//*4.46*/, 1., 0.01, 1.5, 1
 		if (id_num == nn) K2[n] = K_CU[id_num-1];
 
 ///////////////////////////////////
-//...\F7\F2\E5\ED\E8\E5 \EC\EE\E4\E5\EB\E8 \E8\E7 \F4\E0\E9\EB\E0 \E4\E0\ED\ED\FB\F5;
+//...чтение модели из файла данных;
 		dr[n]->stru.nodes_in(name);
 		dr[n]->bar_condit_in(name);
 		dr[n]->LinkUniStruct();
@@ -8696,7 +9076,7 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992/*4.8*//*4.46*/, 1., 0.01, 1.5, 1
 //...solving of the problem;
 		dr[n]->set_fasa_hmg(0.3, 0.3125, 1., K2[n]/K1[n], K2[n]/K1[n]);
 		if (dr[n]->computing_kernel(PERIOD_COMPUT) != OK_STATE) {
-			Message("Error in sample counting...");
+			Message("Error in sample computing...");
 			if (dr[n]) delete dr[n];
 			goto err;
 		}
@@ -8721,7 +9101,7 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992/*4.8*//*4.46*/, 1., 0.01, 1.5, 1
 	}
 
 /////////////////////////////////////////////
-//..\EF\E5\F0\E2\FB\E9 \F7\EB\E5\ED \E0\F1\E8\EC\EF\F2\EE\F2\E8\EA\E8 \E2 \F4\EE\F0\EC\E0\F2\E5 Surfer;
+//..первый член асимптотики в формате Surfer;
 	int id_visual = 1;
 	if (id_visual) {
 		CGrid * nd = CreateNodes();
@@ -8774,7 +9154,7 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992/*4.8*//*4.46*/, 1., 0.01, 1.5, 1
 				if (nd->hit) hit = nd->hit[i+j*nd->N];
 				if (hit != -1)  {
 /////////////////////////////////////////////////////////
-//..\E2\FB\F7\E8\F1\EB\FF\E5\EC \E8\F1\F2\E8\ED\ED\FB\E5 \EA\EE\EE\F0\E4\E8\ED\E0\F2\FB, \F4\F3\ED\EA\F6\E8\FE \E8 \EF\F0\EE\E8\E7\E2\EE\E4\ED\F3\FE;
+//..вычисляем истинные координаты, функцию и производную;
 					k = (int)(x = (X+n)*eps/h);
 					d = (x-k)*(out[k+1][ii]-out[k][ii])+out[k][ii];
 					dd = (out[k+1][ii]-out[k][ii])/h;
@@ -8806,7 +9186,7 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992/*4.8*//*4.46*/, 1., 0.01, 1.5, 1
 			delete_struct(out_F1);
 
 //////////////////////////////////////////////////////////////
-//...\EF\E5\F0\E5\E7\E0\EF\E8\F1\FC \EC\E0\EA\F1\E8\EC\E0\EB\FC\ED\EE\E3\EE \E8 \EC\E8\ED\E8\EC\E0\EB\FC\ED\EE\E3\EE \E7\ED\E0\F7\E5\ED\E8\FF \F4\F3\ED\EA\F6\E8\E8;
+//...перезапись максимального и минимального значения функции;
 			if (SURF) {
 				res = fseek(SURF, sizeof(char)*4+sizeof(short int)*2+sizeof(double)*4, SEEK_SET);
 				res = fwrite(& min1F, sizeof(double), 1, SURF);
@@ -8826,7 +9206,7 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992/*4.8*//*4.46*/, 1., 0.01, 1.5, 1
 	}
 
 ///////////////////////////////////////////
-//..\EF\E5\F0\E2\FB\E9 \F7\EB\E5\ED \E0\F1\E8\EC\EF\F2\EE\F2\E8\EA\E8 \E2 \F4\EE\F0\EC\E0\F2\E5 Exel;
+//..первый член асимптотики в формате Exel;
 	id_visual = 1;
 	if (id_visual) {
 		CGrid * nd = CreateNodes();
@@ -8848,7 +9228,7 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992/*4.8*//*4.46*/, 1., 0.01, 1.5, 1
 				X = nd->X[i];
 
 /////////////////////////////////////////////////////////
-//..\E2\FB\F7\E8\F1\EB\FF\E5\EC \E8\F1\F2\E8\ED\ED\FB\E5 \EA\EE\EE\F0\E4\E8\ED\E0\F2\FB, \F4\F3\ED\EA\F6\E8\FE \E8 \EF\F0\EE\E8\E7\E2\EE\E4\ED\F3\FE;
+//..вычисляем истинные координаты, функцию и производную;
 				k = (int)(x = (X+n)*eps/h);
 				d = (x-k)*(out[k+1][ii]-out[k][ii])+out[k][ii];
 				dd = (out[k+1][ii]-out[k][ii])/h;
