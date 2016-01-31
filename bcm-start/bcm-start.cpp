@@ -7072,7 +7072,7 @@ test:
 	{
 		res = system("mkdir ./bcm_results");
 		res = system("mkdir ./bcm_results/lame3d_homog");
-		FILE * TST = fopen("./bcm_results/lame3d_homog/lame3d_homog.dat", "a");
+		FILE * TST = fopen("./bcm_results/lame3d_homog/lame3d_homog3.dat", "a");
 		if (TST) fprintf(TST, "c0,              c1,            E0,          EH,          E0_min,      E0_max,         K0,          KH,          m0,          mu,          nu,      (N = %i, E_matrix = %g, E_inclu = %g, E_layer = %g, nju_matrix = %g, nju_inclu = %g, nju_layer = %g))\n", 
 									  N0, E1, E2, E3, nj1, nj2, nj3);
 		if (TST)	fclose (TST);
