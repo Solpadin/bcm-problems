@@ -98,7 +98,7 @@ public:
 		void struct_clean(int id_all = NULL_STATE);
 		void set_blocks  (int N_sm, int m = 0) {
 			this->set_elements(N_sm); n = (id_norm = m)+1;
-			dim = (int *)new_struct(this->N*sizeof(int));
+			dim = new_struct<int>(this->N);
 		}
 		void set_dimension(int k, int dim_N) {
 			if (k < this->N && 0 <= k && dim) dim[k] = dim_N;

@@ -38,7 +38,7 @@ void * CreateSK2DContext(int N_sm)
 {
   if (N_sm < 0 || N_sm >= NUM_SK2D_SAMPLES) N_sm = 0;
 
-  Context * cont = (Context *)new_struct(sizeof(Context));
+  Context * cont = new_struct<Context>();
   if (! cont) return(NULL);
 
   cont->N           = N_sm+SHIFT_SK2D_SAMPLES;

@@ -6,7 +6,7 @@
 ////////////////////////////////////////////////////////
 //////////////////////////////////////
 //...initialization of the multipoles;
-void CWave2DPoly::init2(int N, int M, int dim)
+void CWave2DPoly::degree_init2(int N, int M, int dim)
 {
 	CShape<double>::N = N;
 	CShape<double>::M = max(M, 1);
@@ -22,20 +22,17 @@ void CWave2DPoly::set_shape(double R0, double kk, double r, double L1, double L2
 	CWave2DPoly::R0 = R0;
 	R0_inv     = R0 > EE ? 1./R0 : 1.;
 	int   k    = -1;
-	if (++k < size_of_param()) param[k] = (Param)(kk*sqr(R0));
-	if (++k < size_of_param()) param[k] = (Param)(param[0] > EE ? 1./param[0] : 1.);
-	if (++k < size_of_param()) param[k] = (Param)(kk);
+	if (++k < size_of_param()) param[k] = Param(kk*sqr(R0));
+	if (++k < size_of_param()) param[k] = Param(param[0] > EE ? 1./param[0] : 1.);
+	if (++k < size_of_param()) param[k] = Param(kk);
 }
 
 ///////////////////////////////////////
 //...parametrization of the multipoles;
 void CWave2DPoly::parametrization(double * P, int m_dop)
 {
-	if (! P) {
-		delete_struct(p);
-	}
 	if (! p) {
-			p  = (double *)new_struct((NN_dop = freedom(N)*(M+1)/*+1000*/)*sizeof(double));
+		p = new_struct<double>(NN_dop = freedom(N)*(M+1)/*+1000*/);
 	}
 	if (P && p) {
 		double   t = P[6];
@@ -70,9 +67,8 @@ void CWave2DPoly::parametrization(double * P, int m_dop)
 
 void CWave3DPoly::parametrization(double * P, int m_dop)
 {
-	if (! P) delete_struct(p);
 	if (! p) {
-			p  = (double *)new_struct(((NN_dop = freedom(N+m_dop)*(M+1))+2*M*(N+m_dop+1))*sizeof(double));
+		p = new_struct<double>((NN_dop = freedom(N+m_dop)*(M+1))+2*M*(N+m_dop+1));
 	}
 	if (P && p) {
 		double   Z = P[2]*R0_inv, f3 = Z*Z, t = P[6];
@@ -142,9 +138,9 @@ void CWave2DPoly::parametrization_grad(double * P, int m_dop)
 		delete_struct(px);
 		delete_struct(py);
 	}
-	if (! px && ! py) {
-		px = (double *)new_struct((NN_grad = NN_dop)*sizeof(double));
-		py = (double *)new_struct( NN_grad*sizeof(double));
+	if (P && ! px && ! py) {
+		px = new_struct<double>(NN_grad = NN_dop);
+		py = new_struct<double>(NN_grad);
 	}
 	if (P && px && py) {
 		memset (px, 0, NN_grad*sizeof(double));
@@ -162,10 +158,10 @@ void CWave3DPoly::parametrization_grad(double * P, int m_dop)
 		delete_struct(py);
 		delete_struct(pz);
 	}
-	if (! px && ! py && ! pz) {
-		px = (double *)new_struct((NN_grad = freedom(N+m_dop)*(M+1))*sizeof(double));
-		py = (double *)new_struct( NN_grad*sizeof(double));
-		pz = (double *)new_struct( NN_grad*sizeof(double));
+	if (P && ! px && ! py && ! pz) {
+		px = new_struct<double>(NN_grad = freedom(N+m_dop)*(M+1));
+		py = new_struct<double>(NN_grad);
+		pz = new_struct<double>(NN_grad);
 	}
 	if (P && px && py && pz) {
 		memset (px, 0, NN_grad*sizeof(double));
@@ -189,10 +185,10 @@ void CWave2DPoly::parametrization_hess(double * P, int m_dop)
 		delete_struct(pxy);
 		delete_struct(pyy);
 	}
-	if (! pxx && ! pxy && ! pyy) {
-		pxx = (double *)new_struct((NN_hess = NN_grad)*sizeof(double));
-		pxy = (double *)new_struct( NN_hess*sizeof(double));
-		pyy = (double *)new_struct( NN_hess*sizeof(double));
+	if (P && ! pxx && ! pxy && ! pyy) {
+		pxx = new_struct<double>(NN_hess = NN_grad);
+		pxy = new_struct<double>(NN_hess);
+		pyy = new_struct<double>(NN_hess);
 	}
 	if (P && pxx && pxy && pyy) {
 		memset (pxx, 0, NN_hess*sizeof(double));
@@ -219,13 +215,13 @@ void CWave3DPoly::parametrization_hess(double * P, int m_dop)
 		delete_struct(pyz);
 		delete_struct(pzz);
 	}
-	if (! pxx && ! pxy && ! pyy && ! pxz && ! pyz && ! pzz) {
-		pxx = (double *)new_struct((NN_hess = freedom(N+m_dop)*(M+1))*sizeof(double));
-		pxy = (double *)new_struct( NN_hess*sizeof(double));
-		pyy = (double *)new_struct( NN_hess*sizeof(double));
-		pxz = (double *)new_struct( NN_hess*sizeof(double));
-		pyz = (double *)new_struct( NN_hess*sizeof(double));
-		pzz = (double *)new_struct( NN_hess*sizeof(double));
+	if (P && ! pxx && ! pxy && ! pyy && ! pxz && ! pyz && ! pzz) {
+		pxx = new_struct<double>(NN_hess = freedom(N+m_dop)*(M+1));
+		pxy = new_struct<double>(NN_hess);
+		pyy = new_struct<double>(NN_hess);
+		pxz = new_struct<double>(NN_hess);
+		pyz = new_struct<double>(NN_hess);
+		pzz = new_struct<double>(NN_hess);
 	}
 	if (P && pxx && pxy && pyy && pxz && pyz && pzz) {
 		memset (pxx, 0, NN_hess*sizeof(double));

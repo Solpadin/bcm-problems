@@ -1,6 +1,6 @@
 #include "stdafx.h"
 
-#include "shapes.h"
+#include "cshapes.h"
 #include "clame3d.h"
 
 #define  Message(Msg)   { printf("%s", Msg);  printf("\n");}
@@ -45,10 +45,10 @@ int CLame3D::block_shape_init(Block<double> & B, Num_State id_free)
 			B.shape->add_shape(CreateShape<double>(MP3D_POLY_SHAPE));
 			B.shape->add_shape(CreateShape<double>(MP3D_ZOOM_SHAPE));
 
-			B.shape->init1(0, UnPackInts(get_param(NUM_MPLS)), solver.id_norm, draft_dim(type()));
+			B.shape->degree_init1(0, UnPackInts(get_param(NUM_MPLS)), solver.id_norm, draft_dim(type()));
 			B.shape->set_shape(0, get_param(NUM_MPLS+1)*fabs(B.mp[7]));
 
-			B.shape->init1(1, UnPackInts(get_param(NUM_MPLS)), solver.id_norm, draft_dim(type()));
+			B.shape->degree_init1(1, UnPackInts(get_param(NUM_MPLS)), solver.id_norm, draft_dim(type()));
 			B.shape->set_shape(1, fabs(B.mp[8]));
 		}
 		else
@@ -56,10 +56,10 @@ int CLame3D::block_shape_init(Block<double> & B, Num_State id_free)
 			B.shape->add_shape(CreateShape<double>(MP3D_POLY_SHAPE));
 			B.shape->add_shape(CreateShape<double>(MP3D_ZOOM_SHAPE), NULL_STATE);
 
-			B.shape->init1(0, UnPackInts(get_param(NUM_MPLS)), solver.id_norm, draft_dim(type()));
+			B.shape->degree_init1(0, UnPackInts(get_param(NUM_MPLS)), solver.id_norm, draft_dim(type()));
  			B.shape->set_shape(0, get_param(NUM_MPLS+1)*fabs(B.mp[7]));
 
-			B.shape->init1(1, UnPackInts(get_param(NUM_MPLS)), solver.id_norm, 0);
+			B.shape->degree_init1(1, UnPackInts(get_param(NUM_MPLS)), solver.id_norm, 0);
 			B.shape->set_shape(1, sqr(B.mp[8] = get_param(NUM_GEOMT+1))/(get_param(NUM_MPLS+1)*fabs(B.mp[7])));
 		}
 		else {
@@ -68,13 +68,13 @@ int CLame3D::block_shape_init(Block<double> & B, Num_State id_free)
 			if ((B.type & ERR_CODE) == ESHE_ZOOM_BLOCK) B.shape->add_shape(CreateShape<double>(MP3D_ZOOM_SHAPE));
 			else													  B.shape->add_shape(CreateShape<double>(MP3D_POLY_SHAPE));
 			
-			B.shape->init1(UnPackInts(get_param(NUM_MPLS)), solver.id_norm, draft_dim(type()));
+			B.shape->degree_init1(UnPackInts(get_param(NUM_MPLS)), solver.id_norm, draft_dim(type()));
 			if ((B.type & ERR_CODE) == ESHE_BLOCK) B.shape->set_shape(fabs(B.mp[8]), get_param(NUM_GEOMT+1)/get_param(NUM_GEOMT), get_param(NUM_GEOMT)); else
 			if ((B.type & ERR_CODE) == ESHE_ZOOM_BLOCK) B.shape->set_shape(fabs(B.mp[8])); else
 			B.shape->set_shape(get_param(NUM_MPLS+1)*fabs(B.mp[7]));
 
 			if (B.link[NUM_PHASE] == -2) //...another degree of multipoles for inclusion!!!
-			B.shape->init1(UnPackInts(get_param(NUM_MPLS), 1), solver.id_norm, draft_dim(type()));
+			B.shape->degree_init1(UnPackInts(get_param(NUM_MPLS), 1), solver.id_norm, draft_dim(type()));
 		}
 
 ////////////////////////////////////////////////////
@@ -3710,7 +3710,7 @@ Num_State CLame3D::rigidy5(CGrid * nd, int i, double * K)
 //////////////////////////////////////////
 //...образуем временную поверхность сферы;
 		CCells * ce = new(CCells);
-		ce->cells_new(1, 2, (l = size_of_map(2, SPHERE_GENUS))+1+size_of_dop(SPH_SEGMENT));
+		ce->init(1, 2, (l = size_of_map(2, SPHERE_GENUS))+1+size_of_dop(SPH_SEGMENT));
 		ce->mp[0] = (CMap)ID_MAP(2, SPHERE_GENUS);
 		ce->mp[1] = B[i].mp[1];
 		ce->mp[2] = B[i].mp[2];
@@ -4076,11 +4076,11 @@ int CLame3D::rigidy1_collocat(CGrid * nd, int i, double * K)
 //////////////////////////////////
 //...строим вспомогательную маску;
 			for (j = k = 0; k < nd->N; k++) j = max(j, nd->hit[k]);
-			if ((mask = (int *)new_struct((j+1)*sizeof(int))) != NULL)
+			if ((mask = new_struct<int>(j+1)) != NULL)
 			for (k = 0; k < nd->N; k++) mask[nd->hit[k]] = k;
 
-			CGrid_el * bnd = (CGrid_el * )CreateNodes(GRID_EL_NODES);
-						  bnd->add_params(1);
+			CGrid * bnd = CreateNodes(GRID_EL_NODES);
+					  bnd->add_params(1);
 
 ///////////////////////////////////////////////////////////////
 //...формируем систему уравнений для определения функций формы;
@@ -4614,16 +4614,16 @@ void CLame3D::set_eshelby_matrix(int N_mpl)
 #else
 	int num_bound = 4;
 #endif
-	double ** TX = NULL, ** TD = NULL, ** TD_dop = NULL, * H = (double *)new_struct((6*N_mpl+3)*num_bound*sizeof(double));
-	TT = (double ***)new_struct((N_mpl+2)*sizeof(double **));
-	TH = (double ***)new_struct((N_mpl+1)*sizeof(double **));
-	C0 = (double *)new_struct((N_mpl+1)*sizeof(double));
-	C1 = (double *)new_struct((N_mpl+1)*sizeof(double));
-	C2 = (double *)new_struct((N_mpl+1)*sizeof(double));
-	A1 = (double *)new_struct((N_mpl+1)*sizeof(double));
-	B1 = (double *)new_struct((N_mpl+1)*sizeof(double));
-	A2 = (double *)new_struct((N_mpl+1)*sizeof(double));
-	B2 = (double *)new_struct((N_mpl+1)*sizeof(double));
+	double ** TX = NULL, ** TD = NULL, ** TD_dop = NULL, * H = new_struct<double>((6*N_mpl+3)*num_bound);
+	TT = new_struct<double **>(N_mpl+2);
+	TH = new_struct<double **>(N_mpl+1);
+	C0 = new_struct<double>(N_mpl+1);
+	C1 = new_struct<double>(N_mpl+1);
+	C2 = new_struct<double>(N_mpl+1);
+	A1 = new_struct<double>(N_mpl+1);
+	B1 = new_struct<double>(N_mpl+1);
+	A2 = new_struct<double>(N_mpl+1);
+	B2 = new_struct<double>(N_mpl+1);
 
 /////////////////////////////////////////////// 
 //...формирование решения граничного уравнения;
@@ -4919,13 +4919,13 @@ void CLame3D::block_descrap(char * OUT_FILE)
 
 ////////////////////////////////////////
 //...auxilliary grids for discrete norm;
-   CGrid_el * bnd = (CGrid_el *)CreateNodes(GRID_EL_NODES);
+   CGrid * bnd = CreateNodes(GRID_EL_NODES);
 
 	CGrid * block_bnd = CreateNodes();
 			  block_bnd->add_params(3);
 
-	CGrid_el * gauss_bnd = (CGrid_el * )CreateNodes(GRID_EL_NODES);
-				gauss_bnd->add_params(1);
+	CGrid * gauss_bnd = CreateNodes(GRID_EL_NODES);
+			  gauss_bnd->add_params(1);
 
 ///////////////////////////////////////////
 //...вычисление среднеквадратичной невязки;
@@ -4941,7 +4941,7 @@ void CLame3D::block_descrap(char * OUT_FILE)
 		Message(msg); fprintf(OUT, "%s\n", msg);
 
 		for (i = 0; i < B[k].link[0]; i++) if ((j = B[k].link[i+1]) >= 0) {
-			bnd->zero_grid(); 
+			bnd->release(); 
 			m = block_comput(bnd, k, j, sqr(get_param(4)), j_surf, 1);
        
 /////////////////////////////////
@@ -5044,15 +5044,12 @@ void CLame3D::GetFuncAllValues(double X, double Y, double Z, double * F, int i, 
 //...operation with all input points;
 	if ( 0 <= i && i < N && B[i].shape && B[i].mp) {
 		int m = solver.id_norm;
-//////////////////////////////////////////////////////////////////
-//memset(solver.hh[i][0][0], 0, solver.dim[i]*sizeof(double));
-//for (int kk = 13; kk < 14; kk++) {
-//	B[i].shape->FULL(solver.hh[i][0][0], 0, 0)[kk] = 1.;	
-//	B[i].shape->FULL(solver.hh[i][0][0], 0, 1)[kk] = 1.;	
-//	B[i].shape->FULL(solver.hh[i][0][0], 0, 2)[kk] = 1.;	
-//}
-//B[i].shape->set_potential(solver.hh[i][0][0], 0);
-//////////////////////////////////////////////////////////////////
+//===============================================================//
+//...задание тестовых коэффициентов в задаче Эшелби (09.09.2016);
+		//memset(solver.hh[i][0][0], 0, solver.dim[i]*sizeof(double));
+		//B[i].shape->FULL(solver.hh[i][0][0], 0, 2)[1] = 1.;	
+		//B[i].shape->set_potential(solver.hh[i][0][0], 0);
+//===============================================================//
 //////////////////////////////////////////////////////
 //...reset auxilliary arrays and calculation function;
 		for (int num = m; num < solver.n; num++)
@@ -5074,7 +5071,14 @@ void CLame3D::GetFuncAllValues(double X, double Y, double Z, double * F, int i, 
 				F[1] = B[i].shape->potential(solver.hh[i][0][m+1], 0);
 				F[2] = B[i].shape->potential(solver.hh[i][0][m+2], 0);
 				B[i].shape->norm_common(F);
-
+//=============================================//
+//...тестовый расчет задачи Эшелби (09.09.2016);
+//double njuI = 0.1, EI = 50, njuM = 0.3, EM = 6, rad = 0.5, UX, UY, UZ;
+//testEshelby_slip(X, Y, Z, njuI, njuM, EI, EM, rad, UX, UY, UZ);
+//F[0] = UX;
+//F[1] = UY;
+//F[2] = UZ;
+//=============================================//
 				if (solv == SPECIAL_SOLVING && id_variant == 0) F[2] -= Z;
 				if (solv == SPECIAL_SOLVING && id_variant == 1) F[0] -= Z;
 		}		break;
@@ -5254,8 +5258,8 @@ void CLame3D::GetEnergyValue(int k, double * energy)
 	}
 }
 
-/////////////////////////////////////////////////////////////////////////
-//...вычисление эффективных характеристик в классической слоистой модели;
+////////////////////////////////////////////////////////////////////////////////////
+//...вычисление эффективных характеристик в классической одномерной слоистой модели;
 double CLame3D::TakeLayer_kk(int N, double * ff, double * kk)
 {
 	double ** matr = NULL; set_matrix(matr, 2*N, 2*N+1);
@@ -5276,7 +5280,7 @@ double CLame3D::TakeLayer_kk(int N, double * ff, double * kk)
 ///////////////////////////////////////
 //...решаем систему линейных уравнений;
 	double sum = 0.;
-	int dim_N = 2*N, * ii, i, k, l, k0, l0; ii = (int *)new_struct(2*N*sizeof(int));
+	int dim_N = 2*N, * ii, i, k, l, k0, l0; ii = new_struct<int>(2*N);
 	for (i = 0; i < dim_N; i++) {
 		double f = 0.;
 ///////////////////////////////////////
@@ -5317,9 +5321,9 @@ err:
 	return(sum);
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////
-//...вычисление эффективных характеристик в одномерной слоистой модели в сферической симметрии;
-double CLame3D::TakeLayer_kk(int N, double * ff, double * kv, double * mu)
+/////////////////////////////////////////////////////////////////////////////
+//...вычисление эффективного иобъемного модуля в сферической слоистой модели;
+double CLame3D::TakeLayer_k1(int N, double * ff, double * kv, double * mu)
 {
 	double ** matr = NULL, s0, s1, sum = 0.; set_matrix(matr, 2*N, 2*N+1);
 	int i1, m1, m = 2*N-1;
@@ -5343,7 +5347,7 @@ double CLame3D::TakeLayer_kk(int N, double * ff, double * kv, double * mu)
 
 ///////////////////////////////////////
 //...решаем систему линейных уравнений;
-	int dim_N = 2*N, * ii, i, k, l, k0, l0; ii = (int *)new_struct(2*N*sizeof(int));
+	int dim_N = 2*N, * ii, i, k, l, k0, l0; ii = new_struct<int>(2*N);
 	for (i = 0; i < dim_N; i++) {
 		double f = 0.;
 ///////////////////////////////////////
@@ -5416,7 +5420,7 @@ err:
 //
 /////////////////////////////////////////
 ////...решаем систему линейных уравнений;
-//	int dim_N = 2*N, * ii, i, k, l, k0, l0; ii = (int *)new_struct(2*N*sizeof(int));
+//	int dim_N = 2*N, * ii, i, k, l, k0, l0; ii = new_struct<int>(2*N);
 //	for (i = 0; i < dim_N; i++) {
 //		double f = 0.;
 /////////////////////////////////////////
@@ -5513,7 +5517,7 @@ double take_system_sph(double ** matrix, int * ii, int dim_N, double mu_H, doubl
 
 ///////////////////////////////////////////////////////////////////////////////////
 //...вычисление эффективного модуля сдвига в слоистой модели сферической симметрии;
-double CLame3D::TakeLayer_GG(int N, double * ff, double * kv, double * mu, double * nj, double eps, int max_iter)
+double CLame3D::TakeLayer_G1(int N, double * ff, double * kv, double * mu, double * nj, double eps, int max_iter)
 {
 	double ** matr = NULL, mu_M = mu[N-1], s0 = ff[0], s1, f0, f1; set_matrix(matr, 4*N, 4*N+1);
 	int i1, m1, m = 4*N-1;
@@ -5554,8 +5558,8 @@ double CLame3D::TakeLayer_GG(int N, double * ff, double * kv, double * mu, doubl
 			}
 		}
 	}
-	double optim, sgn0, sgn1, nu_H, mu_H, mu_H0, mu_H1, KH = TakeLayer_kk(N, ff, kv, mu), 
-		** matrix = NULL; set_matrix(matrix, m = 4*N, 4*N+1); int * ii = (int *)new_struct(m*sizeof(int)), k_iter = 0, k, l; 
+	double optim, sgn0, sgn1, nu_H, mu_H, mu_H0, mu_H1, KH = TakeLayer_k1(N, ff, kv, mu), 
+		** matrix = NULL; set_matrix(matrix, m = 4*N, 4*N+1); int * ii = new_struct<int>(m), k_iter = 0, k, l; 
 
 /////////////////////////////////////////////
 //...цикл по определению сдвиговой жесткости;
@@ -5597,129 +5601,6 @@ double CLame3D::TakeLayer_GG(int N, double * ff, double * kv, double * mu, doubl
 	return(mu_H);
 }
 
-/////////////////////////////////////////////////
-//...трехфазная модель для сферических включений;
-double CLame3D::TakeEshelby_volm_two(double ff)
-{
-	double K1 = 2.*get_param(NUM_SHEAR+NUM_SHIFT)*(get_param(NUM_SHEAR+1+NUM_SHIFT)+1.)/(3.-6.*get_param(NUM_SHEAR+1+NUM_SHIFT)), 
-			 K3 = 2.*get_param(NUM_SHEAR)*(get_param(NUM_SHEAR+1)+1.)/(3.-6.*get_param(NUM_SHEAR+1)),
- 			 KH = K3+ff*(K1-K3)/(1.+(1.-ff)*(K1-K3)/(K3+4./3.*get_param(NUM_SHEAR)));
-	return(KH);
-}
-
-////////////////////////////////////////////////////////////////////////////
-//...алгоритмическое решение системы уравнений Эшелби для трехфазной модели;
-double take_system(double matrix[8][9], double mu_MH, double nu_H)
-{
-	int dim_N = 8, ii[8] = {0,0,0,0,0,0,0,0}, i, k, l, k0, l0;
-//////////////////////////////////////////
-//...заполняем систему линейных уравнений;
-	matrix[4][6] *= mu_MH;
-	matrix[4][7] *= mu_MH;
-	matrix[4][8] *= mu_MH;
-	matrix[5][6] *= mu_MH;
-	matrix[5][8] *= mu_MH;
-	matrix[5][7] *= mu_MH*2.*(1.-2.*nu_H)/(5.-4.*nu_H);
-	matrix[6][7] *= 2.*(5.-nu_H)/(5.-4.*nu_H);
-	matrix[7][7] *= 2.*(1.+nu_H)/(5.-4.*nu_H);
-///////////////////////////////////////
-//...решаем систему линейных уравнений;
-	for (i = 0; i < dim_N; i++) {
-		double f = 0.;
-///////////////////////////////////////
-//...look for position maximal element;
-		for (k = 0; k < dim_N; k++)
-			if (ii[k] != 1) 
-				for (l = 0; l < dim_N; l++) 
-					if (! ii[l]) {
-						if (fabs(matrix[k][l]) >= f) f = fabs(matrix[k0 = k][l0 = l]); 
-					}
-					else if (ii[l] > 1) return(0.);
-		++(ii[l0]);
-///////////////////////////////////////////////////////////
-//...swapping row for diagonal position of maximal element;
-		if (k0 != l0) 
-			for (l = 0; l <= dim_N; l++) {
-				f = matrix[k0][l]; matrix[k0][l] = matrix[l0][l]; matrix[l0][l] = f; 
-			}
-		if (matrix[l0][l0] == 0.) return(0.);
-////////////////////////////////
-//...diagonal row normalization;
-		double finv = 1./matrix[l0][l0]; matrix[l0][l0] = 1.;
-		for (l = 0; l <= dim_N; l++) matrix[l0][l] *= finv;
-/////////////////////////////////
-//...elimination all outher rows;
-		for (k = 0; k < dim_N; k++)
-			if ( k != l0) {
-				finv = matrix[k][l0]; matrix[k][l0] = 0.;
-				for (l = 0; l <= dim_N; l++) matrix[k][l] -= matrix[l0][l]*finv;
-			}
-	}
-	return(matrix[7][8]);
-}
-
-//////////////////////////////////////////////////////////////////////////
-//...трехфазная модель для сферического включения (итерационный алгоритм);
-double CLame3D::TakeEshelby_shear_two(double ff, double eps, int max_iter)
-{
-	double mu_I = get_param(NUM_SHEAR+NUM_SHIFT), nu_I = get_param(NUM_SHEAR+1+NUM_SHIFT),
-			 mu_M = get_param(NUM_SHEAR), nu_M = get_param(NUM_SHEAR+1),
-			 K1 = 2.*mu_I*(1.+nu_I)/(3.-6.*nu_I), K3 = 2.*mu_M*(1.+nu_M)/(3.-6.*nu_M),
-			 KH = K3+ff*(K1-K3)/(1.+(1.-ff)*(K1-K3)/(K3+4./3.*mu_M)),
-			 RR1 = pow(ff, 1./3.), fR2 = RR1*RR1, fR3 = 1./(RR1*fR2), fR5 = fR3/fR2, 
-			 mu_MI = mu_M/mu_I, 
-			 QI1 = 3.*nu_I/(7.-4.*nu_I),
-			 QM1 = 3.*nu_M/(7.-4.*nu_M), 
-			 QI2 = (7.+2.*nu_I)/(7.-4.*nu_I),
-			 QM2 = (7.+2.*nu_M)/(7.-4.*nu_M), 
-			 QM3 = 2.*(1.-2.*nu_M)/(5.-4.*nu_M), 
-			 QM4 = 2.*(5.-nu_M)/(5.-4.*nu_M),
-			 QM5 = 2.*(1.+nu_M)/(5.-4.*nu_M), optim, nu_H, mu_MH, mu_MH0, mu_MH1, matrix[8][9],
-			 matr[8][9] = {
-					{ mu_MI, -2.*mu_MI*QI1*fR2, -1., -fR3, -3.*fR5, 2.*QM1*fR2, 0., 0., 0.},
-					{ mu_MI, -mu_MI*fR2, -1.,  -QM3*fR3, 2.*fR5, fR2, 0., 0., 0.},
-					{ 1.,  QI1*fR2, -1.,  QM4*fR3, 12.*fR5, -QM1*fR2, 0., 0., 0.},
-					{ 1., -QI2*fR2, -1., -QM5*fR3, -8.*fR5,  QM2*fR2, 0., 0., 0.},
-					{ 0., 0., 1., 1., 3., -2.*QM1, -3., -1., 1.},
-					{ 0., 0., 1.,  QM3, -2., -1., 2., -1., 1.},
-					{ 0., 0., 1., -QM4, -12., QM1, 12., 1., 1.},
-					{ 0., 0., 1.,  QM5, 8.,  -QM2, -8., -1., 1.},
-	};
-	double alpha = -1.;
-	if (alpha >= 0.) {
-		double alpha_I = alpha/mu_I*.5, alpha_M = alpha/mu_M*.5;
-		matr[1][0] = 1.-alpha_I; matr[1][1] = -(QI2-alpha_I)*fR2; matr[1][2] = alpha_M;
-		matr[1][3] = alpha_M*QM3*fR3;	matr[1][4] = -2.*alpha_M*fR5;	matr[1][5] = -alpha_M*fR2;
-		matr[3][0] = alpha_I; matr[3][1] = -alpha_I*fR2; matr[3][2] = -(1.+alpha_M);
-		matr[3][3] = -(QM5+QM3*alpha_M)*fR3; matr[3][4] = -8.*(1.-alpha_M*.25)*fR5; matr[3][5] = (QM2+alpha_M)*fR2;
-	}
-	int k_iter = 0, k, l;
-/////////////////////////////////////////////
-//...цикл по определению сдвиговой жесткости;
-	mu_MH0 = 0.;
-	mu_MH1 = 2.*mu_M/(3.*KH)/10.;
-	do { 
-		mu_MH1 *= 10.; k_iter++;
-		nu_H = (1.5*KH*mu_MH1/mu_M-1.)/(3.*KH*mu_MH1/mu_M+1.);
-		for (k = 0; k < 8; k++)
-		for (l = 0; l < 9; l++)	matrix[k][l] = matr[k][l];
-		optim = take_system(matrix, mu_MH1, nu_H);
-	}
-	while(optim > 0. && k_iter < max_iter); k_iter = 0;
-	do {
-		mu_MH = (mu_MH0+mu_MH1)*.5; k_iter++;
-		nu_H  = (1.5*KH*mu_MH/get_param(NUM_SHEAR)-1.)/(3.*KH*mu_MH/get_param(NUM_SHEAR)+1.);
-		for (k = 0; k < 8; k++)
-		for (l = 0; l < 9; l++)	matrix[k][l] = matr[k][l];
-		optim = take_system(matrix, mu_MH, nu_H);
-		if (optim > 0.) mu_MH0 = mu_MH; else
-		if (optim < 0.) mu_MH1 = mu_MH; else mu_MH0 = mu_MH1 = mu_MH;
-	}
-	while(fabs(mu_MH1-mu_MH0) > eps && k_iter < max_iter);
-
-	return(2.*mu_M/(mu_MH0+mu_MH1));
-}
-
 /////////////////////////////////////////////////////////////
 //...четырехфазная модель для сферических включений со слоем;
 double CLame3D::TakeEshelby_volm(double ff, double ff_l)
@@ -5730,6 +5611,22 @@ double CLame3D::TakeEshelby_volm(double ff, double ff_l)
 			 G2 = get_param(NUM_SHEAR+NUM_SHIFT*2), c0 = ff+ff_l, c1 = ff/c0, DD, KH;
 	DD = ((K1-K3)-(1.-c1)*(K1-K2)*(1.+(K3-K2)/(K2+4./3.*G2)))/(1.+(1.-c1)*(K1-K2)/(K2+4./3.*G2));
 	KH = K3+c0*DD/(1.+(1.-c0)*DD/(K3+4./3.*get_param(NUM_SHEAR)));
+
+////////////////////////////////////////////////////
+//...образуем образец из четырех сферических блоков;
+	double rad0 = 1., rad1 = pow(c1, -1./3.), rad2 = pow(ff, -1./3.), AA = 4.*rad2;
+	GetSphBoxStruct2(AA, AA, AA, rad0, rad1-rad0, rad2-rad1);
+
+	return(KH);
+}
+
+/////////////////////////////////////////////////
+//...трехфазная модель для сферических включений;
+double CLame3D::TakeEshelby_volm_two(double ff)
+{
+	double K1 = 2.*get_param(NUM_SHEAR+NUM_SHIFT)*(get_param(NUM_SHEAR+1+NUM_SHIFT)+1.)/(3.-6.*get_param(NUM_SHEAR+1+NUM_SHIFT)), 
+			 K3 = 2.*get_param(NUM_SHEAR)*(get_param(NUM_SHEAR+1)+1.)/(3.-6.*get_param(NUM_SHEAR+1)),
+ 			 KH = K3+ff*(K1-K3)/(1.+(1.-ff)*(K1-K3)/(K3+4./3.*get_param(NUM_SHEAR)));
 	return(KH);
 }
 
@@ -5872,8 +5769,216 @@ double CLame3D::TakeEshelby_shear(double ff, double ff_l, double eps, int max_it
 	//		X = 0.; Z = 1.; RR = sqrt(X*X+Y*Y+Z*Z); func1 = Z; func2 = Z;
 	//		func2 *= (matr[6][2]+(matr[6][3]+matr[6][4]*(kk_M*RR/RR1-1.)*exp(kk_M*RR/RR1)-matr[6][5]*(kk_M*RR/RR1+1.)*exp(-kk_M*RR/RR1))/(RR*RR*RR)); 
 	//	}
+	return(2.*mu_M/(mu_MH0+mu_MH1));
+}
 
+////////////////////////////////////////////////////////////////////////////
+//...алгоритмическое решение системы уравнений Эшелби для трехфазной модели;
+double take_system(double matrix[8][9], double mu_MH, double nu_H)
+{
+	int dim_N = 8, ii[8] = {0,0,0,0,0,0,0,0}, i, k, l, k0, l0;
+//////////////////////////////////////////
+//...заполняем систему линейных уравнений;
+	matrix[4][6] *= mu_MH;
+	matrix[4][7] *= mu_MH;
+	matrix[4][8] *= mu_MH;
+	matrix[5][6] *= mu_MH;
+	matrix[5][8] *= mu_MH;
+	matrix[5][7] *= mu_MH*2.*(1.-2.*nu_H)/(5.-4.*nu_H);
+	matrix[6][7] *= 2.*(5.-nu_H)/(5.-4.*nu_H);
+	matrix[7][7] *= 2.*(1.+nu_H)/(5.-4.*nu_H);
+///////////////////////////////////////
+//...решаем систему линейных уравнений;
+	for (i = 0; i < dim_N; i++) {
+		double f = 0.;
+///////////////////////////////////////
+//...look for position maximal element;
+		for (k = 0; k < dim_N; k++)
+			if (ii[k] != 1) 
+				for (l = 0; l < dim_N; l++) 
+					if (! ii[l]) {
+						if (fabs(matrix[k][l]) >= f) f = fabs(matrix[k0 = k][l0 = l]); 
+					}
+					else if (ii[l] > 1) return(0.);
+		++(ii[l0]);
+///////////////////////////////////////////////////////////
+//...swapping row for diagonal position of maximal element;
+		if (k0 != l0) 
+			for (l = 0; l <= dim_N; l++) {
+				f = matrix[k0][l]; matrix[k0][l] = matrix[l0][l]; matrix[l0][l] = f; 
+			}
+		if (matrix[l0][l0] == 0.) return(0.);
+////////////////////////////////
+//...diagonal row normalization;
+		double finv = 1./matrix[l0][l0]; matrix[l0][l0] = 1.;
+		for (l = 0; l <= dim_N; l++) matrix[l0][l] *= finv;
+/////////////////////////////////
+//...elimination all outher rows;
+		for (k = 0; k < dim_N; k++)
+			if ( k != l0) {
+				finv = matrix[k][l0]; matrix[k][l0] = 0.;
+				for (l = 0; l <= dim_N; l++) matrix[k][l] -= matrix[l0][l]*finv;
+			}
+	}
+	return(matrix[7][8]);
+}
 
+//////////////////////////////////////////////////////////////////////////
+//...трехфазная модель для сферического включения (итерационный алгоритм);
+double CLame3D::TakeEshelby_shear_two(double ff, double eps, int max_iter)
+{
+	double mu_I = get_param(NUM_SHEAR+NUM_SHIFT), nu_I = get_param(NUM_SHEAR+1+NUM_SHIFT),
+			 mu_M = get_param(NUM_SHEAR), nu_M = get_param(NUM_SHEAR+1),
+			 K1 = 2.*mu_I*(1.+nu_I)/(3.-6.*nu_I), K3 = 2.*mu_M*(1.+nu_M)/(3.-6.*nu_M),
+			 KH = K3+ff*(K1-K3)/(1.+(1.-ff)*(K1-K3)/(K3+4./3.*mu_M)),
+			 RR1 = pow(ff, 1./3.), fR2 = RR1*RR1, fR3 = 1./(RR1*fR2), fR5 = fR3/fR2, 
+			 mu_MI = mu_M/mu_I, 
+			 QI1 = 3.*nu_I/(7.-4.*nu_I),
+			 QM1 = 3.*nu_M/(7.-4.*nu_M), 
+			 QI2 = (7.+2.*nu_I)/(7.-4.*nu_I),
+			 QM2 = (7.+2.*nu_M)/(7.-4.*nu_M), 
+			 QM3 = 2.*(1.-2.*nu_M)/(5.-4.*nu_M), 
+			 QM4 = 2.*(5.-nu_M)/(5.-4.*nu_M),
+			 QM5 = 2.*(1.+nu_M)/(5.-4.*nu_M), optim, nu_H, mu_MH, mu_MH0, mu_MH1, matrix[8][9],
+			 matr[8][9] = {
+					{ mu_MI, -2.*mu_MI*QI1*fR2, -1., -fR3, -3.*fR5, 2.*QM1*fR2, 0., 0., 0.},
+					{ mu_MI, -mu_MI*fR2, -1.,  -QM3*fR3, 2.*fR5, fR2, 0., 0., 0.},
+					{ 1.,  QI1*fR2, -1.,  QM4*fR3, 12.*fR5, -QM1*fR2, 0., 0., 0.},
+					{ 1., -QI2*fR2, -1., -QM5*fR3, -8.*fR5,  QM2*fR2, 0., 0., 0.},
+					{ 0., 0., 1., 1., 3., -2.*QM1, -3., -1., 1.},
+					{ 0., 0., 1.,  QM3, -2., -1., 2., -1., 1.},
+					{ 0., 0., 1., -QM4, -12., QM1, 12., 1., 1.},
+					{ 0., 0., 1.,  QM5, 8.,  -QM2, -8., -1., 1.},
+	};
+	double alpha = -1.;
+	if (alpha >= 0.) {
+		double alpha_I = alpha/mu_I*.5, alpha_M = alpha/mu_M*.5;
+		matr[1][0] = 1.-alpha_I; matr[1][1] = -(QI2-alpha_I)*fR2; matr[1][2] = alpha_M;
+		matr[1][3] = alpha_M*QM3*fR3;	matr[1][4] = -2.*alpha_M*fR5;	matr[1][5] = -alpha_M*fR2;
+		matr[3][0] = alpha_I; matr[3][1] = -alpha_I*fR2; matr[3][2] = -(1.+alpha_M);
+		matr[3][3] = -(QM5+QM3*alpha_M)*fR3; matr[3][4] = -8.*(1.-alpha_M*.25)*fR5; matr[3][5] = (QM2+alpha_M)*fR2;
+	}
+	int k_iter = 0, k, l;
+/////////////////////////////////////////////
+//...цикл по определению сдвиговой жесткости;
+	mu_MH0 = 0.;
+	mu_MH1 = 2.*mu_M/(3.*KH)/10.;
+	do { 
+		mu_MH1 *= 10.; k_iter++;
+		nu_H = (1.5*KH*mu_MH1/mu_M-1.)/(3.*KH*mu_MH1/mu_M+1.);
+		for (k = 0; k < 8; k++)
+		for (l = 0; l < 9; l++)	matrix[k][l] = matr[k][l];
+		optim = take_system(matrix, mu_MH1, nu_H);
+	}
+	while(optim > 0. && k_iter < max_iter); k_iter = 0;
+	do {
+		mu_MH = (mu_MH0+mu_MH1)*.5; k_iter++;
+		nu_H  = (1.5*KH*mu_MH/get_param(NUM_SHEAR)-1.)/(3.*KH*mu_MH/get_param(NUM_SHEAR)+1.);
+		for (k = 0; k < 8; k++)
+		for (l = 0; l < 9; l++)	matrix[k][l] = matr[k][l];
+		optim = take_system(matrix, mu_MH, nu_H);
+		if (optim > 0.) mu_MH0 = mu_MH; else
+		if (optim < 0.) mu_MH1 = mu_MH; else mu_MH0 = mu_MH1 = mu_MH;
+	}
+	while(fabs(mu_MH1-mu_MH0) > eps && k_iter < max_iter);
+
+	return(2.*mu_M/(mu_MH0+mu_MH1));
+}
+
+////////////////////////////////////////////////////////////////////////////
+//...алгоритмическое решение системы уравнений Эшелби для трехфазной модели;
+double take_system(double matrix[6][7], double mu_MH, double nu_H)
+{
+	int dim_N = 6, ii[6] = {0,0,0,0,0,0}, i, k, l, k0, l0;
+//////////////////////////////////////////
+//...заполняем систему линейных уравнений;
+	matrix[2][4] *= mu_MH;
+	matrix[2][5] *= mu_MH;
+	matrix[2][6] *= mu_MH;
+	matrix[3][4] *= mu_MH;
+	matrix[3][6] *= mu_MH;
+	matrix[3][5] *= mu_MH*2.*(1.-2.*nu_H)/(5.-4.*nu_H);
+	matrix[4][5] *= 2.*(5.-nu_H)/(5.-4.*nu_H);
+	matrix[5][5] *= 2.*(1.+nu_H)/(5.-4.*nu_H);
+///////////////////////////////////////
+//...решаем систему линейных уравнений;
+	for (i = 0; i < dim_N; i++) {
+		double f = 0.;
+///////////////////////////////////////
+//...look for position maximal element;
+		for (k = 0; k < dim_N; k++)
+			if (ii[k] != 1) 
+				for (l = 0; l < dim_N; l++) 
+					if (! ii[l]) {
+						if (fabs(matrix[k][l]) >= f) f = fabs(matrix[k0 = k][l0 = l]); 
+					}
+					else if (ii[l] > 1) return(0.);
+		++(ii[l0]);
+///////////////////////////////////////////////////////////
+//...swapping row for diagonal position of maximal element;
+		if (k0 != l0) 
+			for (l = 0; l <= dim_N; l++) {
+				f = matrix[k0][l]; matrix[k0][l] = matrix[l0][l]; matrix[l0][l] = f; 
+			}
+		if (matrix[l0][l0] == 0.) return(0.);
+////////////////////////////////
+//...diagonal row normalization;
+		double finv = 1./matrix[l0][l0]; matrix[l0][l0] = 1.;
+		for (l = 0; l <= dim_N; l++) matrix[l0][l] *= finv;
+/////////////////////////////////
+//...elimination all outher rows;
+		for (k = 0; k < dim_N; k++)
+			if ( k != l0) {
+				finv = matrix[k][l0]; matrix[k][l0] = 0.;
+				for (l = 0; l <= dim_N; l++) matrix[k][l] -= matrix[l0][l]*finv;
+			}
+	}
+	return(matrix[5][6]);
+}
+
+//////////////////////////////////////////////////////////////////////////
+//...трехфазная модель для сферического включения (итерационный алгоритм);
+double CLame3D::TakeEshelby_shear_rig(double ff, double eps, int max_iter)
+{
+	double mu_M = get_param(NUM_SHEAR), nu_M = get_param(NUM_SHEAR+1),
+			 K3 = 2.*mu_M*(1.+nu_M)/(3.-6.*nu_M), KH = K3+ff/(1.-ff)*(K3+4./3.*mu_M),
+			 RR1 = pow(ff, 1./3.), fR2 = RR1*RR1, fR3 = 1./(RR1*fR2), fR5 = fR3/fR2, 
+			 QM1 = 3.*nu_M/(7.-4.*nu_M), 
+			 QM2 = (7.+2.*nu_M)/(7.-4.*nu_M), 
+			 QM3 = 2.*(1.-2.*nu_M)/(5.-4.*nu_M), 
+			 QM4 = 2.*(5.-nu_M)/(5.-4.*nu_M),
+			 QM5 = 2.*(1.+nu_M)/(5.-4.*nu_M), optim, nu_H, mu_MH, mu_MH0, mu_MH1, matrix[6][7],
+			 matr[6][7] = {
+					{-1., -fR3, -3.*fR5, 2.*QM1*fR2, 0., 0., 0.},
+					{-1., -QM3*fR3, 2.*fR5, fR2, 0., 0., 0.},
+					{ 1., 1., 3., -2.*QM1, -3., -1., 1.},
+					{ 1.,  QM3, -2., -1., 2., -1., 1.},
+					{ 1., -QM4, -12., QM1, 12., 1., 1.},
+					{ 1.,  QM5, 8., -QM2, -8., -1., 1.},
+	};
+	int k_iter = 0, k, l;
+/////////////////////////////////////////////
+//...цикл по определению сдвиговой жесткости;
+	mu_MH0 = 0.;
+	mu_MH1 = 2.*mu_M/(3.*KH)/10.;
+	do { 
+		mu_MH1 *= 10.; k_iter++;
+		nu_H = (1.5*KH*mu_MH1/mu_M-1.)/(3.*KH*mu_MH1/mu_M+1.);
+		for (k = 0; k < 6; k++)
+		for (l = 0; l < 7; l++)	matrix[k][l] = matr[k][l];
+		optim = take_system(matrix, mu_MH1, nu_H);
+	}
+	while(optim > 0. && k_iter < max_iter); k_iter = 0;
+	do {
+		mu_MH = (mu_MH0+mu_MH1)*.5; k_iter++;
+		nu_H  = (1.5*KH*mu_MH/get_param(NUM_SHEAR)-1.)/(3.*KH*mu_MH/get_param(NUM_SHEAR)+1.);
+		for (k = 0; k < 6; k++)
+		for (l = 0; l < 7; l++)	matrix[k][l] = matr[k][l];
+		optim = take_system(matrix, mu_MH, nu_H);
+		if (optim > 0.) mu_MH0 = mu_MH; else
+		if (optim < 0.) mu_MH1 = mu_MH; else mu_MH0 = mu_MH1 = mu_MH;
+	}
+	while(fabs(mu_MH1-mu_MH0) > eps && k_iter < max_iter);
 
 	return(2.*mu_M/(mu_MH0+mu_MH1));
 }
@@ -5980,14 +6085,38 @@ double CLame3D::TakeEshelby_shear_det(double ff, double alpha)
 			 QM4 = 2.*(5.-nu_M)/(5.-4.*nu_M),
 			 QM5 = 2.*(1.+nu_M)/(5.-4.*nu_M), mu_MH, A, B, C, D,
 			 matr[8][8] = {
-					{ mu_MI, -2.*mu_MI*QI1*fR2, -1., -fR3, -3.*fR5, 2.*QM1*fR2, 0., 0.},
-					{ mu_MI, -mu_MI*fR2, -1.,  -QM3*fR3, 2.*fR5, fR2, 0., 0.},
-					{ 1.,  QI1*fR2, -1.,  QM4*fR3, 12.*fR5, -QM1*fR2, 0., 0.},
-					{ 1., -QI2*fR2, -1., -QM5*fR3, -8.*fR5,  QM2*fR2, 0., 0.},
-					{ 0., 0., 1., 1., 3., -2.*QM1, -3., -1.},
-					{ 0., 0., 1.,  QM3, -2.,   -1., 2., -1.},
-					{ 0., 0., 1., -QM4, -12., QM1, 12., -1.},
-					{ 0., 0., 1.,  QM5, 8.,  -QM2, -8., -1.},
+					//{ mu_MI, -2.*mu_MI*QI1*fR2, -1., -fR3, -3.*fR5, 2.*QM1*fR2, 0., 0.},
+					//{ mu_MI, -mu_MI*fR2, -1.,  -QM3*fR3, 2.*fR5, fR2, 0., 0.},
+					//{ 1.,  QI1*fR2, -1.,  QM4*fR3, 12.*fR5, -QM1*fR2, 0., 0.},
+					//{ 1., -QI2*fR2, -1., -QM5*fR3, -8.*fR5,  QM2*fR2, 0., 0.},
+					//{ 0., 0., 1., 1., 3., -2.*QM1, -3., -1.},
+					//{ 0., 0., 1.,  QM3, -2.,   -1., 2., -1.},
+					//{ 0., 0., 1., -QM4, -12., QM1, 12., -1.},
+					//{ 0., 0., 1.,  QM5, 8.,  -QM2, -8., -1.},
+//...равенство функций;
+//		{ 1., -4.*nu_I, -1., 4.*nu_M, nu_M-1., -2., 0., 0. },
+//		{ 1., -2.*(3.-2.*nu_I), -1., 2.*(3.-2.*nu_M), nu_M-.5, 2., 0., 0. },
+//...поверхностные силы;
+//		{ mu_I, 0., -mu_M, 0., mu_M, 6.*mu_M, 0., 0. },
+//		{ mu_I, -6.*mu_I, -mu_M, 6.*mu_M, -mu_M*.5, -6.*mu_M, 0., 0. },
+//...перемещения на границе эффективной области;
+//		{ 0., 0., 1., -4.*nu_M/ff, (1.-nu_M)*ff, 2.*sqr(ff), -2., 1. },
+//		{ 0., 0., 1., -2.*(3.-2.*nu_M)/ff, (-nu_M+.5)*ff, -2.*sqr(ff), 2., 1. },
+//...поверхностные силы на границе эффективной области;
+//		{ 0., 0., mu_M, 0., -mu_M*ff, -6.*mu_M*sqr(ff), 6., 1. },
+//		{ 0., 0., mu_M, -6.*mu_M/ff, mu_M*.5*ff, 6.*mu_M*sqr(ff), -6., 1. },
+//...другая нормировка - равенство функций;
+		{ 1., -4.*nu_I, -1., 4.*nu_M, nu_M-1., -2., 0., 0. },
+		{ 1., -2.*(3.-2.*nu_I), -1., 2.*(3.-2.*nu_M), nu_M-.5, 2., 0., 0. },
+//...поверхностные силы;
+		{ mu_I, 0., -mu_M, 0., mu_M, 6.*mu_M, 0., 0. },
+		{ mu_I, -6.*mu_I, -mu_M, 6.*mu_M, -mu_M*.5, -6.*mu_M, 0., 0. },
+//...перемещения на границе эффективной области;
+		{ 0., 0., 1., -4.*nu_M/ff, (1.-nu_M)*ff, 2.*sqr(ff), -2., 1. },
+		{ 0., 0., 1., -2.*(3.-2.*nu_M)/ff, (-nu_M+.5)*ff, -2.*sqr(ff), 2., 1. },
+//...поверхностные силы на границе эффективной области;
+		{ 0., 0., mu_M, 0., -mu_M*ff, -6.*mu_M*sqr(ff), 6., 1. },
+		{ 0., 0., mu_M, -6.*mu_M/ff, mu_M*.5*ff, 6.*mu_M*sqr(ff), -6., 1. },
 	};
 	if (alpha >= 0.) {
 		double alpha_I = alpha/mu_I*.5, alpha_M = alpha/mu_M*.5;
@@ -5997,8 +6126,8 @@ double CLame3D::TakeEshelby_shear_det(double ff, double alpha)
 		matr[3][3] = -(QM5+QM3*alpha_M)*fR3; matr[3][4] = -8.*(1.-alpha_M*.25)*fR5; matr[3][5] = (QM2+alpha_M)*fR2;
 	}
 
-/////////////////////////////
-//...вычисляем олпределители;
+////////////////////////////
+//...вычисляем определители;
 	A = (DETER3(matr, 1, 2, 3, 1, 2, 3)*DETER3(matr, 4, 7, 8, 4, 5, 6)-
 		  DETER3(matr, 1, 2, 4, 1, 2, 3)*DETER3(matr, 3, 7, 8, 4, 5, 6)+
 		  DETER3(matr, 1, 2, 7, 1, 2, 3)*DETER3(matr, 3, 4, 8, 4, 5, 6)-
@@ -6221,6 +6350,207 @@ double CLame3D::TakeEshelby_shear(double ff, double nju1, double nju2, double E1
 	mu_H = 2.*mu_M/(mu_MH0+mu_MH1);
 	if (sgn0*sgn1 > 0. || fabs(optim) > eps0 ) mu_H = -mu_H;
 	return(mu_H);
+}
+
+/////////////////////////////////////////////////////////////////////
+//...четырехфазная модель Эшелби для сферических включений со слоем;
+void CLame3D::TakeEshelbyModel(double ff, double ff_l)
+{
+	double KH = TakeEshelby_volm(ff, ff_l), GH = TakeEshelby_shear(ff, ff_l), 
+			 EH = 9.*KH*fabs(GH)/(3.*KH+fabs(GH)), nuH = (3.*KH-2.*fabs(GH))/(3.*KH+fabs(GH))*.5;
+	double TH[21][9] = {
+	{      -3,       0,       0,       0,       0,       0,       0,       0,      -3 },
+	{      -0,      -3,      -0,      -0,      -0,      -3,      -0,      -0,      -0 },
+	{       0,       0,      -9,       0,      -3,       0,      12,       0,       0 },
+	{      -0,      -0,      -0,    -7.5,      -0,      -0,      -0,     7.5,      -0 },
+	{    -7.5,       0,       0,       0,       0,       0,       0,       0,     7.5 },
+	{      -0,   -3.75,      -0,      -0,      -0,   -3.75,      -0,      -0,      -0 },
+	{       0,       0,   -3.75,       0,    3.75,       0,       0,       0,       0 },
+	{      -0,      -0,      -0,      -3,      -0,      -0,      -0,      -3,      -0 },
+	{       0,       0,      -3,       0,      -9,       0,      12,       0,       0 },
+	{       0,      -3,       0,       0,       0,      -3,       0,       0,       0 },
+	{    -7.5,       0,       0,       0,       0,       0,       0,       0,     7.5 },
+	{       0,       0,       0,     7.5,       0,       0,       0,    -7.5,       0 },
+	{       0,       0,   -3.75,       0,    3.75,       0,       0,       0,       0 },
+	{       0,    3.75,       0,       0,       0,    3.75,       0,       0,       0 },
+	{       0,       0,      -3,       0,      -3,       0,       6,       0,       0 },
+	{      -0,      -0,      -0,      12,      -0,      -0,      -0,      12,      -0 },
+	{      12,       0,       0,       0,       0,       0,       0,       0,      12 },
+	{      -0,     7.5,      -0,      -0,      -0,     7.5,      -0,      -0,      -0 },
+	{       0,       0,     7.5,       0,    -7.5,       0,       0,       0,       0 },
+	{      -0,      -0,      -0,      -0,      -0,      -0,      -0,      -0,      -0 },
+	{       0,       0,       0,       0,       0,       0,       0,       0,       0 },
+	};
+
+////////////////////////////////////////////////////
+//...образуем образец из четырех сферических блоков;
+	double rad0 = 1., rad1 = pow(ff/(ff+ff_l), -1./3.), rad2 = pow(ff, -1./3.), AA = 4.*rad2;
+	GetSphBoxStruct2(AA, AA, AA, rad0, rad1-rad0, rad2-rad1);
+
+////////////////////////////////////
+//...устанавливаем параметры задачи;
+	set_mpls(PackInts(3, 3)); //...multipoles degree;
+	set_quad(PackInts(4, 2)); //...quadrature degree;
+	set_normaliz(1.);			  //...normalization coeffitient;
+	set_lagrange(1.);			  //...Lagrange corfficient for LSM;
+	set_geometry(rad1, rad2-rad1);
+	if (size_of_param() > NUM_SHEAR+2+NUM_SHIFT*3) {
+		param[NUM_SHEAR+NUM_SHIFT*3] = GH;
+		param[NUM_SHEAR+1+NUM_SHIFT*3] = nuH;
+		param[NUM_SHEAR+2+NUM_SHIFT*3] = .25/(nuH-1.);
+	}
+
+//////////////////////////////////
+//...определяем блочную структуру;
+	solver.set_blocks(N, 2); //<==== number of saved potentials !!!
+	solver.n += NUM_HESS+6;//<==== number of additional auxilliary arrays!!!
+	for (int k = 0; k < solver.N;  k++)
+		  solver.set_links(k, B[k].link);
+
+	shapes_init(INITIAL_STATE);
+	shapes_init(NULL_STATE);
+	LinkPhase3D(MAX_PHASE);
+
+	for (int k = 0; k < solver.N;  k++)
+	solver.set_dimension(k, freedom_block(k));
+   solver.struct_init();
+
+//////////////////////////////////////////////////////////////
+////...заносим коэффициенты в представление Папковича-Нейбера;
+//	B[0].shape->set_R(1.);
+//	B[0].shape->A[0][0] = -L*4.*G1*(1.-nju1)/(3.-4.*nju1);
+//	B[0].shape->A[0][2] = HM*2.*G1*(1.-nju1)/(1.-2.*nju1);
+//	B[0].shape->A[0][7] = DM*C1/kk1;
+//	B[1].shape->set_R(1.);
+//	B[1].shape->A[0][2] = HD*2.*G2*(1.-nju2)/(1.-2.*nju2);
+//	B[1].shape->A[0][7] = DD*C2/kk2;
+//	B[2].shape->set_R(1.);
+//	B[2].shape->A[0][0] =  L*4.*G1*(1.-nju1)/(3.-4.*nju1);
+//	B[2].shape->A[0][2] = HM*2.*G1*(1.-nju1)/(1.-2.*nju1);
+//	B[2].shape->A[0][7] = DM*C1/kk1;
+
+	return;
+}
+
+////////////////////////////////////////////////////////
+//...трехфазная модель Эщелби для сферических включений;
+void CLame3D::TakeEshelbyModel_two(double ff)
+{
+	double KH = TakeEshelby_volm_two(ff), GH = TakeEshelby_shear_two(ff), 
+			 EH = 9.*KH*fabs(GH)/(3.*KH+fabs(GH)), nuH = (3.*KH-2.*fabs(GH))/(3.*KH+fabs(GH))*.5;
+	double TH[21][9] = {
+	{      -3,       0,       0,       0,       0,       0,       0,       0,      -3 },
+	{      -0,      -3,      -0,      -0,      -0,      -3,      -0,      -0,      -0 },
+	{       0,       0,      -9,       0,      -3,       0,      12,       0,       0 },
+	{      -0,      -0,      -0,    -7.5,      -0,      -0,      -0,     7.5,      -0 },
+	{    -7.5,       0,       0,       0,       0,       0,       0,       0,     7.5 },
+	{      -0,   -3.75,      -0,      -0,      -0,   -3.75,      -0,      -0,      -0 },
+	{       0,       0,   -3.75,       0,    3.75,       0,       0,       0,       0 },
+	{      -0,      -0,      -0,      -3,      -0,      -0,      -0,      -3,      -0 },
+	{       0,       0,      -3,       0,      -9,       0,      12,       0,       0 },
+	{       0,      -3,       0,       0,       0,      -3,       0,       0,       0 },
+	{    -7.5,       0,       0,       0,       0,       0,       0,       0,     7.5 },
+	{       0,       0,       0,     7.5,       0,       0,       0,    -7.5,       0 },
+	{       0,       0,   -3.75,       0,    3.75,       0,       0,       0,       0 },
+	{       0,    3.75,       0,       0,       0,    3.75,       0,       0,       0 },
+	{       0,       0,      -3,       0,      -3,       0,       6,       0,       0 },
+	{      -0,      -0,      -0,      12,      -0,      -0,      -0,      12,      -0 },
+	{      12,       0,       0,       0,       0,       0,       0,       0,      12 },
+	{      -0,     7.5,      -0,      -0,      -0,     7.5,      -0,      -0,      -0 },
+	{       0,       0,     7.5,       0,    -7.5,       0,       0,       0,       0 },
+	{      -0,      -0,      -0,      -0,      -0,      -0,      -0,      -0,      -0 },
+	{       0,       0,       0,       0,       0,       0,       0,       0,       0 },
+	};
+
+/////////////////////////////////////////////////
+//...образуем образец из трех сферических блоков;
+	double rad0 = 1., rad1 = pow(ff, -1./3.), AA = 4.*rad1;
+	GetSphBoxStruct(AA, AA, AA, rad0, rad1-rad0);
+
+////////////////////////////////////
+//...устанавливаем параметры задачи;
+	set_mpls(PackInts(3, 3)); //...multipoles degree;
+	set_quad(PackInts(4, 2)); //...quadrature degree;
+	set_normaliz(1.);			  //...normalization coeffitient;
+	set_lagrange(1.);			  //...Lagrange corfficient for LSM;
+	set_geometry(rad0, rad1-rad0);
+	if (size_of_param() > NUM_SHEAR+2+NUM_SHIFT*2) {
+		param[NUM_SHEAR+NUM_SHIFT*2] = GH;
+		param[NUM_SHEAR+1+NUM_SHIFT*2] = nuH;
+		param[NUM_SHEAR+2+NUM_SHIFT*2] = .25/(nuH-1.);
+	}
+
+//////////////////////////////////
+//...определяем блочную структуру;
+	solver.set_blocks(N, 2); //<==== number of saved potentials !!!
+	solver.n += NUM_HESS+6;//<==== number of additional auxilliary arrays!!!
+	for (int k = 0; k < solver.N;  k++)
+		  solver.set_links(k, B[k].link);
+
+	shapes_init(INITIAL_STATE);
+	shapes_init(NULL_STATE);
+	LinkPhase3D(MAX_PHASE);
+
+	for (int k = 0; k < solver.N;  k++)
+	solver.set_dimension(k, freedom_block(k));
+   solver.struct_init();
+
+//////////////////////////////////////////////////////////////
+////...заносим коэффициенты в представление Папковича-Нейбера;
+//	B[0].shape->set_R(1.);
+//	B[0].shape->A[0][0] = -L*4.*G1*(1.-nju1)/(3.-4.*nju1);
+//	B[0].shape->A[0][2] = HM*2.*G1*(1.-nju1)/(1.-2.*nju1);
+//	B[0].shape->A[0][7] = DM*C1/kk1;
+//	B[1].shape->set_R(1.);
+//	B[1].shape->A[0][2] = HD*2.*G2*(1.-nju2)/(1.-2.*nju2);
+//	B[1].shape->A[0][7] = DD*C2/kk2;
+//	B[2].shape->set_R(1.);
+//	B[2].shape->A[0][0] =  L*4.*G1*(1.-nju1)/(3.-4.*nju1);
+//	B[2].shape->A[0][2] = HM*2.*G1*(1.-nju1)/(1.-2.*nju1);
+//	B[2].shape->A[0][7] = DM*C1/kk1;
+
+	return;
+}
+
+/////////////////////////////////////////////////////
+//... тестовый расчет перемещений с проскальзыванием;
+void CLame3D::testEshelby_slip(double X, double Y, double Z, double nu_I, double nu_M, double EI, double EM, double rad, double& UX, double& UY, double& UZ)
+{
+	double mu_I = EI/(2.*(1.+nu_I)),
+		mu_M = EM/(2.*(1.+nu_M)),
+		C0 = -2.*(1.-2.*nu_I)/(9.*rad*sqr(rad*sqr(rad))),
+		C1 = mu_M/mu_I*(1.-nu_M)/(1.-nu_I)*(1.+4.*nu_I)/(7.-4.*nu_M)*2./9.*(1.-2.*nu_I)*rad*sqr(sqr(rad)),
+		A1 = -2.*(1.-2.*nu_M)/(5.-4.*nu_M)*rad*sqr(rad),
+		B1 = mu_M/mu_I*(1.-nu_M)/(1.-nu_I)*2.*(1.-2.*nu_I)/(5.-4.*nu_M)*rad*sqr(rad),
+		Q1 = (1.-2.*nu_M+(1.+nu_M)*A1/(rad*sqr(rad)))/(6.*C0*B1/rad*(3.5+nu_I)*(1.+nu_M)/(1.-2.*nu_I)-(B1*(1.+nu_M)-12.*(7.-4.*nu_M)*C1/sqr(rad))/(rad*sqr(rad))),
+		Q2 = 6.*C0*sqr(rad)*(3.5+nu_I)/(1.-2.*nu_I),
+		QI = 2.*mu_I*(1.-nu_I),
+		QM = 2.*mu_M*(1.-nu_M),
+		f0_X = 0, f0_Y = 0., f0_Z = Z,
+		fI_X = f0_X*Q1,
+		fI_Y = f0_Y*Q1,
+		fI_Z = f0_Z*Q1,
+		fM_X = fI_X*Q2-fI_X,
+		fM_Y = fI_Y*Q2-fI_Y,
+		fM_Z = fI_Z*Q2-fI_Y;
+
+		UX = 0.;	UY = 0.;	UZ = 0.;
+
+	double R = sqrt(sqr(X)+sqr(Y)+sqr(Z)), div0 = 1., divI = div0*Q1, scal0 = X*f0_X+Y*f0_Y+Z*f0_Z,
+	scalI = X*fI_X+Y*fI_Y+Z*fI_Z, scalM = X*fM_X+Y*fM_Y+Z*fM_Z;
+		
+	if (R < rad) {
+		UX += (1.-2.*nu_I)/QI*(fI_X+fM_X)+C0*sqr(R)/QI*(-3.*(7.-4.*nu_I)*fI_X+6.*nu_I*X*divI)+C0/QI*3.*(7.-10.*nu_I)*X*scalI;
+		UY += (1.-2.*nu_I)/QI*(fI_Y+fM_Y)+C0*sqr(R)/QI*(-3.*(7.-4.*nu_I)*fI_Y+6.*nu_I*Y*divI)+C0/QI*3.*(7.-10.*nu_I)*Y*scalI;
+		UZ += (1.-2.*nu_I)/QI*(fI_Z+fM_Z)+C0*sqr(R)/QI*(-3.*(7.-4.*nu_I)*fI_Z+6.*nu_I*Z*divI)+C0/QI*3.*(7.-10.*nu_I)*Z*scalI;
+	}
+	else {
+		UX += (1.-2.*nu_M)/QM*f0_X+1./(QM*R*sqr(R))*((1.-2.*nu_M)*(A1*f0_X+B1*fM_X)+1.5/sqr(R)*X*(A1*scal0+B1*scalM)+C1*3.*(7.-4.*nu_M)/(2.*QM*sqr(R))*(-2.*fI_X-X*divI+5.*X*scalI/sqr(R)));
+		UY += (1.-2.*nu_M)/QM*f0_Y+1./(QM*R*sqr(R))*((1.-2.*nu_M)*(A1*f0_Y+B1*fM_Y)+1.5/sqr(R)*Y*(A1*scal0+B1*scalM)+C1*3.*(7.-4.*nu_M)/(2.*QM*sqr(R))*(-2.*fI_Y-Y*divI+5.*Y*scalI/sqr(R)));
+		UZ += (1.-2.*nu_M)/QM*f0_Z+1./(QM*R*sqr(R))*((1.-2.*nu_M)*(A1*f0_Z+B1*fM_Z)+1.5/sqr(R)*Z*(A1*scal0+B1*scalM)+C1*3.*(7.-4.*nu_M)/(2.*QM*sqr(R))*(-2.*fI_Z-Z*divI+5.*Z*scalI/sqr(R)));
+	}
+	if (R !=0) UY = (UX*X+UY*Y+UZ*Z)/R;
+	else       UY = UZ;
 }
 #undef  Message
 #undef ___2BODY_ESHELBY___

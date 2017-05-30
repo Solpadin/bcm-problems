@@ -11,11 +11,11 @@
 //...class of blocks partition for double plane problem;
 class CCohes3D : public CLame3D {
 public:
-		Num_Draft type() { return COHES3D_DRAFT;}
 //...constructor;
 		CCohes3D (int num_phase = 7) {
 			NUM_PHASE = num_phase;
 			MAX_PHASE = 2;
+			init();
 		};
 protected:
 		int  block_shape_init(Block<double> & B, Num_State id_free);
@@ -23,15 +23,20 @@ public:
 //...параметры задачи;
 		void set_fasa_hmg(double nju1, double nju2, double G1, double G2, double C1, double C2);
 		void set_adhesion(double AA, double BB) { set_param(NUM_ADHES, AA); set_param(NUM_ADHES+1, BB);}
-//...одномерные аналитические модели с межфазным слоем и адгезией;
+//...одномерна€ градиентна€ модель слоистой среды (с межфазным слоем);
 		double TakeLayer_kk(int N, double * ff, double * kk, double * ll);
-//...аналитические модели;
+//...аналитические модели (самосогласованные);
 		double TakeEshelby_volm_two (double ff);
 		double TakeEshelby_volm_sym (double ff);
+		double TakeEshelby_volm_grad(double ff);
+		double TakeEshelby_volm_rigd(double ff);
 		double TakeEshelby_shear_two(double ff, double eps = EE, int max_iter = 100);
 		double TakeEshelby_shear_sym(double ff, double eps = EE, int max_iter = 100);
+		double TakeEshelby_shear_grd(double ff, double eps = EE, int max_iter = 100);
+		double TakeEshelby_shear_rig(double ff, double eps = EE, int max_iter = 100);
 		double TakeEshelby_shear	 (double ff, double nju1, double nju2, double E1, double E2, double l1, double l2);
 		double TakeEshelby_shear_old(double ff, double nju1, double nju2, double E1, double E2, double l1, double l2);
+//...реализаци€ задачи Ёшелби;
 };
 
 /////////////////////////////////////////////////
@@ -58,9 +63,9 @@ public:
 #undef  DRAFT_nju1                       //...param(9);
 #define DRAFT_alpha1                0.   //...coefficient of Neuber-Papkovich representation in matrix;
 #undef  DRAFT_alpha1                     //...param(10);
-#define DRAFT_kappa_2mu_lm          0.   //...wave number for compression wave in matrix;
-#undef  DRAFT_kappa_2mu_lm               //...param(11);
-#define DRAFT_kappa_mu              0.   //...wave number for shear wave in matrix;
+#define DRAFT_kappa_kk					0.   //...compression scale factor in matrix;
+#undef  DRAFT_kappa_kk						  //...param(11);
+#define DRAFT_kappa_mu              0.   //...shear scale factor in matrix;
 #undef  DRAFT_kappa_mu                   //...param(12);
 #define DRAFT_C2                    0.   //...cohesion parameter in inclusion;
 #undef  DRAFT_C2                         //...param(13);
@@ -70,10 +75,10 @@ public:
 #undef  DRAFT_nju2                       //...param(15);
 #define DRAFT_alpha2                0.   //...coefficient of Neuber-Papkovich representation in inclusion;
 #undef  DRAFT_alpha2                     //...param(16);
-#define DRAFT_kappa_2mu_lm          0.   //...wave number for compression wave in inclusion;
-#undef  DRAFT_kappa_2mu_lm               //...param(17);
-#define DRAFT_kappa_mu              0.   //...wave number for shear wave in inclusion;
-#undef  DRAFT_kappa_mu                   //...param(18);
+#define DRAFT_kappa_kk2					0.   //...compression scale factor in inclusion;
+#undef  DRAFT_kappa_kk2						  //...param(17);
+#define DRAFT_kappa_mu2             0.   //...shear scale factor in inclusion;
+#undef  DRAFT_kappa_mu2                  //...param(18);
 #define DRAFT_lagrange              1.   //...Lagrange coefficient for energy in block functional;
 #undef  DRAFT_lagrange                   //...param(19);
 #endif

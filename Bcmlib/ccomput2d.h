@@ -82,7 +82,7 @@ void CComput2D<T>::comput1(int opt)
 		for (j = min (this->B[k].bar->graph[0], this->B[k].link[0])-1; j >= 0; j--)
 		if (this->B[k].bar->ce[j]->cells_dim() == 1) {
 
-			bnd->zero_grid();
+			bnd->release();
 			this->B[k].bar->ce[j]->grid_cells1(bnd, 0., N_max);
 
 			if ((m = this->B[k].link[j+1]) >= 0 && bnd->geom && (! this->solver.mode(NO_TR) || m == this->solver.p[opt]))
@@ -138,7 +138,7 @@ void CComput2D<T>::comput1(int opt)
 		for (j = min (this->B[k].bar->graph[0], this->B[k].link[0])-1; j >= 0; j--)
 		if (this->B[k].bar->ce[j]->cells_dim() == 1) {
 
-			bnd->zero_grid();
+			bnd->release();
 			this->B[k].bar->ce[j]->grid_cells1(bnd, 0., N_max);
 
 			if ((m = this->B[k].link[j+1]) < 0 && bnd->geom	&&	! this->solver.mode(NO_TR)) 
@@ -264,7 +264,7 @@ void CComput2D<T>::comput2(int opt)
 			for (m = this->NUM_PHASE; m < this->B[k].link[0]; m++) 
 			if (this->B[k].link[j+1] == -this->B[k].link[m+1]+SRF_STATE && (! this->solver.mode(NO_TR) || this->B[k].link[m+1] == this->solver.p[opt])) {
 
-				bnd->zero_grid();
+				bnd->release();
 
 				this->B[k].bar->ce[this->B[k].bar->ce[i]->graph[j+2]]->line_correct();
 				this->B[k].bar->ce[this->B[k].bar->ce[i]->graph[j+2]]->grid_cells1(bnd, 0., N_max);
@@ -330,7 +330,7 @@ void CComput2D<T>::comput2(int opt)
 //...накапливаем граничные точки;
 			for (j = 0; j < this->B[k].bar->ce[i]->graph[1]; j++) 
 			if ((m = this->B[k].link[j+1]) >= 0 && this->B[k].link[this->NUM_PHASE] == this->B[m].link[this->NUM_PHASE] &&	(! this->solver.mode(NO_TR) || m == this->solver.p[opt])) {
-				bnd->zero_grid();
+				bnd->release();
 
 				this->B[k].bar->ce[this->B[k].bar->ce[i]->graph[j+2]]->line_correct();
 				this->B[k].bar->ce[this->B[k].bar->ce[i]->graph[j+2]]->grid_cells1(bnd, 0., N_max);
@@ -394,7 +394,7 @@ void CComput2D<T>::comput2(int opt)
 				for (mm = 1, m = this->NUM_PHASE; mm && this->NUM_PHASE && m < this->B[k].link[0]; m++) 
 				if  (this->B[k].link[j+1] == -this->B[k].link[m+1]+SRF_STATE) mm = 0;
 				if (mm) { 
-					bnd->zero_grid();
+					bnd->release();
 
 					this->B[k].bar->ce[this->B[k].bar->ce[i]->graph[j+2]]->line_correct();
 					this->B[k].bar->ce[this->B[k].bar->ce[i]->graph[j+2]]->grid_cells1(bnd, 0., N_max);
@@ -489,7 +489,7 @@ void CComput2D<T>::comput2(int opt)
 					  pm[3*(j-1)+1] = this->B[k].bar->ce[i]->ce[m1]->mp[2];
 					  pm[3*(j-1)+2] = this->B[k].bar->ce[i]->ce[m1]->mp[3];
 				}
-				gauss_bnd->zero_grid();
+				gauss_bnd->release();
 
 ///////////////////////////////////////////////////////////////////////////////////
 //...определ€ем положение криволинейной границы в блоке и строим квадратуру √аусса;
@@ -570,7 +570,7 @@ void CComput2D<T>::comput2(int opt)
 template <typename T>
 void CComput2D<T>::comput3(int opt)
 {
-	int  N_elem = UnPackInts(this->get_param(this->NUM_QUAD)), N_max = UnPackInts(this->get_param(this->NUM_QUAD), 1), i, j, k, l;
+	int  N_elem = UnPackInts(this->get_param(this->NUM_QUAD)), N_max = UnPackInts(this->get_param(this->NUM_QUAD), 1), id_dir, i, j, k, l;
 	char msg[201];
 
 ////////////////////////////////////////
@@ -580,13 +580,16 @@ void CComput2D<T>::comput3(int opt)
 	CGrid * bound_bnd = CreateNodes();
 			  bound_bnd->add_params(4);
 
+	CGrid * block_phs = CreateNodes();
+			  block_phs->add_params(1);
+
 	CGrid * gauss_bnd = CreateNodes(GRID_QG_NODES);
 			  gauss_bnd->add_params(1);
 
 //////////////////////////////////////////////////////////
 //...initialization of axilliary arrays for discrete norm;
    double pp[5], Po[6], par[6] = {MAX_HIT, MIN_HIT, MAX_HIT, MIN_HIT, MAX_HIT, MIN_HIT};
-	int  m_ilist = max(this->N/5, 1), loop;
+	int  m_ilist = max(this->N/5, 1), loop, m_cell, m;
 
 	LOOP_OPT(loop, opt, k) 
 		for (j = 0; j < this->solver.JR[k][0]; j++)
@@ -603,61 +606,113 @@ void CComput2D<T>::comput3(int opt)
 	if (! this->solver.mode(NO_MESSAGE)) Message("Discrete boundary...");
 
 	LOOP_OPT(loop, opt, k) 
-	if (this->B[k].bar && this->B[k].link && this->B[k].link[this->NUM_PHASE] == -1) {
+	if (this->B[k].bar && this->B[k].link) {
 
 		LOOP_MASK(opt, k);
-		for (i = 0; i < this->B[k].bar->graph[0]; i++) IF_ANY_FACET(this->B[k].bar, i) {
+		for (i = 0; i < this->B[k].bar->graph[0]; i++) IF_ANY_FACET(this->B[k].bar, i) { //...пр€моугольна€ €чейка;
+			for (j = 0; j < this->B[k].bar->ce[i]->graph[1]; j++) {
+
+/////////////////////////////////////////////////////////////////////
+//...определ€ем есть ли св€зь с включением или периодической €чейкой;
+				for (m_cell = BOUNDR_LINK, l = this->NUM_PHASE; l < this->B[k].link[0] && this->NUM_PHASE; l++)
+				if (this->B[k].link[j+1] == -this->B[k].link[l+1]+SRF_STATE && (m = this->B[k].link[l+1]) >= 0) m_cell = INCLUD_LINK;
+				if (m_cell == BOUNDR_LINK && (id_dir = this->block_iddir_2D(this->B[k], i, j, par))) m_cell = PERIOD_LINK;
 
 /////////////////////////////////
 //...накапливаем граничные точки;
-			for (j = 0; j < this->B[k].bar->ce[i]->graph[1]; j++) {//...пр€моугольна€ €чейка;
-				bnd->zero_grid();
+				bnd->release();
 
 				this->B[k].bar->ce[this->B[k].bar->ce[i]->graph[j+2]]->line_correct();
 				this->B[k].bar->ce[this->B[k].bar->ce[i]->graph[j+2]]->grid_cells1(bnd, 0., N_max);
 
-/////////////////////////
-//...интегрируем границу;
-				if  (bnd->geom) 
-				for (l = 0; l < bnd->geom[0]; l++) {
-					int num  = bnd->geom_element(l), num_n = bnd->geom[num+1],
-						num_f = num_n+num;
+///////////////////////////////////
+//...интегрируем границу включени€;
+				if (m_cell == INCLUD_LINK) { //...св€зь с фазами материала;
+					if (bnd->geom)
+					for (l = 0; l < bnd->geom[0]; l++) {
+						int num = bnd->geom_element(l), num_n = bnd->geom[num+1],
+							num_f = num_n+num;
 
-					if (bnd->geom[num] == GL_LINE_STRIP)
-					for (; num < num_f-1; num++) {
-						Po[0] = bnd->X[bnd->geom[num+2]];
-						Po[1] = bnd->Y[bnd->geom[num+2]];
-						Po[2] = 0.;
-						Po[3] = bnd->X[bnd->geom[num+3]];
-						Po[4] = bnd->Y[bnd->geom[num+3]];
-						Po[5] = 0.;
+						if (bnd->geom[num] == GL_LINE_STRIP)
+						for (; num < num_f-1; num++) {
+							Po[0] = bnd->X[bnd->geom[num+2]];
+							Po[1] = bnd->Y[bnd->geom[num+2]];
+							Po[2] = 0.;
+							Po[3] = bnd->X[bnd->geom[num+3]];
+							Po[4] = bnd->Y[bnd->geom[num+3]];
+							Po[5] = 0.;
 
-////////////////////////////////////////////
-//...задаем периодические граничные услови€;
-						pp[0] = par[1]-par[0];
-						pp[1] = par[3]-par[2];
-						pp[2] = this->block_iddir_2D(this->B[k], i, j, par);
-
-						gauss_bnd->facet_QG(Po, N_elem, SPECIAL_STATE);
-						for (int lp = 0; lp < gauss_bnd->N; lp++) {
-							pp[3] = gauss_bnd->get_param(0, lp);
-							bound_bnd->add_new_point(gauss_bnd->X[lp],  gauss_bnd->Y[lp],  gauss_bnd->Z[lp], 
-															 gauss_bnd->nX[lp], gauss_bnd->nY[lp], gauss_bnd->nZ[lp], pp); 
+							gauss_bnd->facet_QG(Po, N_elem, SPECIAL_STATE);
+///////////////////////////////////////////////////////////
+//...коррекци€ квадратуры и ее запись в общий массив точек;
+							if (this->bar && this->bar->graph && this->bar->graph[0] > (m = min(k, m)))
+								gauss_bnd->QG_curve(this->bar->ce[m]->mp);
+							for (int lp = 0; lp < gauss_bnd->N; lp++) {
+								pp[0] = gauss_bnd->get_param(0, lp);
+								block_phs->add_new_point(gauss_bnd->X[lp], gauss_bnd->Y[lp], gauss_bnd->Z[lp],
+									gauss_bnd->nX[lp], gauss_bnd->nY[lp], gauss_bnd->nZ[lp], pp);
+							}
+							gauss_bnd->add_buffer(gauss_bnd->N);
 						}
-						gauss_bnd->add_buffer(gauss_bnd->N);
 					}
+					if ((k % m_ilist) == 0) {
+						sprintf(msg, "block %4i: block_phs->N = %i", k, block_phs->N);
+						if (!this->solver.mode(NO_MESSAGE)) Message(msg);
+					}
+					this->TransferBB(block_phs, k, -this->B[k].link[j+1]+SRF_STATE, 0, PERIOD_COMPUT);
+					if (!this->solver.mode(ACCUMULATION)) block_phs->add_buffer(block_phs->N);
 				}
-				if (! this->solver.mode(REDUCED_MESSAGE) && k%m_ilist == 0) {
-					sprintf(msg, "block %4i: bound_bnd->N = %i", k, bound_bnd->N);
-					if (! this->solver.mode(NO_MESSAGE)) Message(msg);
-				}
-				this->gram2peri(bound_bnd, k, 0);
+				else {
+///////////////////////////////////
+//...интегрируем границу €чейки;
+					if  (bnd->geom) 
+					for (l = 0; l < bnd->geom[0]; l++) {
+						int num  = bnd->geom_element(l), num_n = bnd->geom[num+1],
+							num_f = num_n+num;
 
-				if (! this->solver.mode(ACCUMULATION)) bound_bnd->add_buffer(bound_bnd->N);
+						if (bnd->geom[num] == GL_LINE_STRIP)
+						for (; num < num_f-1; num++) {
+							Po[0] = bnd->X[bnd->geom[num+2]];
+							Po[1] = bnd->Y[bnd->geom[num+2]];
+							Po[2] = 0.;
+							Po[3] = bnd->X[bnd->geom[num+3]];
+							Po[4] = bnd->Y[bnd->geom[num+3]];
+							Po[5] = 0.;
+
+////////////////////////////////////////////////
+//...задаем периодические или граничные услови€;
+							if (m_cell == PERIOD_LINK) { //...периодические граничные услови€;
+								pp[0] = par[1]-par[0];
+								pp[1] = par[3]-par[2];
+								pp[2] = id_dir;
+							}
+							else { //...одноосное раст€жение;
+								pp[0] = pp[1] = pp[2] = 0.;
+								if (fabs(Po[0]-par[0]) < EE_dop && fabs(Po[3]-par[0]) < EE_dop ||
+										fabs(Po[0]-par[1]) < EE_dop && fabs(Po[3]-par[1]) < EE_dop) pp[2] = NUMS_BND;
+							}
+							gauss_bnd->facet_QG(Po, N_elem, SPECIAL_STATE);
+							for (int lp = 0; lp < gauss_bnd->N; lp++) {
+								pp[3] = gauss_bnd->get_param(0, lp);
+								bound_bnd->add_new_point(gauss_bnd->X[lp],  gauss_bnd->Y[lp],  gauss_bnd->Z[lp], 
+																	gauss_bnd->nX[lp], gauss_bnd->nY[lp], gauss_bnd->nZ[lp], pp); 
+							}
+							gauss_bnd->add_buffer(gauss_bnd->N);
+						}
+					}
+					if (! this->solver.mode(REDUCED_MESSAGE) && k%m_ilist == 0) {
+						sprintf(msg, "block %4i: bound_bnd->N = %i", k, bound_bnd->N);
+						if (! this->solver.mode(NO_MESSAGE)) Message(msg);
+					}
+					if (m_cell == PERIOD_LINK) this->gram2peri(bound_bnd, k, 0);
+					else								this->GramAll  (bound_bnd, k, 0, BASIC_COMPUT);
+					if (! this->solver.mode(ACCUMULATION)) bound_bnd->add_buffer(bound_bnd->N);
+				}
 			}
 		}
 	}
-   delete bound_bnd;
+	delete bound_bnd;
+	delete block_phs;
 	delete gauss_bnd;
    delete bnd;
 }
@@ -709,7 +764,7 @@ void CComput2D<T>::comput4(int opt)
 /////////////////////////////////
 //...накапливаем граничные точки;
 			for (j = 0; j < this->B[k].bar->ce[i]->graph[1]; j++) {//...пр€моугольна€ €чейка;
-				bnd->zero_grid();
+				bnd->release();
 
 				this->B[k].bar->ce[this->B[k].bar->ce[i]->graph[j+2]]->line_correct();
 				this->B[k].bar->ce[this->B[k].bar->ce[i]->graph[j+2]]->grid_cells1(bnd, 0., N_max);
@@ -805,7 +860,7 @@ void CComput2D<T>::comput5(int opt, T * K, Num_Value _FMF, int id_variant)
 /////////////////////////////////
 //...накапливаем граничные точки;
 			for (j = 0; j < this->B[k].bar->ce[i]->graph[1]; j++) {
-				bnd->zero_grid();
+				bnd->release();
 
 				this->B[k].bar->ce[this->B[k].bar->ce[i]->graph[j+2]]->line_correct();
 				this->B[k].bar->ce[this->B[k].bar->ce[i]->graph[j+2]]->grid_cells1(bnd, 0., N_max);
@@ -814,7 +869,8 @@ void CComput2D<T>::comput5(int opt, T * K, Num_Value _FMF, int id_variant)
 //...определ€ем внутреннюю границу, внешнюю границу, пр€моугольную €чейку (mm == 0 и id_dir == 0);
 				for (mm = 1, m = this->NUM_PHASE; mm && this->NUM_PHASE && m < this->B[k].link[0]; m++) 
 				if ( this->B[k].link[j+1] == -this->B[k].link[m+1]+SRF_STATE) mm = 0;
-				if (! mm) m = SRF_STATE; else
+				//if (! mm) m = SRF_STATE; else
+				if (! mm) m = SRF_STATE-min(k, -this->B[k].link[j+1]+SRF_STATE); else
 				if ( this->B[k].link[j+1] < 0) this->block_plink_2D(this->B[k], l = i, m = j, id_dir, par);
 
 /////////////////////////
@@ -834,6 +890,10 @@ void CComput2D<T>::comput5(int opt, T * K, Num_Value _FMF, int id_variant)
 						Po[5] = 0.;
 
 						gauss_bnd->facet_QG(Po, N_elem, SPECIAL_STATE);
+///////////////////////////////////////////////////////////
+//...коррекци€ квадратуры и ее запись в общий массив точек;
+						if ((! mm || mm && ! id_dir && (m = this->B[k].link[j+1]) <= SRF_STATE) && this->bar && this->bar->graph && -m+SRF_STATE < this->bar->graph[0])
+							gauss_bnd->QG_curve(this->bar->ce[-m+SRF_STATE]->mp);
 						for (int lp = 0; lp < gauss_bnd->N; lp++) {
 							pp[0] = gauss_bnd->get_param(0, lp);
 							bound_bnd->add_new_point(gauss_bnd->X[lp],  gauss_bnd->Y[lp],  gauss_bnd->Z[lp], 
@@ -842,10 +902,6 @@ void CComput2D<T>::comput5(int opt, T * K, Num_Value _FMF, int id_variant)
 						gauss_bnd->add_buffer(gauss_bnd->N);
 					}
 				}
-//////////////////////////
-//...коррекци€ квадратуры;
-				if ((! mm || mm && ! id_dir && (m = this->B[k].link[j+1]) <= SRF_STATE) && this->bar && this->bar->graph && -m+SRF_STATE < this->bar->graph[0])
-					bound_bnd->QG_curve(this->bar->ce[-m+SRF_STATE]->mp);
 
 //////////////////////////////////
 //...интегрирование границы блока;
@@ -1107,7 +1163,7 @@ Num_State CComput2D<T>::comput_kernel2(Num_Comput Num)
 			for (i = 0; i <= 2*NX; i++) nd->add_new_point_X(.5*i/NX*(par[1]-par[0]));
 			for (j = 0; j <= 2*NY; j++) nd->add_new_point_Y(.5*j/NY*(par[3]-par[2]));
 
-			nd->hit = (int *)new_struct(nd->N*nd->N1*sizeof(int));
+			nd->hit = new_struct<int>(nd->N*nd->N1);
 
 			for (i = 0; i < nd->N;  i++)
 			for (j = 0; j < nd->N1; j++) {

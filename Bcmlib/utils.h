@@ -24,45 +24,55 @@
 const unsigned long ID_VERSION  = 20121108;
 inline int Is_Consistent(unsigned long version) { return version <= ID_VERSION; }
 
-////////////////////////////
-//...creating any structure;
-inline char * new_struct(int size_of_char)
+/////////////////////////////////////////
+//...creating and delening any structure;
+template <typename T>
+inline T * new_struct(int size_of_structure = 1)
 {
-  if (size_of_char <= 0) return(NULL);
-  char * m = new char[size_of_char];
-  memset(m, 0, size_of_char);
+  if (size_of_structure <= 0) return(NULL);
+  T * m = new T[size_of_structure];
+  memset(m, 0, size_of_structure*sizeof(T));
   return m;
 }
-///////////////////////////////////////////
-//...template definitions (min/max, swap and delete_struct);
+//inline char * new_struct(int size_of_char)
+//{
+//  if (size_of_char <= 0) return(NULL);
+//  char * m = new char[size_of_char];
+//  memset(m, 0, size_of_char);
+//  return m;
+//}
+
+template <typename T>
+inline void delete_struct(T *& m) { delete[] m; m = NULL; }
+
+//////////////////////////////////////////
+//...template definitions (min/max, swap);
 template <typename T>
 inline T min(T A, T B) { return A < B ? A : B; }
 template <typename T>
 inline T max(T A, T B) { return A > B ? A : B; }
 template <typename T>
-inline void swap(T & A, T & B) { 
-	T swap_temp = A; 
-	A = B; 
-	B = swap_temp; 
+inline void swap(T & A, T & B) {
+	T swap_temp = A;
+	A = B;
+	B = swap_temp;
 }
-template <typename T>
-inline void delete_struct(T *& m) { delete[] m; m = NULL; }
 
 ///////////////////////////////////////////////////////////
 //...инициализация и обнуление матрицы (рабочие программы);
-template <typename T> 
+template <typename T>
 void set_matrix(T **& m, int dim_N, int dim_M, int dim_buf = 0) {
 	delete_struct(m);
 	if (dim_N > 0 && dim_M > 0 &&
 		(m = (T **)new char [(dim_N+1)*sizeof(T *)+(dim_N*dim_M+dim_buf)*sizeof(T)]) != NULL) {
-		for (int k = 0; k < dim_N; k++) 
-		m[k] = (T *)(m+dim_N+1)+k*dim_M; 
+		for (int k = 0; k < dim_N; k++)
+		m[k] = (T *)(m+dim_N+1)+k*dim_M;
 		m[dim_N] = (T *)(m+dim_N+1)+dim_N*dim_M+dim_buf;
 		memset(m[0], 0, (dim_N*dim_M+dim_buf)*sizeof(T));
 	}
 }
 
-template <typename T> 
+template <typename T>
 void set_matrix3(T ***& m, int dim_N, int dim_M, int dim_L, int dim_buf = 0) {
 	delete_struct(m);
 	if (dim_N > 0 && dim_M > 0 && dim_L > 0 &&
@@ -115,8 +125,8 @@ extern double EE_usl;
 extern double EE_fuz;
 extern double EE_res;
 
-/////////////////////////////////////////////////////////////////
-//...общие блоки для таймирования процесса и для передачи данных;
+/////////////////////////////////////////////////
+//...commmon blocks for timing and data transfer;
 extern clock_t inter_time[MAX_TIME];
 extern int         i_parm[MAX_CMBL];
 extern double      d_parm[MAX_CMBL];
@@ -168,8 +178,8 @@ enum Num_State {
 	   NZ_PZS_STATE,
 };
 
-///////////////////////////////////////////////////////////////////////
-//...фиксирование времени работы процесса и его перевод в 60-ю систему;
+/////////////////////////////////////////////////////////////////
+//...timing process and its converting to the sexagesimal system;
 inline void timing_process(clock_t start, clock_t inter, int * hund, int * sec, int * min, int * hour)
 {
 	if ((hund || sec || min || hour) && inter >= start) {
@@ -195,15 +205,15 @@ inline clock_t timing_process(clock_t start = 0, int * hund = NULL, int * sec  =
 	return(inter);
 }
 
-//////////////////////////////
-//...pаспутывание комментаpия;
+////////////////////////
+//...commentary unravel;
 char user_Filtr(char * FILE, unsigned long & k, unsigned long upper_limit, Num_State id_toupper = OK_STATE);
 int  user_Read (char * buf,  char * FILE, unsigned long & k, unsigned long upper_limit, Num_State id_toupper = OK_STATE);
 int  user_Read (char * buf,  char * FILE, unsigned long & k, unsigned long upper_limit, int m, Num_State id_toupper = OK_STATE);
 int  user_Count(char * FILE, unsigned long k, unsigned long & upper_limit, char punct = '\xFF');
 
-////////////////////////////////////////
-//...чтение с учетом десятичной запятой;
+/////////////////////////////////////////////
+//...reading with decimal pointer accounting;
 inline double user_strtod(char * buf)
 {
 	char * pchar = buf, * pnext;
@@ -215,12 +225,12 @@ inline double user_strtod(char * buf)
 }
 
 /////////////////////////////////////////////
-//...длина строки с учетом нулеого указателя;
+//...string length with null pointer account;
 inline size_t user_strlen(		  char * buf) { return(buf ? strlen(buf) : 0); }
 inline size_t user_strlen(const char * buf) { return strlen(buf); }
 
-////////////////////////////////////////////////////
-//...проверки и считывание данных из входного файла;
+///////////////////////////////////////////////////
+//...checking and reading data from the input file;
 unsigned long length_ascii(		char * cfg_name);
 unsigned long length_ascii(const char * cfg_name);
 char   * read_struct_ascii(		char * cfg_name);
@@ -228,8 +238,8 @@ char   * read_struct_ascii(const char * cfg_name);
 int				exist_ascii(		char * cfg_name);
 int				exist_ascii(const char * cfg_name);
 
-///////////////////////////////////////
-//...упаковка и распаковка целых чисел;
+////////////////////////////////////////////////////
+//...packing and unpacking of the integer numbering;
 inline void pack_ints(int m1, int m2, double & A)
 {
 	union { double A; int m[2]; } temp;
@@ -258,15 +268,15 @@ inline int UnPackInts(double A, int m = 0)
 	return (m ? m2 : m1);
 }
 
-///////////////////////////////////////
-//...преобразования вещественного типа;
+///////////////////////////////////////////
+//...convertation of the real type numbers;
 inline double to_double(const double &a) { return a;}
 inline int to_int (const double &a) { return static_cast<int>(a);}
 inline double real(const double &a) { return a;}
 inline double imag(const double &a) { return 0.0;}
 
-/////////////////////////////
-//...фильтры для малых чисел;
+//////////////////////////////////
+//...filter for the small numbers;
 template <typename T>
 inline T filtr_(T A, double eps = 0.0) { return (fabs(A) < eps ? T(0) : A);}
 template <typename T>
@@ -274,8 +284,8 @@ inline double filtr_Re(T A, double eps = 0.0) { return real(filtr_(A, eps));}
 template <typename T>
 inline double filtr_Im(T A, double eps = 0.0) { return imag(filtr_(A, eps));}
 
-////////////////////////////////////////////////////////////////////////////////////
-//...заполнение кооpдинат и определение расстояния между точками (pабочие пpогpаммы);
+///////////////////////////////////////////////////////////////////////////////////////
+//...setting of the coordinates and defining distance between points (working program);
 inline void   set_point(double * P, double * ext_P, double f = 1.) { P[0] = ext_P[0]*f; P[1] = ext_P[1]*f; P[2] = ext_P[2]*f;}
 inline double abs_point(double * P, double * ext_P) { return sqrt(sqr(P[0]-ext_P[0])+sqr(P[1]-ext_P[1])+sqr(P[2]-ext_P[2]));}
 inline double max_point(double * P, double * ext_P) { return max(fabs(P[0]-ext_P[0]), max(fabs(P[1]-ext_P[1]), fabs(P[2]-ext_P[2])));}
@@ -284,12 +294,12 @@ inline void   sup_point(complex z, double & X1, double & X2, double & Y1, double
   Y1 = min(Y1, imag(z)); Y2 = max(Y2, imag(z));
 }
 
-/////////////////////////////////////////////////////////////////
-//...линейная аппроксимация табличных данных (рабочая программа);
+////////////////////////////////////////////////////////////////
+//...linear approximation of the table data (working procedure);
 double table_approx(double arg, double table[][2], int N_table, int decrease_flag = NULL_STATE);
 
-//////////////////////////////////////////////////////////////////////////////////////
-//...пpоцедуpы целочисленного возведения в степень вещественного и комплексного числа;
+///////////////////////////////////////////////////////////////////////
+//...procedures for the integer power for the real and complex numbers;
 inline double powI(double x, int m)
 {
   double f = 1.;
@@ -304,8 +314,8 @@ inline complex powC(complex x, int m)
   return f;
 }
 
-///////////////////////////////////////////////////////////////
-//...корректное вычисление значения аpгумента: arg0([0, 2*pi));
+//////////////////////////////////////////////////////////
+//...correct calculation of the argument: arg0([0, 2*pi));
 inline double arg0(double y, double x)
 {
 	double fi = 0.;
@@ -318,8 +328,8 @@ inline double arg0(complex z)
 	return(arg0(imag(z), real(z)));
 }
 
-///////////////////////////////////////////////////////////////
-//...корректное вычисление значения аpгумента: arg2([-pi, pi));
+//////////////////////////////////////////////////////////
+//...correct calculation of the argument: arg2([-pi, pi));
 inline double arg2(double y, double x)
 {
 	double fi = 0.;
@@ -332,8 +342,8 @@ inline double arg2(complex z)
 	return (arg2(imag(z), real(z)));
 }
 
-/////////////////////////////////////////////////////////////////////////////
-//...вспомогательные функции для работы с файлом геометрии массива элементов;
+/////////////////////////////////////////////////////////////////
+//...auxilary functione for the working with the set of elements;
   int  geom_pad    (int *& geom, int k, int N_pad);
   void geom_pad1   (int *& geom,        int N_pad, int i, int & m);
   void geom_pad2   (int *& geom,        int N_pad, int i, int & m, int Ng_buf);
@@ -347,8 +357,8 @@ inline double arg2(complex z)
   int  geom_exl    (int *& geom, int k);
   int  graph_insert(int *& graph, int start, int element);
 
-//////////////////////////////////////////////////////
-//...идентификация элементов в топологическом формате;
+//////////////////////////////////////////////////
+//...elemnt indentification in topological format;
 int geom_link_id4 (int m1, int m2, int m3, int m4, int i, int * geom, int id_pos = 2);
 int geom_link_id3 (int m1, int m2, int m3,         int i, int * geom, int id_pos = 2);
 int geom_link_id1 (int m1,                         int i, int * geom, int id_pos = 2);
@@ -361,32 +371,37 @@ int geom_link_id3 (int m1, int m2, int m3,         int k1, int k2);
 int geom_link_id3 (int m1, int m2, int m3,         int k1);
 int geom_link_id2 (int m1, int m2,						int k1);
 
-///////////////////////////////////
-//...алгоритмы определения соседей;
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//...solution of the general system of linear algebraic exuations and matrix inversing by Gauss-Lagrange method;
+int GaussJ(double ** A, double * B, int N, double & det);
+
+///////////////////////////
+//...definition neighbours;
 void ListBlocks3D_utils (int _nelem, double *_xyzrelem, int _nballs, double *_xyzrballs, // Compute the list of blocks to be checked
 								 int *&_ilinks, int *&_jlinks);
 
-////////////////////////////////////////////////////////////////////////////////////////////////
-//...алгоритмы перенумерации симметричной, разреженной матрицы (reverse Cuthill-Mckee ordering);
+////////////////////////////////////////////////////////////////////////////////////////////
+//...renumbering algorithm of the symmetric/ sparse matrixc(reverse Cuthill-Mckee ordering);
 void genrcm_utils(int n, int * xadj, int * iadj, int * perm, int * xls, int * mask);
 void subrcm_utils(int * xadj, int * iadj, int * mask, int nsubg, int * subg, int * perm, int * xls, int n);
-/////////////////////////
-//...описание параметров;
+///////////////////////////
+//...parameter description;
 //   n          - the dimension of the matrix;
-//   xadj, iadj - the matrix structure: xadj[n+1], iadj[*]; information about row i is stored 
+//   xadj, iadj - the matrix structure: xadj[n+1], iadj[*]; information about row i is stored
 //                in xadj[i-1] -- xadj[i]-1 of the the adjacency structure iadj[*];
 //                for each row, it contains the column indices of the nonzero entries;
 //   perm[n]    - contains the rcm ordering;
 //   mask[n]    - marks variables that have been numbered (working array);
-//   xls[n+1]   - the index vector for a level structure; the level structure is stored 
+//   xls[n+1]   - the index vector for a level structure; the level structure is stored
 //                in the currently unused spaces in the permutation vector perm;
 //   nsubg      - the size of the subgraph;
 //   subg[n]    - contains the nodes in subgraph (which may be disconnected);
 /////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////
-//...алгоритм вычисления с.з. и с.ф. общей матрицы QR-методом;
+/////////////////////////////////////////////////////////////////
+//...calculation of eigenvalues and eigenfunctions by QR-методом;
 int HQRfunction(double  ** A, double  * H_re, double  * H_im, int dim_N, int Max_iter = 30);
 int HQRfunction(dd_real ** A, dd_real * H_re, dd_real * H_im, int dim_N, int Max_iter = 30);
 int HQRfunction(qd_real ** A, qd_real * H_re, qd_real * H_im, int dim_N, int Max_iter = 30);
 int HQRfunction(complex ** A, complex * H_re, complex * H_im, int dim_N, int Max_iter = 30);
+
 #endif

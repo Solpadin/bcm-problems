@@ -9,7 +9,7 @@ void CGrid_el::grid_box1D(int N1, int shift, int id_link, double fy, double fz)
   int i, l; double d; 
   delete_struct(geom);
   if (N1 > 0 && bufferization(N = N1+1, NULL_STATE) 
-				 && (geom = (int *)new_struct((N1+4)*sizeof(int))) != NULL) {
+				 && (geom = new_struct<int>(N1+4)) != NULL) {
 /////////////////////////////////////////////////////////////////
 //...filling points -- vertical of homotating boxes and geometry;
       for (Y[0]   = fy, Z[0] = fz, d = 1./N1, geom[l = 0] = 1, i = 0; i < N1; i++) {
@@ -21,7 +21,7 @@ void CGrid_el::grid_box1D(int N1, int shift, int id_link, double fy, double fz)
 		hit[0] = -1; hit[N1] = -2;	if (id_link) hit[0] = hit[N1] = -1;
       buf_count = 0; return;
   }
-  zero_grid();
+  release();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -32,7 +32,7 @@ void CGrid_el::grid_box2D(int N1, int N2, int shift, int id_link, double fz)
   double d, g; 
   delete_struct(geom);
   if (N1 > 0 && N2 > 0 && bufferization(N = (N1+1)*(N2+1), NULL_STATE) 
-				 && (geom = (int *)new_struct((1+2*N2*(N1+2))*sizeof(int))) != NULL) {
+				 && (geom = new_struct<int>(1+2*N2*(N1+2))) != NULL) {
 /////////////////////////////////////////////////////////////////
 //...filling points -- vertical of homotating boxes and geometry;
       for (Z[0]   = fz, d = 1./N1, geom[l = 0] = N2, m = N2*(N1+1), i = 0; i < N1; i++) {
@@ -57,7 +57,7 @@ void CGrid_el::grid_box2D(int N1, int N2, int shift, int id_link, double fz)
       }
       buf_count = 0; return;
   }
-  zero_grid();
+  release();
 }
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -68,7 +68,7 @@ void CGrid_el::grid_box3D(int N1, int N2, int N3, int shift, int id_link)
   double d, g, h;
   delete_struct(geom);
   if (N1 > 0 && N2 > 0 && bufferization(N = (N1+1)*(N2+1)*(N3+1), NULL_STATE)
-				 && (geom = (int *)new_struct((1+2*N2*(N1+2))*sizeof(int))) != NULL) {
+				 && (geom = new_struct<int>(1+2*N2*(N1+2))) != NULL) {
 /////////////////////////////////////////////////////////////////
 //...filling points -- vertical of homotating boxes and geometry;
       for (Z[0]   = 0., d = 1./N1, i = 0; i < N1; i++) {
@@ -98,7 +98,7 @@ void CGrid_el::grid_box3D(int N1, int N2, int N3, int shift, int id_link)
       }
       buf_count = 0; return;
   }
-  zero_grid();
+  release();
 }
 
 /////////////////////////////////////////////////
@@ -108,7 +108,7 @@ void CGrid_el::grid_tria_3D(int & N_elem, double * P, int shift)
   double d, px1, px2, py1, py2, pz1, pz2;
   int    i, j, k, l, m = (int)(sqrt((double)N_elem)-1.);
   if (N_elem > 0 && P && bufferization(N = m*(m+5)/2+3, NULL_STATE) &&
-	  (geom   = (int *)new_struct((1+(m+1)*(m+5))*sizeof(int))) != NULL) {
+	  (geom   = new_struct<int>(1+(m+1)*(m+5))) != NULL) {
       N_elem = (m+1)*(m+1);
 
 /////////////////////////////////////////////////////////
@@ -146,7 +146,7 @@ void CGrid_el::grid_tria_3D(int & N_elem, double * P, int shift)
       }
       buf_count = 0; return;
   }
-  zero_grid();
+  release();
 }
 
 ////////////////////////////////////////////////////////
@@ -219,7 +219,7 @@ int  CGrid_el::grid_sph_2D(int N_elem, CMap * mp)
           buf_count = 0; return(1);
       }
   }
-  zero_grid(); return(0);
+  release(); return(0);
 }
 
 /////////////////////////////////////////////////////
@@ -268,7 +268,7 @@ int  CGrid_el::grid_sph_3D(int N_elem, CMap * mp)
           buf_count = 0; return(1);
       }
   }
-  zero_grid(); return(0);
+  release(); return(0);
 }
 
 ///////////////////////////////////////////////////////
@@ -376,7 +376,7 @@ int  CGrid_el::grid_cyl_3D(int N_elem, CMap * mp, int id_flag)
           buf_count = 0; return(1);
       }
   }
-  zero_grid(); return(0);
+  release(); return(0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -406,7 +406,7 @@ int  CGrid_el::grid_box_3D(int N_elem, CMap * mp, int dir)
              if (P[i-1]*((dir % 2)*2.-1.) < EE_ker) hit[k] = 0;
          }
          else {
-            zero_grid(); return(0);
+            release(); return(0);
          }
          return(1);
       }
@@ -499,7 +499,7 @@ int  CGrid_el::grid_box_3D(int N_elem, CMap * mp, int dir)
           buf_count = 0; return(1);
       }
   }
-  zero_grid(); return(0);
+  release(); return(0);
 }
 
 //////////////////////////////////////////////////////////////////
@@ -547,7 +547,7 @@ int CGrid_el::grid_box_box_2D(int N_elem, CMap * mp, CMap * mp_ext)
       }
   }
 err:
-  zero_grid(); return(0);
+  release(); return(0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -560,13 +560,13 @@ void CGrid_el::grid_box_box_3D(int N_elem, CMap * mp, CMap * mp_ext, int id_flag
       double f, X1, X2, X3, X4, Y1, Y2, Y3, Y4, Z1, Z2, ZZ, P[3], dX, dY, dZ;
 
 //////////////////////////////////////////////////////////////////
-//...®ЇаҐ¤Ґ«пҐ¬ ­ Їа ў«Ґ­ЁҐ а бЇ®«®¦Ґ­Ёп б®бҐ¤­ҐЈ® Їап¬®гЈ®«м­ЁЄ ;
+//...определяем направление расположения соседнего прямоугольника;
       if (fabs(fabs(f = mp[k+4]-mp_ext[l+4])-(mp[k+1]+mp_ext[l+1])) < EE_ker) m = f > 0. ? 0 : 1; else
       if (fabs(fabs(f = mp[k+5]-mp_ext[l+5])-(mp[k+2]+mp_ext[l+2])) < EE_ker) m = f > 0. ? 2 : 3; else
       if (fabs(fabs(f = mp[k+6]-mp_ext[l+6])-(mp[k+3]+mp_ext[l+3])) < EE_ker) m = f > 0. ? 4 : 5; dir = m;
 
 ///////////////////////////////////////////////////////////////////////////////////////
-//...®ЇаҐ¤Ґ«пҐ¬ Ї а ¬Ґвал ­ Їа ў«Ґ­Ёп Ё Є®®а¤Ё­ вл жҐ­ва  Ї®¤­Ё¬ Ґ¬®Ј® Ї а ««Ґ«ҐЇЁЇҐ¤ ;
+//...определяем параметры направления и координаты центра поднимаемого параллелепипеда;
       n  = (i = m/2+1)%3+1; j = n%3+1;
       X1 = mp[k+n+3]-mp[k+n]; X3 = mp_ext[l+n+3]-mp_ext[l+n]; X1 = max(X1, X3);
       X2 = mp[k+n+3]+mp[k+n]; X4 = mp_ext[l+n+3]+mp_ext[l+n]; X2 = min(X2, X4);
@@ -576,7 +576,7 @@ void CGrid_el::grid_box_box_3D(int N_elem, CMap * mp, CMap * mp_ext, int id_flag
       Z2 = mp_ext[l+i+3]; if (Z2 < Z1) swap(Z1, Z2);
 
 //////////////////////////////////////
-//...®ЇаҐ¤Ґ«пҐ¬ зЁб«® в®зҐЄ а §ЎЁҐ­Ёп;
+//...определяем число точек разбиения;
       f  = id_flag ? sqrt(fabs((X2-X1)*(Y2-Y1))/N_elem) :
                      sqrt(8.*(mp[k+1]*mp[k+2]+mp[k+2]*mp[k+3]+mp[k+1]*mp[k+3])/N_elem);
       NX = 1+(int)ceil((dX = X2-X1)/f); dX /= NX;
@@ -596,7 +596,7 @@ void CGrid_el::grid_box_box_3D(int N_elem, CMap * mp, CMap * mp_ext, int id_flag
           }
 
 //////////////////////////////////////////////
-//...§ Ї®«­пҐ¬ Ў®Є®ўЁ­ЄЁ Ї®¤­пв®© Ї®ўҐае­®бвЁ;
+//...заполняем боковинки поднятой поверхности;
           if (! id_flag) {
               for (P[j-1] = Y1,        l = 0; l <= NZ; l++)
               for (P[i-1] = Z1+l*dZ,   m = 0; m <= NX; m++) {
@@ -634,7 +634,7 @@ void CGrid_el::grid_box_box_3D(int N_elem, CMap * mp, CMap * mp_ext, int id_flag
           buf_count = 0; return;
       }
   }
-  zero_grid();
+  release();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -679,7 +679,7 @@ void CGrid_el::grid_sph_sph_2D(int N_elem, CMap * mp, CMap * mp_ext)
            }
       }
   }
-  zero_grid();
+  release();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -741,7 +741,7 @@ void CGrid_el::grid_sph_sph_3D(int N_elem, CMap * mp, CMap * mp_ext)
            }
       }
   }
-  zero_grid();
+  release();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -806,7 +806,7 @@ int CGrid_el::grid_sph_sph_3D_diameter(int N_elem, CMap * mp, CMap * mp_ext, dou
       }
   }
   return(0);
-//zero_grid();
+//release();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -832,9 +832,9 @@ int CGrid_el::grid_quad(complex * w, double *& X, double *& Y, double h1, double
 ///////////////////////////////////////////////////////////////////////
 //...распределяем массивы точек для всего контура и описание геометрии;
 	m1 = f1 == 0. ? N1-1 : 0; m2 = f2 == 0. ? N1-1 : 0; N = N1*N2-m1-m2;
-	X    = (double *)new_struct(N*sizeof(double));
-	Y    = (double *)new_struct(N*sizeof(double));
-	geom = (int *)new_struct((1+2*(N2-1)*(N1+1)-m1-m2)*sizeof(int));
+	X    = new_struct<double>(N);
+	Y    = new_struct<double>(N);
+	geom = new_struct<int>(1+2*(N2-1)*(N1+1)-m1-m2);
 	if (! X || ! Y || ! geom) {
 		delete_struct(X);
 		delete_struct(Y);
@@ -893,9 +893,9 @@ int CGrid_el::grid_knee(complex * w, double *& X, double *& Y, double h1, double
 ///////////////////////////////////////////////////////////////////////
 //...распределяем массивы точек для всего контура и описание геометрии;
 	m1 = r1 == 0. ? N1-1 : 0; m2 = r2 == 0. ? N1-1 : 0; N = N1*N2-m1-m2;
-	X    = (double *)new_struct(N*sizeof(double));
-	Y    = (double *)new_struct(N*sizeof(double));
-	geom = (int *)new_struct((1+2*(N2-1)*(N1+1)-m1-m2)*sizeof(int));
+	X    = new_struct<double>(N);
+	Y    = new_struct<double>(N);
+	geom = new_struct<int>(1+2*(N2-1)*(N1+1)-m1-m2);
 	if (! X || ! Y || ! geom) {
 		delete_struct(X);
 		delete_struct(Y);

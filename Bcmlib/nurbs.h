@@ -9,7 +9,7 @@
 ///////////////////////////////////////////////////////////////
 //...функции, вычисл€ющие сплайновую кривую и поверхность в 2D;
 void nurbs2D(double t, CMap * mp, double * P, int id_map = 0);
-void nurbs2D(double u, double v, CMap * mp, double * P, int id_map = 0);
+//void nurbs2D(double u, double v, CMap * mp, double * P, int id_map = 0);
 
 ///////////////////////////////////////////////////////////////
 //...функции, вычисл€ющие сплайновую кривую и поверхность в 3D;

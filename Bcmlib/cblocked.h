@@ -151,7 +151,7 @@ int CBlockedSolver<T>::solver1(int k)
 //...distribution of a new element and its elimination;
 						if (i >= this->JR[k_elim][0])	{
 							if (i+this->JR_SHIFT >= this->JR[k_elim][this->JR_BUFF]) {
-								int * new_JR = (int *)new_struct((this->JR[k_elim][this->JR_BUFF] += this->N_band)*sizeof(int));
+								int * new_JR = new_struct<int>(this->JR[k_elim][this->JR_BUFF] += this->N_band);
 								memcpy(new_JR, this->JR[k_elim], (this->JR[k_elim][this->JR_BUFF]-this->N_band)*sizeof(int));
 								delete_struct (this->JR[k_elim]); this->JR[k_elim] = new_JR;
 
@@ -286,7 +286,7 @@ int CBlockedSolver<T>::solver2(int k)
 //...distribution of a new element and its elimination;
 						if (i >= this->JR[k_elim][0])	{
 							if (i+this->JR_SHIFT >= this->JR[k_elim][this->JR_BUFF]) {
-								int * new_JR = (int *)new_struct((this->JR[k_elim][this->JR_BUFF] += this->N_band)*sizeof(int));
+								int * new_JR = new_struct<int>(this->JR[k_elim][this->JR_BUFF] += this->N_band);
 								memcpy(new_JR, this->JR[k_elim], (this->JR[k_elim][this->JR_BUFF]-this->N_band)*sizeof(int));
 								delete_struct (this->JR[k_elim]); this->JR[k_elim] = new_JR;
 

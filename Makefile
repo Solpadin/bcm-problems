@@ -1,5 +1,5 @@
 
-MPIRUN := mpirun -np 4
+MPIRUN := mpirun -np 1
 
 mpirun:
 	make -C bcm-start mpirun="$(MPIRUN)" mpirun

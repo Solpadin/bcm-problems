@@ -394,7 +394,7 @@ void nurbs2D(double t, double * t_a, double * p, int N_t, int q, int dim, double
 //...функци€, вычисл€юща€ сплайновую кривую в 2D;
 void nurbs2D(double t, CMap * mp, double * P, int id_map)
 {
-	if (mp   && ID_MAP(1, NURBS_GENUS)  == mp[0] &&
+	if (mp  && ID_MAP(1, NURBS_GENUS)  == mp[0] &&
 		mp[size_of_map(1, NURBS_GENUS)] == (CMap)B1SPLINE_CELL && P) {
 		int m1 = (int)(mp[8]-mp[9]), m2 = (int)mp[9], m3 = (int)mp[7]/2;
 		if (! id_map) nurbs2D(t, mp+11, mp+m1+m2+13, m1+m2, m1, m3, P); 
@@ -1361,7 +1361,7 @@ int Trassa_read(char * ch_TRASSA, CMap ** trassa, int MAX_TRASSA, int * max_tras
 		if (max_trassa) max_trassa[0] = k; max_common += 1;
 		for (int j = 0; j < k; j++) {
 			res = fread(& m, sizeof(int), 1, device);
-			trassa[j] = (CMap *)new_struct(m*sizeof(CMap));
+			trassa[j] = new_struct<CMap>(m);
 			res = fread(trassa[j], sizeof(CMap), m, device);
 			max_common += m+1;
 		}
@@ -1392,7 +1392,7 @@ void Trassa_link(char * ch_TRASSA, char * ch_TRASSA_OUT, CMap ** mp_trassa, int 
 	CCells * trassa = new CCells(k); trassa->graph[0] = k;
 	for (k = 0; k < trassa->graph[0]; k++) {
 		  trassa->ce[k] = new CCells;
-		  trassa->ce[k]->cells_new(0, 2);
+		  trassa->ce[k]->init(0, 2);
 		  trassa->ce[k]->mp = mp_trassa[k];
 		  trassa->ce[k]->ce = trassa->ce;
 		  trassa->ce[k]->graph[0] = trassa->graph[0];
@@ -1538,7 +1538,7 @@ void Trassa_link(char * ch_TRASSA, char * ch_TRASSA_OUT, CMap ** mp_trassa, int 
 		}
 		fclose(device);
 	}
-	trassa->zero_cells(); delete trassa;
+	trassa->release(); delete trassa;
 	return;
 }
 
@@ -1553,7 +1553,7 @@ void Trassa_link_skel(char * ch_TRASSA, char * ch_TRASSA_OUT, CMap ** mp_trassa,
 	CCells * trassa = new CCells(k); trassa->graph[0] = k;
 	for (k = 0; k < trassa->graph[0]; k++) {
 		  trassa->ce[k] = new CCells;
-		  trassa->ce[k]->cells_new(0, 2);
+		  trassa->ce[k]->init(0, 2);
 		  trassa->ce[k]->mp = mp_trassa[k];
 		  trassa->ce[k]->ce = trassa->ce;
 		  trassa->ce[k]->graph[0] = trassa->graph[0];
@@ -1621,7 +1621,7 @@ void Trassa_link_skel(char * ch_TRASSA, char * ch_TRASSA_OUT, CMap ** mp_trassa,
 		}
 		fclose(device);
 	}
-	trassa->zero_cells(); delete trassa;
+	trassa->release(); delete trassa;
 	return;
 }
 
@@ -1637,12 +1637,12 @@ CCells * Trassa_read(char * ch_TRASSA)
 		for (k = 0; k < trassa->graph[0]; k++) {
 			res = fread(& m, sizeof(int), 1, device);
 			trassa->ce[k] = new CCells;
-			trassa->ce[k]->cells_new(0, m);
+			trassa->ce[k]->init(0, m);
 			trassa->ce[k]->ce = trassa->ce;
 			res = fread(trassa->ce[k]->graph, sizeof(Topo), m, device);
 
 			res = fread(& m, sizeof(int), 1, device);
-			trassa->ce[k]->mp = (CMap *)new_struct(m*sizeof(CMap));
+			trassa->ce[k]->mp = new_struct<CMap>(m);
 			res = fread(trassa->ce[k]->mp, sizeof(CMap), m, device);
 		}
 		fclose (device);

@@ -706,7 +706,7 @@ DLLFUNC void * CreateBARSGOSTContext(int N_sm)
 {
 	if (N_sm < 0 || N_sm >= NUM_BARS_GOST_SAMPLES) N_sm = 0;
 
-	Context * cont = (Context *)new_struct(sizeof(Context));
+	Context * cont = new_struct<Context>();
 	if (! cont) return(NULL);
 
 	cont->N           = N_sm+SHIFT_BARS_GOST_SAMPLES;
@@ -792,7 +792,7 @@ DLLFUNC void * CreateBARSContext(int N_sm)
 {
   if (N_sm < 0 || N_sm >= NUM_BARS_SAMPLES) N_sm = 0;
 
-  Context * cont = (Context *)new_struct(sizeof(Context));
+  Context * cont = new_struct<Context>();
   if (! cont) return(NULL);
 
   cont->N           = N_sm+SHIFT_BARS_SAMPLES;
@@ -1607,7 +1607,7 @@ int bars2D_init(void * context, CGrid * block_nd)
 							for (j = 0; j < N_param; j++, k += (int)user_strlen(PARSEPARATOR))
 								k += (int)user_strlen((char *)(unsigned short)GetTableParam(cont, i+1, j));
 
-							char * CHAIN = (char *)new_struct((k+1)*sizeof(char));
+							char * CHAIN = new_struct<char>(k+1);
 							for (i = 0; i < N_group; i++, user_strcat(CHAIN, STRSEPARATOR))
 							for (j = 0; j < N_param; j++, user_strcat(CHAIN, PARSEPARATOR)) 
 								user_strcat(CHAIN, (char *)(unsigned short)GetTableParam(cont, i+1, j));

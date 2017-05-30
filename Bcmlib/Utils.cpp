@@ -109,7 +109,7 @@ char * read_struct_ascii(char * cfg_name)
 {
 	unsigned long length = length_ascii(cfg_name);
 	char *         ascii = NULL;
-	if (length && (ascii = (char *)new_struct((length+1)*sizeof(char))) != NULL) {
+	if (length && (ascii = new_struct<char>(length+1)) != NULL) {
 		FILE * device = fopen(cfg_name, "rb");
 		read_struct_ascii(device, ascii, length);
 	}
@@ -119,7 +119,7 @@ char * read_struct_ascii(const char * cfg_name)
 {
 	unsigned long length = length_ascii(cfg_name);
 	char *         ascii = NULL;
-	if (length && (ascii = (char *)new_struct((length+1)*sizeof(char))) != NULL) {
+	if (length && (ascii = new_struct<char>(length+1)) != NULL) {
 		FILE * device = fopen(cfg_name, "rb");
 		read_struct_ascii(device, ascii, length);
 	}
@@ -173,7 +173,7 @@ int geom_pad(int *& geom, int k, int N_pad)
 		for (i = 1, l = 0; l < k-1;     l++) i += geom[++i]+1;
 		for (m = i;        l < geom[0]; l++) m += geom[++m]+1;
 
-      int * new_geom = (int *)new_struct((m+N_pad)*sizeof(int));
+      int * new_geom = new_struct<int>(m+N_pad);
       if (! new_geom) return(0);
 
       memcpy(new_geom,           geom,       (i+2)*sizeof(int));
@@ -189,7 +189,7 @@ int geom_pad(int *& geom, int k, int N_pad)
 //...увеличение размера описании геометрии массива элементов по имеющимс€ данным о расположении раздела;
 void geom_pad1(int *& geom, int N_pad, int i, int & m)
 {
-	int * new_geom = (int *)new_struct((m+N_pad)*sizeof(int));
+	int * new_geom = new_struct<int>(m+N_pad);
 	if (! new_geom) return;
 
 	memmove(new_geom,           geom,       (i+2)*sizeof(int));
@@ -220,7 +220,7 @@ int geom_unpad(int *& geom, int k, int N_pad)
       for (i = 1, l = 0; l < k-1;     l++) i += geom[++i]+1;
       for (m = i;        l < geom[0]; l++) m += geom[++m]+1; if (N_pad > geom[i+1]) return(0);
 
-      int * new_geom = (int *)new_struct((m -= N_pad)*sizeof(int));
+      int * new_geom = new_struct<int>(m -= N_pad);
       if (! new_geom) return(0);
 
       memcpy(new_geom,     geom,             (i+2)*sizeof(int));
@@ -250,7 +250,7 @@ int geom_insert(int *& geom, int k, int new_element, int start)
 		if (j == start) {
          for (m = i; l < geom[0]; l++) m += geom[++m]+1;
 
-         int * new_geom = (int *)new_struct((m+1)*sizeof(int));
+         int * new_geom = new_struct<int>(m+1);
          if (! new_geom) return(0);
 
          memcpy(new_geom,           geom,           (i+1+start)*sizeof(int));
@@ -276,7 +276,7 @@ void geom_insert1(int *& geom, int new_element, int start, int i, int & m)
 /////////////////////////////////////////
 //...вставл€ем элемент в начало геометрии;
 	if (j == start) {
-      int * new_geom = (int *)new_struct((m+1)*sizeof(int));
+      int * new_geom = new_struct<int>(m+1);
       if (! new_geom) return;
 
       memmove(new_geom,           geom,           (i+1+start)*sizeof(int));
@@ -340,7 +340,7 @@ int geom_add(int *& geom, int k, int type, int N)
       for (m = i;        l < geom[0]; l++) 
            m += geom[++m]+1;
 
-      int * new_geom = (int *)new_struct((m+2+N)*sizeof(int));
+      int * new_geom = new_struct<int>(m+2+N);
       if (! new_geom) return(0);
 
       memcpy(new_geom,       geom,       i*sizeof(int));
@@ -358,7 +358,7 @@ int geom_add(int *& geom, int k, int type, int N)
 //...добавление нового раздела в геометрию по имеющимс€ данным о расположении раздела;
 void geom_add1(int *& geom, int type, int N, int i, int & m)
 {
-	int * new_geom = (int *)new_struct((m+2+N)*sizeof(int));
+	int * new_geom = new_struct<int>(m+2+N);
 	if (! new_geom) return;
 
 	memmove(new_geom,       geom,       i*sizeof(int));
@@ -394,7 +394,7 @@ int geom_exl(int *& geom, int k)
       for (i = 1, l = 0; l < k-1;     l++) i += geom[++i]+1;
       for (m = i;        l < geom[0]; l++) m += geom[++m]+1;
 
-      int * new_geom = (int *)new_struct((m -= 2+geom[i+1])*sizeof(int));
+      int * new_geom = new_struct<int>(m -= 2+geom[i+1]);
       if (! new_geom) return(0);
 
       memcpy(new_geom,   geom,                   i*sizeof(int));
@@ -411,7 +411,7 @@ int geom_exl(int *& geom, int k)
 int graph_insert(int *& graph, int start, int element)
 {
 	if (graph &&  graph[1] > 0 && start <= graph[1]+1 && start > 0) {
-      int * new_graph =   (int *)new_struct((graph[1]+3)*sizeof(int));
+      int * new_graph =   new_struct<int>(graph[1]+3);
       if (! new_graph) return(0);
 
       memcpy (new_graph,         graph,         (start+1)*sizeof(int));
@@ -580,6 +580,71 @@ int geom_link_id2(int m1, int m2, int k1)
 	int  l, mm[] = {m1, m2};
 	for (l = 2; l > 0; l--) if (mm[l-1] == k1) break; if (! l) return(0);
 	return(1);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+//...pешение общей системы линейных уpавнений и обpащение матpицы методом √аусса-∆оpдана;
+int GaussJ(double ** A, double * B, int N, double & det)
+{
+  double f; det = 1.;
+  int    i, k, l, k0, l0,
+         * ii = new_struct<int>(N+1), 
+			* kk = new_struct<int>(N+1), 
+			* ll = new_struct<int>(N+1);
+  if (! ii || ! kk || ! ll || ! A) goto err;
+
+//////////////////////
+//...обpащаем матpицу;
+  for (i = 1; i <= N; i++) {
+       f = 0.;
+////////////////////////////////////////////////
+//...ищем местоположение максимального элемента;
+       for (k = 1; k <= N; k++)
+        if (ii[k] != 1) for (l = 1; l <= N; l++) {
+            if (ii[l] == 0) {
+                if (fabs(A[k-1][l-1]) >= f) {
+                    f = fabs(A[k-1][l-1]); k0 = k; l0 = l;
+                }
+            }
+            else if (ii[l] > 1) {
+                     goto err;
+            }
+        } ++(ii[l0]);
+
+///////////////////////////////////////////////////////////////////////////
+//...мен€ем местами строчки, чтобы максимальный элемент попал на диагональ;
+       if (k0 != l0) {
+           for (l = 1; l <= N; l++) swap(A[k0-1][l-1], A[l0-1][l-1]);
+           if  (B) swap(B[k0-1], B[l0-1]); det = -det;
+       }
+
+////////////////////////////////////////////////////////////////////////////////
+//...запоминаем местоположение максимального элемента и ноpмиpуем им всю стpоку;
+       kk[i] = k0; ll[i] = l0;
+       if (A[l0-1][l0-1] == 0.) {
+           goto err;
+       }
+       f = 1./A[l0-1][l0-1]; det *= A[l0-1][l0-1]; A[l0-1][l0-1] = 1.;
+       for (l = 1; l <= N; l++) A[l0-1][l-1] *= f; if (B) B[l0-1] *= f;
+
+/////////////////////////////////////////////////////////////////////////////////
+//...ноpмиpуем все оставшиес€ стpочки, использу€ стpоку с максимальным элементом;
+       for (k = 1; k <= N; k++) if (k != l0) {
+            f = A[k-1][l0-1]; A[k-1][l0-1] = 0.;
+            for (l = 1; l <= N; l++) A[k-1][l-1] -= A[l0-1][l-1]*f; if (B) B[k-1] -= B[l0-1]*f;
+       }
+  }
+
+////////////////////////////////////////////
+//...pасставл€ем столбцы обpащенной матpицы;
+  for (l = N; l >= 1; l--) if (kk[l] != ll[l])
+  for (k = 1; k <= N; k++) swap(A[k-1][kk[l]-1], A[k-1][ll[l]-1]);
+
+///////////////////////////////////////////////
+//...освобождаем пам€ть и выходим из пpогpаммы;
+  delete_struct(ll); delete_struct(kk); delete_struct(ii); return(1);
+err:
+  delete_struct(ll); delete_struct(kk); delete_struct(ii); return(0);
 }
 
 /*=====================================================================*/
@@ -1358,4 +1423,5 @@ int HQRfunction(complex ** A, complex * H_re, complex * H_im, int dim_N, int Max
   if (! A || ! H_re || ! H_im) return(0);
   return(1);
 }
+
 

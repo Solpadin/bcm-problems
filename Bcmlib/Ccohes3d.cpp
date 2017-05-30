@@ -1,6 +1,6 @@
 #include "stdafx.h"
 
-#include "shapes.h"
+#include "cshapes.h"
 #include "ccohes3d.h"
 
 #define  Message(Msg)   { printf("%s", Msg);  printf("\n");}
@@ -31,9 +31,9 @@ int CCohes3D::block_shape_init(Block<double> & B, Num_State id_free)
 
 ////////////////////////
 //...setting parameters;
-      B.shape->init1(UnPackInts(get_param(0)), solver.id_norm, 3);
+      B.shape->degree_init1(UnPackInts(get_param(0)), solver.id_norm, 3);
 		if (B.link[NUM_PHASE] == -2) //...another degree of multipoles for inclusion!!!
-		B.shape->init1(UnPackInts(get_param(0), 1), solver.id_norm, 3);
+		B.shape->degree_init1(UnPackInts(get_param(0), 1), solver.id_norm, 3);
 
 //////////////////////////////////////////////////////////////////////////////
 //...setting acselerator, local system of coordinate and init parametrization;
@@ -78,8 +78,8 @@ void CCohes3D::set_fasa_hmg(double nju1, double nju2, double G1, double G2, doub
 	}
 }
 
-////////////////////////////////////////////////////////////////////////
-//...вычисление эффективных характеристик в градиентной слоистой модели;
+//////////////////////////////////////////////////////////////////////////////////
+//...вычисление эффективных характеристик в одномерной градиентной слоистой среде;
 double CCohes3D::TakeLayer_kk(int N, double * ff, double * kk, double * ll)
 {
 	double ** matr = NULL; set_matrix(matr, 4*N, 4*N+1);
@@ -108,7 +108,7 @@ double CCohes3D::TakeLayer_kk(int N, double * ff, double * kk, double * ll)
 ///////////////////////////////////////
 //...решаем систему линейных уравнений;
 	double sum = 0.;
-	int dim_N = 4*N, * ii, i, k, l, k0, l0; ii = (int *)new_struct(4*N*sizeof(int));
+	int dim_N = 4*N, * ii, i, k, l, k0, l0; ii = new_struct<int>(4*N);
 	for (i = 0; i < dim_N; i++) {
 		double f = 0.;
 ///////////////////////////////////////
@@ -152,30 +152,30 @@ err:
 ////////////////////////////////////////////////////////////////////
 //...трехфазная модель для сферического включения (прямой алгоритм);
 double CCohes3D::TakeEshelby_volm_two(double c0)
-                                {
+{
 	real_T mu_I = real_T(get_param(NUM_SHEAR+NUM_SHIFT)), nu_I = real_T(get_param(NUM_SHEAR+1+NUM_SHIFT)),
 			 mu_M = real_T(get_param(NUM_SHEAR)), nu_M = real_T(get_param(NUM_SHEAR+1)),
 			 C_I = real_T(get_param(NUM_SHEAR-1+NUM_SHIFT)), ff = real_T(c0), 
 			 C_M = real_T(get_param(NUM_SHEAR-1)), AA = real_T(get_param(NUM_ADHES)),
-			 K_I = 2.*mu_I*(1.+nu_I)/(3.-6.*nu_I), K_M = 2.*mu_M*(1.+nu_M)/(3.-6.*nu_M);	if (C_I == 0. || C_M == 0.) { //...классическая трехфазная модель;
+			 K_I = 2.*mu_I*(1.+nu_I)/(3.-6.*nu_I), K_M = 2.*mu_M*(1.+nu_M)/(3.-6.*nu_M);	if (/*C_I == 0. || */C_M == 0.) { //...классическая трехфазная модель;
 		return to_double(K_M+ff*(K_I-K_M)/(1.+(1.-ff)*(K_I-K_M)/(K_M+4./3.*mu_M)));
 	}
 	real_T ku_I = (1.-nu_I)/(.5-nu_I)*mu_I,
 			 ku_M = (1.-nu_M)/(.5-nu_M)*mu_M, RR2 = 1./pow(ff, 1./real_T(3.)), 
-			 kk_I = sqrt(C_I/ku_I), tt_I = exp(-2.*kk_I),
-			 kk_M = sqrt(C_M/ku_M), tt_D = exp(kk_M*(RR2-1.)),
+			 kk_I = ku_I != 0. ? sqrt(C_I/ku_I) : 0., tt_I = exp(-2.*kk_I),
+			 kk_M = sqrt(C_M/ku_M), tt_M = exp(-2.*kk_M), tt_D = exp(-2.*kk_M*RR2),
 			 HH1  = ((1.+tt_I)*kk_I-(1.-tt_I))*.5, 
 			 HH2  = ((1.-tt_I)*(sqr(kk_I)+3.)-3.*(1.+tt_I)*kk_I)*.5,
-			 JJP1 =  (kk_M-1.), JJP2 = ((sqr(kk_M)+3.)-3.*kk_M), JHP1 =  (kk_M*RR2-1.)*ff*tt_D, 
-			 JJM1 = -(kk_M+1.), JJM2 = ((sqr(kk_M)+3.)+3.*kk_M), JHM1 = -(kk_M*RR2+1.)*ff/tt_D,
+			 JJP1 = ((1.+tt_M)*kk_M-(1.-tt_M))*.5, JJP2 = ((1.-tt_M)*(sqr(kk_M)+3.)-3.*(1.+tt_M)*kk_M)*.5, JHP1 = ((1.+tt_D)*kk_M-(1.-tt_D))*.5, 
+			 JJM1 = ((1.-tt_M)*kk_M-(1.+tt_M))*.5, JJM2 = ((1.+tt_M)*(sqr(kk_M)+3.)-3.*(1.-tt_M)*kk_M)*.5, JHM1 = ((1.-tt_D)*kk_M-(1.+tt_D))*.5,
 			 matr[7][8] = {
 					{ 1., -HH1, -1., -1., JJP1, JJM1, 0., 0.},
 					{ 0., -HH2,  0.,  3., JJP2, JJM2, 0., 0.},
 					{ AA, -ku_I*HH1-AA*(HH2+HH1), 0.,0., ku_M*JJP1, ku_M*JJM1, 0., 0.},
 //...новый вариант: антисимметричный, симметрия по второму и третьему индексам;
-					{ K_I, (mu_I+2.*ku_I)/3.*HH1, -K_M, 4.*mu_M/3., -(mu_M+2.*ku_M)/3.*JJP1, -(mu_M+2.*ku_M)/3.*JJM1, 0., 0.},
+					//{ K_I, (mu_I+2.*ku_I)/3.*HH1, -K_M, 4.*mu_M/3., -(mu_M+2.*ku_M)/3.*JJP1, -(mu_M+2.*ku_M)/3.*JJM1, 0., 0.},
 //...прежний вариант: симметрия по первым двум индексам;
-					//{ K_I, (4.*mu_I+ku_I)/3.*HH1, -K_M, 4.*mu_M/3., -(4.*mu_M+ku_M)/3.*JJP1, -(4.*mu_M+ku_M)/3.*JJM1, 0., 0.},
+					{ K_I, (4.*mu_I+ku_I)/3.*HH1, -K_M, 4.*mu_M/3., -(4.*mu_M+ku_M)/3.*JJP1, -(4.*mu_M+ku_M)/3.*JJM1, 0., 0.},
 					{ 0., 0., 0., 0., JHP1, JHM1,  0., 0.},
 					{ 0., 0., K_M, -4.*mu_M/3.*ff, 0., 0., -1., 0.}, //...эффективный модуль с коэффициентом один;
 					{ 0., 0., 1., ff, 0., 0., 0., 1.},					 //...перемещения дают единицу в правую часть;
@@ -217,7 +217,6 @@ double CCohes3D::TakeEshelby_volm_two(double c0)
 	}
 	return to_double(matr[6][7]);
 }
-
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 //...трехфазная (симметричная или некорректная дилатансия) модель для сферического включения;
@@ -289,6 +288,128 @@ double CCohes3D::TakeEshelby_volm_sym(double ff)
 			}
 	}
 	return(matr[6][7]);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//...трехфазная модель для сферического включения (прямой алгоритм) в случае контакта с классическим включением;
+double CCohes3D::TakeEshelby_volm_grad(double c0)
+{
+	real_T mu_I = real_T(get_param(NUM_SHEAR+NUM_SHIFT)), nu_I = real_T(get_param(NUM_SHEAR+1+NUM_SHIFT)),
+			 mu_M = real_T(get_param(NUM_SHEAR)), nu_M = real_T(get_param(NUM_SHEAR+1)),
+			 C_M = real_T(get_param(NUM_SHEAR-1)), ff = real_T(c0), 
+			 K_I = 2.*mu_I*(1.+nu_I)/(3.-6.*nu_I), K_M = 2.*mu_M*(1.+nu_M)/(3.-6.*nu_M);	if (C_M == 0.) { //...классическая трехфазная модель;
+		return to_double(K_M+ff*(K_I-K_M)/(1.+(1.-ff)*(K_I-K_M)/(K_M+4./3.*mu_M)));
+	}
+	real_T ku_M = (1.-nu_M)/(.5-nu_M)*mu_M, RR2 = 1./pow(ff, 1./real_T(3.)), 
+			 kk_M = sqrt(C_M/ku_M), tt_M = exp(-2.*kk_M), tt_D = exp(-2.*kk_M*RR2),
+			 JJP1 = ((1.+tt_M)*kk_M-(1.-tt_M))*.5, JJP2 = ((1.-tt_M)*(sqr(kk_M)+3.)-3.*(1.+tt_M)*kk_M)*.5, JHP1 = ((1.+tt_D)*kk_M-(1.-tt_D))*.5, 
+			 JJM1 = ((1.-tt_M)*kk_M-(1.+tt_M))*.5, JJM2 = ((1.+tt_M)*(sqr(kk_M)+3.)-3.*(1.-tt_M)*kk_M)*.5, JHM1 = ((1.-tt_D)*kk_M-(1.+tt_D))*.5,
+			 matr[6][7] = {
+					{ 1., -1., -1.,  JJP1,  JJM1, 0., 0.},
+					{ 1.,  0., -3., -JJP2, -JJM2, 0., 0.},
+//...новый вариант: антисимметричный, симметрия по второму и третьему индексам;
+					//{ K_I, -K_M, 4.*mu_M/3., -(mu_M+2.*ku_M)/3.*JJP1, -(mu_M+2.*ku_M)/3.*JJM1, 0., 0.},
+//...прежний вариант: симметрия по первым двум индексам;
+					{ K_I, -K_M, 4.*mu_M/3., -(4.*mu_M+ku_M)/3.*JJP1, -(4.*mu_M+ku_M)/3.*JJM1, 0., 0.},
+					{ 0., 0., 0., JHP1, JHM1,  0., 0.},
+					{ 0., K_M, -4.*mu_M/3.*ff, 0., 0., -1., 0.}, //...эффективный модуль с коэффициентом один;
+					{ 0., 1., ff, 0., 0., 0., 1.},					//...перемещения дают единицу в правую часть;
+	};
+
+//////////////////////////////////////////////////////////////////
+//...решаем систему линейных уравнений A0, C0, A1, B1, C1, D1, KH;
+	int dim_N = 6, ii[6] = {0, 0, 0, 0, 0, 0}, i, k, l, k0, l0;
+	for (i = 0; i < dim_N; i++) {
+		real_T f = 0.;
+///////////////////////////////////////
+//...look for position maximal element;
+		for (k = 0; k < dim_N; k++)
+			if (ii[k] != 1) 
+				for (l = 0; l < dim_N; l++) 
+					if (! ii[l]) {
+						if (fabs(matr[k][l]) >= f) f = fabs(matr[k0 = k][l0 = l]); 
+					}
+					else if (ii[l] > 1) return(0.);
+		++(ii[l0]);
+///////////////////////////////////////////////////////////
+//...swapping row for diagonal position of maximal element;
+		if (k0 != l0) 
+			for (l = 0; l <= dim_N; l++) {
+				f = matr[k0][l]; matr[k0][l] = matr[l0][l]; matr[l0][l] = f; 
+			}
+		if (matr[l0][l0] == 0.) return(0.);
+////////////////////////////////
+//...diagonal row normalization;
+		real_T finv = 1./matr[l0][l0]; matr[l0][l0] = 1.;
+		for (l = 0; l <= dim_N; l++) matr[l0][l] *= finv;
+/////////////////////////////////
+//...elimination all outher rows; 
+		for (k = 0; k < dim_N; k++)
+			if ( k != l0) {
+				finv = matr[k][l0]; matr[k][l0] = 0.;
+				for (l = 0; l <= dim_N; l++) matr[k][l] -= matr[l0][l]*finv;
+			}
+	}
+	return to_double(matr[5][6]);
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//...трехфазная модель для сферического включения (прямой алгоритм) в случае контакта с абсолютно жестким включением;
+double CCohes3D::TakeEshelby_volm_rigd(double c0)
+{
+	real_T mu_M = real_T(get_param(NUM_SHEAR)), nu_M = real_T(get_param(NUM_SHEAR+1)),
+			 C_M = real_T(get_param(NUM_SHEAR-1)), ff = real_T(c0), 
+			 K_M = 2.*mu_M*(1.+nu_M)/(3.-6.*nu_M);	if (C_M == 0.) { //...классическая трехфазная модель;
+		return to_double(K_M+ff/(1.-ff)*(K_M+4./3.*mu_M));
+	}
+	real_T ku_M = (1.-nu_M)/(.5-nu_M)*mu_M, RR2 = 1./pow(ff, 1./real_T(3.)), 
+			 kk_M = sqrt(C_M/ku_M), tt_M = exp(-2.*kk_M), tt_D = exp(-2.*kk_M*RR2),
+			 JJP1 = ((1.+tt_M)*kk_M-(1.-tt_M))*.5, JJP2 = ((1.-tt_M)*(sqr(kk_M)+3.)-3.*(1.+tt_M)*kk_M)*.5, JHP1 = ((1.+tt_D)*kk_M-(1.-tt_D))*.5, 
+			 JJM1 = ((1.-tt_M)*kk_M-(1.+tt_M))*.5, JJM2 = ((1.+tt_M)*(sqr(kk_M)+3.)-3.*(1.-tt_M)*kk_M)*.5, JHM1 = ((1.-tt_D)*kk_M-(1.+tt_D))*.5,
+			 matr[5][6] = {
+					{-1., -1.,  JJP1,  JJM1, 0., 0.},
+					{ 0., -3., -JJP2, -JJM2, 0., 0.},
+					{ 0., 0., JHP1, JHM1,  0., 0.},
+					{ K_M, -4.*mu_M/3.*ff, 0., 0., -1., 0.}, //...эффективный модуль с коэффициентом один;
+					{ 1., ff, 0., 0., 0., 1.},					  //...перемещения дают единицу в правую часть;
+	};
+
+//////////////////////////////////////////////////////////////////
+//...решаем систему линейных уравнений A0, C0, A1, B1, C1, D1, KH;
+	int dim_N = 5, ii[5] = {0, 0, 0, 0, 0}, i, k, l, k0, l0;
+	for (i = 0; i < dim_N; i++) {
+		real_T f = 0.;
+///////////////////////////////////////
+//...look for position maximal element;
+		for (k = 0; k < dim_N; k++)
+			if (ii[k] != 1) 
+				for (l = 0; l < dim_N; l++) 
+					if (! ii[l]) {
+						if (fabs(matr[k][l]) >= f) f = fabs(matr[k0 = k][l0 = l]); 
+					}
+					else if (ii[l] > 1) return(0.);
+		++(ii[l0]);
+///////////////////////////////////////////////////////////
+//...swapping row for diagonal position of maximal element;
+		if (k0 != l0) 
+			for (l = 0; l <= dim_N; l++) {
+				f = matr[k0][l]; matr[k0][l] = matr[l0][l]; matr[l0][l] = f; 
+			}
+		if (matr[l0][l0] == 0.) return(0.);
+////////////////////////////////
+//...diagonal row normalization;
+		real_T finv = 1./matr[l0][l0]; matr[l0][l0] = 1.;
+		for (l = 0; l <= dim_N; l++) matr[l0][l] *= finv;
+/////////////////////////////////
+//...elimination all outher rows; 
+		for (k = 0; k < dim_N; k++)
+			if ( k != l0) {
+				finv = matr[k][l0]; matr[k][l0] = 0.;
+				for (l = 0; l <= dim_N; l++) matr[k][l] -= matr[l0][l]*finv;
+			}
+	}
+	return to_double(matr[4][5]);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -429,22 +550,22 @@ double CCohes3D::TakeEshelby_shear_two(double c0, double eps, int max_iter)
 	int k_iter = 0, k = 0, l;
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 //...дописываем когезионную часть в матрице (A0, D0, A*0, D*0, A1, B1, C1, D1, A*1, B*1, C*1, D*1, C2, B2);
-	real_T C_I = get_param(NUM_SHEAR-1+NUM_SHIFT), kk_I = sqrt(C_I/ku_I), tt_I = exp(-2.*kk_I), 
-			 C_M = get_param(NUM_SHEAR-1), kk_M = sqrt(C_M/ku_M), tt_D = exp(kk_M*(RR2-1.)), 
+	real_T C_I = get_param(NUM_SHEAR-1+NUM_SHIFT), kk_I = ku_I != 0. ? sqrt(C_I/ku_I) : 0., tt_I = exp(-2.*kk_I), 
+			 C_M = get_param(NUM_SHEAR-1), kk_M = sqrt(C_M/ku_M), tt_M = exp(-2.*kk_M), tt_D = exp(-2.*kk_M*RR2), 
 			 HH1  = ((1.+tt_I)*kk_I-(1.-tt_I))*.5, 
 			 HH2  = ((1.-tt_I)*(sqr(kk_I)+3.)-3.*(1.+tt_I)*kk_I)*.5,
-			 JJP1 =  (kk_M-1.), JJP2 = ((sqr(kk_M)+3.)-3.*kk_M), 
-			 JJM1 = -(kk_M+1.), JJM2 = ((sqr(kk_M)+3.)+3.*kk_M), 
-			 JHP1 =  (kk_M*RR2-1.)*ff*tt_D, JHP2 = ((sqr(kk_M*RR2)+3.)-3.*kk_M*RR2)*fR5*tt_D, 
-			 JHM1 = -(kk_M*RR2+1.)*ff/tt_D, JHM2 = ((sqr(kk_M*RR2)+3.)+3.*kk_M*RR2)*fR5/tt_D,
+			 JJP1 = ((1.+tt_M)*kk_M-(1.-tt_M))*.5, JJP2 = ((1.-tt_M)*(sqr(kk_M)+3.)-3.*(1.+tt_M)*kk_M)*.5, 
+			 JJM1 = ((1.-tt_M)*kk_M-(1.+tt_M))*.5, JJM2 = ((1.+tt_M)*(sqr(kk_M)+3.)-3.*(1.-tt_M)*kk_M)*.5, 
+			 JHP1 = ((1.+tt_D)*kk_M-(1.-tt_D))*.5, JHP2 = ((1.-tt_D)*(sqr(kk_M)+3.)-3.*(1.+tt_D)*kk_M)*.5, 
+			 JHM1 = ((1.-tt_D)*kk_M-(1.+tt_D))*.5, JHM2 = ((1.+tt_D)*(sqr(kk_M)+3.)-3.*(1.-tt_D)*kk_M)*.5,
 			 kp_I = sqrt(C_I/mu_I), tp_I = exp(-2.*kp_I), 
-			 kp_M = sqrt(C_M/mu_M), tp_D = exp(kp_M*(RR2-1.)),
+			 kp_M = sqrt(C_M/mu_M), tp_M = exp(-2.*kp_M), tp_D = exp(-2.*kp_M*RR2), tn_D = exp(	(kp_M-kk_M)*(RR2-1.)),
 			 HP1  = ((1.+tp_I)*kp_I-(1.-tp_I))*.5, 
 			 HP2  = ((1.-tp_I)*(sqr(kp_I)+3.)-3.*(1.+tp_I)*kp_I)*.5,
-			 JPP1 =  (kp_M-1.), JPP2 = ((sqr(kp_M)+3.)-3.*kp_M), 
-			 JPM1 = -(kp_M+1.), JPM2 = ((sqr(kp_M)+3.)+3.*kp_M), 
-			 JDP1 =  (kp_M*RR2-1.)*ff*tp_D, JDP2 = ((sqr(kp_M*RR2)+3.)-3.*kp_M*RR2)*fR5*tt_D, 
-			 JDM1 = -(kp_M*RR2+1.)*ff/tp_D, JDM2 = ((sqr(kp_M*RR2)+3.)+3.*kp_M*RR2)*fR5/tt_D;
+			 JPP1 = ((1.+tp_M)*kp_M-(1.-tp_M))*.5, JPP2 = ((1.-tp_M)*(sqr(kp_M)+3.)-3.*(1.+tp_M)*kp_M)*.5, 
+			 JPM1 = ((1.-tp_M)*kp_M-(1.+tp_M))*.5, JPM2 = ((1.+tp_M)*(sqr(kp_M)+3.)-3.*(1.-tp_M)*kp_M)*.5, 
+			 JDP1 = ((1.+tp_D)*kp_M-(1.-tp_D))*tn_D*.5, JDP2 = ((1.-tp_D)*(sqr(kp_M)+3.)-3.*(1.+tp_D)*kp_M)*tn_D*.5, 
+			 JDM1 = ((1.-tp_D)*kp_M-(1.+tp_D))*tn_D*.5, JDM2 = ((1.+tp_D)*(sqr(kp_M)+3.)-3.*(1.-tp_D)*kp_M)*tn_D*.5;
 ////////////////////////////////////////////
 //...заполняем строки когезионной матрицы;
 	matr[0][2] = -3.*HP2/C_I; 	//...сшивка функций;
@@ -758,6 +879,350 @@ double CCohes3D::TakeEshelby_shear_sym(double ff, double eps, int max_iter)
 
 	if (sgn0*sgn1 > 0. || fabs(optim) > 1e-6 ) mu_HM = -mu_HM;
 	return(mu_HM*mu_M);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+//...алгоритмическое решение системы уравнений Эшелби с повышенной точностью для классического включения;
+real_T take_system_grad(real_T matrix[12][13], real_T mu_HM, real_T nu_H)
+{
+	int dim_N = 12, ii[12] = {0,0,0,0,0,0,0,0,0,0,0,0}, i, k, l, k0, l0;
+//////////////////////////////////////////
+//...заполняем систему линейных уравнений;	
+	matrix[ 9][11] *= 2.*(1.-2.*nu_H)/(5.-4.*nu_H);
+	matrix[10][10] *= mu_HM;
+	matrix[10][11] *= mu_HM*2.*(5.-nu_H)/(5.-4.*nu_H);
+	matrix[10][12] *= mu_HM;
+	matrix[11][10] *= mu_HM;
+	matrix[11][11] *= mu_HM*2.*(1.+nu_H)/(5.-4.*nu_H);
+	matrix[11][12] *= mu_HM;
+///////////////////////////////////////
+//...решаем систему линейных уравнений;
+	for (i = 0; i < dim_N; i++) {
+		real_T f = 0.;
+///////////////////////////////////////
+//...look for position maximal element;
+		for (k = 0; k < dim_N; k++)
+			if (ii[k] != 1) 
+				for (l = 0; l < dim_N; l++) 
+					if (! ii[l]) {
+						if (fabs(matrix[k][l]) >= f) f = fabs(matrix[k0 = k][l0 = l]); 
+					}
+					else if (ii[l] > 1) return(0.);
+		++(ii[l0]);
+///////////////////////////////////////////////////////////
+//...swapping row for diagonal position of maximal element;
+		if (k0 != l0) 
+			for (l = 0; l <= dim_N; l++) {
+				f = matrix[k0][l]; matrix[k0][l] = matrix[l0][l]; matrix[l0][l] = f; 
+			}
+		if (matrix[l0][l0] == 0.) return(0.);
+////////////////////////////////
+//...diagonal row normalization;
+		real_T finv = 1./matrix[l0][l0]; matrix[l0][l0] = 1.;
+		for (l = 0; l <= dim_N; l++) matrix[l0][l] *= finv;
+/////////////////////////////////
+//...elimination all outher rows;
+		for (k = 0; k < dim_N; k++)
+			if ( k != l0) {
+				finv = matrix[k][l0]; matrix[k][l0] = 0.;
+				for (l = 0; l <= dim_N; l++) matrix[k][l] -= matrix[l0][l]*finv;
+			}
+	}
+	return(matrix[11][12]);
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+//...трехфазная модель для сферического включения (итерационный алгоритм) для классического включения;
+double CCohes3D::TakeEshelby_shear_grd(double c0, double eps, int max_iter)
+{
+	real_T mu_I = real_T(get_param(NUM_SHEAR+NUM_SHIFT)), nu_I = real_T(get_param(NUM_SHEAR+1+NUM_SHIFT)),
+			 mu_M = real_T(get_param(NUM_SHEAR)), nu_M = real_T(get_param(NUM_SHEAR+1)),
+			 K1 = 2.*mu_I*(1.+nu_I)/(3.-6.*nu_I), K3 = 2.*mu_M*(1.+nu_M)/(3.-6.*nu_M), ff = real_T(c0),
+			 KH = K3+ff*(K1-K3)/(1.+(1.-ff)*(K1-K3)/(K3+4./3.*mu_M)),
+			 RR2 = 1./pow(ff, 1./real_T(3.)), fR2 = RR2*RR2, fR5 = ff/fR2, 
+			 ku_M = (1.-nu_M)/(.5-nu_M)*mu_M,
+			 QI1 = 3.*nu_I/(7.-4.*nu_I),
+			 QM1 = 3.*nu_M/(7.-4.*nu_M), 
+			 QI2 = (7.+2.*nu_I)/(7.-4.*nu_I),
+			 QM2 = (7.+2.*nu_M)/(7.-4.*nu_M), 
+			 QM3 = 2.*(1.-2.*nu_M)/(5.-4.*nu_M), 
+			 QM4 = 2.*(5.-nu_M)/(5.-4.*nu_M),
+			 QM5 = 2.*(1.+nu_M)/(5.-4.*nu_M), optim, sgn0, sgn1, nu_H, mu_HM, mu_HM0, mu_HM1, matrix[12][13],
+			 matr[12][13] = {
+					{ 1., -2.*QI1, -1., -1., -3., 2.*QM1, 0., 0., 0., 0., 0., 0., 0.},
+					{ 1., -1.,	   -1., -QM3, 2., 1., 0., 0., 0., 0., 0., 0., 0.},
+					{ 0., 0., -1., 2., 12., 6.*QM1, 0., 0., 0., 0., 0., 0., 0.},
+					{ 0., 0., -1., 2.*QM3, -8., 3., 0., 0., 0., 0., 0., 0., 0.},
+					{ 2.*mu_I,  2.*mu_I*QI1, -2.*mu_M,  2.*mu_M*QM4,  24.*mu_M, -2.*mu_M*QM1, 0., 0., 0., 0., 0., 0., 0.},
+					{ 2.*mu_I, -2.*mu_I*QI2, -2.*mu_M, -2.*mu_M*QM5, -16.*mu_M,  2.*mu_M*QM2, 0., 0., 0., 0., 0., 0., 0.},
+					{ 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.},
+					{ 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.},
+					{ 0., 0., 1.,      ff,   3.*fR5, -2.*QM1*fR2, 0., 0., 0., 0., -3., -1., 1.}, //...нормировку по радиусу в последних коэффициентах можно убрать!!!
+					{ 0., 0., 1.,  QM3*ff,  -2.*fR5,        -fR2, 0., 0., 0., 0.,  2., -1., 1.},
+					{ 0., 0., 1., -QM4*ff, -12.*fR5,     QM1*fR2, 0., 0., 0., 0., 12.,  1., 1.},
+					{ 0., 0., 1.,  QM5*ff,   8.*fR5,    -QM2*fR2, 0., 0., 0., 0., -8., -1., 1.},
+	};
+	int k_iter = 0, k = 0, l;
+/////////////////////////////////////////////////////////////////////////////////////////////////
+//...дописываем когезионную часть в матрице (A0, D0, A1, B1, C1, D1, A*1, B*1, C*1, D*1, C2, B2);
+	real_T C_M = get_param(NUM_SHEAR-1), kk_M = sqrt(C_M/ku_M), tt_M = exp(-2.*kk_M), tt_D = exp(-2.*kk_M*RR2), 
+			 JJP1 = ((1.+tt_M)*kk_M-(1.-tt_M))*.5, JJP2 = ((1.-tt_M)*(sqr(kk_M)+3.)-3.*(1.+tt_M)*kk_M)*.5, 
+			 JJM1 = ((1.-tt_M)*kk_M-(1.+tt_M))*.5, JJM2 = ((1.+tt_M)*(sqr(kk_M)+3.)-3.*(1.-tt_M)*kk_M)*.5, 
+			 JHP1 = ((1.+tt_D)*kk_M-(1.-tt_D))*.5, JHP2 = ((1.-tt_D)*(sqr(kk_M)+3.)-3.*(1.+tt_D)*kk_M)*.5, 
+			 JHM1 = ((1.-tt_D)*kk_M-(1.+tt_D))*.5, JHM2 = ((1.+tt_D)*(sqr(kk_M)+3.)-3.*(1.-tt_D)*kk_M)*.5,
+			 kp_M = sqrt(C_M/mu_M), tp_M = exp(-2.*kp_M), tp_D = exp(-2.*kp_M*RR2), tn_D = exp(	(kp_M-kk_M)*(RR2-1.)),
+			 JPP1 = ((1.+tp_M)*kp_M-(1.-tp_M))*.5, JPP2 = ((1.-tp_M)*(sqr(kp_M)+3.)-3.*(1.+tp_M)*kp_M)*.5, 
+			 JPM1 = ((1.-tp_M)*kp_M-(1.+tp_M))*.5, JPM2 = ((1.+tp_M)*(sqr(kp_M)+3.)-3.*(1.-tp_M)*kp_M)*.5, 
+			 JDP1 = ((1.+tp_D)*kp_M-(1.-tp_D))*tn_D*.5, JDP2 = ((1.-tp_D)*(sqr(kp_M)+3.)-3.*(1.+tp_D)*kp_M)*tn_D*.5, 
+			 JDM1 = ((1.-tp_D)*kp_M-(1.+tp_D))*tn_D*.5, JDM2 = ((1.+tp_D)*(sqr(kp_M)+3.)-3.*(1.-tp_D)*kp_M)*tn_D*.5;
+////////////////////////////////////////////
+//...заполняем строки когезионной матрицы;
+	matr[0][6] = 3.*JPP2/C_M; 
+	matr[0][7] = 3.*JPM2/C_M; 
+	matr[0][8] = JJP1/ku_M-3.*JJP2/C_M; 
+	matr[0][9] = JJM1/ku_M-3.*JJM2/C_M;
+
+	matr[1][6] = JPP1/mu_M-2.*JPP2/C_M; 
+	matr[1][7] = JPM1/mu_M-2.*JPM2/C_M; 
+	matr[1][8] = 2.*JJP2/C_M; 
+	matr[1][9] = 2.*JJM2/C_M;
+
+	//...сшивка нормальных производных;
+	matr[2][6] = 3.*(JPP1/mu_M-4.*JPP2/C_M); 
+	matr[2][7] = 3.*(JPM1/mu_M-4.*JPM2/C_M); 
+	matr[2][8] = (JJP2-2.*JJP1)/ku_M+12.*JJP2/C_M; 
+	matr[2][9] = (JJM2-2.*JJM1)/ku_M+12.*JJM2/C_M;
+
+	matr[3][6] = (JPP2-JPP1)/mu_M+8.*JPP2/C_M; 
+	matr[3][7] = (JPM2-JPM1)/mu_M+8.*JPM2/C_M; 
+	matr[3][8] = 2.*(JJP1/ku_M-4.*JJP2/C_M); 
+	matr[3][9] = 2.*(JJM1/ku_M-4.*JJM2/C_M);
+
+	//...новый вариант: антисимметричный, симметрия по второму и третьему индексам;
+	matr[4][6] =  9.*((ku_M-mu_M)*JPP1/(6.*mu_M)-ku_M*JPP2/C_M); 
+	matr[4][7] =  9.*((ku_M-mu_M)*JPM1/(6.*mu_M)-ku_M*JPM2/C_M); 
+	matr[4][8] = -(mu_M+2.*ku_M)*JJP1/ku_M+9.*ku_M*JJP2/C_M; 
+	matr[4][9] = -(mu_M+2.*ku_M)*JJM1/ku_M+9.*ku_M*JJM2/C_M;
+
+	matr[5][6] = -(5.*mu_M-ku_M)*JPP1/(2.*mu_M)+2.*(4.*mu_M-ku_M)*JPP2/C_M; 
+	matr[5][7] = -(5.*mu_M-ku_M)*JPM1/(2.*mu_M)+2.*(4.*mu_M-ku_M)*JPM2/C_M; 
+	matr[5][8] = -((ku_M-mu_M)*JJP1/ku_M+2.*(4.*mu_M-ku_M)*JJP2/C_M); 
+	matr[5][9] = -((ku_M-mu_M)*JJM1/ku_M+2.*(4.*mu_M-ku_M)*JJM2/C_M);
+
+	//...прежний вариант: симметрия по первым двум индексам;
+	//matr[4][6] =  3.*(JPP1-(6.*mu_M+ku_M)*JPP2/C_M); 
+	//matr[4][7] =  3.*(JPM1-(6.*mu_M+ku_M)*JPM2/C_M); 
+	//matr[4][8] = -(4.*mu_M+ku_M)*JJP1/ku_M+3.*(6.*mu_M+ku_M)*JJP2/C_M; 
+	//matr[4][9] = -(4.*mu_M+ku_M)*JJM1/ku_M+3.*(6.*mu_M+ku_M)*JJM2/C_M;
+
+	//matr[5][6] = -4.*JPP1+2.*(10.*mu_M-3.*ku_M)*JPP2/C_M; 
+	//matr[5][7] = -4.*JPM1+2.*(10.*mu_M-3.*ku_M)*JPM2/C_M; 
+	//matr[5][8] = -2.*((ku_M-2.*mu_M)*JJP1/ku_M+(10.*mu_M-3.*ku_M)*JJP2/C_M); 
+	//matr[5][9] = -2.*((ku_M-2.*mu_M)*JJM1/ku_M+(10.*mu_M-3.*ku_M)*JJM2/C_M);
+
+	//...равенство нулю когезионного поля;
+	matr[6][6] = 3.*JDP2/C_M; 
+	matr[6][7] = 3.*JDM2/C_M; 
+	matr[6][8] = JHP1/ku_M-3.*JHP2/C_M; 
+	matr[6][9] = JHM1/ku_M-3.*JHM2/C_M;
+
+	matr[7][6] = JDP1/mu_M-2.*JDP2/C_M; 
+	matr[7][7] = JDM1/mu_M-2.*JDM2/C_M; 
+	matr[7][8] = 2.*JHP2/C_M; 
+	matr[7][9] = 2.*JHM2/C_M;
+
+/////////////////////////////////////////////
+//...цикл по определению сдвиговой жесткости;
+	mu_HM0 = 0.;
+	nu_H = (1.5*KH-mu_HM0*mu_M)/(3.*KH+mu_HM0*mu_M);
+	for (k = 0; k < 12; k++)
+	for (l = 0; l < 13; l++) matrix[k][l] = matr[k][l];
+	optim = take_system_grad(matrix, mu_HM0, nu_H);
+	if (optim > 0.) sgn0 = 1.; else sgn0 = -1.;
+
+	mu_HM1 = 1.5*KH/mu_M;
+	do { 
+		mu_HM1 *= 10.; k_iter++; 
+		nu_H = (1.5*KH-mu_HM1*mu_M)/(3.*KH+mu_HM1*mu_M);
+		for (k = 0; k < 12; k++)
+		for (l = 0; l < 13; l++) matrix[k][l] = matr[k][l];
+		optim = take_system_grad(matrix, mu_HM1, nu_H);
+	}
+	while(optim*sgn0 > 0. && k_iter < max_iter); k_iter = 0;
+
+	if (optim > 0.) sgn1 = 1.; else sgn1 = -1.;
+	do {
+		mu_HM = (mu_HM0+mu_HM1)*.5; k_iter++;
+		nu_H  = (1.5*KH-mu_HM*mu_M)/(3.*KH+mu_HM*mu_M);
+		for (k = 0; k < 12; k++)
+		for (l = 0; l < 13; l++)	matrix[k][l] = matr[k][l];
+		optim = take_system_grad(matrix, mu_HM, nu_H);
+		if (optim*sgn0 > 0.) mu_HM0 = mu_HM; else
+		if (optim*sgn0 < 0.) mu_HM1 = mu_HM; else mu_HM0 = mu_HM1 = mu_HM;
+	}
+	while(fabs(mu_HM1-mu_HM0) > eps && k_iter < max_iter);
+	mu_HM = (mu_HM0+mu_HM1)*.5; 
+
+	if (sgn0*sgn1 > 0. || fabs(optim) > 1e-6 ) mu_HM = -mu_HM;
+	return to_double(mu_HM*mu_M);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+//...алгоритмическое решение системы уравнений Эшелби с повышенной точностью для классического включения;
+real_T take_system_rigid(real_T matrix[10][11], real_T mu_HM, real_T nu_H)
+{
+	int dim_N = 10, ii[10] = {0,0,0,0,0,0,0,0,0,0}, i, k, l, k0, l0;
+//////////////////////////////////////////
+//...заполняем систему линейных уравнений;	
+	matrix[7][ 9] *= 2.*(1.-2.*nu_H)/(5.-4.*nu_H);
+	matrix[8][ 8] *= mu_HM;
+	matrix[8][ 9] *= mu_HM*2.*(5.-nu_H)/(5.-4.*nu_H);
+	matrix[8][10] *= mu_HM;
+	matrix[9][ 8] *= mu_HM;
+	matrix[9][ 9] *= mu_HM*2.*(1.+nu_H)/(5.-4.*nu_H);
+	matrix[9][10] *= mu_HM;
+///////////////////////////////////////
+//...решаем систему линейных уравнений;
+	for (i = 0; i < dim_N; i++) {
+		real_T f = 0.;
+///////////////////////////////////////
+//...look for position maximal element;
+		for (k = 0; k < dim_N; k++)
+			if (ii[k] != 1) 
+				for (l = 0; l < dim_N; l++) 
+					if (! ii[l]) {
+						if (fabs(matrix[k][l]) >= f) f = fabs(matrix[k0 = k][l0 = l]); 
+					}
+					else if (ii[l] > 1) return(0.);
+		++(ii[l0]);
+///////////////////////////////////////////////////////////
+//...swapping row for diagonal position of maximal element;
+		if (k0 != l0) 
+			for (l = 0; l <= dim_N; l++) {
+				f = matrix[k0][l]; matrix[k0][l] = matrix[l0][l]; matrix[l0][l] = f; 
+			}
+		if (matrix[l0][l0] == 0.) return(0.);
+////////////////////////////////
+//...diagonal row normalization;
+		real_T finv = 1./matrix[l0][l0]; matrix[l0][l0] = 1.;
+		for (l = 0; l <= dim_N; l++) matrix[l0][l] *= finv;
+/////////////////////////////////
+//...elimination all outher rows;
+		for (k = 0; k < dim_N; k++)
+			if ( k != l0) {
+				finv = matrix[k][l0]; matrix[k][l0] = 0.;
+				for (l = 0; l <= dim_N; l++) matrix[k][l] -= matrix[l0][l]*finv;
+			}
+	}
+	return(matrix[9][10]);
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+//...трехфазная модель для сферического включения (итерационный алгоритм) для классического включения;
+double CCohes3D::TakeEshelby_shear_rig(double c0, double eps, int max_iter)
+{
+	real_T mu_M = real_T(get_param(NUM_SHEAR)), nu_M = real_T(get_param(NUM_SHEAR+1)),
+			 K3 = 2.*mu_M*(1.+nu_M)/(3.-6.*nu_M), ff = real_T(c0), KH = K3+ff/(1.-ff)*(K3+4./3.*mu_M),
+			 RR2 = 1./pow(ff, 1./real_T(3.)), fR2 = RR2*RR2, fR5 = ff/fR2, 
+			 ku_M = (1.-nu_M)/(.5-nu_M)*mu_M,
+			 QM1 = 3.*nu_M/(7.-4.*nu_M), 
+			 QM2 = (7.+2.*nu_M)/(7.-4.*nu_M), 
+			 QM3 = 2.*(1.-2.*nu_M)/(5.-4.*nu_M), 
+			 QM4 = 2.*(5.-nu_M)/(5.-4.*nu_M),
+			 QM5 = 2.*(1.+nu_M)/(5.-4.*nu_M), optim, sgn0, sgn1, nu_H, mu_HM, mu_HM0, mu_HM1, matrix[10][11],
+			 matr[10][11] = {
+					{-1., -1., -3., 2.*QM1, 0., 0., 0., 0., 0., 0., 0.},
+					{-1., -QM3, 2., 1., 0., 0., 0., 0., 0., 0., 0.},
+					{-1., 2., 12., 6.*QM1, 0., 0., 0., 0., 0., 0., 0.},
+					{-1., 2.*QM3, -8., 3., 0., 0., 0., 0., 0., 0., 0.},
+					{ 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.},
+					{ 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.},
+					{ 1.,      ff,   3.*fR5, -2.*QM1*fR2, 0., 0., 0., 0., -3., -1., 1.}, //...нормировку по радиусу в последних коэффициентах можно убрать!!!
+					{ 1.,  QM3*ff,  -2.*fR5,        -fR2, 0., 0., 0., 0.,  2., -1., 1.},
+					{ 1., -QM4*ff, -12.*fR5,     QM1*fR2, 0., 0., 0., 0., 12.,  1., 1.},
+					{ 1.,  QM5*ff,   8.*fR5,    -QM2*fR2, 0., 0., 0., 0., -8., -1., 1.},
+	};
+	int k_iter = 0, k = 0, l;
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+//...дописываем когезионную часть в матрице (A0, D0, A*0, D*0, A1, B1, C1, D1, A*1, B*1, C*1, D*1, C2, B2);
+	real_T C_M = get_param(NUM_SHEAR-1), kk_M = sqrt(C_M/ku_M), tt_M = exp(-2.*kk_M), tt_D = exp(-2.*kk_M*RR2), 
+			 JJP1 = ((1.+tt_M)*kk_M-(1.-tt_M))*.5, JJP2 = ((1.-tt_M)*(sqr(kk_M)+3.)-3.*(1.+tt_M)*kk_M)*.5, 
+			 JJM1 = ((1.-tt_M)*kk_M-(1.+tt_M))*.5, JJM2 = ((1.+tt_M)*(sqr(kk_M)+3.)-3.*(1.-tt_M)*kk_M)*.5, 
+			 JHP1 = ((1.+tt_D)*kk_M-(1.-tt_D))*.5, JHP2 = ((1.-tt_D)*(sqr(kk_M)+3.)-3.*(1.+tt_D)*kk_M)*.5, 
+			 JHM1 = ((1.-tt_D)*kk_M-(1.+tt_D))*.5, JHM2 = ((1.+tt_D)*(sqr(kk_M)+3.)-3.*(1.-tt_D)*kk_M)*.5,
+			 kp_M = sqrt(C_M/mu_M), tp_M = exp(-2.*kp_M), tp_D = exp(-2.*kp_M*RR2), tn_D = exp(	(kp_M-kk_M)*(RR2-1.)),
+			 JPP1 = ((1.+tp_M)*kp_M-(1.-tp_M))*.5, JPP2 = ((1.-tp_M)*(sqr(kp_M)+3.)-3.*(1.+tp_M)*kp_M)*.5, 
+			 JPM1 = ((1.-tp_M)*kp_M-(1.+tp_M))*.5, JPM2 = ((1.+tp_M)*(sqr(kp_M)+3.)-3.*(1.-tp_M)*kp_M)*.5, 
+			 JDP1 = ((1.+tp_D)*kp_M-(1.-tp_D))*tn_D*.5, JDP2 = ((1.-tp_D)*(sqr(kp_M)+3.)-3.*(1.+tp_D)*kp_M)*tn_D*.5, 
+			 JDM1 = ((1.-tp_D)*kp_M-(1.+tp_D))*tn_D*.5, JDM2 = ((1.+tp_D)*(sqr(kp_M)+3.)-3.*(1.-tp_D)*kp_M)*tn_D*.5;
+////////////////////////////////////////////
+//...заполняем строки когезионной матрицы;
+	matr[0][4] = 3.*JPP2/C_M; 
+	matr[0][5] = 3.*JPM2/C_M; 
+	matr[0][6] = JJP1/ku_M-3.*JJP2/C_M; 
+	matr[0][7] = JJM1/ku_M-3.*JJM2/C_M;
+
+	matr[1][4] = JPP1/mu_M-2.*JPP2/C_M; 
+	matr[1][5] = JPM1/mu_M-2.*JPM2/C_M; 
+	matr[1][6] = 2.*JJP2/C_M; 
+	matr[1][7] = 2.*JJM2/C_M;
+
+	//...сшивка нормальных производных;
+	matr[2][4] = 3.*(JPP1/mu_M-4.*JPP2/C_M); 
+	matr[2][5] = 3.*(JPM1/mu_M-4.*JPM2/C_M); 
+	matr[2][6] = (JJP2-2.*JJP1)/ku_M+12.*JJP2/C_M; 
+	matr[2][7] = (JJM2-2.*JJM1)/ku_M+12.*JJM2/C_M;
+
+	matr[3][4] = (JPP2-JPP1)/mu_M+8.*JPP2/C_M; 
+	matr[3][5] = (JPM2-JPM1)/mu_M+8.*JPM2/C_M; 
+	matr[3][6] = 2.*(JJP1/ku_M-4.*JJP2/C_M); 
+	matr[3][7] = 2.*(JJM1/ku_M-4.*JJM2/C_M);
+
+	//...равенство нулю когезионного поля;
+	matr[4][4] = 3.*JDP2/C_M; 
+	matr[4][5] = 3.*JDM2/C_M; 
+	matr[4][6] = JHP1/ku_M-3.*JHP2/C_M; 
+	matr[4][7] = JHM1/ku_M-3.*JHM2/C_M;
+
+	matr[5][4] = JDP1/mu_M-2.*JDP2/C_M; 
+	matr[5][5] = JDM1/mu_M-2.*JDM2/C_M; 
+	matr[5][6] = 2.*JHP2/C_M; 
+	matr[5][7] = 2.*JHM2/C_M;
+
+/////////////////////////////////////////////
+//...цикл по определению сдвиговой жесткости;
+	mu_HM0 = 0.;
+	nu_H = (1.5*KH-mu_HM0*mu_M)/(3.*KH+mu_HM0*mu_M);
+	for (k = 0; k < 10; k++)
+	for (l = 0; l < 11; l++) matrix[k][l] = matr[k][l];
+	optim = take_system_rigid(matrix, mu_HM0, nu_H);
+	if (optim > 0.) sgn0 = 1.; else sgn0 = -1.;
+
+	mu_HM1 = 1.5*KH/mu_M;
+	do { 
+		mu_HM1 *= 10.; k_iter++; 
+		nu_H = (1.5*KH-mu_HM1*mu_M)/(3.*KH+mu_HM1*mu_M);
+		for (k = 0; k < 10; k++)
+		for (l = 0; l < 11; l++) matrix[k][l] = matr[k][l];
+		optim = take_system_rigid(matrix, mu_HM1, nu_H);
+	}
+	while(optim*sgn0 > 0. && k_iter < max_iter); k_iter = 0;
+
+	if (optim > 0.) sgn1 = 1.; else sgn1 = -1.;
+	do {
+		mu_HM = (mu_HM0+mu_HM1)*.5; k_iter++;
+		nu_H  = (1.5*KH-mu_HM*mu_M)/(3.*KH+mu_HM*mu_M);
+		for (k = 0; k < 10; k++)
+		for (l = 0; l < 11; l++)	matrix[k][l] = matr[k][l];
+		optim = take_system_rigid(matrix, mu_HM, nu_H);
+		if (optim*sgn0 > 0.) mu_HM0 = mu_HM; else
+		if (optim*sgn0 < 0.) mu_HM1 = mu_HM; else mu_HM0 = mu_HM1 = mu_HM;
+	}
+	while(fabs(mu_HM1-mu_HM0) > eps && k_iter < max_iter);
+	mu_HM = (mu_HM0+mu_HM1)*.5; 
+
+	if (sgn0*sgn1 > 0. || fabs(optim) > 1e-6 ) mu_HM = -mu_HM;
+	return to_double(mu_HM*mu_M);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////

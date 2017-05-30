@@ -4,74 +4,48 @@
 int CGrid::SPTR_BUF = 1024;
 int CGrid::STRU_BUF = 4096;
 
-////////////////////////////////////////////////
-//...auxilliary procedure -- zero of grid nodes;
-void CGrid::zero_grid()
-{
-   delete_struct(hit);
-   delete_struct(geom);
-   delete_struct(geom_ptr);
-   delete_struct(cond);
-   delete_struct(cond_ptr);
-   delete_struct(X);
-   delete_struct(Y);
-   delete_struct(Z);
-   delete_struct(nX);
-   delete_struct(nY);
-   delete_struct(nZ);
-   N         = 0; 
-   N1        = 0; 
-   N2        = 0; 
-   buf_count = 0;
-   buf_X     = 0;
-   buf_Y     = 0;
-   buf_Z     = 0;
-   for (; pp && N_par > 0; N_par--) delete_struct(pp[N_par-1]);
-   delete_struct(pp);
-}
-
 /////////////////////////////////////
 //...bufferization of the grid nodes;
 int  CGrid::bufferization (int buf_size, Num_State mm)
 {
    int m = 1, i;
-   int * new_hit = (int *)new_struct((N+buf_size)*sizeof(int));
+   int * new_hit = new_struct<int>(N+buf_size);
    if (mm == OK_STATE && hit) memcpy(new_hit, hit, N*sizeof(int));
    if (! new_hit) m = 0; else {
        delete_struct(hit); hit = new_hit;
    }
-   double * new_X = (double *)new_struct((N+buf_size)*sizeof(double));
+   double * new_X = new_struct<double>(N+buf_size);
    if (mm == OK_STATE && X) memcpy(new_X, X, N*sizeof(double));
    if (!    new_X) m = 0; else {
        delete_struct(X); X = new_X;
    }
-   double * new_Y = (double *)new_struct((N+buf_size)*sizeof(double));
+   double * new_Y = new_struct<double>(N+buf_size);
    if (mm == OK_STATE && Y) memcpy(new_Y, Y, N*sizeof(double));
    if (!    new_Y) m = 0; else {
        delete_struct(Y); Y = new_Y;
    }
-   double * new_Z = (double *)new_struct((N+buf_size)*sizeof(double));
+   double * new_Z = new_struct<double>(N+buf_size);
    if (mm == OK_STATE && Z) memcpy(new_Z, Z, N*sizeof(double));
    if (!    new_Z) m = 0; else {
        delete_struct(Z); Z = new_Z;
    }
-   double * new_nX = (double *)new_struct((N+buf_size)*sizeof(double));
+   double * new_nX = new_struct<double>(N+buf_size);
    if (mm == OK_STATE && nX) memcpy(new_nX, nX, N*sizeof(double));
    if (!    new_nX) m = 0; else {
        delete_struct(nX); nX = new_nX;
    }
-   double * new_nY = (double *)new_struct((N+buf_size)*sizeof(double));
+   double * new_nY = new_struct<double>(N+buf_size);
    if (mm == OK_STATE && nY) memcpy(new_nY, nY, N*sizeof(double));
    if (!    new_nY) m = 0; else {
        delete_struct(nY); nY = new_nY;
    }
-   double * new_nZ = (double *)new_struct((N+buf_size)*sizeof(double));
+   double * new_nZ = new_struct<double>(N+buf_size);
    if (mm == OK_STATE && nZ) memcpy(new_nZ, nZ, N*sizeof(double));
    if (!    new_nZ) m = 0; else {
        delete_struct(nZ); nZ = new_nZ;
    }
    for (i = 0; pp && i < N_par; i++) {
-       double * new_pp = (double *)new_struct((N+buf_size)*sizeof(double));
+       double * new_pp = new_struct<double>(N+buf_size);
        if (mm == OK_STATE && pp[i]) memcpy(new_pp, pp[i], N*sizeof(double));
        if (!    new_pp) m = 0; else {
            delete_struct(pp[i]); pp[i] = new_pp;
@@ -79,65 +53,6 @@ int  CGrid::bufferization (int buf_size, Num_State mm)
    }
    if (m) buf_count = buf_size;
    return(m);
-}
-
-//////////////////////////////////////////////////////
-//...bufferization of the X-array for multilevel grid;
-int  CGrid::bufferizat_X (int buf_size, Num_State mm)
-{
-   int m = 1;
-   double * new_X = (double *)new_struct((N+buf_size)*sizeof(double));
-   if (mm == OK_STATE && X) memcpy(new_X, X, N*sizeof(double));
-   if (!    new_X) m = 0; else {
-       delete_struct(X); X = new_X;
-   }
-   if (m) buf_X = buf_size;
-   return(m);
-}
-
-//////////////////////////////////////////////////////
-//...bufferization of the Y-array for multilevel grid;
-int  CGrid::bufferizat_Y (int buf_size, Num_State mm)
-{
-   int m = 1;
-   double * new_Y = (double *)new_struct((N1+buf_size)*sizeof(double));
-   if (mm == OK_STATE && Y) memcpy(new_Y, Y, N1*sizeof(double));
-   if (!    new_Y) m = 0; else {
-       delete_struct(Y); Y = new_Y;
-   }
-   if (m) buf_Y = buf_size;
-   return(m);
-}
-
-//////////////////////////////////////////////////////
-//...bufferization of the Z-array for multilevel grid;
-int  CGrid::bufferizat_Z (int buf_size, Num_State mm)
-{
-   int m = 1;
-   double * new_Z = (double *)new_struct((N2+buf_size)*sizeof(double));
-   if (mm == OK_STATE && Z) memcpy(new_Z, Z, N2*sizeof(double));
-   if (!    new_Z) m = 0; else {
-       delete_struct(Z); Z = new_Z;
-   }
-   if (m) buf_Z = buf_size;
-   return(m);
-}
-
-//////////////////////////////////////////////////
-//...adding with bufferization of the grid values;
-int CGrid::add_new_point(double X, double Y, double Z, double nX, double nY, double nZ, double * pp)
-{
-   if (buf_count || bufferization(N_buf)) {
-       CGrid::X[N]     = X;
-       CGrid::Y[N]     = Y;
-       CGrid::Z[N]     = Z;
-       CGrid::nX[N]    = nX;
-       CGrid::nY[N]    = nY;
-       CGrid::nZ[N]    = nZ;
-       CGrid::hit[N++] = -1; set_param(pp); buf_count--;
-       return(1);
-   }
-   return(0);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -259,7 +174,7 @@ int CGrid::add_new_lattice_Z(double val, double eps)
 void CGrid::add_params(int m, int id_bufferizat)
 {
    if (m > 0) {
-       double ** new_pp = (double **)new_struct((m+N_par)*sizeof(double *));
+       double ** new_pp = new_struct<double *>(m+N_par);
        if (pp) memcpy(new_pp, pp, N_par*sizeof(double *));
        if (new_pp) {
            delete_struct(pp); pp = new_pp; N_par += m;
@@ -277,6 +192,429 @@ void CGrid::set_param(double * pp)
         set_param(m, N-1, pp[m]);
 }
 
+////////////////////////////////////////////////
+//           ACCUMULATION GEOMETRY            //
+////////////////////////////////////////////////
+///////////////////////////////////////////////////
+//...накапливание узлов сетки из частных разбиений;
+void CGrid::grid_add(CGrid * nd)
+{
+	if (bufferization(nd->N)) {
+		memcpy(hit+N, nd->hit,  nd->N*sizeof(int));
+		memcpy( X+N,  nd->X, nd->N*sizeof(double));
+		memcpy( Y+N,  nd->Y, nd->N*sizeof(double));
+		memcpy( Z+N,  nd->Z, nd->N*sizeof(double));
+		memcpy(nX+N, nd->nX, nd->N*sizeof(double));
+		memcpy(nY+N, nd->nY, nd->N*sizeof(double));
+		memcpy(nZ+N, nd->nZ, nd->N*sizeof(double));
+		if (  pp && nd->pp && N_par == nd->N_par)
+		for (int i = 0; pp && i < N_par; i++) {
+			memcpy(pp[i]+N, nd->pp[i], N*sizeof(double));
+		}
+		buf_count -= nd->N; N += nd->N; nd->release();
+	}
+}
+
+//////////////////////////////////////////////////////////////////
+//...auxilliary function for adding information to the grid nodes;
+int CGrid::grid_add(double *& X0,  double *& Y0,double *& Z0, double *& nX0, double *& nY0, 
+                    double *& nZ0, int N0, int *& gm, int id_block)
+{
+	if (N0 <= 0) return(1);
+
+///////////////////////////////////////////
+//...распределяем массивы новых пеpеменных;
+	double * new_X  = X0 ? new_struct<double>(N+N0) : NULL,
+			 * new_Y  = Y0 ? new_struct<double>(N+N0) : NULL,
+			 * new_Z  = Z0 ? new_struct<double>(N+N0) : NULL,
+			 * new_nX = nX0 ? new_struct<double>(N+N0) : NULL,
+			 * new_nY = nY0 ? new_struct<double>(N+N0) : NULL,
+			 * new_nZ = nZ0 ? new_struct<double>(N+N0) : NULL;
+	int    * new_hit = hit ? new_struct<int>(N+N0) : NULL, 
+		    * new_gm, k, j, l, shift = 2;
+
+///////////////////////////////////////////////////////////////////////////////
+//...подсчитываем длину массива, описывающего геометрию, и распределяем массив;
+	if (! geom || ! gm) new_gm = NULL; 
+	else {
+		for (k = j = 0; k < geom[0]; k++) j += geom[(j += shift)];
+		for (k = l = 0; k <   gm[0]; k++) l +=   gm[(l += shift)];
+		new_gm  = new_struct<int>(j+l+1);
+	}
+
+//////////////////////////////////////////////////////
+//...переносим значения узлов сетки в новую структуру;
+	if (X && new_X) memcpy(new_X, X, N*sizeof(double));
+	if (Y && new_Y) memcpy(new_Y, Y, N*sizeof(double));
+	if (Z && new_Z) memcpy(new_Z, Z, N*sizeof(double));
+	if (nX && new_nX) memcpy(new_nX, nX, N*sizeof(double));
+	if (nY && new_nY) memcpy(new_nY, nY, N*sizeof(double));
+	if (nZ && new_nZ) memcpy(new_nZ, nZ, N*sizeof(double));
+	if (hit && new_hit) memcpy(new_hit, hit, N*sizeof(int));
+
+	if (X0 && new_X) memcpy(new_X+N, X0, N0*sizeof(double));
+	if (Y0 && new_Y) memcpy(new_Y+N, Y0, N0*sizeof(double));
+	if (Z0 && new_Z) memcpy(new_Z+N, Z0, N0*sizeof(double));
+	if (nX0 && new_nX) memcpy(new_nX+N, nX0, N0*sizeof(double));
+	if (nY0 && new_nY) memcpy(new_nY+N, nY0, N0*sizeof(double));
+	if (nZ0 && new_nZ) memcpy(new_nZ+N, nZ0, N0*sizeof(double));
+	if (new_hit) for (k = 0; k < N0; k++) new_hit[k+N] = id_block;
+
+/////////////////////////////////////////////////
+//...переносим описание геометрии в новый массив;
+	if (new_gm) {
+		memcpy(new_gm, geom, (j+1)*sizeof(int));
+		memcpy(new_gm+j+1, gm+1, l*sizeof(int));
+		new_gm[0] += gm[0];
+	}
+
+//////////////////////
+//...проверяем память;
+	if (! new_X && X && X0 || 
+		! new_Y && Y && Y0 || 
+		! new_Z && Z && Z0 ||
+		! new_nX && nX && nX0 ||
+		! new_nY && nY && nY0 ||
+		! new_nZ && nZ && nZ0 ||
+		! new_gm && geom && gm || 
+		! new_hit && hit) {
+		delete_struct(X);  delete_struct(new_X);
+		delete_struct(Y);  delete_struct(new_Y);
+		delete_struct(Z);  delete_struct(new_Z);
+		delete_struct(nX); delete_struct(new_nX);
+		delete_struct(nY); delete_struct(new_nY);
+		delete_struct(nZ); delete_struct(new_nZ); delete_struct(new_hit);
+		delete_struct(gm); delete_struct(new_gm);
+		return(0);
+	}
+	else {
+		delete_struct(X0);  delete_struct(X);
+		delete_struct(Y0);  delete_struct(Y);
+		delete_struct(Z0);  delete_struct(Z);
+		delete_struct(nX0); delete_struct(nX);
+		delete_struct(nY0); delete_struct(nY);
+		delete_struct(nZ0); delete_struct(nZ); delete_struct(hit);
+		delete_struct(gm);  delete_struct(geom);
+	}
+//////////////////////////////////////////////////////////////
+//...заносим новые массивы в структуру и выходим из программы;
+	N   += N0;
+	X    = new_X;
+	Y    = new_Y;
+	Z    = new_Z;
+	nX   = new_nX;
+	nY   = new_nY;
+	nZ   = new_nZ;
+	hit  = new_hit;
+	geom = new_gm;
+
+	return(1);
+}
+
+//////////////////////////////////////////////
+//...isometrical transformation of grid nodes;
+void CGrid::grid_iso(int k0, int k1, double * P0,
+                     double & CZ, double & SZ, double & CY, double & SY, double & CX, double & SX)
+{
+  if (0 <= k0 && k1 <= N) {
+      double P[3];
+      for (int k = k0; k < k1; k++) {
+           P[0] = X[k];
+           P[1] = Y[k];
+           P[2] = Z[k];  point_iso(P, P0, CZ, SZ, CY, SY, CX, SX);
+           X[k] = P[0];
+           Y[k] = P[1];
+           Z[k] = P[2];
+           P[0] = nX[k];
+           P[1] = nY[k];
+           P[2] = nZ[k]; point_iso<double>(P, NULL, CZ, SZ, CY, SY, CX, SX);
+           nX[k] = P[0];
+           nY[k] = P[1];
+           nZ[k] = P[2];
+      }
+  }
+}
+
+/////////////////////////////////////////////////
+//...auxilliary function for triangle grid nodes;
+void CGrid::grid_tria_3D_refine(int N_elem, double * P, double * pp, int id_block)
+{
+  double d, px1, px2, py1, py2, pz1, pz2;
+  int    i, j, k, l, m, shift = N, * new_geom;
+//////////////////
+//...size of geom;
+  for (l  = 1, i = 0; geom && i < geom[0]; i++) 
+       l += geom[++l]+1;
+
+	if (N_elem > 0 && P && bufferization(j = (N_elem+1)*(N_elem+2)/2) &&
+		(new_geom = new_struct<int>(m = --l+N_elem*(N_elem+8)-3)) != NULL) {
+      if (geom) 
+          memcpy(new_geom,  geom, (l+1)*sizeof(int)); 
+      delete_struct (geom); geom = new_geom; N += j;
+
+/////////////////////////////////////////////////////////
+//...shifting vector homothetic triangles in subdivision;
+      px1 = (P[3]-P[0])*(d = 1./N_elem); px2 = (P[6]-P[3])*d;
+      py1 = (P[4]-P[1])* d;              py2 = (P[7]-P[4])*d;
+      pz1 = (P[5]-P[2])* d;              pz2 = (P[8]-P[5])*d;
+
+//////////////////////////////////////////////////////
+//...filling points -- apices of homothetic triangles;
+      for ( X [j = shift] = P[0],  Y[j] = P[1],   Z[j] = P[2],
+           nX [j]         = P[9], nY[j] = P[10], nZ[j] = P[11],
+           hit[j]         = -1, geom[0] += 2*N_elem-1, i = 1; i <= N_elem; i++) {
+           geom[++l] = GL_TRIANGLES;
+           geom[++l] = 3;
+           geom[++l] = j;
+           geom[++l] = j+1;
+           geom[++l] = (m = j+N_elem-i+1)+1;
+           X[j+1]    = X[j]+px1;
+           Y[j+1]    = Y[j]+py1;
+           Z[j+1]    = Z[j]+pz1;
+           X[m+1]    = X[j+1]+px2;
+           Y[m+1]    = Y[j+1]+py2;
+           Z[m+1]    = Z[j+1]+pz2;
+           nX[j+1]   = nX[m+1] = P[9];
+           nY[j+1]   = nY[m+1] = P[10];
+           nZ[j+1]   = nZ[m+1] = P[11];
+           hit[j+1]  = id_block;
+           hit[m+1]  = id_block;
+           if (i < N_elem) {
+               geom[++l] = GL_QUAD_STRIP;
+               geom[++l] = (N_elem-i+1)*2;
+               geom[++l] = ++j;
+               geom[++l] = ++m;
+               for (k = i; k < N_elem; k++) {
+                    X[j+1]    = X[j]+px1;
+                    Y[j+1]    = Y[j]+py1;
+                    Z[j+1]    = Z[j]+pz1;
+                    X[m+1]    = X[j+1]+px2;
+                    Y[m+1]    = Y[j+1]+py2;
+                    Z[m+1]    = Z[j+1]+pz2;
+                    nX[j+1]   = nX[m+1] = P[9];
+                    nY[j+1]   = nY[m+1] = P[10];
+                    nZ[j+1]   = nZ[m+1] = P[11];
+                    hit[j+1]  = id_block;
+                    hit[m+1]  = id_block;
+                    geom[++l] = ++j;
+                    geom[++l] = ++m;
+               }
+               ++j; 
+           }
+      }
+
+////////////////////////
+//...parameters setting;
+		if (pp)
+		for (i = shift;   i <  N; i++) 
+		for (m = N_par-1; m >= 0; m--) set_param(m, i, pp[m]);
+
+		buf_count = 0; return;
+	}
+}
+
+////////////////////////////////////////
+//...auxilliary function for grid nodes;
+void CGrid::grid_quad_3D_refine(int N_elem1, int N_elem2, double * P, double * pp, int id_block)
+{//...обычный порядок следования точек контура
+  double d, px1, px2, px3, py1, py2, py3, pz1, pz2, pz3, pnt[6];
+  int    i, j, k, l, m, shift = N, * new_geom;
+//////////////////
+//...size of geom;
+  for (l  = 1, i = 0; geom && i < geom[0]; i++) 
+       l += geom[++l]+1;
+
+	if (N_elem1 > 0 && N_elem2 > 0 && P && bufferization(j = (N_elem1+1)*(N_elem2+1)) &&
+		(new_geom = new_struct<int>(m = --l+N_elem1*(N_elem2+2)*2+1)) != NULL) {
+		if (geom) 
+          memcpy(new_geom,  geom, (l+1)*sizeof(int)); 
+      delete_struct (geom); geom = new_geom; N += j;
+
+///////////////////////////////////////////////////////////
+//...shifting vector homothetic quadrangles in subdivision;
+      px1 = (P[9] -P[0])*(d = 1./N_elem2); px2 = (P[6]-P[3])*d;
+      py1 = (P[10]-P[1])* d;               py2 = (P[7]-P[4])*d;
+      pz1 = (P[11]-P[2])* d;               pz2 = (P[8]-P[5])*d;
+
+////////////////////////////////////////////////////////
+//...filling points -- apices of homothetic quadrangles;
+      pnt[0] = P[0];
+      pnt[1] = P[1];
+      pnt[2] = P[2];
+      pnt[3] = P[3];
+      pnt[4] = P[4];
+      pnt[5] = P[5];
+      for (j = shift, i = 0; i <= N_elem2; i++) {
+          px3 = (pnt[3]-(X[j] = pnt[0]))*(d = 1./N_elem1); 
+          py3 = (pnt[4]-(Y[j] = pnt[1]))* d;               
+          pz3 = (pnt[5]-(Z[j] = pnt[2]))* d;               
+          nX [j] = P[12]; 
+          nY [j] = P[13]; 
+          nZ [j] = P[14];
+          hit[j] = id_block; 
+          for (k = 0; k < N_elem1; k++) { 
+               X[j+1]   = X[j]+px3;
+               Y[j+1]   = Y[j]+py3;
+               Z[j+1]   = Z[j]+pz3;
+               nX[j+1]  = P[12];
+               nY[j+1]  = P[13];
+               nZ[j+1]  = P[14];
+               hit[j+1] = id_block;
+               j++;
+          }
+          pnt[0] += px1; pnt[3] += px2;
+          pnt[1] += py1; pnt[4] += py2;
+          pnt[2] += pz1; pnt[5] += pz2;
+          j++;
+      }
+      for (geom[0]  += N_elem2, j = shift, i = 1; i <= N_elem2; i++) {
+           geom[++l] = GL_QUAD_STRIP;
+           geom[++l] = (N_elem1+1)*2;
+           geom[++l] = j;
+           geom[++l] = m = j+N_elem1+1;
+           for (k = 0; k < N_elem1; k++) {
+                geom[++l] = ++j;
+                geom[++l] = ++m;
+           }
+           ++j;
+      }
+
+////////////////////////
+//...parameters setting;
+		if (pp)
+      for (i = shift;   i <  N; i++) 
+      for (m = N_par-1; m >= 0; m--) set_param(m, i, pp[m]);
+
+		buf_count = 0;
+	}
+}
+
+//////////////////////////////////////////////////////////
+//...auxilliary function for grid nodes in infitity block;
+void CGrid::grid_quad_3D_refine_spec(int N_elem1, int N_elem2, double * P, double * pp, int id_block)
+{
+  double d, px1, px2, px3, py1, py2, py3, pz1, pz2, pz3, pnt[6];
+  int    i, j, k, l, m, shift = N, * new_geom;
+//////////////////
+//...size of geom;
+  for (l  = 1, i = 0; geom && i < geom[0]; i++) 
+       l += geom[++l]+1;
+
+  if (N_elem1 > 0 && N_elem2 > 0 && P && bufferization(j = (N_elem1+1)*(N_elem2+1)) &&
+     (new_geom = new_struct<int>(m = --l+N_elem1*(N_elem2+2)*2+1)) != NULL) {
+      if (geom) 
+          memcpy(new_geom,  geom, (l+1)*sizeof(int)); 
+      delete_struct (geom); geom = new_geom; N += j;
+
+///////////////////////////////////////////////////////////
+//...shifting vector homothetic quadrangles in subdivision;
+      px1 = (P[3]-P[6])*(d = 1./N_elem2); px2 = (P[0]-P[9 ])*d;
+      py1 = (P[4]-P[7])* d;               py2 = (P[1]-P[10])*d;
+      pz1 = (P[5]-P[8])* d;               pz2 = (P[2]-P[11])*d;
+
+      double homotetic = P[15], //...coefficient of homotetic expansion;
+             L_inf     = P[16]; //...initial step for homotetic expansion;
+
+		if (L_inf == 0.) N_elem1 = N_elem2 = 1;
+
+////////////////////////////////////////////////////////
+//...filling points -- apices of homothetic quadrangles;
+      pnt[0] = P[6];
+      pnt[1] = P[7];
+      pnt[2] = P[8];
+      pnt[3] = P[9];
+      pnt[4] = P[10];
+      pnt[5] = P[11];
+      for (j = shift, i = 0; i <= N_elem2; i++) {
+          px3 = (pnt[3]-(X[j] = pnt[0]))*d; 
+          py3 = (pnt[4]-(Y[j] = pnt[1]))*d;               
+          pz3 = (pnt[5]-(Z[j] = pnt[2]))*d; 
+          if (L_inf > 0.) {
+              double f = L_inf/sqrt(px3*px3+py3*py3+pz3*pz3);
+              px3 *= f; 
+              py3 *= f; 
+              pz3 *= f; 
+          }
+          nX [j] = P[12]; 
+          nY [j] = P[13]; 
+          nZ [j] = P[14];
+          hit[j] = id_block; 
+          for (k = 0; k < N_elem1; k++) { 
+               X[j+1]   = X[j]+px3; px3 += homotetic*px3;
+               Y[j+1]   = Y[j]+py3; py3 += homotetic*py3;
+               Z[j+1]   = Z[j]+pz3; pz3 += homotetic*pz3;
+               nX[j+1]  = P[12];
+               nY[j+1]  = P[13];
+               nZ[j+1]  = P[14];
+               hit[j+1] = id_block;
+               j++;
+          }
+          pnt[0] += px1; pnt[3] += px2;
+          pnt[1] += py1; pnt[4] += py2;
+          pnt[2] += pz1; pnt[5] += pz2;
+          j++;
+      }
+      for (geom[0]  += N_elem2, j = shift, i = 1; i <= N_elem2; i++) {
+           geom[++l] = GL_QUAD_STRIP;
+           geom[++l] = (N_elem1+1)*2;
+           geom[++l] = j;
+           geom[++l] = m = j+N_elem1+1;
+           for (k = 0; k < N_elem1; k++) {
+                geom[++l] = ++j;
+                geom[++l] = ++m;
+           }
+           ++j;
+      }
+
+////////////////////////
+//...parameters setting;
+		if (pp)
+      for (i = shift;   i <  N; i++) 
+      for (m = N_par-1; m >= 0; m--) set_param(m, i, pp[m]);
+
+      buf_count = 0;
+  }
+}
+
+/////////////////////////////////////////////////////////////////////
+//...construction grid lattice for arbitrary structure of inclusions;
+void CGrid::grid_lattice(CGrid * nd, double * par, double eps)
+{
+	if (nd && nd->N) {
+		int k, j, mX, mY, mZ;
+		for (par[6] = par[7] = 0., k = 0; k < nd->N; k++) {
+			add_new_lattice_X(nd->X[k], eps);
+			add_new_lattice_Y(nd->Y[k], eps);
+			add_new_lattice_Z(nd->Z[k], eps);
+			par[6] += 4./3.*M_PI*nd->get_param(0, k)*sqr(nd->get_param(0, k));
+			par[7] += 4./3.*M_PI*nd->get_param(1, k)*sqr(nd->get_param(1, k));
+		}	par[6] /= (par[1]-par[0])*(par[3]-par[2])*(par[5]-par[4]);
+			par[7] /= (par[1]-par[0])*(par[3]-par[2])*(par[5]-par[4]); par[7] -= par[6];
+
+///////////////////////////////////////////
+//...располагаем решетку между включениями;
+		for (j = 1; j < N;  j++) X[j-1] = (X[j-1]+X[j])/2.;
+		for (j = 1; j < N1; j++) Y[j-1] = (Y[j-1]+Y[j])/2.;
+		for (j = 1; j < N2; j++) Z[j-1] = (Z[j-1]+Z[j])/2.;
+
+/////////////////////////////
+//...добавляем общие границы;
+		add_new_lattice_X(par[0]); X[N-1]  = par[1];
+		add_new_lattice_Y(par[2]); Y[N1-1] = par[3];
+		add_new_lattice_Z(par[4]); Z[N2-1] = par[5];
+
+////////////////////////////////////////////////////
+//...определяем номера блоков, содержащих включения;
+		if (nd->hit)
+		for (k = 0; k < nd->N;  k++) {
+			mX = mY = mZ = 0;
+			while (mX < N  && X[mX] < nd->X[k]) mX++;
+			while (mY < N1 && Y[mY] < nd->Y[k]) mY++;
+			while (mZ < N2 && Z[mZ] < nd->Z[k]) mZ++;
+			nd->hit[k] = (mX-1)+(N-1)*((mY-1)+(N1-1)*(mZ-1));
+		}
+	}
+}
 /////////////////////////////////////////////////////////
 //           OPERATIONS WITH NODES TOPOLOGY            //
 /////////////////////////////////////////////////////////
@@ -403,428 +741,9 @@ int CGrid::binary_search_inverse(int first, int last, int elem, int * index)
    return(elem == index[median] ? median : -1);
 }
 
-///////////////////////////////////////////////////
-//...накапливание узлов сетки из частных разбиений;
-void CGrid::grid_add(CGrid * nd)
-{
-	if (bufferization(nd->N)) {
-		memcpy(hit+N, nd->hit,  nd->N*sizeof(int));
-		memcpy( X+N,  nd->X, nd->N*sizeof(double));
-		memcpy( Y+N,  nd->Y, nd->N*sizeof(double));
-		memcpy( Z+N,  nd->Z, nd->N*sizeof(double));
-		memcpy(nX+N, nd->nX, nd->N*sizeof(double));
-		memcpy(nY+N, nd->nY, nd->N*sizeof(double));
-		memcpy(nZ+N, nd->nZ, nd->N*sizeof(double));
-		if (  pp && nd->pp && N_par == nd->N_par)
-		for (int i = 0; pp && i < N_par; i++) {
-			memcpy(pp[i]+N, nd->pp[i], N*sizeof(double));
-		}
-		buf_count -= nd->N; N += nd->N; nd->zero_grid();
-	}
-}
-
-//////////////////////////////////////////////////////////////////
-//...auxilliary function for adding information to the grid nodes;
-int CGrid::grid_add(double *& X0,  double *& Y0,double *& Z0, double *& nX0, double *& nY0, 
-                    double *& nZ0, int N0, int *& gm, int id_block)
-{
-	if (N0 <= 0) return(1);
-
-///////////////////////////////////////////
-//...распределяем массивы новых пеpеменных;
-	double * new_X  = X0 ? (double *)new_struct((N+N0)*sizeof(double)) : NULL,
-			* new_Y  = Y0 ? (double *)new_struct((N+N0)*sizeof(double)) : NULL,
-			* new_Z  = Z0 ? (double *)new_struct((N+N0)*sizeof(double)) : NULL,
-			* new_nX = nX0 ? (double *)new_struct((N+N0)*sizeof(double)) : NULL,
-			* new_nY = nY0 ? (double *)new_struct((N+N0)*sizeof(double)) : NULL,
-			* new_nZ = nZ0 ? (double *)new_struct((N+N0)*sizeof(double)) : NULL;
-	int   * new_hit = hit ? (int *)new_struct((N+N0)*sizeof(int)) : NULL, 
-		   * new_gm, k, j, l, shift = 2;
-
-///////////////////////////////////////////////////////////////////////////////
-//...подсчитываем длину массива, описывающего геометрию, и распределяем массив;
-	if (! geom || ! gm) new_gm = NULL; 
-	else {
-		for (k = j = 0; k < geom[0]; k++) j += geom[(j += shift)];
-		for (k = l = 0; k <   gm[0]; k++) l +=   gm[(l += shift)];
-		new_gm  = (int *)new_struct((j+l+1)*sizeof(int));
-	}
-
-//////////////////////////////////////////////////////
-//...переносим значения узлов сетки в новую структуру;
-	if (X && new_X) memcpy(new_X, X, N*sizeof(double));
-	if (Y && new_Y) memcpy(new_Y, Y, N*sizeof(double));
-	if (Z && new_Z) memcpy(new_Z, Z, N*sizeof(double));
-	if (nX && new_nX) memcpy(new_nX, nX, N*sizeof(double));
-	if (nY && new_nY) memcpy(new_nY, nY, N*sizeof(double));
-	if (nZ && new_nZ) memcpy(new_nZ, nZ, N*sizeof(double));
-	if (hit && new_hit) memcpy(new_hit, hit, N*sizeof(int));
-
-	if (X0 && new_X) memcpy(new_X+N, X0, N0*sizeof(double));
-	if (Y0 && new_Y) memcpy(new_Y+N, Y0, N0*sizeof(double));
-	if (Z0 && new_Z) memcpy(new_Z+N, Z0, N0*sizeof(double));
-	if (nX0 && new_nX) memcpy(new_nX+N, nX0, N0*sizeof(double));
-	if (nY0 && new_nY) memcpy(new_nY+N, nY0, N0*sizeof(double));
-	if (nZ0 && new_nZ) memcpy(new_nZ+N, nZ0, N0*sizeof(double));
-	if (new_hit) for (k = 0; k < N0; k++) new_hit[k+N] = id_block;
-
-/////////////////////////////////////////////////
-//...переносим описание геометрии в новый массив;
-	if (new_gm) {
-		memcpy(new_gm, geom, (j+1)*sizeof(int));
-		memcpy(new_gm+j+1, gm+1, l*sizeof(int));
-		new_gm[0] += gm[0];
-	}
-
-//////////////////////
-//...проверяем память;
-	if (! new_X && X && X0 || 
-		! new_Y && Y && Y0 || 
-		! new_Z && Z && Z0 ||
-		! new_nX && nX && nX0 ||
-		! new_nY && nY && nY0 ||
-		! new_nZ && nZ && nZ0 ||
-		! new_gm && geom && gm || 
-		! new_hit && hit) {
-		delete_struct(X);  delete_struct(new_X);
-		delete_struct(Y);  delete_struct(new_Y);
-		delete_struct(Z);  delete_struct(new_Z);
-		delete_struct(nX); delete_struct(new_nX);
-		delete_struct(nY); delete_struct(new_nY);
-		delete_struct(nZ); delete_struct(new_nZ); delete_struct(new_hit);
-		delete_struct(gm); delete_struct(new_gm);
-		return(0);
-	}
-	else {
-		delete_struct(X0);  delete_struct(X);
-		delete_struct(Y0);  delete_struct(Y);
-		delete_struct(Z0);  delete_struct(Z);
-		delete_struct(nX0); delete_struct(nX);
-		delete_struct(nY0); delete_struct(nY);
-		delete_struct(nZ0); delete_struct(nZ); delete_struct(hit);
-		delete_struct(gm);  delete_struct(geom);
-	}
-//////////////////////////////////////////////////////////////
-//...заносим новые массивы в структуру и выходим из программы;
-	N   += N0;
-	X    = new_X;
-	Y    = new_Y;
-	Z    = new_Z;
-	nX   = new_nX;
-	nY   = new_nY;
-	nZ   = new_nZ;
-	hit  = new_hit;
-	geom = new_gm;
-
-	return(1);
-}
-
-//////////////////////////////////////////////
-//...isometrical transformation of grid nodes;
-void CGrid::grid_iso(int k0, int k1, double * P0,
-                     double & CZ, double & SZ, double & CY, double & SY, double & CX, double & SX)
-{
-  if (0 <= k0 && k1 <= N) {
-      double P[3];
-      for (int k = k0; k < k1; k++) {
-           P[0] = X[k];
-           P[1] = Y[k];
-           P[2] = Z[k];  point_iso(P, P0, CZ, SZ, CY, SY, CX, SX);
-           X[k] = P[0];
-           Y[k] = P[1];
-           Z[k] = P[2];
-           P[0] = nX[k];
-           P[1] = nY[k];
-           P[2] = nZ[k]; point_iso<double>(P, NULL, CZ, SZ, CY, SY, CX, SX);
-           nX[k] = P[0];
-           nY[k] = P[1];
-           nZ[k] = P[2];
-      }
-  }
-}
-
-/////////////////////////////////////////////////
-//...auxilliary function for triangle grid nodes;
-void CGrid::grid_tria_3D_refine(int N_elem, double * P, double * pp, int id_block)
-{
-  double d, px1, px2, py1, py2, pz1, pz2;
-  int    i, j, k, l, m, shift = N, * new_geom;
-//////////////////
-//...size of geom;
-  for (l  = 1, i = 0; geom && i < geom[0]; i++) 
-       l += geom[++l]+1;
-
-  if (N_elem > 0 && P && bufferization(j = (N_elem+1)*(N_elem+2)/2) &&
-     (new_geom = (int *)new_struct((m = --l+N_elem*(N_elem+8)-3)*sizeof(int))) != NULL) {
-      if (geom) 
-          memcpy(new_geom,  geom, (l+1)*sizeof(int)); 
-      delete_struct (geom); geom = new_geom; N += j;
-
-/////////////////////////////////////////////////////////
-//...shifting vector homothetic triangles in subdivision;
-      px1 = (P[3]-P[0])*(d = 1./N_elem); px2 = (P[6]-P[3])*d;
-      py1 = (P[4]-P[1])* d;              py2 = (P[7]-P[4])*d;
-      pz1 = (P[5]-P[2])* d;              pz2 = (P[8]-P[5])*d;
-
-//////////////////////////////////////////////////////
-//...filling points -- apices of homothetic triangles;
-      for ( X [j = shift] = P[0],  Y[j] = P[1],   Z[j] = P[2],
-           nX [j]         = P[9], nY[j] = P[10], nZ[j] = P[11],
-           hit[j]         = -1, geom[0] += 2*N_elem-1, i = 1; i <= N_elem; i++) {
-           geom[++l] = GL_TRIANGLES;
-           geom[++l] = 3;
-           geom[++l] = j;
-           geom[++l] = j+1;
-           geom[++l] = (m = j+N_elem-i+1)+1;
-           X[j+1]    = X[j]+px1;
-           Y[j+1]    = Y[j]+py1;
-           Z[j+1]    = Z[j]+pz1;
-           X[m+1]    = X[j+1]+px2;
-           Y[m+1]    = Y[j+1]+py2;
-           Z[m+1]    = Z[j+1]+pz2;
-           nX[j+1]   = nX[m+1] = P[9];
-           nY[j+1]   = nY[m+1] = P[10];
-           nZ[j+1]   = nZ[m+1] = P[11];
-           hit[j+1]  = id_block;
-           hit[m+1]  = id_block;
-           if (i < N_elem) {
-               geom[++l] = GL_QUAD_STRIP;
-               geom[++l] = (N_elem-i+1)*2;
-               geom[++l] = ++j;
-               geom[++l] = ++m;
-               for (k = i; k < N_elem; k++) {
-                    X[j+1]    = X[j]+px1;
-                    Y[j+1]    = Y[j]+py1;
-                    Z[j+1]    = Z[j]+pz1;
-                    X[m+1]    = X[j+1]+px2;
-                    Y[m+1]    = Y[j+1]+py2;
-                    Z[m+1]    = Z[j+1]+pz2;
-                    nX[j+1]   = nX[m+1] = P[9];
-                    nY[j+1]   = nY[m+1] = P[10];
-                    nZ[j+1]   = nZ[m+1] = P[11];
-                    hit[j+1]  = id_block;
-                    hit[m+1]  = id_block;
-                    geom[++l] = ++j;
-                    geom[++l] = ++m;
-               }
-               ++j; 
-           }
-      }
-
-////////////////////////
-//...parameters setting;
-		if (pp)
-      for (i = shift;   i <  N; i++) 
-      for (m = N_par-1; m >= 0; m--) set_param(m, i, pp[m]);
-
-      buf_count = 0; return;
-  }
-//zero_grid();
-}
-
-////////////////////////////////////////
-//...auxilliary function for grid nodes;
-void CGrid::grid_quad_3D_refine(int N_elem1, int N_elem2, double * P, double * pp, int id_block)
-{//...обычный порядок следования точек контура
-  double d, px1, px2, px3, py1, py2, py3, pz1, pz2, pz3, pnt[6];
-  int    i, j, k, l, m, shift = N, * new_geom;
-//////////////////
-//...size of geom;
-  for (l  = 1, i = 0; geom && i < geom[0]; i++) 
-       l += geom[++l]+1;
-
-  if (N_elem1 > 0 && N_elem2 > 0 && P && bufferization(j = (N_elem1+1)*(N_elem2+1)) &&
-     (new_geom = (int *)new_struct((m = --l+N_elem1*(N_elem2+2)*2+1)*sizeof(int))) != NULL) {
-      if (geom) 
-          memcpy(new_geom,  geom, (l+1)*sizeof(int)); 
-      delete_struct (geom); geom = new_geom; N += j;
-
-///////////////////////////////////////////////////////////
-//...shifting vector homothetic quadrangles in subdivision;
-      px1 = (P[9] -P[0])*(d = 1./N_elem2); px2 = (P[6]-P[3])*d;
-      py1 = (P[10]-P[1])* d;               py2 = (P[7]-P[4])*d;
-      pz1 = (P[11]-P[2])* d;               pz2 = (P[8]-P[5])*d;
-
-////////////////////////////////////////////////////////
-//...filling points -- apices of homothetic quadrangles;
-      pnt[0] = P[0];
-      pnt[1] = P[1];
-      pnt[2] = P[2];
-      pnt[3] = P[3];
-      pnt[4] = P[4];
-      pnt[5] = P[5];
-      for (j = shift, i = 0; i <= N_elem2; i++) {
-          px3 = (pnt[3]-(X[j] = pnt[0]))*(d = 1./N_elem1); 
-          py3 = (pnt[4]-(Y[j] = pnt[1]))* d;               
-          pz3 = (pnt[5]-(Z[j] = pnt[2]))* d;               
-          nX [j] = P[12]; 
-          nY [j] = P[13]; 
-          nZ [j] = P[14];
-          hit[j] = id_block; 
-          for (k = 0; k < N_elem1; k++) { 
-               X[j+1]   = X[j]+px3;
-               Y[j+1]   = Y[j]+py3;
-               Z[j+1]   = Z[j]+pz3;
-               nX[j+1]  = P[12];
-               nY[j+1]  = P[13];
-               nZ[j+1]  = P[14];
-               hit[j+1] = id_block;
-               j++;
-          }
-          pnt[0] += px1; pnt[3] += px2;
-          pnt[1] += py1; pnt[4] += py2;
-          pnt[2] += pz1; pnt[5] += pz2;
-          j++;
-      }
-      for (geom[0]  += N_elem2, j = shift, i = 1; i <= N_elem2; i++) {
-           geom[++l] = GL_QUAD_STRIP;
-           geom[++l] = (N_elem1+1)*2;
-           geom[++l] = j;
-           geom[++l] = m = j+N_elem1+1;
-           for (k = 0; k < N_elem1; k++) {
-                geom[++l] = ++j;
-                geom[++l] = ++m;
-           }
-           ++j;
-      }
-
-////////////////////////
-//...parameters setting;
-		if (pp)
-      for (i = shift;   i <  N; i++) 
-      for (m = N_par-1; m >= 0; m--) set_param(m, i, pp[m]);
-
-      buf_count = 0;
-  }
-}
-
-//////////////////////////////////////////////////////////
-//...auxilliary function for grid nodes in infitity block;
-void CGrid::grid_quad_3D_refine_spec(int N_elem1, int N_elem2, double * P, double * pp, int id_block)
-{
-  double d, px1, px2, px3, py1, py2, py3, pz1, pz2, pz3, pnt[6];
-  int    i, j, k, l, m, shift = N, * new_geom;
-//////////////////
-//...size of geom;
-  for (l  = 1, i = 0; geom && i < geom[0]; i++) 
-       l += geom[++l]+1;
-
-  if (N_elem1 > 0 && N_elem2 > 0 && P && bufferization(j = (N_elem1+1)*(N_elem2+1)) &&
-     (new_geom = (int *)new_struct((m = --l+N_elem1*(N_elem2+2)*2+1)*sizeof(int))) != NULL) {
-      if (geom) 
-          memcpy(new_geom,  geom, (l+1)*sizeof(int)); 
-      delete_struct (geom); geom = new_geom; N += j;
-
-///////////////////////////////////////////////////////////
-//...shifting vector homothetic quadrangles in subdivision;
-      px1 = (P[3]-P[6])*(d = 1./N_elem2); px2 = (P[0]-P[9 ])*d;
-      py1 = (P[4]-P[7])* d;               py2 = (P[1]-P[10])*d;
-      pz1 = (P[5]-P[8])* d;               pz2 = (P[2]-P[11])*d;
-
-      double homotetic = P[15], //...coefficient of homotetic expansion;
-             L_inf     = P[16]; //...initial step for homotetic expansion;
-
-		if (L_inf == 0.) N_elem1 = N_elem2 = 1;
-
-////////////////////////////////////////////////////////
-//...filling points -- apices of homothetic quadrangles;
-      pnt[0] = P[6];
-      pnt[1] = P[7];
-      pnt[2] = P[8];
-      pnt[3] = P[9];
-      pnt[4] = P[10];
-      pnt[5] = P[11];
-      for (j = shift, i = 0; i <= N_elem2; i++) {
-          px3 = (pnt[3]-(X[j] = pnt[0]))*d; 
-          py3 = (pnt[4]-(Y[j] = pnt[1]))*d;               
-          pz3 = (pnt[5]-(Z[j] = pnt[2]))*d; 
-          if (L_inf > 0.) {
-              double f = L_inf/sqrt(px3*px3+py3*py3+pz3*pz3);
-              px3 *= f; 
-              py3 *= f; 
-              pz3 *= f; 
-          }
-          nX [j] = P[12]; 
-          nY [j] = P[13]; 
-          nZ [j] = P[14];
-          hit[j] = id_block; 
-          for (k = 0; k < N_elem1; k++) { 
-               X[j+1]   = X[j]+px3; px3 += homotetic*px3;
-               Y[j+1]   = Y[j]+py3; py3 += homotetic*py3;
-               Z[j+1]   = Z[j]+pz3; pz3 += homotetic*pz3;
-               nX[j+1]  = P[12];
-               nY[j+1]  = P[13];
-               nZ[j+1]  = P[14];
-               hit[j+1] = id_block;
-               j++;
-          }
-          pnt[0] += px1; pnt[3] += px2;
-          pnt[1] += py1; pnt[4] += py2;
-          pnt[2] += pz1; pnt[5] += pz2;
-          j++;
-      }
-      for (geom[0]  += N_elem2, j = shift, i = 1; i <= N_elem2; i++) {
-           geom[++l] = GL_QUAD_STRIP;
-           geom[++l] = (N_elem1+1)*2;
-           geom[++l] = j;
-           geom[++l] = m = j+N_elem1+1;
-           for (k = 0; k < N_elem1; k++) {
-                geom[++l] = ++j;
-                geom[++l] = ++m;
-           }
-           ++j;
-      }
-
-////////////////////////
-//...parameters setting;
-		if (pp)
-      for (i = shift;   i <  N; i++) 
-      for (m = N_par-1; m >= 0; m--) set_param(m, i, pp[m]);
-
-      buf_count = 0;
-  }
-}
-
-/////////////////////////////////////////////////////////////////////
-//...construction grid lattice for arbitrary structure of inclusions;
-void CGrid::grid_lattice(CGrid * nd, double * par, double eps)
-{
-	if (nd && nd->N) {
-		int k, j, mX, mY, mZ;
-		for (par[6] = par[7] = 0., k = 0; k < nd->N; k++) {
-			add_new_lattice_X(nd->X[k], eps);
-			add_new_lattice_Y(nd->Y[k], eps);
-			add_new_lattice_Z(nd->Z[k], eps);
-			par[6] += 4./3.*M_PI*nd->get_param(0, k)*sqr(nd->get_param(0, k));
-			par[7] += 4./3.*M_PI*(nd->get_param(0, k)+nd->get_param(1, k))*sqr(nd->get_param(0, k)+nd->get_param(1, k));
-		}	par[6] /= (par[1]-par[0])*(par[3]-par[2])*(par[5]-par[4]);
-			par[7] /= (par[1]-par[0])*(par[3]-par[2])*(par[5]-par[4]); par[7] -= par[6];
-
-///////////////////////////////////////////
-//...располагаем решетку между включениями;
-		for (j = 1; j < N;  j++) X[j-1] = (X[j-1]+X[j])/2.;
-		for (j = 1; j < N1; j++) Y[j-1] = (Y[j-1]+Y[j])/2.;
-		for (j = 1; j < N2; j++) Z[j-1] = (Z[j-1]+Z[j])/2.;
-
-/////////////////////////////
-//...добавляем общие границы;
-		add_new_lattice_X(par[0]); X[N-1]  = par[1];
-		add_new_lattice_Y(par[2]); Y[N1-1] = par[3];
-		add_new_lattice_Z(par[4]); Z[N2-1] = par[5];
-
-////////////////////////////////////////////////////
-//...определяем номера блоков, содержащих включения;
-		if (nd->hit)
-		for (k = 0; k < nd->N;  k++) {
-			mX = mY = mZ = 0;
-			while (mX < N  && X[mX] < nd->X[k]) mX++;
-			while (mY < N1 && Y[mY] < nd->Y[k]) mY++;
-			while (mZ < N2 && Z[mZ] < nd->Z[k]) mZ++;
-			nd->hit[k] = (mX-1)+(N-1)*((mY-1)+(N1-1)*(mZ-1));
-		}
-	}
-}
-
+///////////////////////////////////////////////////////
+//           GRID AND GEOMETRY CONVERTERS            //
+///////////////////////////////////////////////////////
 ////////////////////////////////////////////////
 //...converts block structure from NASTRAN file;
 int CGrid::converts_nas(char * id_NODES, unsigned long & count, unsigned long upper_limit, int id_long)
@@ -837,7 +756,7 @@ int CGrid::converts_nas(char * id_NODES, unsigned long & count, unsigned long up
 
 ////////////////////////////////////////
 //...инициализируем геометрию элементов;
-		zero_grid(); N_geom = 0;
+		release(); N_geom = 0;
 		while (ppos_cur < upper_limit) {
 			if ((pchar = strstr(id_NODES+ppos_cur, "\xA")) != NULL)
 			count = (unsigned long)(pchar-id_NODES)+1; else
@@ -880,7 +799,7 @@ int CGrid::converts_nas(char * id_NODES, unsigned long & count, unsigned long up
 /////////////////////////////////////////////////////////////////////
 //...заполнякм массив геометрии элементов, отделяем по одной строчке;
 		ppos_cur = count_beg;
-		if ((geom = (int *)new_struct((geom_ptr[N_geom]+1)*sizeof(int))) != NULL)
+		if ((geom = new_struct<int>(geom_ptr[N_geom]+1)) != NULL)
 		while (ppos_cur < upper_limit) {
 
 			if ((pchar = strstr(id_NODES+ppos_cur, "\xA")) != NULL)
@@ -1139,7 +1058,7 @@ int CGrid::condit_nas(char * id_NODES, unsigned long & count, unsigned long uppe
 ///////////////////////////////////////////////////////////////////
 //...заполнякм массив граничных условий, отделяем по одной строчке;
 		ppos_cur = count_beg;
-		if ((cond = (int *)new_struct((cond_ptr[N_cond]+1)*sizeof(int))) != NULL)
+		if ((cond = new_struct<int>(cond_ptr[N_cond]+1)) != NULL)
 		while (ppos_cur < upper_limit) {
 
 			if ((pchar = strstr(id_NODES+ppos_cur, "\xA")) != NULL)
@@ -1252,7 +1171,7 @@ int CGrid::nodes_nas(char * id_NODES, unsigned long & count, unsigned long upper
 			for (N_h_mask = N_i_mask = hit[k = 0]; k < N; k++) 
 			if  (N_h_mask < hit[k]) N_h_mask = hit[k]; else
 			if  (N_i_mask > hit[k]) N_i_mask = hit[k];
-			if ((h_mask = (int *)new_struct((N_h_mask-N_i_mask+1)*sizeof(int))) != NULL)
+			if ((h_mask = new_struct<int>(N_h_mask-N_i_mask+1)) != NULL)
 			for (k = 0; k < N; k++) h_mask[hit[k]-N_i_mask] = k;
 
 			if (geom && geom_ptr && h_mask)
@@ -1283,7 +1202,7 @@ int CGrid::nodes_nas(char * id_NODES, unsigned long & count, unsigned long upper
 				if (N_b_mask < cond[l+3]) N_b_mask = cond[l+3]; else
 				if (N_l_mask > cond[l+3]) N_l_mask = cond[l+3];
 			}
-			if (geom && geom_ptr && (b_mask = (int *)new_struct((N_b_mask-N_l_mask+1)*sizeof(int))) != NULL)
+			if (geom && geom_ptr && (b_mask = new_struct<int>(N_b_mask-N_l_mask+1)) != NULL)
 			for (k = 0; k < geom[0]; k++)  
 				if ((j = -geom[geom_ptr[k]+2]) <= N_b_mask && N_l_mask <= j) b_mask[j-N_l_mask] = k;
 
@@ -1333,7 +1252,7 @@ int CGrid::converts_inp(char * id_NODES, unsigned long & count, unsigned long up
 
 ////////////////////////////////////////
 //...инициализируем геометрию элементов;
-		zero_grid(); N_geom = 0;
+		release(); N_geom = 0;
 
 /////////////////////////////////////
 //...просматриваем все разделы *Part;
@@ -1375,7 +1294,7 @@ int CGrid::converts_inp(char * id_NODES, unsigned long & count, unsigned long up
 ///////////////////////////////////////////////////////////////////////////////////////////////
 //...заполняем массив геометрии элементов, отделяем по одной строчке, смотрим группы элементов;
 		N_part = 0;
-		if ((ppos_cur = count_beg) < upper_limit && geom_ptr && (geom = (int *)new_struct(geom_ptr[N_geom]*sizeof(int))) != NULL)
+		if ((ppos_cur = count_beg) < upper_limit && geom_ptr && (geom = new_struct<int>(geom_ptr[N_geom])) != NULL)
 			while ((upper = ppos_cur)  < upper_limit) {                                   
 			PPOS_CUR(id_NODES, pchar, upper,	upper_limit, "*End Part"); count = upper; upper -= sizeof("*End Part");
 			N_part++;
@@ -1455,7 +1374,7 @@ int CGrid::condit_inp(char * id_NODES, unsigned long & count, unsigned long uppe
 ////////////////////////////////////////
 //...инициализируем геометрию элементов;
 		unsigned long N_buf = 50, buf_incr = 20, current_list, 
-						* elements_list = (unsigned long *)new_struct((N_buf*2+1)*sizeof(unsigned long));
+						* elements_list = new_struct<unsigned long>(N_buf*2+1);
 		N_cond = 0;
 
 /////////////////////////////////////
@@ -1537,7 +1456,7 @@ int CGrid::condit_inp(char * id_NODES, unsigned long & count, unsigned long uppe
 /////////////////////////////////////////////////////
 //...заполняем массивы из множеств узлов и элементов;
 		ppos_cur = count;
-		if (cond_ptr && (cond = (int *)new_struct(cond_ptr[N_cond]*sizeof(int))) != NULL && geom && geom_ptr && hit) {
+		if (cond_ptr && (cond = new_struct<int>(cond_ptr[N_cond])) != NULL && geom && geom_ptr && hit) {
                                                                 
 ///////////////////////////////////////////////
 //...готовим печать информации о подмножествах;
@@ -1575,7 +1494,7 @@ int CGrid::condit_inp(char * id_NODES, unsigned long & count, unsigned long uppe
 						if (hit[k] < node_min) node_min = hit[k];
 						if (hit[k] > node_max) node_max = hit[k];
 					}
-					node_pernum = (int *)new_struct((node_max-node_min+1)*sizeof(int)); 
+					node_pernum = new_struct<int>(node_max-node_min+1); 
 					for (k = k_beg; k < k_end; k++) node_pernum[hit[k]-node_min] = k;
 				}
 
@@ -1633,7 +1552,7 @@ int CGrid::condit_inp(char * id_NODES, unsigned long & count, unsigned long uppe
 						if (-geom[geom_ptr[k]+3] < elem_min) elem_min = -geom[geom_ptr[k]+3];
 						if (-geom[geom_ptr[k]+3] > elem_max) elem_max = -geom[geom_ptr[k]+3];
 					}
-					elem_pernum = (int *)new_struct((elem_max-elem_min+1)*sizeof(int));
+					elem_pernum = new_struct<int>(elem_max-elem_min+1);
 					for (k = k_beg; k < geom[0]; k++) 
 						if (N_part+geom[geom_ptr[k]+2] == 0) elem_pernum[-geom[geom_ptr[k]+3]-elem_min] = k;
 				}
@@ -1646,7 +1565,7 @@ int CGrid::condit_inp(char * id_NODES, unsigned long & count, unsigned long uppe
 				if (elem_pernum)
 				while ((upper_element = ppos_cur) < upper) {
 					if (elements_list[0] == N_buf) {
-						unsigned long * new_elements_list = elements_list; elements_list = (unsigned long *)new_struct(((N_buf += buf_incr)*2+1)*sizeof(unsigned long));
+						unsigned long * new_elements_list = elements_list; elements_list = new_struct<unsigned long>((N_buf += buf_incr)*2+1);
 						memcpy(elements_list, new_elements_list, (new_elements_list[0]*2+1)*sizeof(unsigned long)); delete_struct(new_elements_list);
 					}
 					elements_list[elements_list[0]*2+1] = ppos_cur;
@@ -1882,7 +1801,7 @@ int CGrid::nodes_inp(char * id_NODES, unsigned long & count, unsigned long upper
 				if (hit[k] < node_min) node_min = hit[k];
 				if (hit[k] > node_max) node_max = hit[k];
 			}
-			node_pernum = (int *)new_struct((node_max-node_min+1)*sizeof(int)); 
+			node_pernum = new_struct<int>(node_max-node_min+1); 
 			for (k = nodes_part; k < N; k++) node_pernum[hit[k]-node_min] = k;
 
 ////////////////////////////////////////////////////////
@@ -1966,7 +1885,7 @@ int CGrid::stru_in(char * id_STRU, unsigned long & count, unsigned long upper_li
 
 //////////////////////////////////////////////////////////
 //...зачитываем координаты центров включений и их радиусы;
-		zero_grid(); add_params(2);
+		release(); add_params(2);
 		while ((upper = ppos_cur) < upper_limit && k++ < M) {
 				ONE_LINE(id_STRU, pchar, ppos_cur, upper_limit, one_line, STR_SIZE);
 				X = Y = Z = pp[0] = pp[1] = 0.;
@@ -2012,6 +1931,9 @@ void CGrid::stru_in(const char * ch_STRU, double * par)
   delete_struct(id_STRU);
 }
 
+//////////////////////////////////////////////////////////
+//           GRID AND GEOMETRY VISUALIZATION            //
+//////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////
 //...reproducing grid in Surfer format with isometrical transformation;
 void CGrid::grid_out(FILE * GR, double fi, double theta, double fX, int m_axis, int shift, int m_contour, int element)

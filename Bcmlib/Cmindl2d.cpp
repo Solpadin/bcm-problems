@@ -1,6 +1,6 @@
 #include "stdafx.h"
 
-#include "shapes.h"
+#include "cshapes.h"
 #include "cmindl2d.h"
 
 #define  Message(Msg)   { printf("%s", Msg);  printf("\n");}
@@ -36,9 +36,9 @@ int CMindl2D::block_shape_init(Block<double> & B, Num_State id_free)
 
 /////////////////////////////////////////////
 //...задаем степень аппроксимирующих функций;
-		B.shape->init1(UnPackInts(get_param(NUM_MPLS)), solver.id_norm, draft_dim(type()));
+		B.shape->degree_init1(UnPackInts(get_param(NUM_MPLS)), solver.id_norm, draft_dim(type()));
 		if (B.link[NUM_PHASE] == -2) //...another degree of multipoles for inclusion!!!
-		B.shape->init1(UnPackInts(get_param(NUM_MPLS), 1), solver.id_norm, draft_dim(type()));
+		B.shape->degree_init1(UnPackInts(get_param(NUM_MPLS), 1), solver.id_norm, draft_dim(type()));
 
 /////////////////////////////////////////////////////
 //...local system of coordinates and parametrization;

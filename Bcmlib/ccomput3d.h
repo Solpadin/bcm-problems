@@ -892,7 +892,7 @@ void CComput3D<T>::comput2(int opt)
 			if  (m_cell == BOUNDR_LINK && (elem = this->block_plink_3D(this->B[k], l = i, id_dir, par)) >= 0) m_cell = PERIOD_LINK;
 		
 			if  (m_cell != INCLUD_LINK && (! this->solver.mode(NO_TR) || elem == this->solver.p[opt])) {
-				bnd->zero_grid();
+				bnd->release();
 				m = block_comput(bnd, k, sqr(this->get_param(this->NUM_QUAD+1)), i, j_surf, N_max);
 
 /////////////////////////////////
@@ -1029,7 +1029,7 @@ void CComput3D<T>::comput2(int opt)
 
 		LOOP_MASK(opt, k);
 		for (i = 0; i < this->B[k].link[0]; i++) if ((j = this->B[k].link[i+1]) >= 0 && (! this->solver.mode(NO_TR) || j == this->solver.p[opt])) {
-			bnd->zero_grid(); 
+			bnd->release(); 
 			m = block_comput(bnd, k, j, sqr(this->get_param(this->NUM_QUAD+1)), j_surf, N_max);
 
 /////////////////////////////////
@@ -1397,7 +1397,7 @@ void CComput3D<T>::comput5(int opt, T * K, Num_Value _FMF, int id_variant)
 		nums_facet = this->B[k].bar->arcs_number();
 
 		for (i = 0; i < nums_facet; i++) {
-			bnd->zero_grid();
+			bnd->release();
 			m = block_comput(bnd, k, sqr(this->get_param(this->NUM_QUAD+1)), i, j_surf, N_max, OK_STATE);
 
 //////////////////////////////////////////////////////////////////////////

@@ -9,6 +9,7 @@
 #include "cbeam.h"
 #include "cexpp.h"
 #include "cpoly.h"
+#include "cradi.h"
 #include "cmapi.h"
 #include "cheat.h"
 #include "cwave.h"
@@ -20,11 +21,12 @@
 ////////////////////////////////////////////////////////////////////////////////
 //...global functions for construction of all existing types of shape functions;
 template <typename T>
-CShape<T> * CreateShape(Num_Shape id_SHAPE = NULL_SHAPE, int id_dop = 0)
+CShape<T> * CreateShape(Num_Shape id_SHAPE, int id_dop)
 {
 	switch (id_SHAPE) {
       case			  MP2D_POLY_SHAPE: return new CMapi2DPoly<T>;
       case			  MP3D_POLY_SHAPE: return new CMapi3DPoly<T>;
+      case			  MP2D_ZOOM_SHAPE: return new CMapi2DZoom<T>;
       case			  MP3D_ZOOM_SHAPE: return new CMapi3DZoom<T>;
       case			  MP3D_ELLI_SHAPE: return new CMapi3DEll<T>;
       case			  BEAM_POLY_SHAPE: return new CBeamShape<T>;
@@ -57,6 +59,9 @@ CShape<T> * CreateShape(Num_Shape id_SHAPE = NULL_SHAPE, int id_dop = 0)
       case			  AU3D_BEAMZSHAPE: if (typeid(T) == typeid(double)) return (CShape<T> *)(new CAcou3DBeamZ);
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
       case			  AU3D_POLY_SHAPE: if (typeid(T) == typeid(complex)) return (CShape<T> *)(new CAcou3DPoly);
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      case	  SK2D_RADII_POLY_SHAPE: return new CSkin2DRadiiPoly<T>;
+      case	  SK2D_RADII_ZOOM_SHAPE: return new CSkin2DRadiiZoom<T>;
 	}
    return new CShape<T>;
 }

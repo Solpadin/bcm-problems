@@ -1,6 +1,6 @@
 #include "stdafx.h"
 
-#include "shapes.h"
+#include "cshapes.h"
 #include "cvisco2d_grad.h"
 
 #define  Message(Msg)   { printf("%s", Msg);  printf("\n");}
@@ -33,9 +33,9 @@ int CVisco2D_grad::block_shape_init(Block<complex> & B, Num_State id_free)
 		if ((B.type & ERR_CODE) == ELLI_BLOCK) B.shape->set_shape(1, get_param(NUM_MPLS+1)*fabs(B.mp[7]), get_param(NUM_MPLS+1)*fabs(B.mp[7]));
 		else												B.shape->set_shape(1, get_param(NUM_MPLS+1)*fabs(B.mp[7])); 
       
-		B.shape->init1(UnPackInts(get_param(NUM_MPLS)), solver.id_norm, 2);
+		B.shape->degree_init1(UnPackInts(get_param(NUM_MPLS)), solver.id_norm, draft_dim(type()));
 		if (B.link[NUM_PHASE] == -2) //...another degree of multipoles for inclusion!!!
-		B.shape->init1(UnPackInts(get_param(NUM_MPLS), 1), solver.id_norm, 2);
+		B.shape->degree_init1(UnPackInts(get_param(NUM_MPLS), 1), solver.id_norm,  draft_dim(type()));
 
 //////////////////////////////////////////////////////////////////////////////
 //...setting acselerator, local system of coordinate and init parametrization;
@@ -50,7 +50,7 @@ int CVisco2D_grad::block_shape_init(Block<complex> & B, Num_State id_free)
 //			if (B.link[NUM_PHASE] == -1) B.mp[4] = M_PI/3.;
 
 			B.shape->set_local(B.mp+1);
-			B.shape->set_shape(NUM_MPLS, get_param(1)*fabs( B.mp[7]));
+			B.shape->set_shape(NUM_MPLS, get_param(NUM_MPLS+1)*fabs( B.mp[7]));
 			if ((B.type & ERR_CODE) == ELLI_BLOCK) B.shape->set_shape(1, get_param(NUM_MPLS+1)*fabs(B.mp[7]), get_param(NUM_MPLS+1)*fabs(B.mp[7]));
 			else												B.shape->set_shape(1, get_param(NUM_MPLS+1)*fabs(B.mp[7])); 
 		}
@@ -1659,9 +1659,9 @@ void CVisco2D_grad::GetEnergyValue(int k, complex * energy)
 //	solver.set_blocks(N, 1); //<==== number of saved potentials !!!
 //	solver.n += 10;//<==== number of additional auxilliary arrays!!!
 //   shapes_init(INITIAL_STATE);
-//	B[0].shape->init1(1, 0, solver.id_norm, 2);//...в слое задаем степень поменьше;
-//	B[1].shape->init1(1, 0, solver.id_norm, 2);
-//	B[2].shape->init1(1, 0, solver.id_norm, 2);
+//	B[0].shape->degree_init1(1, 0, solver.id_norm, 2);//...в слое задаем степень поменьше;
+//	B[1].shape->degree_init1(1, 0, solver.id_norm, 2);
+//	B[2].shape->degree_init1(1, 0, solver.id_norm, 2);
 //	shapes_init(ZERO_STATE);
 //	int k;
 //	for (k = 0; k < solver.N;  k++)

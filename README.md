@@ -2,6 +2,7 @@
 
 
       $ sudo apt-get install libparmetis-dev
+      $ sudo apt-get install libmetis-edf-dev
       $ sudo apt-get install gfortran
       $ sudo apt-get install g++
       $ sudo apt-get install openmpi-bin

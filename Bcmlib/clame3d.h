@@ -11,14 +11,20 @@
 //...class of blocks partition for double plane problem;
 class CLame3D : public CComput3D<double> {
 public:
-		Num_Draft type   () { return LAME3D_DRAFT;}
-		int size_of_param() { return(26);}
+		int size_of_param() { return(32);}
+public:
+		void init() {
+			delete_struct(param);
+			param = new_struct<Param>(size_of_param());
+		}
+public:
 //...constructor;
 		CLame3D (int num_phase = 15) {
-			param = (Param *)new_struct(size_of_param()*sizeof(Param));
-			NUM_PHASE = num_phase;
-			TT = TH = NULL;
+			TT = TH = NULL; 
 			C0 = C1 = C2 = A1 = B1 = A2 = B2 = NULL;
+			NUM_PHASE = num_phase;
+			MAX_PHASE = 4;
+			init();
 		}
       virtual ~CLame3D (void);
 protected:
@@ -129,11 +135,11 @@ static int NUM_SHEAR, NUM_SHIFT, NUM_HESS;
 		void jump_make_local (int i, int m);
 		void jump_make_common(int i, int m);
 //...forming block matrix elements;
-		Num_State gram1	  (CGrid * nd, int i, int id_local);
-		Num_State gram2	  (CGrid * nd, int i, int id_local);
+		Num_State gram1	 (CGrid * nd, int i, int id_local);
+		Num_State gram2	 (CGrid * nd, int i, int id_local);
 		Num_State gram2peri(CGrid * nd, int i, int id_local);
-		Num_State gram3	  (CGrid * nd, int i, int id_local);
-		Num_State gram4	  (CGrid * nd, int i, int id_local);
+		Num_State gram3	 (CGrid * nd, int i, int id_local);
+		Num_State gram4	 (CGrid * nd, int i, int id_local);
 		Num_State transfer1(CGrid * nd, int i, int k, int id_local);
 		Num_State transfer2(CGrid * nd, int i, int k, int id_local);
 		Num_State trans_esh(CGrid * nd, int i, int k, int id_local);
@@ -161,26 +167,45 @@ public:
 //...параметры задачи;
 		void set_fasa_hmg(double nju1, double nju2, double G1, double G2, double nju3, double G3);
 		void set_fasa_hmg(double nju1, double nju2, double G1, double G2) { set_fasa_hmg(nju1, nju2, G1, G2, 0.3, 1.);}
-		void set_fasa_hmg(double R1, double R2, double nju1, double nju2, double nju3, double G1, double G2, double G3, double alpha = -1.);
+		void set_fasa_hmg(double R1, double R2, double nju1, double nju2, double nju3, double G1, double G2, double G3, double alpha);
 		void set_geometry(double rad, double layer = 0.) { set_param(NUM_GEOMT, rad); set_param(NUM_GEOMT+1, rad+layer);}
+//...извлечение параметров задачи;
+		double get_Young(int num_phase) {
+			if (size_of_param() <= NUM_SHEAR+2+NUM_SHIFT*num_phase) return(0.);
+			else return(param[NUM_SHEAR+NUM_SHIFT*num_phase]*2.*(1.+param[NUM_SHEAR+1+NUM_SHIFT*num_phase])); 
+		}
+		double get_Shear(int num_phase) {
+			if (size_of_param() <= NUM_SHEAR+2+NUM_SHIFT*num_phase) return(0.);
+			else return(param[NUM_SHEAR+NUM_SHIFT*num_phase]); 
+		}
+		double get_Poisn(int num_phase) {
+			if (size_of_param() <= NUM_SHEAR+2+NUM_SHIFT*num_phase) return(0.);
+			else return(param[NUM_SHEAR+1+NUM_SHIFT*num_phase]); 
+		}
 //...результаты решения задачи;
 		void GetFuncAllValues(double X, double Y, double Z, double * F, int id_block, Num_Value id_F, int id_variant = 0, int iparam = 0);
 		void block_descrap(char * OUT_FILE);
 		void GetEnergy(double * energy, int id_variant = AXIS_Z, Num_Comput Num = BASIC_COMPUT);
 		void GetEnergyValue(int k, double * energy);
-//...одномерные аналитические модели;
+//...одномерная слоистая модель;
 		double TakeLayer_kk(int N, double * ff, double * kk);
 //...одномерные аналитические модели с межфазным слоем в сферической симметрии;
-		double TakeLayer_kk(int N, double * ff, double * kv, double * mu);
-		double TakeLayer_GG(int N, double * ff, double * kv, double * mu, double * nj, double eps = EE, int max_iter = 100);
+		double TakeLayer_k1(int N, double * ff, double * kv, double * mu);
+		double TakeLayer_G1(int N, double * ff, double * kv, double * mu, double * nj, double eps = EE, int max_iter = 100);
 //...аналитические модели (самосогласованные);
-		double TakeEshelby_volm (double ff, double ff_l);
-		double TakeEshelby_shear(double ff, double ff_l, double eps = 1e-12, int max_iter = 100);
+		double TakeEshelby_volm     (double ff, double ff_l);
 		double TakeEshelby_volm_two (double ff);
+		double TakeEshelby_shear    (double ff, double ff_l, double eps = 1e-12, int max_iter = 100);
 		double TakeEshelby_shear_two(double ff, double eps = EE, int max_iter = 100);
+		double TakeEshelby_shear_rig(double ff, double eps = EE, int max_iter = 100);
 		double TakeEshelby_shear_sys(double ff, double eps = EE, int max_iter = 100);
 		double TakeEshelby_shear_det(double ff, double alpha = -1);
-		double TakeEshelby_shear    (double ff, double nju1, double nju2, double E1, double E2);
+		double TakeEshelby_shear(double ff, double nju1, double nju2, double E1, double E2);
+//...аналитические модели с установкой блоков;
+		void TakeEshelbyModel	 (double ff, double ff_l);
+		void TakeEshelbyModel_two(double ff);
+//...тестовый пример;
+		void testEshelby_slip (double X, double Y, double Z, double njuI, double njuM, double EI, double EM, double rad, double& UX, double& UY, double& UZ);
 };
 
 /////////////////////////////////////////////////
@@ -231,10 +256,22 @@ public:
 #undef  DRAFT_nju3                       //...param(21);
 #define DRAFT_alpha3                0.   //...coefficient of Neuber-Papkovich representation in matrix;
 #undef  DRAFT_alpha3                     //...param(22);
-#define DRAFT_reserveA3				 0.   //...зарезервированный параметр;
-#undef  DRAFT_reserveA3						//...param(23);
+#define DRAFT_reserveA3					0.   //...зарезервированный параметр;
+#undef  DRAFT_reserveA3						  //...param(23);
 #define DRAFT_reserveB3             0.   //...зарезервированный параметр;
 #undef  DRAFT_reserveB3                  //...param(24);
+#define DRAFT_reserveC4             0.   //...зарезервированный параметр;
+#undef  DRAFT_reserveC4                  //...param(25);
+#define DRAFT_G4                    1.   //...normalized shear modulus in interphase layer;
+#undef  DRAFT_G4                         //...param(26);
+#define DRAFT_nju4                  0.3  //...Poisson coefficient in interphase layer;
+#undef  DRAFT_nju4                       //...param(27);
+#define DRAFT_alpha4                0.   //...coefficient of Neuber-Papkovich representation in matrix;
+#undef  DRAFT_alpha4                     //...param(28);
+#define DRAFT_reserveA4					0.   //...зарезервированный параметр;
+#undef  DRAFT_reserveA4						  //...param(29);
+#define DRAFT_reserveB4             0.   //...зарезервированный параметр;
+#undef  DRAFT_reserveB4                  //...param(30);
 #define DRAFT_lagrange              1.   //...Lagrange coefficient for energy in block functional;
-#undef  DRAFT_lagrange                   //...param(25);
+#undef  DRAFT_lagrange                   //...param(31);
 #endif

@@ -10,12 +10,17 @@
 //...class of blocks partition for double plane problem;
 class CVisco2D_grad : public CComput2D<complex> {
 public:
-		Num_Draft type   () { return VISCO2D_GRAD_DRAFT;}
 		int size_of_param() { return(17);}
+public:
+		void init() {
+			delete_struct(param);
+			param = new_struct<Param>(size_of_param());
+		}
+public:
 //...constructor;
 		CVisco2D_grad (int num_phase = 8) {
-			param = (Param *)new_struct(size_of_param()*sizeof(Param));
 			NUM_PHASE = num_phase;
+			init();
 		};
 protected:
 static int NUM_SHEAR, NUM_SHIFT, NUM_ADHES, MAX_PHASE, NUM_HESS;

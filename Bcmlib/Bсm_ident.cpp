@@ -110,7 +110,7 @@ double CIdent(char * name_ini, double R, double A, double * energy, double l1, d
 	}
 	if (ell_X != 0. && ell_Y != 0.) {
 		CCells * ce = new(CCells);
-		ce->cells_new(1, 2, (l = size_of_map(1, CYL_GENUS))+1);
+		ce->init(1, 2, (l = size_of_map(1, CYL_GENUS))+1);
 		ce->mp[0] = (CMap)ID_MAP(1, CYL_GENUS);
 		ce->mp[1] = X0;
 		ce->mp[2] = Y0;
@@ -145,7 +145,7 @@ double CIdent(char * name_ini, double R, double A, double * energy, double l1, d
 		sm->set_lagrange(1e5);
 		sm->change_solv(E_PERIODIC_SOLVING);
 		if (! l1 || ! l2)					//...material parameters;
-		sm->set_fasa_hmg(nju1, nju2, G1, G2); else
+		sm->set_fasa_hmg(nju1, nju2, G1, G2, 0., 0.); else
 		sm->set_fasa_hmg(nju1, nju2, G1, G2, G1/sqr(l1), G2/sqr(l2));
 	}
 	sm->set_param(3, Ad); //...адгезионные модули Ad и Bd;
@@ -218,7 +218,7 @@ double CIdent(char * name_ini, double R, double A, double * energy, double l1, d
 			for (k = 0; k < sm->N; k++) sm->GetEnergyValue(k, energy);
 		}
 		if (id_visual) {//..visualization;
-			nd->zero_grid();
+			nd->release();
 
 			sm->BlockActivate(NULL_STATE);
 
@@ -226,7 +226,7 @@ double CIdent(char * name_ini, double R, double A, double * energy, double l1, d
 			for (i = 0; i <= 2*NX; i++) nd->add_new_point_X(.5*i/NX*(par[1]-par[0])+par[0]);
 			for (j = 0; j <= 2*NY; j++) nd->add_new_point_Y(.5*j/NY*(par[3]-par[2])+par[2]);
 
-			nd->hit = (int *)new_struct(nd->N*nd->N1*sizeof(int));
+			nd->hit = new_struct<int>(nd->N*nd->N1);
 
 			for (i = 0; i < nd->N;  i++)
 			for (j = 0; j < nd->N1; j++) {
@@ -365,7 +365,7 @@ double CIdent_sphere3D(double * energy, double rad, double fV, double l1, double
 			for (j = 0; j <= 2*NY; j++) nd->add_new_point_Y(.5*j/NY*(par[3]-par[2])+par[2]);
 
 			nd->add_new_point_Z((par[5]+par[4])*.5);
-			nd->hit = (int *)new_struct(nd->N*nd->N1*sizeof(int));
+			nd->hit = new_struct<int>(nd->N*nd->N1);
 
 			for (i = 0; i < nd->N;  i++)
 			for (j = 0; j < nd->N1; j++)
@@ -380,7 +380,7 @@ double CIdent_sphere3D(double * energy, double rad, double fV, double l1, double
 				for (j = 0; j <= 2*NY; j++) nd->add_new_point_Y(.5*j/NY*(par[1]-par[0])+par[0]);
 
 				nd->add_new_point_Z((par[3]+par[2])*.5);
-				nd->hit = (int *)new_struct(nd->N*nd->N1*sizeof(int));
+				nd->hit = new_struct<int>(nd->N*nd->N1);
 
 				for (i = 0; i < nd->N;  i++)
 				for (j = 0; j < nd->N1; j++)
@@ -395,7 +395,7 @@ double CIdent_sphere3D(double * energy, double rad, double fV, double l1, double
 				for (j = 0; j <= 2*NY; j++) nd->add_new_point_Y(.5*j/NY*(par[5]-par[4])+par[4]);
 
 				nd->add_new_point_Z((par[1]+par[0])*.5);
-				nd->hit = (int *)new_struct(nd->N*nd->N1*sizeof(int));
+				nd->hit = new_struct<int>(nd->N*nd->N1);
 
 				for (i = 0; i < nd->N;  i++)
 				for (j = 0; j < nd->N1; j++)

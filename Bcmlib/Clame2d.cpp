@@ -1,11 +1,11 @@
 #include "stdafx.h"
 
-#include "shapes.h"
+#include "cshapes.h"
 #include "clame2d.h"
 
 #define  Message(Msg)   { printf("%s", Msg);  printf("\n");}
 
-int CLame2D::NUM_SHEAR = 4;
+int CLame2D::NUM_SHEAR = 6;
 int CLame2D::NUM_SHIFT = 2;
 
 //////////////////////////////////
@@ -16,15 +16,27 @@ int CLame2D::block_shape_init(Block<double> & B, Num_State id_free)
 	if (  B.shape && id_free == INITIAL_STATE) delete_shapes(B.shape);
    if (! B.shape && B.mp) {
 		B.shape = new CShapeMixer<double>;
-		B.shape->add_shape(CreateShape<double>(MP2D_POLY_SHAPE));
-
+		if ((B.type & ERR_CODE) == ZOOM_BLOCK && B.mp[0] == ID_MAP(1, SPHEROID_GENUS)) {
+			B.shape->add_shape(CreateShape<double>(MP2D_POLY_SHAPE));
+			B.shape->add_shape(CreateShape<double>(MP2D_ZOOM_SHAPE));
 ////////////////////////
 //...setting parameters;
-      B.shape->set_shape(get_param(NUM_MPLS+1)*fabs(B.mp[7])); 
-      B.shape->init1(UnPackInts(get_param(NUM_MPLS)), solver.id_norm, draft_dim(type()));
+			B.shape->degree_init1(0, UnPackInts(get_param(NUM_MPLS)), solver.id_norm, draft_dim(type()));
+			B.shape->set_shape(0, get_param(NUM_MPLS+1)*fabs(B.mp[7]));
 
-		if (B.link[NUM_PHASE] == -2) //...another degree of multipoles for inclusion!!!
-		B.shape->init1(UnPackInts(get_param(NUM_MPLS), 1), solver.id_norm, draft_dim(type()));
+			B.shape->degree_init1(1, UnPackInts(get_param(NUM_MPLS)), solver.id_norm, draft_dim(type()));
+			B.shape->set_shape(1, fabs(B.mp[8]));
+		}
+		else {
+			B.shape->add_shape(CreateShape<double>(MP2D_POLY_SHAPE));
+////////////////////////
+//...setting parameters;
+			B.shape->set_shape(get_param(NUM_MPLS+1)*fabs(B.mp[7]));
+			B.shape->degree_init1(UnPackInts(get_param(NUM_MPLS)), solver.id_norm, draft_dim(type()));
+
+			if (B.link[NUM_PHASE] == -2) //...another degree of multipoles for inclusion!!!
+			B.shape->degree_init1(UnPackInts(get_param(NUM_MPLS), 1), solver.id_norm, draft_dim(type()));
+		}
 
 /////////////////////////////////////////////////////////////////
 //...setting local system of coordinate and init parametrization;
@@ -37,7 +49,11 @@ int CLame2D::block_shape_init(Block<double> & B, Num_State id_free)
    if (B.shape && id_free != INITIAL_STATE) {
 		if (id_free == SPECIAL_STATE) { //...переустановка радиуса и центра мультиполей;
          B.shape->set_local(B.mp+1);
-			B.shape->set_shape(get_param(NUM_MPLS+1)*fabs(B.mp[7]));
+			if ((B.type & ERR_CODE) == ZOOM_BLOCK && B.mp[0] == ID_MAP(1, SPHEROID_GENUS)) {
+				B.shape->set_shape(0, get_param(NUM_MPLS+1)*fabs(B.mp[7]));
+				B.shape->set_shape(1, fabs(B.mp[8]));
+			}
+			else B.shape->set_shape(get_param(NUM_MPLS+1)*fabs(B.mp[7]));
 		}
 		else
 		if (id_free == OK_STATE)
@@ -58,180 +74,220 @@ int CLame2D::block_shape_init(Block<double> & B, Num_State id_free)
 //...realization of classical displacements (Ux);
 void CLame2D::jump1_classic_x(double * P, int i, int m)
 {
-  int    shift = (-B[i].link[NUM_PHASE]-1)*NUM_SHIFT;
-  double G1    = 1./get_param(NUM_SHEAR+shift), 
-         alpha = .25/(1.-get_param(NUM_SHEAR+1+shift)); m += solver.id_norm;
-  B[i].shape->cpy_x     (B[i].shape->deriv);
-  B[i].shape->cpy       (B[i].shape->p_cpy);
-  B[i].shape->admittance(B[i].shape->p_cpy, B[i].shape->deriv, (1.-alpha)*G1, -P[0]*alpha*G1);
-  B[i].shape->admittance(B[i].shape->deriv, NULL, -P[1]*alpha*G1, 0.);
+	int    shift = (-B[i].link[NUM_PHASE]-1)*NUM_SHIFT;
+	double G1    = 1./get_param(NUM_SHEAR+shift), 
+			alpha = .25/(1.-get_param(NUM_SHEAR+1+shift)); m += solver.id_norm;
+	B[i].shape->cpy_x     (B[i].shape->deriv);
+	B[i].shape->cpy       (B[i].shape->p_cpy);
+	B[i].shape->admittance(B[i].shape->p_cpy, B[i].shape->deriv, (1.-alpha)*G1, -P[0]*alpha*G1);
+	B[i].shape->admittance(B[i].shape->deriv, NULL, -P[1]*alpha*G1, 0.);
 
-  B[i].shape->cpy(B[i].shape->p_cpy, B[i].shape->FULL(solver.hh[i][0][m], 0));
-  B[i].shape->cpy(B[i].shape->deriv, B[i].shape->FULL(solver.hh[i][0][m], 0, 1));
+  //B[i].shape->cpy(B[i].shape->p_cpy, B[i].shape->FULL(solver.hh[i][0][m], 0));
+  //B[i].shape->cpy(B[i].shape->deriv, B[i].shape->FULL(solver.hh[i][0][m], 0, 1));
+
+	B[i].shape->cpy(0, B[i].shape->p_cpy, B[i].shape->FULL(solver.hh[i][0][m], 0));
+	B[i].shape->cpy(1, B[i].shape->p_cpy, B[i].shape->FULL(solver.hh[i][0][m], 1));
+	B[i].shape->cpy(0, B[i].shape->deriv, B[i].shape->FULL(solver.hh[i][0][m], 0, 1));
+	B[i].shape->cpy(1, B[i].shape->deriv, B[i].shape->FULL(solver.hh[i][0][m], 1, 1));
 }
 
 /////////////////////////////////////////////////
 //...realization of classical displacements (Uy);
 void CLame2D::jump1_classic_y(double * P, int i, int m)
 {
-  int    shift = (-B[i].link[NUM_PHASE]-1)*NUM_SHIFT;
-  double G1    = 1./get_param(NUM_SHEAR+shift), 
-         alpha = .25/(1.-get_param(NUM_SHEAR+1+shift)); m += solver.id_norm;
-  B[i].shape->cpy_y     (B[i].shape->deriv);
-  B[i].shape->cpy       (B[i].shape->p_cpy);
-  B[i].shape->admittance(B[i].shape->p_cpy, B[i].shape->deriv, (1.-alpha)*G1, -P[1]*alpha*G1);
-  B[i].shape->admittance(B[i].shape->deriv, NULL, -P[0]*alpha*G1, 0.);
+	int    shift = (-B[i].link[NUM_PHASE]-1)*NUM_SHIFT;
+	double G1    = 1./get_param(NUM_SHEAR+shift), 
+			alpha = .25/(1.-get_param(NUM_SHEAR+1+shift)); m += solver.id_norm;
+	B[i].shape->cpy_y     (B[i].shape->deriv);
+	B[i].shape->cpy       (B[i].shape->p_cpy);
+	B[i].shape->admittance(B[i].shape->p_cpy, B[i].shape->deriv, (1.-alpha)*G1, -P[1]*alpha*G1);
+	B[i].shape->admittance(B[i].shape->deriv, NULL, -P[0]*alpha*G1, 0.);
 
-  B[i].shape->cpy(B[i].shape->deriv, B[i].shape->FULL(solver.hh[i][0][m], 0));
-  B[i].shape->cpy(B[i].shape->p_cpy, B[i].shape->FULL(solver.hh[i][0][m], 0, 1));
+  //B[i].shape->cpy(B[i].shape->deriv, B[i].shape->FULL(solver.hh[i][0][m], 0));
+  //B[i].shape->cpy(B[i].shape->p_cpy, B[i].shape->FULL(solver.hh[i][0][m], 0, 1));
+
+	B[i].shape->cpy(0, B[i].shape->deriv, B[i].shape->FULL(solver.hh[i][0][m], 0));
+	B[i].shape->cpy(1, B[i].shape->deriv, B[i].shape->FULL(solver.hh[i][0][m], 1));
+	B[i].shape->cpy(0, B[i].shape->p_cpy, B[i].shape->FULL(solver.hh[i][0][m], 0, 1));
+	B[i].shape->cpy(1, B[i].shape->p_cpy, B[i].shape->FULL(solver.hh[i][0][m], 1, 1));
 }
 
 ///////////////////////////////////////////////////////////////////
 //...realization of normal derivative classical displacements (Ux);
 void CLame2D::jump2_classic_x(double * P, int i, int m)
 {
-  int    shift = (-B[i].link[NUM_PHASE]-1)*NUM_SHIFT;
-  double G1    = 1./get_param(NUM_SHEAR+shift), 
-         alpha = .25/(1.-get_param(NUM_SHEAR+1+shift)); m += solver.id_norm;
-  B[i].shape->cpy_x		();
-  B[i].shape->admittance(B[i].shape->deriv, NULL, 0., 0.);
-  B[i].shape->admittance(B[i].shape->p_cpy, NULL, 0., 0.);
-  B[i].shape->deriv_X	(B[i].shape->deriv, P[3]);
-  B[i].shape->deriv_Y	(B[i].shape->p_cpy, P[4]);
-  B[i].shape->admittance(B[i].shape->deriv, B[i].shape->p_cpy, 1., 1.);
-  B[i].shape->cpy_x		();
+	int    shift = (-B[i].link[NUM_PHASE]-1)*NUM_SHIFT;
+	double G1    = 1./get_param(NUM_SHEAR+shift), 
+			alpha = .25/(1.-get_param(NUM_SHEAR+1+shift)); m += solver.id_norm;
+	B[i].shape->cpy_x		();
+	B[i].shape->admittance(B[i].shape->deriv, NULL, 0., 0.);
+	B[i].shape->admittance(B[i].shape->p_cpy, NULL, 0., 0.);
+	B[i].shape->deriv_X	(B[i].shape->deriv, P[3]);
+	B[i].shape->deriv_Y	(B[i].shape->p_cpy, P[4]);
+	B[i].shape->admittance(B[i].shape->deriv, B[i].shape->p_cpy, 1., 1.);
+	B[i].shape->cpy_x		();
 
-  B[i].shape->cpy       (B[i].shape->deriv, B[i].shape->p_cpy);
-  B[i].shape->admittance(B[i].shape->deriv, NULL, -P[0]*alpha*G1, 0.);
-  B[i].shape->adm_x     (B[i].shape->deriv, P[3]*(1.-2.*alpha)*G1);
-  B[i].shape->adm_y     (B[i].shape->deriv, P[4]*(1.-alpha)*G1);
-  B[i].shape->admittance(B[i].shape->p_cpy, NULL, -P[1]*alpha*G1, 0.);
-  B[i].shape->adm_x     (B[i].shape->p_cpy, -P[4]*alpha*G1);
+	B[i].shape->cpy       (B[i].shape->deriv, B[i].shape->p_cpy);
+	B[i].shape->admittance(B[i].shape->deriv, NULL, -P[0]*alpha*G1, 0.);
+	B[i].shape->adm_x     (B[i].shape->deriv, P[3]*(1.-2.*alpha)*G1);
+	B[i].shape->adm_y     (B[i].shape->deriv, P[4]*(1.-alpha)*G1);
+	B[i].shape->admittance(B[i].shape->p_cpy, NULL, -P[1]*alpha*G1, 0.);
+	B[i].shape->adm_x     (B[i].shape->p_cpy, -P[4]*alpha*G1);
 
-  B[i].shape->cpy(B[i].shape->deriv, B[i].shape->FULL(solver.hh[i][0][m], 0));
-  B[i].shape->cpy(B[i].shape->p_cpy, B[i].shape->FULL(solver.hh[i][0][m], 0, 1));
+  //B[i].shape->cpy(B[i].shape->deriv, B[i].shape->FULL(solver.hh[i][0][m], 0));
+  //B[i].shape->cpy(B[i].shape->p_cpy, B[i].shape->FULL(solver.hh[i][0][m], 0, 1));
+
+	B[i].shape->cpy(0, B[i].shape->deriv, B[i].shape->FULL(solver.hh[i][0][m], 0));
+	B[i].shape->cpy(1, B[i].shape->deriv, B[i].shape->FULL(solver.hh[i][0][m], 1));
+	B[i].shape->cpy(0, B[i].shape->p_cpy, B[i].shape->FULL(solver.hh[i][0][m], 0, 1));
+	B[i].shape->cpy(1, B[i].shape->p_cpy, B[i].shape->FULL(solver.hh[i][0][m], 1, 1));
 }
 
 ///////////////////////////////////////////////////////////////////
 //...realization of normal derivative classical displacements (Uy);
 void CLame2D::jump2_classic_y(double * P, int i, int m)
 {
-  int    shift = (-B[i].link[NUM_PHASE]-1)*NUM_SHIFT;
-  double G1    = 1./get_param(NUM_SHEAR+shift), 
-         alpha = .25/(1.-get_param(NUM_SHEAR+1+shift)); m += solver.id_norm;
-  B[i].shape->cpy_y		();
-  B[i].shape->admittance(B[i].shape->deriv, NULL, 0., 0.);
-  B[i].shape->admittance(B[i].shape->p_cpy, NULL, 0., 0.);
-  B[i].shape->deriv_X	(B[i].shape->deriv, P[3]);
-  B[i].shape->deriv_Y	(B[i].shape->p_cpy, P[4]);
-  B[i].shape->admittance(B[i].shape->deriv, B[i].shape->p_cpy, 1., 1.);
-  B[i].shape->cpy_y		();
+	int    shift = (-B[i].link[NUM_PHASE]-1)*NUM_SHIFT;
+	double G1    = 1./get_param(NUM_SHEAR+shift), 
+			alpha = .25/(1.-get_param(NUM_SHEAR+1+shift)); m += solver.id_norm;
+	B[i].shape->cpy_y		();
+	B[i].shape->admittance(B[i].shape->deriv, NULL, 0., 0.);
+	B[i].shape->admittance(B[i].shape->p_cpy, NULL, 0., 0.);
+	B[i].shape->deriv_X	(B[i].shape->deriv, P[3]);
+	B[i].shape->deriv_Y	(B[i].shape->p_cpy, P[4]);
+	B[i].shape->admittance(B[i].shape->deriv, B[i].shape->p_cpy, 1., 1.);
+	B[i].shape->cpy_y		();
 
-  B[i].shape->cpy       (B[i].shape->deriv, B[i].shape->p_cpy);
-  B[i].shape->admittance(B[i].shape->deriv, NULL, -P[0]*alpha*G1, 0.);
-  B[i].shape->adm_y     (B[i].shape->deriv, -P[3]*alpha*G1);
-  B[i].shape->admittance(B[i].shape->p_cpy, NULL, -P[1]*alpha*G1, 0.);
-  B[i].shape->adm_x     (B[i].shape->p_cpy, P[3]*(1.-alpha)*G1);
-  B[i].shape->adm_y     (B[i].shape->p_cpy, P[4]*(1.-2.*alpha)*G1);
+	B[i].shape->cpy       (B[i].shape->deriv, B[i].shape->p_cpy);
+	B[i].shape->admittance(B[i].shape->deriv, NULL, -P[0]*alpha*G1, 0.);
+	B[i].shape->adm_y     (B[i].shape->deriv, -P[3]*alpha*G1);
+	B[i].shape->admittance(B[i].shape->p_cpy, NULL, -P[1]*alpha*G1, 0.);
+	B[i].shape->adm_x     (B[i].shape->p_cpy, P[3]*(1.-alpha)*G1);
+	B[i].shape->adm_y     (B[i].shape->p_cpy, P[4]*(1.-2.*alpha)*G1);
 
-  B[i].shape->cpy(B[i].shape->deriv, B[i].shape->FULL(solver.hh[i][0][m], 0));
-  B[i].shape->cpy(B[i].shape->p_cpy, B[i].shape->FULL(solver.hh[i][0][m], 0, 1));
+  //B[i].shape->cpy(B[i].shape->deriv, B[i].shape->FULL(solver.hh[i][0][m], 0));
+  //B[i].shape->cpy(B[i].shape->p_cpy, B[i].shape->FULL(solver.hh[i][0][m], 0, 1));
+
+	B[i].shape->cpy(0, B[i].shape->deriv, B[i].shape->FULL(solver.hh[i][0][m], 0));
+	B[i].shape->cpy(1, B[i].shape->deriv, B[i].shape->FULL(solver.hh[i][0][m], 1));
+	B[i].shape->cpy(0, B[i].shape->p_cpy, B[i].shape->FULL(solver.hh[i][0][m], 0, 1));
+	B[i].shape->cpy(1, B[i].shape->p_cpy, B[i].shape->FULL(solver.hh[i][0][m], 1, 1));
 }
 
 //////////////////////////////////////////////////////////////////
 //...realization shear derivative of classical displacements (Ux);
 void CLame2D::jump3_classic_x(double * P, int i, int m)
 {
-  int    shift = (-B[i].link[NUM_PHASE]-1)*NUM_SHIFT;
-  double G1    = 1./get_param(NUM_SHEAR+shift), 
-         alpha = .25/(1.-get_param(NUM_SHEAR+1+shift)); m += solver.id_norm;
-  B[i].shape->cpy_x		();
-  B[i].shape->admittance(B[i].shape->deriv, NULL, 0., 0.);
-  B[i].shape->admittance(B[i].shape->p_cpy, NULL, 0., 0.);
-  B[i].shape->deriv_X	(B[i].shape->deriv, -P[4]);
-  B[i].shape->deriv_Y	(B[i].shape->p_cpy, P[3]);
-  B[i].shape->admittance(B[i].shape->deriv, B[i].shape->p_cpy, 1., 1.);
-  B[i].shape->cpy_x		();
+	int    shift = (-B[i].link[NUM_PHASE]-1)*NUM_SHIFT;
+	double G1    = 1./get_param(NUM_SHEAR+shift), 
+			alpha = .25/(1.-get_param(NUM_SHEAR+1+shift)); m += solver.id_norm;
+	B[i].shape->cpy_x		();
+	B[i].shape->admittance(B[i].shape->deriv, NULL, 0., 0.);
+	B[i].shape->admittance(B[i].shape->p_cpy, NULL, 0., 0.);
+	B[i].shape->deriv_X	(B[i].shape->deriv, -P[4]);
+	B[i].shape->deriv_Y	(B[i].shape->p_cpy, P[3]);
+	B[i].shape->admittance(B[i].shape->deriv, B[i].shape->p_cpy, 1., 1.);
+	B[i].shape->cpy_x		();
 
-  B[i].shape->cpy       (B[i].shape->deriv, B[i].shape->p_cpy);
-  B[i].shape->admittance(B[i].shape->deriv, NULL, -P[0]*alpha*G1, 0.);
-  B[i].shape->adm_x     (B[i].shape->deriv,-P[4]*(1.-2.*alpha)*G1);
-  B[i].shape->adm_y     (B[i].shape->deriv, P[3]*(1.-alpha)*G1);
-  B[i].shape->admittance(B[i].shape->p_cpy, NULL, -P[1]*alpha*G1, 0.);
-  B[i].shape->adm_x     (B[i].shape->p_cpy, -P[3]*alpha*G1);
+	B[i].shape->cpy       (B[i].shape->deriv, B[i].shape->p_cpy);
+	B[i].shape->admittance(B[i].shape->deriv, NULL, -P[0]*alpha*G1, 0.);
+	B[i].shape->adm_x     (B[i].shape->deriv,-P[4]*(1.-2.*alpha)*G1);
+	B[i].shape->adm_y     (B[i].shape->deriv, P[3]*(1.-alpha)*G1);
+	B[i].shape->admittance(B[i].shape->p_cpy, NULL, -P[1]*alpha*G1, 0.);
+	B[i].shape->adm_x     (B[i].shape->p_cpy, -P[3]*alpha*G1);
 
-  B[i].shape->cpy(B[i].shape->deriv, B[i].shape->FULL(solver.hh[i][0][m], 0));
-  B[i].shape->cpy(B[i].shape->p_cpy, B[i].shape->FULL(solver.hh[i][0][m], 0, 1));
+  //B[i].shape->cpy(B[i].shape->deriv, B[i].shape->FULL(solver.hh[i][0][m], 0));
+  //B[i].shape->cpy(B[i].shape->p_cpy, B[i].shape->FULL(solver.hh[i][0][m], 0, 1));
+
+	B[i].shape->cpy(0, B[i].shape->deriv, B[i].shape->FULL(solver.hh[i][0][m], 0));
+	B[i].shape->cpy(1, B[i].shape->deriv, B[i].shape->FULL(solver.hh[i][0][m], 1));
+	B[i].shape->cpy(0, B[i].shape->p_cpy, B[i].shape->FULL(solver.hh[i][0][m], 0, 1));
+	B[i].shape->cpy(1, B[i].shape->p_cpy, B[i].shape->FULL(solver.hh[i][0][m], 1, 1));
 }
 
 //////////////////////////////////////////////////////////////////
 //...realization shear derivative of classical displacements (Uy);
 void CLame2D::jump3_classic_y(double * P, int i, int m)
 {
-  int    shift = (-B[i].link[NUM_PHASE]-1)*NUM_SHIFT;
-  double G1    = 1./get_param(NUM_SHEAR+shift), 
-         alpha = .25/(1.-get_param(NUM_SHEAR+1+shift)); m += solver.id_norm;
-  B[i].shape->cpy_y		();
-  B[i].shape->admittance(B[i].shape->deriv, NULL, 0., 0.);
-  B[i].shape->admittance(B[i].shape->p_cpy, NULL, 0., 0.);
-  B[i].shape->deriv_X	(B[i].shape->deriv, -P[4]);
-  B[i].shape->deriv_Y	(B[i].shape->p_cpy, P[3]);
-  B[i].shape->admittance(B[i].shape->deriv, B[i].shape->p_cpy, 1., 1.);
-  B[i].shape->cpy_y		();
+	int    shift = (-B[i].link[NUM_PHASE]-1)*NUM_SHIFT;
+	double G1    = 1./get_param(NUM_SHEAR+shift), 
+			alpha = .25/(1.-get_param(NUM_SHEAR+1+shift)); m += solver.id_norm;
+	B[i].shape->cpy_y		();
+	B[i].shape->admittance(B[i].shape->deriv, NULL, 0., 0.);
+	B[i].shape->admittance(B[i].shape->p_cpy, NULL, 0., 0.);
+	B[i].shape->deriv_X	(B[i].shape->deriv, -P[4]);
+	B[i].shape->deriv_Y	(B[i].shape->p_cpy, P[3]);
+	B[i].shape->admittance(B[i].shape->deriv, B[i].shape->p_cpy, 1., 1.);
+	B[i].shape->cpy_y		();
 
-  B[i].shape->cpy       (B[i].shape->deriv, B[i].shape->p_cpy);
-  B[i].shape->admittance(B[i].shape->deriv, NULL, -P[0]*alpha*G1, 0.);
-  B[i].shape->adm_y     (B[i].shape->deriv, P[4]*alpha*G1);
-  B[i].shape->admittance(B[i].shape->p_cpy, NULL, -P[1]*alpha*G1, 0.);
-  B[i].shape->adm_x     (B[i].shape->p_cpy,-P[4]*(1.-alpha)*G1);
-  B[i].shape->adm_y     (B[i].shape->p_cpy, P[3]*(1.-2.*alpha)*G1);
+	B[i].shape->cpy       (B[i].shape->deriv, B[i].shape->p_cpy);
+	B[i].shape->admittance(B[i].shape->deriv, NULL, -P[0]*alpha*G1, 0.);
+	B[i].shape->adm_y     (B[i].shape->deriv, P[4]*alpha*G1);
+	B[i].shape->admittance(B[i].shape->p_cpy, NULL, -P[1]*alpha*G1, 0.);
+	B[i].shape->adm_x     (B[i].shape->p_cpy,-P[4]*(1.-alpha)*G1);
+	B[i].shape->adm_y     (B[i].shape->p_cpy, P[3]*(1.-2.*alpha)*G1);
 
-  B[i].shape->cpy(B[i].shape->deriv, B[i].shape->FULL(solver.hh[i][0][m], 0));
-  B[i].shape->cpy(B[i].shape->p_cpy, B[i].shape->FULL(solver.hh[i][0][m], 0, 1));
+  //B[i].shape->cpy(B[i].shape->deriv, B[i].shape->FULL(solver.hh[i][0][m], 0));
+  //B[i].shape->cpy(B[i].shape->p_cpy, B[i].shape->FULL(solver.hh[i][0][m], 0, 1));
+
+	B[i].shape->cpy(0, B[i].shape->deriv, B[i].shape->FULL(solver.hh[i][0][m], 0));
+	B[i].shape->cpy(1, B[i].shape->deriv, B[i].shape->FULL(solver.hh[i][0][m], 1));
+	B[i].shape->cpy(0, B[i].shape->p_cpy, B[i].shape->FULL(solver.hh[i][0][m], 0, 1));
+	B[i].shape->cpy(1, B[i].shape->p_cpy, B[i].shape->FULL(solver.hh[i][0][m], 1, 1));
 }
 
 ////////////////////////////////////////////////////////////////////
 //...realization of surface forces for classical displacements (Px);
 void CLame2D::jump4_classic_x(double * P, int i, int m)
 {
-  int    shift = (-B[i].link[NUM_PHASE]-1)*NUM_SHIFT;
-  double alpha = .5/(1.-get_param(NUM_SHEAR+1+shift)); m += solver.id_norm;
-  B[i].shape->cpy_x  ();
-  B[i].shape->deriv_N();
-  B[i].shape->cpy_x  ();
-  B[i].shape->admittance(B[i].shape->deriv, NULL, -alpha, 0.);
-  B[i].shape->cpy       (B[i].shape->deriv, B[i].shape->p_cpy);
-  B[i].shape->admittance(B[i].shape->deriv, NULL, P[0], 0.);
-  B[i].shape->adm_x     (B[i].shape->deriv, P[3]);
-  B[i].shape->adm_y     (B[i].shape->deriv, P[4]*(1.-alpha));
-  B[i].shape->admittance(B[i].shape->p_cpy, NULL, P[1], 0.);
-  B[i].shape->adm_y     (B[i].shape->p_cpy, P[3]*(2.*alpha-1.));
-  B[i].shape->adm_x     (B[i].shape->p_cpy, P[4]*(1.-alpha));
+	int    shift = (-B[i].link[NUM_PHASE]-1)*NUM_SHIFT;
+	double alpha = .5/(1.-get_param(NUM_SHEAR+1+shift)); m += solver.id_norm;
+	B[i].shape->cpy_x  ();
+	B[i].shape->deriv_N();
+	B[i].shape->cpy_x  ();
+	B[i].shape->admittance(B[i].shape->deriv, NULL, -alpha, 0.);
+	B[i].shape->cpy       (B[i].shape->deriv, B[i].shape->p_cpy);
+	B[i].shape->admittance(B[i].shape->deriv, NULL, P[0], 0.);
+	B[i].shape->adm_x     (B[i].shape->deriv, P[3]);
+	B[i].shape->adm_y     (B[i].shape->deriv, P[4]*(1.-alpha));
+	B[i].shape->admittance(B[i].shape->p_cpy, NULL, P[1], 0.);
+	B[i].shape->adm_y     (B[i].shape->p_cpy, P[3]*(2.*alpha-1.));
+	B[i].shape->adm_x     (B[i].shape->p_cpy, P[4]*(1.-alpha));
 
-  B[i].shape->cpy(B[i].shape->deriv, B[i].shape->FULL(solver.hh[i][0][m], 0));
-  B[i].shape->cpy(B[i].shape->p_cpy, B[i].shape->FULL(solver.hh[i][0][m], 0, 1));
+  //B[i].shape->cpy(B[i].shape->deriv, B[i].shape->FULL(solver.hh[i][0][m], 0));
+  //B[i].shape->cpy(B[i].shape->p_cpy, B[i].shape->FULL(solver.hh[i][0][m], 0, 1));
+
+	B[i].shape->cpy(0, B[i].shape->deriv, B[i].shape->FULL(solver.hh[i][0][m], 0));
+	B[i].shape->cpy(1, B[i].shape->deriv, B[i].shape->FULL(solver.hh[i][0][m], 1));
+	B[i].shape->cpy(0, B[i].shape->p_cpy, B[i].shape->FULL(solver.hh[i][0][m], 0, 1));
+	B[i].shape->cpy(1, B[i].shape->p_cpy, B[i].shape->FULL(solver.hh[i][0][m], 1, 1));
 }
 
 ////////////////////////////////////////////////////////////////////
 //...realization of surface forces for classical displacements (Py);
 void CLame2D::jump4_classic_y(double * P, int i, int m)
 {
-  int    shift = (-B[i].link[NUM_PHASE]-1)*NUM_SHIFT;
-  double alpha = .5/(1.-get_param(NUM_SHEAR+1+shift)); m += solver.id_norm;
-  B[i].shape->cpy_y  ();
-  B[i].shape->deriv_N();
-  B[i].shape->cpy_y  ();
-  B[i].shape->admittance(B[i].shape->deriv, NULL, -alpha, 0.);
-  B[i].shape->cpy       (B[i].shape->deriv, B[i].shape->p_cpy);
-  B[i].shape->admittance(B[i].shape->deriv, NULL, P[0], 0.);
-  B[i].shape->adm_x     (B[i].shape->deriv, P[4]*(2.*alpha-1.));
-  B[i].shape->adm_y     (B[i].shape->deriv, P[3]*(1.-alpha));
-  B[i].shape->admittance(B[i].shape->p_cpy, NULL, P[1], 0.);
-  B[i].shape->adm_x     (B[i].shape->p_cpy, P[3]*(1.-alpha));
-  B[i].shape->adm_y     (B[i].shape->p_cpy, P[4]);
+	int    shift = (-B[i].link[NUM_PHASE]-1)*NUM_SHIFT;
+	double alpha = .5/(1.-get_param(NUM_SHEAR+1+shift)); m += solver.id_norm;
+	B[i].shape->cpy_y  ();
+	B[i].shape->deriv_N();
+	B[i].shape->cpy_y  ();
+	B[i].shape->admittance(B[i].shape->deriv, NULL, -alpha, 0.);
+	B[i].shape->cpy       (B[i].shape->deriv, B[i].shape->p_cpy);
+	B[i].shape->admittance(B[i].shape->deriv, NULL, P[0], 0.);
+	B[i].shape->adm_x     (B[i].shape->deriv, P[4]*(2.*alpha-1.));
+	B[i].shape->adm_y     (B[i].shape->deriv, P[3]*(1.-alpha));
+	B[i].shape->admittance(B[i].shape->p_cpy, NULL, P[1], 0.);
+	B[i].shape->adm_x     (B[i].shape->p_cpy, P[3]*(1.-alpha));
+	B[i].shape->adm_y     (B[i].shape->p_cpy, P[4]);
 
-  B[i].shape->cpy(B[i].shape->deriv, B[i].shape->FULL(solver.hh[i][0][m], 0));
-  B[i].shape->cpy(B[i].shape->p_cpy, B[i].shape->FULL(solver.hh[i][0][m], 0, 1));
+  //B[i].shape->cpy(B[i].shape->deriv, B[i].shape->FULL(solver.hh[i][0][m], 0));
+  //B[i].shape->cpy(B[i].shape->p_cpy, B[i].shape->FULL(solver.hh[i][0][m], 0, 1));
+
+	B[i].shape->cpy(0, B[i].shape->deriv, B[i].shape->FULL(solver.hh[i][0][m], 0));
+	B[i].shape->cpy(1, B[i].shape->deriv, B[i].shape->FULL(solver.hh[i][0][m], 1));
+	B[i].shape->cpy(0, B[i].shape->p_cpy, B[i].shape->FULL(solver.hh[i][0][m], 0, 1));
+	B[i].shape->cpy(1, B[i].shape->p_cpy, B[i].shape->FULL(solver.hh[i][0][m], 1, 1));
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -240,7 +296,7 @@ void CLame2D::jump5_classic_x(double * P, int i, int m)
 {
 	int    shift = (-B[i].link[NUM_PHASE]-1)*NUM_SHIFT;
 	double G1    = 1./get_param(NUM_SHEAR+shift), 
-			 alpha = .25/(1.-get_param(NUM_SHEAR+1+shift)); m += solver.id_norm;
+				alpha = .25/(1.-get_param(NUM_SHEAR+1+shift)); m += solver.id_norm;
 	B[i].shape->admittance(B[i].shape->deriv, NULL, 0., 0.);
 	B[i].shape->admittance(B[i].shape->p_cpy, NULL, 0., 0.);
 	B[i].shape->cpy_xx	 ();
@@ -265,8 +321,13 @@ void CLame2D::jump5_classic_x(double * P, int i, int m)
 	B[i].shape->adm_xy    (B[i].shape->deriv, -sqr(P[3])*2.*alpha*G1);
 	B[i].shape->adm_xx    (B[i].shape->deriv,  P[4]*P[3]*2.*alpha*G1);
 
-	B[i].shape->cpy(B[i].shape->p_cpy, B[i].shape->FULL(solver.hh[i][0][m], 0));
-	B[i].shape->cpy(B[i].shape->deriv, B[i].shape->FULL(solver.hh[i][0][m], 0, 1));
+	//B[i].shape->cpy(B[i].shape->p_cpy, B[i].shape->FULL(solver.hh[i][0][m], 0));
+	//B[i].shape->cpy(B[i].shape->deriv, B[i].shape->FULL(solver.hh[i][0][m], 0, 1));
+
+	B[i].shape->cpy(0, B[i].shape->p_cpy, B[i].shape->FULL(solver.hh[i][0][m], 0));
+	B[i].shape->cpy(1, B[i].shape->p_cpy, B[i].shape->FULL(solver.hh[i][0][m], 1));
+	B[i].shape->cpy(0, B[i].shape->deriv, B[i].shape->FULL(solver.hh[i][0][m], 0, 1));
+	B[i].shape->cpy(1, B[i].shape->deriv, B[i].shape->FULL(solver.hh[i][0][m], 1, 1));
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -275,7 +336,7 @@ void CLame2D::jump5_classic_y(double * P, int i, int m)
 {
 	int    shift = (-B[i].link[NUM_PHASE]-1)*NUM_SHIFT;
 	double G1    = 1./get_param(NUM_SHEAR+shift), 
-			 alpha = .25/(1.-get_param(NUM_SHEAR+1+shift)); m += solver.id_norm;
+				alpha = .25/(1.-get_param(NUM_SHEAR+1+shift)); m += solver.id_norm;
 	B[i].shape->admittance(B[i].shape->deriv, NULL, 0., 0.);
 	B[i].shape->admittance(B[i].shape->p_cpy, NULL, 0., 0.);
 	B[i].shape->cpy_xx	 ();
@@ -300,8 +361,13 @@ void CLame2D::jump5_classic_y(double * P, int i, int m)
 	B[i].shape->adm_xy    (B[i].shape->deriv, -sqr(P[4])*2.*alpha*G1);
 	B[i].shape->adm_yy    (B[i].shape->deriv,  P[4]*P[3]*2.*alpha*G1);
 
-	B[i].shape->cpy(B[i].shape->deriv, B[i].shape->FULL(solver.hh[i][0][m], 0));
-	B[i].shape->cpy(B[i].shape->p_cpy, B[i].shape->FULL(solver.hh[i][0][m], 0, 1));
+	//B[i].shape->cpy(B[i].shape->deriv, B[i].shape->FULL(solver.hh[i][0][m], 0));
+	//B[i].shape->cpy(B[i].shape->p_cpy, B[i].shape->FULL(solver.hh[i][0][m], 0, 1));
+
+	B[i].shape->cpy(0, B[i].shape->deriv, B[i].shape->FULL(solver.hh[i][0][m], 0));
+	B[i].shape->cpy(1, B[i].shape->deriv, B[i].shape->FULL(solver.hh[i][0][m], 1));
+	B[i].shape->cpy(0, B[i].shape->p_cpy, B[i].shape->FULL(solver.hh[i][0][m], 0, 1));
+	B[i].shape->cpy(1, B[i].shape->p_cpy, B[i].shape->FULL(solver.hh[i][0][m], 1, 1));
 }
 
 //////////////////////////////////////////////
@@ -342,7 +408,7 @@ Num_State CLame2D::gram1(CGrid * nd, int i, int id_local)
 
 /////////////////////////////////////
 //...тестовая печать множества узлов;
-		if (solver.mode(NODES_PRINT)) 
+		if (solver.mode(PRINT_MODE))
 			nd->TestGrid("nodes.bln", 0.02, 10., 20., 30., AXIS_Z, 1);
 
 ////////////////////////////////////////////////////////////////////
@@ -428,7 +494,7 @@ Num_State CLame2D::gram2(CGrid * nd, int i, int id_local)
 		}
 /////////////////////////////////////
 //...тестовая печать множества узлов;
-		if (solver.mode(NODES_PRINT)) 
+		if (solver.mode(PRINT_MODE))
 			nd->TestGrid("nodes.bln", 0.02, 10., 20., 30., AXIS_Z, 1);
 
 ////////////////////////////////////////////////
@@ -532,6 +598,99 @@ Num_State CLame2D::gram2(CGrid * nd, int i, int id_local)
 	return(ERR_STATE);
 }
 
+/////////////////////////////////////////////////////////////////////
+//...формирование матрицы Грама для периодической задачи (один блок);
+Num_State CLame2D::gram2peri(CGrid * nd, int i, int id_local)
+{
+	if (nd && nd->N && 0 <= i && i < solver.N && B[i].shape && B[i].mp) {
+		double G1 = get_param(NUM_SHEAR), AX, AY, f, P[6], 
+				 g1 = G1*.5, f1 = 1., g2 = G1*.5, g0 = -G1;
+      int id_isolated = 0, m = solver.id_norm, id_dir;
+		if (id_isolated) {
+			g0 = g1 = G1;
+			f1 = g2 = 0.;
+		}
+
+/////////////////////////////////////
+//...тестовая печать множества узлов;
+		if (solver.mode(PRINT_MODE)) 
+			nd->TestGrid("nodes.bln", 0.0005, 0., 0., 0., AXIS_Z, 1);
+
+///////////////////////////////////
+//...inclusion data in gram matrix;
+		for ( int l = 0; l < nd->N; l++) if (nd->hit[l] && 
+			((id_dir = (int)nd->get_param(2, l)) == 1 || id_dir == 3)) {
+			P[0] = nd->X[l]; P[3] = nd->nX[l];
+			P[1] = nd->Y[l]; P[4] = nd->nY[l];
+			P[2] = 0.;       P[5] = 0.;
+
+			B[i].shape->make_local(P);
+			B[i].shape->norm_local(P+3);
+
+			AX = nd->get_param(0, l); 
+			AY = nd->get_param(1, l);
+			f  = nd->get_param(3, l);
+
+/////////////////////////////
+//...reset auxilliary arrays;
+			for (int num = m; num < solver.n; num++)
+				 memset(solver.hh[i][0][num], 0, solver.dim[i]*sizeof(double));
+
+////////////////////////////////////////////////////
+//...вычисляем функции для формирования функционала;
+			B[i].shape->parametrization_grad(P, 2); 
+
+			jump1_classic_x(P, i, 0); jump1_classic_y(P, i, 1); 
+			jump2_classic_x(P, i, 2); jump2_classic_y(P, i, 3);
+			jump_make_common(i, 0);	  jump_make_common(i, 2);
+						
+			B[i].shape->make_common(P);
+			B[i].shape->norm_common(P+3);
+
+			if (id_dir == 1) B[i].mp[1] -= AX; else
+			if (id_dir == 3) B[i].mp[2] -= AY; 
+			B[i].shape->set_local_P0(B[i].mp+1);
+			B[i].shape->make_local(P);
+			B[i].shape->norm_local(P+3);
+
+			B[i].shape->parametrization_grad(P, 2);
+
+			jump1_classic_x(P, i, 4); jump1_classic_y(P, i, 5); 
+			jump2_classic_x(P, i, 6); jump2_classic_y(P, i, 7);
+			jump_make_common(i, 4);	  jump_make_common(i, 6);
+
+			solver.admittance(i, 0, 1., 4, -1.); solver.admittance (i, 4, 2., 0, 1.); solver.admittance (i, 2, 1., 6, -1.);
+			solver.admittance(i, 1, 1., 5, -1.); solver.admittance (i, 5, 2., 1, 1.); solver.admittance (i, 3, 1., 7, -1.);
+
+			solver.admittance(i, 0, g1, 2, g2); solver.admittance(i, 2, g0, 0, f1); 
+			solver.admittance(i, 1, g1, 3, g2); solver.admittance(i, 3, g0, 1, f1); 
+
+///////////////////////////////////////////////////////////////
+//...сшивка периодических условий методом наименьших квадратов;
+			solver.to_equationDD(i, solver.hh[i][0][m],   solver.hh[i][0][m],   f);
+			solver.to_equationDD(i, solver.hh[i][0][m+1], solver.hh[i][0][m+1], f);
+
+			solver.to_equationDD(i, solver.hh[i][0][m+2], solver.hh[i][0][m+2], f);
+			solver.to_equationDD(i, solver.hh[i][0][m+3], solver.hh[i][0][m+3], f);
+
+			if (id_dir == 1) {//...регуляризация матрицы и правая часть;
+				solver.to_equationDD(i, solver.hh[i][0][m+4], solver.hh[i][0][m+4], f);
+				solver.to_equationDD(i, solver.hh[i][0][m+5], solver.hh[i][0][m+5], f);
+
+				solver.to_equationHH(i, 0,	solver.hh[i][0][m],   -g1*AX*f);
+				solver.to_equationHH(i, 0, solver.hh[i][0][m+2], -g2*AX*f);
+				solver.to_equationHH(i, 1,	solver.hh[i][0][m+1], -g1*AX*f);
+				solver.to_equationHH(i, 1, solver.hh[i][0][m+3], -g2*AX*f);
+			}
+			if (id_dir == 1) B[i].mp[1] += AX; else
+			if (id_dir == 3) B[i].mp[2] += AY; 
+			B[i].shape->set_local_P0(B[i].mp+1);
+      }
+		return(OK_STATE);
+	}
+	return(ERR_STATE);
+}
+
 ////////////////////////////////////////////////////////////////
 //...inclusion of the joining data to the solver for all blocks;
 Num_State CLame2D::transfer1(CGrid * nd, int i, int k, int id_local)
@@ -546,7 +705,7 @@ Num_State CLame2D::transfer1(CGrid * nd, int i, int k, int id_local)
 		}
 /////////////////////////////////////
 //...тестовая печать множества узлов;
-		if (solver.mode(NODES_PRINT)) 
+		if (solver.mode(PRINT_MODE))
 			nd->TestGrid("nodes.bln", 0.02, 10., 20., 30., AXIS_Z, 1);
 
 ////////////////////////////////////////////////
@@ -624,7 +783,7 @@ Num_State CLame2D::transfer2(CGrid * nd, int i, int k, int id_local)
 	if (nd && nd->N && 0 <= i && i < solver.N && B && B[i].link && B[i].link[0] > NUM_PHASE) {
       double G1 = get_param(NUM_SHEAR), f, P[6], 
 				 f0 = -1., f1 = 1., f2 = .5, g1 = G1*.5;
-      int id_isolated = 1, id_flag = 1, m = solver.id_norm;
+      int id_isolated = 0, id_flag = 1, m = solver.id_norm;
 		if (id_isolated) {
 			f1 = f2 = 0.;
 			g1 = G1; f0 = 1.;	
@@ -632,8 +791,8 @@ Num_State CLame2D::transfer2(CGrid * nd, int i, int k, int id_local)
 		}
 /////////////////////////////////////
 //...тестовая печать множества узлов;
-		if (solver.mode(NODES_PRINT)) 
-			nd->TestGrid("nodes.bln", 0.02, 10., 20., 30., AXIS_Z, 1);
+		if (solver.mode(PRINT_MODE))
+			nd->TestGrid("nodes.bln", 0.0005, 0., 0., 0., AXIS_Z, 1);
 
 ////////////////////////////////////////////////
 //...inclusion data in gram and transfer matrix;
@@ -724,7 +883,7 @@ Num_State CLame2D::gram3(CGrid * nd, int i, int id_local)
 
 /////////////////////////////////////
 //...тестовая печать множества узлов;
-		if (solver.mode(NODES_PRINT)) 
+		if (solver.mode(PRINT_MODE))
 			nd->TestGrid("nodes.bln", 0.02, 10., 20., 30., AXIS_Z, 1);
 
 ////////////////////////////////////////////////
@@ -842,7 +1001,7 @@ Num_State CLame2D::transfer3(CGrid * nd, int i, int k, int id_local)
 
 /////////////////////////////////////
 //...тестовая печать множества узлов;
-		if (solver.mode(NODES_PRINT)) 
+		if (solver.mode(PRINT_MODE))
 			nd->TestGrid("nodes.bln", 0.02, 10., 20., 30., AXIS_Z, 1);
 
 ////////////////////////////////////////////////
@@ -956,7 +1115,7 @@ Num_State CLame2D::gram4(CGrid * nd, int i, int id_local)
 
 /////////////////////////////////////
 //...тестовая печать множества узлов;
-		if (solver.mode(NODES_PRINT)) 
+		if (solver.mode(PRINT_MODE))
 			nd->TestGrid("nodes.bln", 0.02, 10., 20., 30., AXIS_Z, 1);
 
 ////////////////////////////////////////////////////////////////////
@@ -1055,8 +1214,8 @@ Num_State CLame2D::rigidy1(CGrid * nd, int i, double * K)
 
 /////////////////////////////////////
 //...тестовая печать множества узлов;
-		if (solver.mode(NODES_PRINT)) 
-			nd->TestGrid("nodes.bln", 0.02, 10., 20., 30., AXIS_Z, 1);
+		if (solver.mode(PRINT_MODE))
+			nd->TestGrid("nodes.bln", 0.0005, 0., 0., 0., AXIS_Z, 1);
 
 ////////////////////////////////////////////////
 //...inclusion data in gram and transfer matrix;
@@ -1109,7 +1268,7 @@ Num_State CLame2D::rigidy1(CGrid * nd, int i, double * K)
 //...auxiliary function for parameters of doubly connected media;
 void CLame2D::set_fasa_hmg(double nju1, double nju2, double nju3, double G1, double G2, double G3)
 {
-	if (size_of_param() > NUM_SHEAR+NUM_SHIFT*2) {
+	if (size_of_param() > NUM_SHEAR+1+NUM_SHIFT*2) {
 		param[NUM_SHEAR] = G1;
 		param[NUM_SHEAR+NUM_SHIFT] = G2;
 		param[NUM_SHEAR+NUM_SHIFT*2] = G3;
@@ -1117,6 +1276,15 @@ void CLame2D::set_fasa_hmg(double nju1, double nju2, double nju3, double G1, dou
 		param[NUM_SHEAR+1+NUM_SHIFT] = nju2;
 		param[NUM_SHEAR+1+NUM_SHIFT*2] = nju3;
 	}
+}
+
+void CLame2D::set_fasa_hmg(double R1, double R2, double nju1, double nju2, double nju3, double G1, double G2, double G3, double alpha)
+{
+	if (size_of_param() > NUM_GEOMT+1) {
+		param[NUM_GEOMT] = R1;
+		param[NUM_GEOMT+1] = R2;
+	}
+	set_fasa_hmg(nju3, nju1, nju2, G3, G1, G2);
 }
 
 //////////////////////////////////////////////////////////
@@ -1378,7 +1546,7 @@ void CLame2D::GetEnergy(double * energy, Num_Value _FMF)
 	double pm[3*4], f, F[3] = {0., 0., 0.};
 
    for (k = 0; k < N; k++) if (B[k].bar && B[k].link) {
-       gauss_bnd->zero_grid();
+       gauss_bnd->release();
 
        for (i = 0; i < B[k].bar->graph[0]; i++) 
        if  (B[k].bar->ce[i]->cells_dim() == 2 && 
@@ -1495,7 +1663,7 @@ void CLame2D::GetEnergyValue(int k, double * energy)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //...вычисление продольного эффективного модуля растяжения/сжатия в одномерной слоистой модели цилиндрической симметрии;
-double CLame2D::TakeLayer_kk(int N, double * ff, double * kk)
+double CLame2D::TakeLayer_k0(int N, double * ff, double * kk)
 {
 	double sum = 0.;
 	int m;
@@ -1506,143 +1674,9 @@ double CLame2D::TakeLayer_kk(int N, double * ff, double * kk)
 	return(sum);
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//...вычисление эффективного поперечного модуля Ляме в одномерной слоистой модели в цилиндрической симметрии;
-double CLame2D::TakeLayer_kk(int N, double * ff, double * lm, double * mu, double * nj)
-{
-	double ** matr = NULL, s0, s1, sum = 0.; set_matrix(matr, 2*N, 2*N+1);
-	int i1, m1, m = 2*N-1, mm;
-
-//////////////////////////////////////////
-//...заполняем систему линейных уравнений;
-	if (N > 0) {
-		matr[0][0] = nj[0]; matr[1][0] =  lm[0];
-		matr[m][m] = -1.; matr[m][m+1] = -lm[0]; s0 = ff[0];
-		if (N > 1) {
-			matr[0][1] = -nj[1]; matr[0][2] = -1.;	matr[1][1] = -lm[1]; matr[1][2] = 2.*mu[1]; matr[1][m+1] = lm[1]-lm[0]; s1 = s0+ff[1];
-			matr[m][m-2] = lm[N-1]; matr[m][m-1] = -2.*mu[N-1]*(1.-ff[N-1]); matr[m][m+1] = -lm[N-1]; matr[m-1][m-2] = nj[N-1]; matr[m-1][m-1] = (1.-ff[N-1]);
-			if (N > 2) {
-				for (mm = 2, m1 = 1, i1 = 1; i1 < N-1; i1++, m1 += 2) {
-					matr[mm][m1] = nj[i1]; matr[mm][m1+1] =  s0/s1; matr[mm][m1+2] = -nj[i1+1]; matr[mm][m1+3] = -1.; mm++;
-					matr[mm][m1] = lm[i1]; matr[mm][m1+1] = -s0/s1*mu[i1]*2.; matr[mm][m1+2] = -lm[i1+1]; matr[mm][m1+3] = 2.*mu[i1+1]; matr[mm][m+1] = lm[i1+1]-lm[i1]; mm++; s0 = s1; s1 = s0+ff[i1+1];
-				}
-			}
-		}
-	}
-
-///////////////////////////////////////
-//...решаем систему линейных уравнений;
-	int dim_N = 2*N, * ii, i, k, l, k0, l0; ii = (int *)new_struct(2*N*sizeof(int));
-	for (i = 0; i < dim_N; i++) {
-		double f = 0.;
-///////////////////////////////////////
-//...look for position maximal element;
-		for (k = 0; k < dim_N; k++)
-			if (ii[k] != 1) 
-				for (l = 0; l < dim_N; l++) 
-					if (! ii[l]) {
-						if (fabs(matr[k][l]) >= f) f = fabs(matr[k0 = k][l0 = l]); 
-					}
-					else if (ii[l] > 1) goto err;
-		++(ii[l0]);
-///////////////////////////////////////////////////////////
-//...swapping row for diagonal position of maximal element;
-		if (k0 != l0) 
-			for (l = 0; l <= dim_N; l++) {
-				f = matr[k0][l]; matr[k0][l] = matr[l0][l]; matr[l0][l] = f; 
-			}
-		if (matr[l0][l0] == 0.) goto err;
-////////////////////////////////
-//...diagonal row normalization;
-		double finv = 1./matr[l0][l0]; matr[l0][l0] = 1.;
-		for (l = 0; l <= dim_N; l++) matr[l0][l] *= finv;
-/////////////////////////////////
-//...elimination all outher rows;
-		for (k = 0; k < dim_N; k++)
-			if ( k != l0) {
-				finv = matr[k][l0]; matr[k][l0] = 0.;
-				for (l = 0; l <= dim_N; l++) matr[k][l] -= matr[l0][l]*finv;
-			}
-	}
-
-//////////////////////////////////
-//...вычисляем эффективный модуль;
-	sum = matr[dim_N-1][dim_N];
-err:
-	delete_struct(matr); delete_struct(ii);
-	return(sum);
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//...вычисление эффективного продольного модуля сдвига в одномерной слоистой модели в цилиндрической симметрии;
-double CLame2D::TakeLayer_GG(int N, double * ff, double * mu, double * nj)
-{
-	double ** matr = NULL, s0, s1, sum = 0.; set_matrix(matr, 2*N, 2*N+1);
-	int i1, m1, m = 2*N-1, mm;
-
-//////////////////////////////////////////
-//...заполняем систему линейных уравнений;
-	if (N > 0) {
-		matr[0][0] = 1.-2.*nj[0]; matr[1][0] = mu[0];
-		matr[m][m] = 1.; matr[m][m+1] = mu[0]; s0 = ff[0];
-		if (N > 1) {
-			matr[0][1] = -1.+2.*nj[1]; matr[0][2] = -1.;	matr[1][1] = -mu[1]; matr[1][2] = mu[1]; matr[1][m+1] = mu[0]-mu[1]; s1 = s0+ff[1];
-			matr[m][m-2] = mu[N-1]; matr[m][m-1] = -mu[N-1]*(1.-ff[N-1]); matr[m][m+1] = mu[N-1]; matr[m-1][m-2] = 1.-2.*nj[N-1]; matr[m-1][m-1] = (1.-ff[N-1]);
-			if (N > 2) {
-				for (mm = 2, m1 = 1, i1 = 1; i1 < N-1; i1++, m1 += 2) {
-					matr[mm][m1] = 1.-2.*nj[i1]; matr[mm][m1+1] = s0/s1; matr[mm][m1+2] = -1.+2.*nj[i1+1]; matr[mm][m1+3] = -1.; mm++;
-					matr[mm][m1] = mu[i1]; matr[mm][m1+1] = -s0/s1*mu[i1]; matr[mm][m1+2] = -mu[i1+1]; matr[mm][m1+3] = mu[i1+1]; matr[mm][m+1] = mu[i1]-mu[i1+1]; mm++; s0 = s1; s1 = s0+ff[i1+1];
-				}
-			}
-		}
-	}
-
-///////////////////////////////////////
-//...решаем систему линейных уравнений;
-	int dim_N = 2*N, * ii, i, k, l, k0, l0; ii = (int *)new_struct(2*N*sizeof(int));
-	for (i = 0; i < dim_N; i++) {
-		double f = 0.;
-///////////////////////////////////////
-//...look for position maximal element;
-		for (k = 0; k < dim_N; k++)
-			if (ii[k] != 1) 
-				for (l = 0; l < dim_N; l++) 
-					if (! ii[l]) {
-						if (fabs(matr[k][l]) >= f) f = fabs(matr[k0 = k][l0 = l]); 
-					}
-					else if (ii[l] > 1) goto err;
-		++(ii[l0]);
-///////////////////////////////////////////////////////////
-//...swapping row for diagonal position of maximal element;
-		if (k0 != l0) 
-			for (l = 0; l <= dim_N; l++) {
-				f = matr[k0][l]; matr[k0][l] = matr[l0][l]; matr[l0][l] = f; 
-			}
-		if (matr[l0][l0] == 0.) goto err;
-////////////////////////////////
-//...diagonal row normalization;
-		double finv = 1./matr[l0][l0]; matr[l0][l0] = 1.;
-		for (l = 0; l <= dim_N; l++) matr[l0][l] *= finv;
-/////////////////////////////////
-//...elimination all outher rows;
-		for (k = 0; k < dim_N; k++)
-			if ( k != l0) {
-				finv = matr[k][l0]; matr[k][l0] = 0.;
-				for (l = 0; l <= dim_N; l++) matr[k][l] -= matr[l0][l]*finv;
-			}
-	}
-
-//////////////////////////////////
-//...вычисляем эффективный модуль;
-	sum = matr[dim_N-1][dim_N];
-err:
-	delete_struct(matr); delete_struct(ii);
-	return(sum);
-}
-
 //////////////////////////////////////////////////////////////////////////////////////////////////
 //...вычисление эффективных характеристик в одномерной слоистой модели в цилиндрической симметрии;
-double CLame2D::TakeLayer_kk(int N, double * ff, double * kp, double * mu)
+double CLame2D::TakeLayer_k1(int N, double * ff, double * kp, double * mu)
 {
 	double ** matr = NULL, s0, s1, sum = 0.; set_matrix(matr, 2*N, 2*N+1);
 	int i1, m1, m = 2*N-1;
@@ -1666,7 +1700,7 @@ double CLame2D::TakeLayer_kk(int N, double * ff, double * kp, double * mu)
 
 ///////////////////////////////////////
 //...решаем систему линейных уравнений;
-	int dim_N = 2*N, * ii, i, k, l, k0, l0; ii = (int *)new_struct(2*N*sizeof(int));
+	int dim_N = 2*N, * ii, i, k, l, k0, l0; ii = new_struct<int>(2*N);
 	for (i = 0; i < dim_N; i++) {
 		double f = 0.;
 ///////////////////////////////////////
@@ -1764,7 +1798,7 @@ double take_system_cyl(double ** matrix, int * ii, int dim_N, double mu_H, doubl
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 //...вычисление эффективного поперечного модуля сдвига в слоистой модели цилиндрической симметрии;
-double CLame2D::TakeLayer_GG(int N, double * ff, double * kp, double * mu, double * nj, double eps, int max_iter)
+double CLame2D::TakeLayer_G1(int N, double * ff, double * kp, double * mu, double * nj, double eps, int max_iter)
 {
 	double ** matr = NULL, mu_M = mu[N-1], s0 = ff[0], s1; set_matrix(matr, 4*N, 4*N+1);
 	int i1, m1, m = 4*N-1;
@@ -1806,8 +1840,8 @@ double CLame2D::TakeLayer_GG(int N, double * ff, double * kp, double * mu, doubl
 			}
 		}
 	}
-	double optim, sgn0, sgn1, nu_H, mu_H, mu_H0, mu_H1, KH = TakeLayer_kk(N, ff, kp, mu), 
-		** matrix = NULL; set_matrix(matrix, m = 4*N, 4*N+1); int * ii = (int *)new_struct(m*sizeof(int)), k_iter = 0, k, l; 
+	double optim, sgn0, sgn1, nu_H, mu_H, mu_H0, mu_H1, KH = TakeLayer_k1(N, ff, kp, mu), 
+		** matrix = NULL; set_matrix(matrix, m = 4*N, 4*N+1); int * ii = new_struct<int>(m), k_iter = 0, k, l; 
 
 /////////////////////////////////////////////
 //...цикл по определению сдвиговой жесткости;
@@ -1847,6 +1881,207 @@ double CLame2D::TakeLayer_GG(int N, double * ff, double * kp, double * mu, doubl
 	delete_struct(matr); delete_struct(matrix); delete_struct(ii);
 
 	return(mu_H);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//...вычисление эффективного поперечного модуля Ляме в одномерной слоистой модели в цилиндрической симметрии;
+double CLame2D::TakeLayer_k2(int N, double * ff, double * lm, double * mu, double * nj)
+{
+	double ** matr = NULL, s0, s1, sum = 0.; set_matrix(matr, 2*N, 2*N+1);
+	int i1, m1, m = 2*N-1, mm;
+
+//////////////////////////////////////////
+//...заполняем систему линейных уравнений;
+	if (N > 0) {
+		matr[0][0] = nj[0]; matr[1][0] =  lm[0];
+		matr[m][m] = -1.; matr[m][m+1] = -lm[0]; s0 = ff[0];
+		if (N > 1) {
+			matr[0][1] = -nj[1]; matr[0][2] = -1.;	matr[1][1] = -lm[1]; matr[1][2] = 2.*mu[1]; matr[1][m+1] = lm[1]-lm[0]; s1 = s0+ff[1];
+			matr[m][m-2] = lm[N-1]; matr[m][m-1] = -2.*mu[N-1]*(1.-ff[N-1]); matr[m][m+1] = -lm[N-1]; matr[m-1][m-2] = nj[N-1]; matr[m-1][m-1] = (1.-ff[N-1]);
+			if (N > 2) {
+				for (mm = 2, m1 = 1, i1 = 1; i1 < N-1; i1++, m1 += 2) {
+					matr[mm][m1] = nj[i1]; matr[mm][m1+1] =  s0/s1; matr[mm][m1+2] = -nj[i1+1]; matr[mm][m1+3] = -1.; mm++;
+					matr[mm][m1] = lm[i1]; matr[mm][m1+1] = -s0/s1*mu[i1]*2.; matr[mm][m1+2] = -lm[i1+1]; matr[mm][m1+3] = 2.*mu[i1+1]; matr[mm][m+1] = lm[i1+1]-lm[i1]; mm++; s0 = s1; s1 = s0+ff[i1+1];
+				}
+			}
+		}
+	}
+
+///////////////////////////////////////
+//...решаем систему линейных уравнений;
+	int dim_N = 2*N, * ii, i, k, l, k0, l0; ii = new_struct<int>(2*N);
+	for (i = 0; i < dim_N; i++) {
+		double f = 0.;
+///////////////////////////////////////
+//...look for position maximal element;
+		for (k = 0; k < dim_N; k++)
+			if (ii[k] != 1) 
+				for (l = 0; l < dim_N; l++) 
+					if (! ii[l]) {
+						if (fabs(matr[k][l]) >= f) f = fabs(matr[k0 = k][l0 = l]); 
+					}
+					else if (ii[l] > 1) goto err;
+		++(ii[l0]);
+///////////////////////////////////////////////////////////
+//...swapping row for diagonal position of maximal element;
+		if (k0 != l0) 
+			for (l = 0; l <= dim_N; l++) {
+				f = matr[k0][l]; matr[k0][l] = matr[l0][l]; matr[l0][l] = f; 
+			}
+		if (matr[l0][l0] == 0.) goto err;
+////////////////////////////////
+//...diagonal row normalization;
+		double finv = 1./matr[l0][l0]; matr[l0][l0] = 1.;
+		for (l = 0; l <= dim_N; l++) matr[l0][l] *= finv;
+/////////////////////////////////
+//...elimination all outher rows;
+		for (k = 0; k < dim_N; k++)
+			if ( k != l0) {
+				finv = matr[k][l0]; matr[k][l0] = 0.;
+				for (l = 0; l <= dim_N; l++) matr[k][l] -= matr[l0][l]*finv;
+			}
+	}
+
+//////////////////////////////////
+//...вычисляем эффективный модуль;
+	sum = matr[dim_N-1][dim_N];
+err:
+	delete_struct(matr); delete_struct(ii);
+	return(sum);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//...вычисление эффективного продольного модуля сдвига в одномерной слоистой модели в цилиндрической симметрии на основе чистого сдвига;
+double CLame2D::TakeLayer_G2(int N, double * ff, double * mu, double * nj)
+{
+	double ** matr = NULL, s0, s1, sum = 0.; set_matrix(matr, 2*N, 2*N+1);
+	int i1, m1, m = 2*N-1, mm;
+
+//////////////////////////////////////////
+//...заполняем систему линейных уравнений;
+	if (N > 0) {
+		matr[0][0] = 1.-2.*nj[0]; matr[1][0] = mu[0];
+		matr[m][m] = 1.; matr[m][m+1] = mu[0]; s0 = ff[0];
+		if (N > 1) {
+			matr[0][1] = -1.+2.*nj[1]; matr[0][2] = -1.;	matr[1][1] = -mu[1]; matr[1][2] = mu[1]; matr[1][m+1] = mu[0]-mu[1]; s1 = s0+ff[1];
+			matr[m][m-2] = mu[N-1]; matr[m][m-1] = -mu[N-1]*(1.-ff[N-1]); matr[m][m+1] = mu[N-1]; matr[m-1][m-2] = 1.-2.*nj[N-1]; matr[m-1][m-1] = (1.-ff[N-1]);
+			if (N > 2) {
+				for (mm = 2, m1 = 1, i1 = 1; i1 < N-1; i1++, m1 += 2) {
+					matr[mm][m1] = 1.-2.*nj[i1]; matr[mm][m1+1] = s0/s1; matr[mm][m1+2] = -1.+2.*nj[i1+1]; matr[mm][m1+3] = -1.; mm++;
+					matr[mm][m1] = mu[i1]; matr[mm][m1+1] = -s0/s1*mu[i1]; matr[mm][m1+2] = -mu[i1+1]; matr[mm][m1+3] = mu[i1+1]; matr[mm][m+1] = mu[i1]-mu[i1+1]; mm++; s0 = s1; s1 = s0+ff[i1+1];
+				}
+			}
+		}
+	}
+
+///////////////////////////////////////
+//...решаем систему линейных уравнений;
+	int dim_N = 2*N, * ii, i, k, l, k0, l0; ii = new_struct<int>(2*N);
+	for (i = 0; i < dim_N; i++) {
+		double f = 0.;
+///////////////////////////////////////
+//...look for position maximal element;
+		for (k = 0; k < dim_N; k++)
+			if (ii[k] != 1) 
+				for (l = 0; l < dim_N; l++) 
+					if (! ii[l]) {
+						if (fabs(matr[k][l]) >= f) f = fabs(matr[k0 = k][l0 = l]); 
+					}
+					else if (ii[l] > 1) goto err;
+		++(ii[l0]);
+///////////////////////////////////////////////////////////
+//...swapping row for diagonal position of maximal element;
+		if (k0 != l0) 
+			for (l = 0; l <= dim_N; l++) {
+				f = matr[k0][l]; matr[k0][l] = matr[l0][l]; matr[l0][l] = f; 
+			}
+		if (matr[l0][l0] == 0.) goto err;
+////////////////////////////////
+//...diagonal row normalization;
+		double finv = 1./matr[l0][l0]; matr[l0][l0] = 1.;
+		for (l = 0; l <= dim_N; l++) matr[l0][l] *= finv;
+/////////////////////////////////
+//...elimination all outher rows;
+		for (k = 0; k < dim_N; k++)
+			if ( k != l0) {
+				finv = matr[k][l0]; matr[k][l0] = 0.;
+				for (l = 0; l <= dim_N; l++) matr[k][l] -= matr[l0][l]*finv;
+			}
+	}
+
+//////////////////////////////////
+//...вычисляем эффективный модуль;
+	sum = matr[dim_N-1][dim_N];
+err:
+	delete_struct(matr); delete_struct(ii);
+	return(sum);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//...вычисление эффективного продольного модуля сдвига в одномерной слоистой модели в цилиндрической симметрии на основе простого сдвига;
+double CLame2D::TakeLayer_G2_simple(int N, double * ff, double * mu)
+{
+	double ** matr = NULL, s0, s1, sum = 0.; set_matrix(matr, 2*N, 2*N+1);
+	int i1, m1, m = 2*N-1, mm;
+
+//////////////////////////////////////////
+//...заполняем систему линейных уравнений;
+	if (N > 0) {
+		matr[0][0] =  1.; matr[1][0] = mu[0];
+		matr[m][m] = -1.; matr[m-1][m+1] = 1.; s0 = ff[0];
+		if (N > 1) {
+			matr[0][1] = -1.; matr[0][2] = -1.;	matr[1][1] = -mu[1]; matr[1][2] = mu[1]; s1 = s0+ff[1];
+			matr[m][m-2] = mu[N-1]; matr[m][m-1] = -mu[N-1]*(1.-ff[N-1]); matr[m-1][m-2] = 1.; matr[m-1][m-1] = (1.-ff[N-1]);
+			if (N > 2) {
+				for (mm = 2, m1 = 1, i1 = 1; i1 < N-1; i1++, m1 += 2) {
+					matr[mm][m1] = 1.; matr[mm][m1+1] = s0/s1; matr[mm][m1+2] = -1.; matr[mm][m1+3] = -1.; mm++;
+					matr[mm][m1] = mu[i1]; matr[mm][m1+1] = -s0/s1*mu[i1]; matr[mm][m1+2] = -mu[i1+1]; matr[mm][m1+3] = mu[i1+1]; mm++; s0 = s1; s1 = s0+ff[i1+1];
+				}
+			}
+		}
+	}
+
+///////////////////////////////////////
+//...решаем систему линейных уравнений;
+	int dim_N = 2*N, * ii, i, k, l, k0, l0; ii = new_struct<int>(2*N);
+	for (i = 0; i < dim_N; i++) {
+		double f = 0.;
+///////////////////////////////////////
+//...look for position maximal element;
+		for (k = 0; k < dim_N; k++)
+			if (ii[k] != 1) 
+				for (l = 0; l < dim_N; l++) 
+					if (! ii[l]) {
+						if (fabs(matr[k][l]) >= f) f = fabs(matr[k0 = k][l0 = l]); 
+					}
+					else if (ii[l] > 1) goto err;
+		++(ii[l0]);
+///////////////////////////////////////////////////////////
+//...swapping row for diagonal position of maximal element;
+		if (k0 != l0) 
+			for (l = 0; l <= dim_N; l++) {
+				f = matr[k0][l]; matr[k0][l] = matr[l0][l]; matr[l0][l] = f; 
+			}
+		if (matr[l0][l0] == 0.) goto err;
+////////////////////////////////
+//...diagonal row normalization;
+		double finv = 1./matr[l0][l0]; matr[l0][l0] = 1.;
+		for (l = 0; l <= dim_N; l++) matr[l0][l] *= finv;
+/////////////////////////////////
+//...elimination all outher rows;
+		for (k = 0; k < dim_N; k++)
+			if ( k != l0) {
+				finv = matr[k][l0]; matr[k][l0] = 0.;
+				for (l = 0; l <= dim_N; l++) matr[k][l] -= matr[l0][l]*finv;
+			}
+	}
+
+//////////////////////////////////
+//...вычисляем эффективный модуль;
+	sum = matr[dim_N-1][dim_N];
+err:
+	delete_struct(matr); delete_struct(ii);
+	return(sum);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1945,8 +2180,8 @@ double CLame2D::TakeLayer_sh(int N, double * ff, double * kp, double * mu, doubl
 			}
 		}
 	}
-	double optim, sgn0, sgn1, nu_H, mu_H, mu_MH, mu_MH0, mu_MH1, KH = TakeLayer_kk(N, ff, kp, mu), eps0 = 1e-6, 
-		** matrix = NULL; set_matrix(matrix, m = 4*N, 4*N+1); int * ii = (int *)new_struct(m*sizeof(int)), k_iter = 0, k, l;
+	double optim, sgn0, sgn1, nu_H, mu_H, mu_MH, mu_MH0, mu_MH1, KH = TakeLayer_k1(N, ff, kp, mu), eps0 = 1e-6, 
+		** matrix = NULL; set_matrix(matrix, m = 4*N, 4*N+1); int * ii = new_struct<int>(m), k_iter = 0, k, l;
 /////////////////////////////////////////////
 //...цикл по определению сдвиговой жесткости;
 	mu_MH0 = 0.; nu_H = -1000.;
@@ -1984,6 +2219,524 @@ double CLame2D::TakeLayer_sh(int N, double * ff, double * kp, double * mu, doubl
 	delete_struct(matr); delete_struct(matrix); delete_struct(ii);
 
 	return(mu_H);
+}
+
+///////////////////////////////////////////////////////
+//...четырехфазная модель для цилиндрических включений;
+double CLame2D::TakeEshelby_volm(double ff, double ff_l)
+{
+	double K1 = get_param(NUM_SHEAR+NUM_SHIFT)/(1.-2.*get_param(NUM_SHEAR+1+NUM_SHIFT)),
+			 K2 = get_param(NUM_SHEAR+NUM_SHIFT*2)/(1.-2.*get_param(NUM_SHEAR+1+NUM_SHIFT*2)), G2 = get_param(NUM_SHEAR+NUM_SHIFT*2),
+			 K3 = get_param(NUM_SHEAR)/(1.-2.*get_param(NUM_SHEAR+1)), c0 = ff+ff_l, c1 = ff/c0,
+			 DD = ((K1-K3)-(1.-c1)*(K1-K2)*(1.+(K3-K2)/(K2+G2)))/(1.+(1.-c1)*(K1-K2)/(K2+G2)),
+			 KH = K3+c0*DD/(1.+(1.-c0)*DD/(K3+get_param(NUM_SHEAR)));
+	return(KH);
+}
+
+/////////////////////////////////////////////////
+//...трехфазная модель для цилиндрических включений;
+double CLame2D::TakeEshelby_volm_two(double ff)
+{
+	double K1 = get_param(NUM_SHEAR+NUM_SHIFT)/(1.-2.*get_param(NUM_SHEAR+1+NUM_SHIFT)),
+			 K3 = get_param(NUM_SHEAR)/(1.-2.*get_param(NUM_SHEAR+1)),
+			 KH = K3+ff*(K1-K3)/(1.+(1.-ff)*(K1-K3)/(K3+get_param(NUM_SHEAR)));
+	return(KH);
+}
+
+///////////////////////////////////////
+//...классическая четырехфазная модель;
+double CLame2D::TakeEshelby_volm_classic(double ff, double ff_l)
+{
+	double mu_M = get_param(NUM_SHEAR), nu_M = get_param(NUM_SHEAR+1),
+		mu_I = get_param(NUM_SHEAR+NUM_SHIFT), nu_I = get_param(NUM_SHEAR+1+NUM_SHIFT),
+		mu_L = get_param(NUM_SHEAR+NUM_SHIFT*2), nu_L = get_param(NUM_SHEAR+1+NUM_SHIFT*2),
+		K_M  = mu_M / (1.-2.*nu_M), K_I = mu_I/(1.-2.*nu_I), K_L = mu_L/(1.-2.*nu_L), c0 = ff+ff_l, c1 = ff/c0,
+		ku_M = (1.-nu_M)/(.5-nu_M)*mu_M, ku_L = (1.-nu_L)/(.5-nu_L)*mu_L;
+	double matr[6][7] = {
+		{ 1., -1., -1.,  0.,  0., 0., 0. },				//...равенство функций;
+		{ K_I + K_L*(2. - 3.*nu_L), -ku_L*1.5, -ku_L*.5, 0., 0., 0., 0. }, //...поверхностные силы;
+		{ 0., 1.,  c1, -1., -1., 0., 0. },				//...равенство функций на второй границе;
+		{ 0., K_L, -c1*mu_L, -K_M, mu_M,  0., 0. },	//...поверхностные силы на второй границе;
+		{ 0.,  0., 0., ku_M,   0., -1., mu_M },		//...эффективный модуль;
+		{ 0.,  0., 0.,   1.,   c0,  0.,   1. },		//...перемещения на границе эффективной области;
+	};
+
+//////////////////////////////////////////////////////////////////
+//...решаем систему линейных уравнений A0, C0, A1, B1, C1, D1, KH;
+	int dim_N = 6, ii[6] = { 0, 0, 0, 0, 0, 0 }, i, k, l, k0, l0;
+	for (i = 0; i < dim_N; i++) {
+		double f = 0.;
+///////////////////////////////////////
+//...look for position maximal element;
+		for (k = 0; k < dim_N; k++)
+			if (ii[k] != 1)
+				for (l = 0; l < dim_N; l++)
+					if (!ii[l]) {
+						if (fabs(matr[k][l]) >= f) f = fabs(matr[k0 = k][l0 = l]);
+					}
+					else if (ii[l] > 1) return(0.);
+					++(ii[l0]);
+///////////////////////////////////////////////////////////
+//...swapping row for diagonal position of maximal element;
+					if (k0 != l0)
+						for (l = 0; l <= dim_N; l++) {
+							f = matr[k0][l]; matr[k0][l] = matr[l0][l]; matr[l0][l] = f;
+						}
+					if (matr[l0][l0] == 0.) return(0.);
+////////////////////////////////
+//...diagonal row normalization;
+					double finv = 1./matr[l0][l0]; matr[l0][l0] = 1.;
+					for (l = 0; l <= dim_N; l++) matr[l0][l] *= finv;
+/////////////////////////////////
+//...elimination all outher rows;
+					for (k = 0; k < dim_N; k++)
+						if (k != l0) {
+							finv = matr[k][l0]; matr[k][l0] = 0.;
+							for (l = 0; l <= dim_N; l++) matr[k][l] -= matr[l0][l]*finv;
+						}
+	}
+	for (l = 0; l <= 5; l++) KK[l] = matr[l][6];
+	return(matr[5][6]);
+}
+
+////////////////////////////////////
+//...классическая трехфазная модель;
+double CLame2D::TakeEshelby_volm_two_classic(double ff)
+{
+	double mu_M = get_param(NUM_SHEAR), nu_M = get_param(NUM_SHEAR+1),
+		mu_I = get_param(NUM_SHEAR+NUM_SHIFT), nu_I = get_param(NUM_SHEAR+1+NUM_SHIFT),
+		K_M = mu_M/(1.-2.*nu_M), K_I = mu_I/(1.-2.*nu_I), ku_M = (1.-nu_M)/(.5-nu_M)*mu_M, c0 = ff;
+	double matr[4][5] = {
+		{ 1., -1., -1.,  0.,   0. },	//...равенство функций;
+		{ K_I + K_M*(2.-3.*nu_M), -ku_M*1.5, -ku_M*.5, 0., 0. }, //...поверхностные силы;
+		{ 0., ku_M, 0., -1., mu_M },	//...эффективный модуль;
+		{ 0.,  1.,  c0,  0.,   1. },	//...перемещения на границе эффективной области;
+};
+
+//////////////////////////////////////////////////////////////////
+//...решаем систему линейных уравнений A0, C0, A1, B1, C1, D1, KH;
+	int dim_N = 4, ii[4] = { 0, 0, 0, 0 }, i, k, l, k0, l0;
+	for (i = 0; i < dim_N; i++) {
+		double f = 0.;
+///////////////////////////////////////
+//...look for position maximal element;
+		for (k = 0; k < dim_N; k++)
+			if (ii[k] != 1)
+				for (l = 0; l < dim_N; l++)
+					if (!ii[l]) {
+						if (fabs(matr[k][l]) >= f) f = fabs(matr[k0 = k][l0 = l]);
+					}
+					else if (ii[l] > 1) return(0.);
+					++(ii[l0]);
+///////////////////////////////////////////////////////////
+//...swapping row for diagonal position of maximal element;
+					if (k0 != l0)
+						for (l = 0; l <= dim_N; l++) {
+							f = matr[k0][l]; matr[k0][l] = matr[l0][l]; matr[l0][l] = f;
+						}
+					if (matr[l0][l0] == 0.) return(0.);
+////////////////////////////////
+//...diagonal row normalization;
+					double finv = 1./matr[l0][l0]; matr[l0][l0] = 1.;
+					for (l = 0; l <= dim_N; l++) matr[l0][l] *= finv;
+/////////////////////////////////
+//...elimination all outher rows;
+					for (k = 0; k < dim_N; k++)
+						if (k != l0) {
+							finv = matr[k][l0]; matr[k][l0] = 0.;
+							for (l = 0; l <= dim_N; l++) matr[k][l] -= matr[l0][l]*finv;
+						}
+	}
+	for (l = 0; l <= 3; l++) KK[l] = matr[l][4];
+	return(matr[3][4]);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+//...модуль сдвига в поперечной плоскости для цилиндрических включений с межфазным слоем;
+double CLame2D::TakeEshelby_shear(double ff, double ff_l, double eps, int max_iter)
+{
+	double mu_M = get_param(NUM_SHEAR), nu_M = get_param(NUM_SHEAR+1),
+		mu_I = get_param(NUM_SHEAR+NUM_SHIFT),	nu_I = get_param(NUM_SHEAR+1+NUM_SHIFT),
+		mu_L = get_param(NUM_SHEAR+NUM_SHIFT*2), nu_L = get_param(NUM_SHEAR+1+NUM_SHIFT*2), c0 = ff+ff_l, c1 = ff/c0, RR1 = 1./sqrt(c1);
+////////////////////////////////////////////////////////////////////////////
+//...заполняем матрицу для определения модуля сдвига в поперечной плоскости;
+	double matr[12][13] ={
+//...равенство функций;
+		{ 1., -4.*nu_I, -1., 4.*nu_L, nu_L-1., -2., 0., 0., 0., 0., 0., 0., 0. },
+		{ 1., -2.*(3.-2.*nu_I), -1., 2.*(3.-2.*nu_L), nu_L-.5, 2., 0., 0., 0., 0., 0., 0., 0. },
+//...поверхностные силы;
+		{ mu_I, 0., -mu_L, 0., mu_L, 6.*mu_L, 0., 0., 0., 0., 0., 0., 0. },
+		{ mu_I, -6.*mu_I, -mu_L, 6.*mu_L, -mu_L*.5, -6.*mu_L, 0., 0., 0., 0., 0., 0., 0. },
+//...равенство функций на второй границе;
+		{ 0., 0., 1., -4.*nu_L/c1, (1.-nu_L)*c1, 2.*sqr(c1), -1., 4.*nu_M, -1.+nu_M, -2., 0., 0., 0. },
+		{ 0., 0., 1., -2.*(3.-2.*nu_L)/c1, (-nu_L+.5)*c1, -2.*sqr(c1), -1., 2.*(3.-2.*nu_M), nu_M-.5, 2., 0., 0., 0. },
+//...поверхностные силы на второй границе;
+		{ 0., 0., mu_L, 0., -mu_L*c1, -6.*mu_L*sqr(c1), -mu_M, 0., mu_M, 6.*mu_M, 0., 0., 0. },
+		{ 0., 0., mu_L, -6.*mu_L/c1, mu_L*.5*c1, 6.*mu_L*sqr(c1), -mu_M, 6.*mu_M, -mu_M*.5, -6.*mu_M, 0., 0., 0. },
+//...перемещения на границе эффективной области;
+		{ 0., 0., 0., 0., 0., 0., 1., -4.*nu_M/c0, (1.-nu_M)*c0, 2.*sqr(c0), -2., -1. , 1. },
+		{ 0., 0., 0., 0., 0., 0., 1., -2.*(3.-2.*nu_M)/c0, (-nu_M+.5)*c0, -2.*sqr(c0), 2., -1. , 1. },
+//...поверхностные силы на границе эффективной области;
+		{ 0., 0., 0., 0., 0., 0., mu_M, 0., -mu_M*c0, -6.*mu_M*sqr(c0), 6., 1., 1. },
+		{ 0., 0., 0., 0., 0., 0., mu_M, -6.*mu_M*c0, mu_M*.5*c0, 6.*mu_M*sqr(c0), -6., -0.5, 1. },
+	};
+
+/////////////////////////////////////////////////////////////////////////////
+//...итерационный алгоритм вычисления модуля сдвига в поперечном направлении;
+	double optim, sgn0, sgn1, nu_H, mu_H, mu_H0, mu_H1/*, KH = TakeLayer_kk(N, ff, kp, mu)*/,
+		** matrix = NULL; set_matrix(matrix, 12, 13); int * ii = new_struct<int>(12), k_iter = 0, k, l, m = 12;
+
+/////////////////////////////////////////////
+//...цикл по определению сдвиговой жесткости;
+	mu_H1 = mu_I*ff+mu_L*ff_l+mu_M*(1.-ff-ff_l); mu_H1 *= 10.;
+	nu_H = /*0.5*(1.-mu_H1/KH)*/0.3;
+	for (k = 0; k < m; k++)
+		for (l = 0; l < m+1; l++) matrix[k][l] = matr[k][l];
+	optim = take_system_cyl(matrix, ii, m, mu_H1, nu_H);
+	if (optim > 0.) sgn1 = 1.; else sgn1 = -1.;
+
+	mu_H0 = mu_H1;
+	do {
+		mu_H0 /= 2.; k_iter++;
+		nu_H = /*0.5*(1.-mu_H0/KH)*/0.3;
+		for (k = 0; k < m; k++)
+			for (l = 0; l < m+1; l++) matrix[k][l] = matr[k][l];
+		optim = take_system_cyl(matrix, ii, m, mu_H0, nu_H);
+	} while (optim*sgn1 > 0. && k_iter < max_iter);
+	if (optim > 0.) sgn0 = 1.; else sgn0 = -1.; k_iter = 0;
+
+	do {
+		mu_H = (mu_H0+mu_H1)*.5; k_iter++;
+		nu_H = /*0.5*(1.-mu_H/KH)*/0.3;
+		for (k = 0; k < m; k++)
+			for (l = 0; l < m+1; l++)	matrix[k][l] = matr[k][l];
+		optim = take_system_cyl(matrix, ii, m, mu_H, nu_H);
+		if (optim*sgn0 > 0.) mu_H0 = mu_H; else
+			if (optim*sgn0 < 0.) mu_H1 = mu_H; else mu_H0 = mu_H1 = mu_H;
+	} while (fabs(mu_H1-mu_H0) > eps && k_iter < max_iter);
+	mu_H = (mu_H0+mu_H1)*.5;
+
+	//////////////////////////////////
+	//...вычисляем эффективные модули;
+	if (sgn0*sgn1 > 0. || fabs(optim) > 1e-6) mu_H = -mu_H;
+	for (l = 0; l <= 11; l++) GG[l] = matrix[l][12];
+	delete_struct(matrix); delete_struct(ii);
+
+	return(mu_H);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+//...модуль сдвига в поперечной плоскости для цилиндрического включения с классической матрицей;
+double CLame2D::TakeEshelby_shear_two(double ff, double eps, int max_iter)
+{
+	double mu_M = get_param(NUM_SHEAR), nu_M = get_param(NUM_SHEAR+1),
+		mu_I = get_param(NUM_SHEAR+NUM_SHIFT), nu_I = get_param(NUM_SHEAR+1+NUM_SHIFT), c0 = ff, RR1 = 1./sqrt(c0);
+
+////////////////////////////////////////////////////////////////////////////
+//...заполняем матрицу для определения модуля сдвига в поперечной плоскости;
+	double matr[8][9] ={
+//...равенство функций;
+		{ 1., -4.*nu_I, -1., 4.*nu_M, nu_M-1., -2., 0., 0., 0. },
+		{ 1., -2.*(3.-2.*nu_I), -1., 2.*(3.-2.*nu_M), nu_M-.5, 2., 0., 0., 0. },
+//...поверхностные силы;
+		{ mu_I, 0., -mu_M, 0., mu_M, 6.*mu_M, 0., 0., 0. },
+		{ mu_I, -6.*mu_I, -mu_M, 6.*mu_M, -mu_M*.5, -6.*mu_M, 0., 0., 0. },
+//...перемещения на границе эффективной области;
+		{ 0., 0., 1., -4.*nu_M/c0, (1.-nu_M)*c0, 2.*sqr(c0), -2., -1. , 1. },
+		{ 0., 0., 1., -2.*(3.-2.*nu_M)/c0, (-nu_M+.5)*c0, -2.*sqr(c0), 2., -1. , 1. },
+//...поверхностные силы на границе эффективной области;
+		{ 0., 0., mu_M, 0., -mu_M*c0, -6.*mu_M*sqr(c0), 6., 1., 1. },
+		{ 0., 0., mu_M, -6.*mu_M/c0, mu_M*.5*c0, 6.*mu_M*sqr(c0), -6., -0.5, 1. },
+	};
+
+/////////////////////////////////////////////////////////////////////////////
+//...итерационный алгоритм вычисления модуля сдвига в поперечном направлении;
+	double optim, sgn0, sgn1, nu_H, mu_H, mu_H0, mu_H1, KH = TakeEshelby_volm_two(ff),
+		** matrix = NULL; set_matrix(matrix, 8, 9); int * ii = new_struct<int>(8), k_iter = 0, k, l, m = 8;
+
+/////////////////////////////////////////////
+//...цикл по определению сдвиговой жесткости;
+	mu_H1 = mu_I*ff+mu_M*(1.-ff); mu_H1 *= 10.;
+	nu_H = 0.5*(1.-mu_H1/KH)/*0.3*/;
+	for (k = 0; k < m; k++)
+		for (l = 0; l < m+1; l++) matrix[k][l] = matr[k][l];
+	optim = take_system_cyl(matrix, ii, m, mu_H1, nu_H);
+	if (optim > 0.) sgn1 = 1.; else sgn1 = -1.;
+
+	mu_H0 = mu_H1;
+	do {
+		mu_H0 /= 2.; k_iter++;
+		nu_H = 0.5*(1.-mu_H0/KH)/*0.3*/;
+		for (k = 0; k < m; k++)
+			for (l = 0; l < m+1; l++) matrix[k][l] = matr[k][l];
+		optim = take_system_cyl(matrix, ii, m, mu_H0, nu_H);
+	} while (optim*sgn1 > 0. && k_iter < max_iter);
+	if (optim > 0.) sgn0 = 1.; else sgn0 = -1.; k_iter = 0;
+
+	do {
+		mu_H = (mu_H0+mu_H1)*.5; k_iter++;
+		nu_H = 0.5*(1.-mu_H/KH)/*0.3*/;
+		for (k = 0; k < m; k++)
+			for (l = 0; l < m+1; l++)	matrix[k][l] = matr[k][l];
+		optim = take_system_cyl(matrix, ii, m, mu_H, nu_H);
+		if (optim*sgn0 > 0.) mu_H0 = mu_H; else
+			if (optim*sgn0 < 0.) mu_H1 = mu_H; else mu_H0 = mu_H1 = mu_H;
+	} while (fabs(mu_H1-mu_H0) > eps && k_iter < max_iter);
+	mu_H = (mu_H0+mu_H1)*.5;
+
+	//////////////////////////////////
+	//...вычисляем эффективные модули;
+	if (sgn0*sgn1 > 0. || fabs(optim) > 1e-6) mu_H = -mu_H;
+	for (l = 0; l <= 7; l++) GG[l] = matrix[l][8];
+	delete_struct(matrix); delete_struct(ii);
+
+	return(mu_H);
+}
+
+///////////////////////////////////////////////////////////////////////
+//...четырехфазная модель Эщелби для цилиндрических включений со слоем;
+void CLame2D::TakeEshelbyModel(double ff, double ff_l, double fK, double fG)
+{
+	double KH = TakeEshelby_volm_classic(ff, ff_l), GH = TakeEshelby_shear(ff, ff_l), 
+			 EH = fabs(GH)*(3*KH-fabs(GH))/KH, nuH = (KH-GH)/(2.*KH), kuH = (1.-nuH)/(.5-nuH)*GH,
+			mu_M = get_param(NUM_SHEAR), nu_M = get_param(NUM_SHEAR+1), kuM = (1.-nu_M)/(.5-nu_M)*mu_M, K_M = mu_M/(1.-2.*nu_M),
+			mu_I = get_param(NUM_SHEAR+NUM_SHIFT), nu_I = get_param(NUM_SHEAR+1+NUM_SHIFT), kuI = (1.-nu_I)/(.5-nu_I)*mu_I, K_I = mu_I/(1.-2.*nu_I), 
+			mu_L = get_param(NUM_SHEAR+NUM_SHIFT*2), nu_L = get_param(NUM_SHEAR+1+NUM_SHIFT*2), kuL = (1.-nu_L)/(.5-nu_L)*mu_L, K_L = mu_L/(1.-2.*nu_L);
+	fK *= kuH;
+	fG *= GH;
+
+////////////////////////////////////////////////////
+//...образуем образец из четырех сферических блоков;
+	double rad0 = 1., rad1 = 1./sqrt(ff/(ff+ff_l)), rad2 = 1./sqrt(ff), AA = 4.*rad2;
+	GetCircleQuadStruct2(AA, AA, rad0, rad1-rad0, rad2-rad1);
+	B[2].type = ZOOM_BLOCK;
+
+////////////////////////////////////
+//...устанавливаем параметры задачи;
+	set_mpls(PackInts(3, 3)); //...multipoles degree;
+	set_quad(PackInts(4, 2)); //...quadrature degree;
+	set_normaliz(1.);			  //...normalization coeffitient;
+	set_lagrange(1.);			  //...Lagrange corfficient for LSM;
+	set_geometry(rad1, rad2-rad1);
+	if (size_of_param() > NUM_SHEAR+1+NUM_SHIFT*3) {
+		param[NUM_SHEAR+NUM_SHIFT*3] = param[NUM_SHEAR];
+		param[NUM_SHEAR+1+NUM_SHIFT*3] = param[NUM_SHEAR+1];
+		param[NUM_SHEAR] = GH;
+		param[NUM_SHEAR+1] = nuH;
+}
+
+//////////////////////////////////
+//...определяем блочную структуру;
+	solver.set_blocks(N, 3); //<==== number of saved potentials !!!
+	solver.n += 9;//<==== number of additional auxilliary arrays!!!
+	for (int k = 0; k < solver.N;  k++)
+		  solver.set_links(k, B[k].link);
+
+	shapes_init(INITIAL_STATE);
+	shapes_init(NULL_STATE);
+	LinkPhase2D(MAX_PHASE);
+
+	for (int k = 0; k < solver.N;  k++)
+	solver.set_dimension(k, freedom_block(k));
+   solver.struct_init();
+
+//////////////////////////////////////////////////////////////
+////...заносим коэффициенты в представление Папковича-Нейбера;
+	B[0].shape->set_R(1.);
+	B[0].shape->A[0][2] = KK[0]*kuI/kuH;
+	B[0].shape->A[0][8] = KK[0]*kuI/kuH;
+	B[1].shape->set_R(1.);
+	B[1].shape->A[0][2] = 1.;
+	B[1].shape->A[0][8] = 1.;
+	B[2].shape->set_R(1.);
+	B[2].shape->A[0][2] = KK[1]*kuL/kuH;
+	B[2].shape->A[0][8] = KK[1]*kuL/kuH;
+	B[2].shape->A[0][16] = KK[2]*mu_L/kuH;
+	B[2].shape->A[0][22] = KK[2]*mu_L/kuH;
+	B[3].shape->set_R(1.);
+	B[3].shape->A[0][2] = KK[3]*kuM/kuH;
+	B[3].shape->A[0][8] = KK[3]*kuM/kuH;
+	B[3].shape->A[0][16] = KK[4]*mu_M/kuH*(1.+ff_l/ff);
+	B[3].shape->A[0][22] = KK[4]*mu_M/kuH*(1.+ff_l/ff);
+
+/////////////////////////////////
+////...деформация чистого сдвига;
+	B[0].shape->A[1][2] = GG[0]*kuI/kuH;
+	B[0].shape->A[1][8] = -GG[0]*kuI/kuH;
+	B[0].shape->A[1][6] = 4.*GG[1]*mu_I*(1.-nu_I)/kuH;
+	B[0].shape->A[1][12] = 4.*GG[1]*mu_I*(1.-nu_I)/kuH;
+	B[1].shape->A[1][2] = 1.;
+	B[1].shape->A[1][8] = -1.;
+	B[1].shape->A[1][16] = GG[11]*(.5-nuH)/ff;
+	B[1].shape->A[1][22] = -GG[11]*(.5-nuH)/ff;
+	B[1].shape->A[1][20] = 2.*GG[10]*(.5-nuH)/(1.5-nuH)/sqr(ff);
+	B[1].shape->A[1][26] = 2.*GG[10]*(.5-nuH)/(1.5-nuH)/sqr(ff);
+	B[2].shape->A[1][2] = GG[2]*kuL/kuH;
+	B[2].shape->A[1][8] = -GG[2]*kuL/kuH;
+	B[2].shape->A[1][6] = 4.*GG[3]*mu_L*(1.-nu_L)/kuH;
+	B[2].shape->A[1][12] = 4.*GG[3]*mu_L*(1.-nu_L)/kuH;
+	B[2].shape->A[1][16] = GG[4]*mu_L*(1.-nu_L)/kuH;
+	B[2].shape->A[1][22] = -GG[4]*mu_L*(1.-nu_L)/kuH;
+	B[2].shape->A[1][20] = 4.*GG[5]*mu_L*(1.-nu_L)/((3.-2.*nu_L)*kuH);
+	B[2].shape->A[1][26] = 4.*GG[5]*mu_L*(1.-nu_L)/((3.-2.*nu_L)*kuH);
+	B[3].shape->A[1][2] = GG[6]*kuM/kuH;
+	B[3].shape->A[1][8] = -GG[6]*kuM/kuH;
+	B[3].shape->A[1][6] = 4.*GG[7]*mu_M*(1.-nu_M)/(kuH*(1.+ff_l/ff));
+	B[3].shape->A[1][12] = 4.*GG[7]*mu_M*(1.-nu_M)/(kuH*(1.+ff_l/ff));
+	B[3].shape->A[1][16] = GG[8]*mu_M*(1.-nu_M)/kuH*(1.+ff_l/ff);
+	B[3].shape->A[1][22] = -GG[8]*mu_M*(1.-nu_M)/kuH*(1.+ff_l/ff);
+	B[3].shape->A[1][20] = 4.*GG[9]*mu_M*(1.-nu_M)/((3.-2.*nu_M)*kuH)*sqr(1.+ff_l/ff);
+	B[3].shape->A[1][26] = 4.*GG[9]*mu_M*(1.-nu_M)/((3.-2.*nu_M)*kuH)*sqr(1.+ff_l/ff);
+
+//////////////////////////////////
+////...комбинированная деформация;
+	B[0].shape->A[2][2] = B[0].shape->A[1][2]*fG+B[0].shape->A[0][2]*fK;
+	B[0].shape->A[2][8] = B[0].shape->A[1][8]*fG+B[0].shape->A[0][8]*fK;
+	B[0].shape->A[2][6] = B[0].shape->A[1][6]*fG;
+	B[0].shape->A[2][12] = B[0].shape->A[1][12]*fG;
+	B[1].shape->A[2][2] = B[1].shape->A[1][2]*fG+B[1].shape->A[0][2]*fK;
+	B[1].shape->A[2][8] = B[1].shape->A[1][8]*fG+B[1].shape->A[0][8]*fK;
+	B[1].shape->A[2][16] = B[1].shape->A[1][16]*fG;
+	B[1].shape->A[2][22] = B[1].shape->A[1][22]*fG;
+	B[1].shape->A[2][20] = B[1].shape->A[1][20]*fG;
+	B[1].shape->A[2][26] = B[1].shape->A[1][26]*fG;
+	B[2].shape->A[2][2] = B[2].shape->A[1][2]*fG+B[2].shape->A[0][2]*fK;
+	B[2].shape->A[2][8] = B[2].shape->A[1][8]*fG+B[2].shape->A[0][8]*fK;
+	B[2].shape->A[2][6] = B[2].shape->A[1][6]*fG;
+	B[2].shape->A[2][12] = B[2].shape->A[1][12]*fG;
+	B[2].shape->A[2][16] = B[2].shape->A[1][16]*fG+B[2].shape->A[0][16]*fK;
+	B[2].shape->A[2][22] = B[2].shape->A[1][22]*fG+B[2].shape->A[0][22]*fK;
+	B[2].shape->A[2][20] = B[2].shape->A[1][20]*fG;
+	B[2].shape->A[2][26] = B[2].shape->A[1][26]*fG;
+	B[3].shape->A[2][2] = B[3].shape->A[1][2]*fG+B[3].shape->A[0][2]*fK;
+	B[3].shape->A[2][8] = B[3].shape->A[1][8]*fG+B[3].shape->A[0][8]*fK;
+	B[3].shape->A[2][6] = B[3].shape->A[1][6]*fG;
+	B[3].shape->A[2][12] = B[3].shape->A[1][12]*fG;
+	B[3].shape->A[2][16] = B[3].shape->A[1][16]*fG+B[3].shape->A[0][16]*fK;
+	B[3].shape->A[2][22] = B[3].shape->A[1][22]*fG+B[3].shape->A[0][22]*fK;
+	B[3].shape->A[2][20] = B[3].shape->A[1][20]*fG;
+	B[3].shape->A[2][26] = B[3].shape->A[1][26]*fG;
+
+	return;
+}
+
+///////////////////////////////////////////////////////////
+//...трехфазная модель Эщелби для цилиндрических включений;
+void CLame2D::TakeEshelbyModel_two(double ff, double fK, double fG)
+{
+	double KH = TakeEshelby_volm_two_classic(ff), GH = TakeEshelby_shear_two(ff), 
+			 EH = fabs(GH)*(3*KH-fabs(GH))/KH, nuH = (KH-GH)/(2.*KH), kuH = (1.-nuH)/(.5-nuH)*GH,
+			mu_M = get_param(NUM_SHEAR), nu_M = get_param(NUM_SHEAR+1), kuM = (1.-nu_M)/(.5-nu_M)*mu_M, 
+			mu_I = get_param(NUM_SHEAR+NUM_SHIFT), nu_I = get_param(NUM_SHEAR+1+NUM_SHIFT), kuI = (1.-nu_I)/(.5-nu_I)*mu_I;
+	fK *= kuH;
+	fG *= GH;
+
+	fK = 1.; fG = 0.;
+
+/////////////////////////////////////////////////
+//...образуем образец из трех сферических блоков;
+	double rad0 = 1., rad1 = 1./sqrt(ff), AA = 4.*rad1;
+	GetCircleQuadStruct(AA, AA, rad0, rad1-rad0);
+	B[1].type = ZOOM_BLOCK;
+
+////////////////////////////////////
+//...устанавливаем параметры задачи;
+	set_mpls(PackInts(3, 3)); //...multipoles degree;
+	set_quad(PackInts(4, 2)); //...quadrature degree;
+	set_normaliz(1.);			  //...normalization coeffitient;
+	set_lagrange(1.);			  //...Lagrange corfficient for LSM;
+	set_geometry(rad0, rad1-rad0);
+	if (size_of_param() > NUM_SHEAR+1+NUM_SHIFT*2) {
+		param[NUM_SHEAR+NUM_SHIFT*2] = param[NUM_SHEAR];
+		param[NUM_SHEAR+1+NUM_SHIFT*2] = param[NUM_SHEAR+1];
+		param[NUM_SHEAR] = GH;
+		param[NUM_SHEAR+1] = nuH;
+	}
+
+//////////////////////////////////
+//...определяем блочную структуру;
+	solver.set_blocks(N, 3); //<==== number of saved potentials !!!
+	solver.n += 9;//<==== number of additional auxilliary arrays!!!
+	for (int k = 0; k < solver.N;  k++)
+		  solver.set_links(k, B[k].link);
+
+	shapes_init(INITIAL_STATE);
+	shapes_init(NULL_STATE);
+	LinkPhase2D(MAX_PHASE);
+
+	for (int k = 0; k < solver.N;  k++)
+	solver.set_dimension(k, freedom_block(k));
+   solver.struct_init();
+
+//////////////////////
+//...проверка решения;
+//double dd;
+//		 dd = GG[0]-4.*nu_I*GG[1]-GG[2]+4.*nu_M*GG[3]+(nu_M-1.)*GG[4]-2.*GG[5];
+//		 dd = GG[0]-2.*(3.-2.*nu_I)*GG[1]-GG[2]+2.*(3.-2.*nu_M)*GG[3]+(nu_M-.5)*GG[4]+2.*GG[5];
+//		 dd = mu_I*GG[0]-mu_M*GG[2]+mu_M*GG[4]+6.*mu_M*GG[5];
+//		 dd = mu_I*GG[0]-6.*mu_I*GG[1]-mu_M*GG[2]+6.*mu_M*GG[3]-mu_M*.5*GG[4]-6.*mu_M*GG[5];
+//		 dd = GG[2]-4.*nu_M/ff*GG[3]+(1.-nu_M)*ff*GG[4]+2.*sqr(ff)*GG[5]-2.*GG[6]-(1.-nuH)*GG[7]-1.;
+//		 dd = GG[2]-2.*(3.-2.*nu_M)/ff*GG[3]+(-nu_M+.5)*ff*GG[4]-2.*sqr(ff)*GG[5]+2.*GG[6]-(.5-nuH)*GG[7]-1.;
+//		 dd = mu_M*GG[2]-mu_M*ff*GG[4]-6.*mu_M*sqr(ff)*GG[5]+6.*GH*GG[6]+GH*GG[7]-GH;
+//		 dd = mu_M*GG[2]-6.*mu_M/ff*GG[3]+mu_M*.5*ff*GG[4]+6.*mu_M*sqr(ff)*GG[5]-6.*GH*GG[6]-.5*GH*GG[7]-GH;
+	
+/////////////////////////////////////////////////////////////////////////////////////////
+//...заносим коэффициенты в представление Папковича-Нейбера, плоское всестороннее сжатие;
+	B[0].shape->set_R(1.);
+	B[0].shape->A[0][2] = KK[0]*kuI/kuH;
+	B[0].shape->A[0][8] = KK[0]*kuI/kuH;
+	B[1].shape->set_R(1.);
+	B[1].shape->A[0][2] = 1.;
+	B[1].shape->A[0][8] = 1.;
+	B[2].shape->set_R(1.);
+	B[2].shape->A[0][2] = KK[1]*kuM/kuH;
+	B[2].shape->A[0][8] = KK[1]*kuM/kuH;
+	B[2].shape->A[0][16] = KK[2]*mu_M/kuH;
+	B[2].shape->A[0][22] = KK[2]*mu_M/kuH;
+
+/////////////////////////////////
+////...деформация чистого сдвига;
+	B[0].shape->A[1][2] = GG[0]*kuI/kuH;
+	B[0].shape->A[1][8] = -GG[0]*kuI/kuH;
+	B[0].shape->A[1][6] = 4.*GG[1]*mu_I*(1.-nu_I)/kuH;
+	B[0].shape->A[1][12] = 4.*GG[1]*mu_I*(1.-nu_I)/kuH;
+	B[1].shape->A[1][2] = 1.;
+	B[1].shape->A[1][8] = -1.;
+	B[1].shape->A[1][16] = GG[7]*(.5-nuH)/ff;
+	B[1].shape->A[1][22] = -GG[7]*(.5-nuH)/ff;
+	B[1].shape->A[1][20] = 2.*GG[6]*(.5-nuH)/(1.5-nuH)/sqr(ff);
+	B[1].shape->A[1][26] = 2.*GG[6]*(.5-nuH)/(1.5-nuH)/sqr(ff);
+	B[2].shape->A[1][2] = GG[2]*kuM/kuH;
+	B[2].shape->A[1][8] = -GG[2]*kuM/kuH;
+	B[2].shape->A[1][6] = 4.*GG[3]*mu_M*(1.-nu_M)/kuH;
+	B[2].shape->A[1][12] = 4.*GG[3]*mu_M*(1.-nu_M)/kuH;
+	B[2].shape->A[1][16] = GG[4]*mu_M*(1.-nu_M)/kuH;
+	B[2].shape->A[1][22] = -GG[4]*mu_M*(1.-nu_M)/kuH;
+	B[2].shape->A[1][20] = 4.*GG[5]*mu_M*(1.-nu_M)/((3.-2.*nu_M)*kuH);
+	B[2].shape->A[1][26] = 4.*GG[5]*mu_M*(1.-nu_M)/((3.-2.*nu_M)*kuH);
+
+//////////////////////////////////
+////...комбинированная деформация;
+	B[0].shape->A[2][2] = B[0].shape->A[1][2]*fG+B[0].shape->A[0][2]*fK;
+	B[0].shape->A[2][8] = B[0].shape->A[1][8]*fG+B[0].shape->A[0][8]*fK;
+	B[0].shape->A[2][6] = B[0].shape->A[1][6]*fG;
+	B[0].shape->A[2][12] = B[0].shape->A[1][12]*fG;
+	B[1].shape->A[2][2] = B[1].shape->A[1][2]*fG+B[1].shape->A[0][2]*fK;
+	B[1].shape->A[2][8] = B[1].shape->A[1][8]*fG+B[1].shape->A[0][8]*fK;
+	B[1].shape->A[2][16] = B[1].shape->A[1][16]*fG;
+	B[1].shape->A[2][22] = B[1].shape->A[1][22]*fG;
+	B[1].shape->A[2][20] = B[1].shape->A[1][20]*fG;
+	B[1].shape->A[2][26] = B[1].shape->A[1][26]*fG;
+	B[2].shape->A[2][2] = B[2].shape->A[1][2]*fG+B[2].shape->A[0][2]*fK;
+	B[2].shape->A[2][8] = B[2].shape->A[1][8]*fG+B[2].shape->A[0][8]*fK;
+	B[2].shape->A[2][6] = B[2].shape->A[1][6]*fG;
+	B[2].shape->A[2][12] = B[2].shape->A[1][12]*fG;
+	B[2].shape->A[2][16] = B[2].shape->A[1][16]*fG+B[2].shape->A[0][16]*fK;
+	B[2].shape->A[2][22] = B[2].shape->A[1][22]*fG+B[2].shape->A[0][22]*fK;
+	B[2].shape->A[2][20] = B[2].shape->A[1][20]*fG;
+	B[2].shape->A[2][26] = B[2].shape->A[1][26]*fG;
+
+	return;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////

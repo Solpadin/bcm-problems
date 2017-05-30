@@ -13,13 +13,12 @@
 //...class of 2D wave-trasfer multipoles with polynomial behaviour;
 class CWave2DPoly : public CShape<double> {
 public:
-		Num_Shape    type() {return WV2D_POLY_SHAPE;}
 		int freedom(int  m) { return m*2+1; }
 		int size_of_param() { return(3);};
 public:
 //...initialization of multipoles;
 		void set_shape(double R0, double kk = 0., double r = 1., double L1 = 0., double L2 = 0., double L3 = 0.);
-		void init2 (int N, int M, int dim);
+		void degree_init2 (int N, int M, int dim);
 public:
 //...calculation of multipoles;
 		void parametrization     (double * P = NULL, int m_dop = 0);
@@ -29,10 +28,15 @@ public:
 		void deriv_X(double * deriv, double f = 1.);
 		void deriv_Y(double * deriv, double f = 1.);
 		void deriv_t(double * deriv, double f = 1.);
-//...constructor;
-		CWave2DPoly () {
+public:
+		void init() {
 			delete_struct(param);
-			param = (Param *)new_struct(size_of_param()*sizeof(Param));
+			param = new_struct<Param>(size_of_param());
+		}
+public:
+//...constructor;
+		CWave2DPoly() {
+			init();
 		};
 };
 
@@ -40,8 +44,7 @@ public:
 //...class of 3D wave-trasfer multipoles with polynomial behaviour;
 class CWave3DPoly : public CWave2DPoly {
 public:
-		Num_Shape     type() { return WV3D_POLY_SHAPE;}
-		int freedom (int  m) { return (m+1)*(m+1); }
+		int freedom (int m) { return (m+1)*(m+1); }
 public:
 //...initialization and calculation of multipoles;
 		void parametrization     (double * P = NULL, int m = 0);
@@ -52,11 +55,6 @@ public:
 		void deriv_Y(double * deriv, double f = 1.);
 		void deriv_Z(double * deriv, double f = 1.);
 		void deriv_t(double * deriv, double f = 1.);
-//...constructor;
-		CWave3DPoly () {
-			delete_struct(param);
-			param = (Param *)new_struct(size_of_param()*sizeof(Param));
-		};
 };
 
 ///////////////////////////////////////

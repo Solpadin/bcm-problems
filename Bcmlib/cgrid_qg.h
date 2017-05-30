@@ -9,9 +9,8 @@
 //////////////////////////////////////////////////////////////////////
 //...class of gaussian quadratures for all existing types of elements;
 class CGrid_QG : public CGrid {
+protected:
 		static const double cc[][2];
-public:
-		virtual int type() { return GRID_QG_NODES;}
 public:
 //...normalization and weihgts/nodes of quadratures;
 		double QG_normal(double & nX, double & nY, double & nZ) {
@@ -34,6 +33,7 @@ protected:
 		void QG2M1_line(double * P, int M, const double c2M1[][2], Num_State normal);
 		void QG2M1_tria(double * P, int M, const double c2M1[][2], Num_State normal);
 		void QG2M1_quad(double * P, int M, const double c2M1[][2], Num_State normal);
+protected:
 //...gaussian quadratures for dimensional elements;
 		void QG_sheet(CMap * mp, int N_elem, int N_max);
 		void QG_sheet(CMap * mp, int N_elem);
@@ -53,6 +53,7 @@ protected:
 		void QG_torus_segment(CMap * mp, int N_elem, int N_max);
 		void QG_torus_segment(CMap * mp, int N_elem);
 		void QG_ugolok_cell	(CMap * mp, int N_elem);
+protected:
 //...correction weigts and nodes for curvilinear surface;
 		void QG_circle  (CMap * mp);
 		void QG_ellipse (CMap * mp);
@@ -69,8 +70,8 @@ public:
 //...gaussian quadratures;
 		void facet_QG(double * P, int N_elem, Num_State mode = NULL_STATE, Num_State normal = OK_STATE);
 		void segms_QG(CMap * mp,  int N_elem, int N_max);
-//...special gaussian quadratures;
 		void sphere_intrusion_QG(CMap * mp, int N_elem, double L);
+public:
 //...gaussian quadratures corrections;
 		void QG_curve	 (CMap * mp);
 		void QG_surface (CMap * mp);

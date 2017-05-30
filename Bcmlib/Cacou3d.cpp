@@ -33,10 +33,10 @@ int CAcou3D::block_shape_init(Block<complex> & B, Num_State id_free)
 //////////////////////////////////
 //...multipoles number adaptation;
 		if (B.link[NUM_PHASE] == -2) //...another phase of media!!!
-			B.shape->init1(UnPackInts(get_param(0), 1), solver.id_norm*2, 3); else
-		/*if ((B.type & ERR_CODE) == ZOOM_BLOCK && B.mp[7] < 0.) B.shape->init1(UnPackInts(get_param(0), 1), solver.id_norm*2, 1); else
-		if ((B.type & ERR_MASK) == SUB_UGOLOK_BLOCK)			    B.shape->init1(UnPackInts(get_param(0), 1), solver.id_norm*2, 1);
-		else*/																	 B.shape->init1(UnPackInts(get_param(0)),		solver.id_norm*2, 1); 
+			B.shape->degree_init1(UnPackInts(get_param(0), 1), solver.id_norm*2, 3); else
+		/*if ((B.type & ERR_CODE) == ZOOM_BLOCK && B.mp[7] < 0.) B.shape->degree_init1(UnPackInts(get_param(0), 1), solver.id_norm*2, 1); else
+		if ((B.type & ERR_MASK) == SUB_UGOLOK_BLOCK)			    B.shape->degree_init1(UnPackInts(get_param(0), 1), solver.id_norm*2, 1);
+		else*/																	 B.shape->degree_init1(UnPackInts(get_param(0)),		solver.id_norm*2, 1); 
 
 //////////////////////////////////////////////////////////////////////////////
 //...setting acselerator, local system of coordinate and init parametrization;
@@ -1639,7 +1639,7 @@ void CAcou3D::block_descrap(char * OUT_FILE)
 		Message(msg); fprintf(OUT, "%s\n", msg);
 
 		for (i = 0; i < B[k].link[0]; i++) if ((j = B[k].link[i+1]) >= 0) {
-			bnd->zero_grid(); 
+			bnd->release(); 
 			m = block_comput(bnd, k, j, sqr(get_param(4)), j_surf, 1);
        
 /////////////////////////////////
@@ -1736,7 +1736,7 @@ void CAcou3D::block_descrap(char * OUT_FILE)
 void CAcou3D::GetFuncAllValues(double X, double Y, double Z, double * F, int i, Num_Value id_F, int id_variant, int iparam)
 {
 	if (! F) return;
-	double P[6]  = { X, Y, Z, 0., 0., 1.}, L1 = 0.8, L2 = 1.1, L = 3., Vn = .001, f;
+	double P[6]  = { X, Y, Z, 0., 0., 1.}, L1 = 0.8, L2 = 1.1, L = 3., Vn = .001;
 	complex zz;
 
 /////////////////////////////////////
@@ -2146,7 +2146,7 @@ void CAcou3D::GetSurferFormat(FILE * SURF, FILE * SURF1, FILE * SURF2, CGrid * n
   if (SURF && SURF1 && nd && nd->N > 0 && nd->N1 > 0) {
 		short int i0 = (short int)nd->N,
 					 j0 = (short int)nd->N1;
-		double * out_F = (double *)new_struct(2004*sizeof(double)), X, Y, Z,
+		double * out_F = new_struct<double>(2004), X, Y, Z,
 					min1F = 0., max1F = 1.,
 					min2F = 0., max2F = 1.;
 		int hit;

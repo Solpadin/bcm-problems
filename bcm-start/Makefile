@@ -9,11 +9,11 @@ r       = exe
 CC      = mpicxx -c -O3 -I../Bcmlib -I../qd -I../Bslib
 CFCF    =
 LINK    = mpicxx -L/usr/lib -Wl,-rpath,\$$ORIGIN
-mpirun := mpirun -np 4
+mpirun := mpirun -np 1
 
 RUN     = bcm-start
 RUNOBJS = bcm-start.$o
-MYLIBS  = bcmlib.$a qd.$a bslib.$a lapacksm.$a /usr/lib/libmetis.$a
+MYLIBS  = bcmlib.$a qd.$a bslib.$a lapacksm.$a /usr/lib/libparmetis.$a
 
 $(RUN): $(RUNOBJS) $(MYLIBS)
 	$(LINK) -o $(RUN) $(RUNOBJS) $(MYLIBS) -lpthread -lrt -lm -lgfortran

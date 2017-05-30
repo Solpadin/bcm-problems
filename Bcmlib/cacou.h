@@ -15,7 +15,6 @@
 //...class of acoustic multipoles, based on plane wave in Z-direction;
 class CAcou3DEll : public CShape<double> {
 public:
-		Num_Shape    type() { return AU3D_ELLI_SHAPE;}
 		int freedom (int m) { return (m+1)*(m+2);}
 		int size_of_param() { return(5);};
 public:
@@ -27,10 +26,15 @@ public:
 		void deriv_X(double * deriv, double f = 1.);
 		void deriv_Y(double * deriv, double f = 1.);
 		void deriv_Z(double * deriv, double f = 1.);
-//...constructor;
-		CAcou3DEll () {
+public:
+		void init() {
 			delete_struct(param);
-			param = (Param *)new_struct(size_of_param()*sizeof(Param));
+			param = new_struct<Param>(size_of_param());
+		}
+public:
+//...constructor;
+		CAcou3DEll() {
+			init();
 		};
 };
 
@@ -59,10 +63,8 @@ class CAcou3DPoly : public CShape<complex> {
 protected:
 		double * au, * E1;
 public:
-		Num_Shape    type() { return AU3D_POLY_SHAPE;}
 		int freedom (int m) { return sqr(m+1);}
 		int size_of_param() { return(4);}
-		void release();
 public:
 //...calculation of multipoles;
 		void parametrization(double * P = NULL, int m_dop = 0);
@@ -70,12 +72,21 @@ public:
 		void deriv_X(complex * deriv, double f = 1.);
 		void deriv_Y(complex * deriv, double f = 1.);
 		void deriv_Z(complex * deriv, double f = 1.);
-//...constructor;
-		CAcou3DPoly () {
+public:
+		void init() {
 			delete_struct(param);
-			param   = (Param *)new_struct(size_of_param()*sizeof(Param));
+			param = new_struct<Param>(size_of_param());
+		}
+public:
+//...constructor and destructor;
+		CAcou3DPoly() {
 			au = E1 = NULL;
+			init();
 		};
+		virtual ~CAcou3DPoly(void) { 
+			delete_struct(au);
+			delete_struct(E1);
+		}
 };
 
 ///////////////////////////////////////
@@ -100,10 +111,8 @@ class CAcou3DZoom : public CShape<double> {
 protected:
 		double * au;
 public:
-		Num_Shape    type() { return AU3D_ZOOM_SHAPE;}
 		int freedom (int m) { return sqr(m+1);}
 		int size_of_param() { return(4);}
-		void release();
 public:
 //...initialization and calculation of multipoles;
 		void parametrization     (double * P = NULL, int m_dop = 0);
@@ -113,14 +122,22 @@ public:
 		void deriv_X(double * deriv, double f = 1.);
 		void deriv_Y(double * deriv, double f = 1.);
 		void deriv_Z(double * deriv, double f = 1.);
-//...constructor;
-		CAcou3DZoom (int inverse = 0) {
+public:
+		void init() {
 			delete_struct(param);
-			param = (Param *)new_struct(size_of_param()*sizeof(Param));
+			param = new_struct<Param>(size_of_param());
+			//id_cmpl = 1; //...we can install id_cmpl by void change()!!!
+		}
+public:
+//...constructor and destructor;
+		CAcou3DZoom(int inverse = 0) {
 			au = NULL;
 			id_inverse = inverse;
-			//id_cmpl	  = 1; //...we can install id_cmpl by void change()!!!
-       };
+			init();
+		};
+		virtual ~CAcou3DZoom(void) { 
+			delete_struct(au);
+		}
 };
 
 ///////////////////////////////////////
@@ -146,13 +163,12 @@ class CAcou3DWave : public CShape<double> {
 protected:
        double * cz, * sz, * cy, * sy;
 public:
-       Num_Shape    type() { return AU3D_WAVE_SHAPE;}
 		 int freedom (int m) { return sqr(m+1);}
        int size_of_param() { return(4);}
 public:
 //...initialization and calculation of multipoles;
-       void init1(int N, int dim) { init2(2, N, dim);};
-       void init2(int id_flag, int N, int dim);
+       void degree_init1(int N, int dim) { degree_init2(2, N, dim);};
+       void degree_init2(int id_flag, int N, int dim);
        void parametrization(double * P, int m_dop = 1);
        int  add_expo_power (double X, double Y, double Z, int flag = 0);
 //...differentiation;
@@ -160,15 +176,24 @@ public:
        void deriv_Y(double * deriv, double f = 1.);
        void deriv_Z(double * deriv, double f = 1.);
        void deriv_N();
-//...constructor;
-       CAcou3DWave () {
-           delete_struct(param);
-           param   = (Param *)new_struct(size_of_param()*sizeof(Param));
-           cz = sz = cy = sy = NULL;
-           id_cmpl = 1;
-       };
-//...destructor;
-      ~CAcou3DWave (void);
+public:
+		void init() {
+			delete_struct(param);
+			param = new_struct<Param>(size_of_param());
+			id_cmpl = 1;
+		}
+public:
+//...constructor and destructor;
+		CAcou3DWave() {
+			cz = sz = cy = sy = NULL;
+			init();
+		};
+		virtual ~CAcou3DWave(void) { 
+			 delete_struct(cz);
+			 delete_struct(sz);
+			 delete_struct(cy);
+			 delete_struct(sy);
+		}
 };
 
 ///////////////////////////////////////
@@ -201,7 +226,6 @@ public:
 public:
 //...initialization of multipoles;
 		void set_shape(double R0, double kk = 0., double kk_dop = 0., double L1 = 0., double L2 = 0.);
-		void release();
 public:
 //...calculation of multipoles;
 		void parametrization     (double * P = NULL, int m_dop = 0);
@@ -211,13 +235,24 @@ public:
 		void deriv_X(double * deriv, double f = 1.);
 		void deriv_Y(double * deriv, double f = 1.);
 		void deriv_Z(double * deriv, double f = 1.);
-//...constructor;
-		CAcou3DBeam () {
+public:
+		void init() {
 			delete_struct(param);
-			param   = (Param *)new_struct(size_of_param()*sizeof(Param));
+			param = new_struct<Param>(size_of_param());
+		}
+public:
+//...constructor and destructor;
+		CAcou3DBeam() {
 			au = az = pim = pxim = pyim = pzim = NULL;
 			E1 = NULL;
-		};
+			init();
+		}
+		virtual ~CAcou3DBeam(void) { 
+			delete_struct(pim);
+			delete_struct(pxim);	delete_struct(pyim);	delete_struct(pzim);
+			delete_struct(au);	delete_struct(az);
+			delete_struct(E1);
+		}
 };
 
 ///////////////////////////////////////
@@ -242,10 +277,8 @@ protected:
 		double  * az, * pim, * pxim, * pyim, * pzim;
 		complex * E1;
 public:
-		Num_Shape    type() { return AU3D_BEAMZSHAPE;}
 		int freedom (int m) { return sqr(m+1);}
 		int size_of_param() { return(4);};
-		void release();
 public:
 //...initialization and calculation of multipoles;
 		void parametrization     (double * P = NULL, int m_dop = 0);
@@ -255,13 +288,24 @@ public:
 		void deriv_X(double * deriv, double f = 1.);
 		void deriv_Y(double * deriv, double f = 1.);
 		void deriv_Z(double * deriv, double f = 1.);
-//...constructor;
-		CAcou3DBeamZ () {
+public:
+		void init() {
 			delete_struct(param);
-			param   = (Param *)new_struct(size_of_param()*sizeof(Param));
+			param = new_struct<Param>(size_of_param());
+		}
+public:
+//...constructor and destructor;
+		CAcou3DBeamZ() {
 			az = pim = pxim = pyim = pzim = NULL;
 			E1 = NULL;
+			init();
 		};
+		virtual ~CAcou3DBeamZ(void) { 
+			delete_struct(pim);
+			delete_struct(pxim);	delete_struct(pyim);	delete_struct(pzim);
+			delete_struct(az);
+			delete_struct(E1);
+		}
 };
 
 ///////////////////////////////////////

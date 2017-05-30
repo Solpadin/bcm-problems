@@ -285,7 +285,7 @@ void add_table_param(Table *& tab, int N, Shablon * records, int N_ini)
 {
 	if (tab && N > 0) {
 		if (N_ini  < 0 || N_ini > tab->N) N_ini = tab->N;
-		Table * table = (Table *)new_struct(sizeof(Table)+((N += tab->N)-1)*sizeof(Record));
+		Table * table = (Table *)new_struct<char>(sizeof(Table)+((N += tab->N)-1)*sizeof(Record));
 
 		memcpy(table, tab, sizeof(Table)+(N_ini-1)*sizeof(Record));
 		memcpy((char *)table+sizeof(Table)+(N-tab->N+N_ini-1)*sizeof(Record), 
@@ -295,22 +295,22 @@ void add_table_param(Table *& tab, int N, Shablon * records, int N_ini)
 		for (int i_last = 0, i = tab->N; i < N; i++) {
 			if (records[i_last].parm_type < CHAR_TYPE_RECORD); else
 			if (records[i_last].parm_type <  INT_TYPE_RECORD) {
-					char ** parm_values = (char **)new_struct((table->N_group+1)*sizeof(char *));
+					char ** parm_values = new_struct<char *>(table->N_group+1);
 					set_table_param(tab, N_ini+i-tab->N+1, records[i_last].parm_type, records[i_last].parm_name, parm_values);
 			}
 			else
 			if (records[i_last].parm_type < FLOAT_TYPE_RECORD) {
-					int * parm_values = (int *)new_struct((table->N_group+1)*sizeof(int));
+					int * parm_values = new_struct<int>(table->N_group+1);
 					set_table_param(tab, N_ini+i-tab->N+1, records[i_last].parm_type, records[i_last].parm_name, parm_values);
 			}
 			else
 			if (records[i_last].parm_type < DOUBLE_TYPE_RECORD) {
-					float * parm_values = (float *)new_struct((table->N_group+1)*sizeof(float));
+					float * parm_values = new_struct<float>(table->N_group+1);
 					set_table_param(tab, N_ini+i-tab->N+1, records[i_last].parm_type, records[i_last].parm_name, parm_values);
 			}
 			else
 			if (records[i_last].parm_type < NUM_OF_TYPE_RECORD) {
-					double * parm_values = (double *)new_struct((table->N_group+1)*sizeof(double));
+					double * parm_values = new_struct<double>(table->N_group+1);
 					set_table_param(tab, N_ini+i-tab->N+1, records[i_last].parm_type, records[i_last].parm_name, parm_values);
 			}
 			if (i+1 < N && records[i_last+1].parm_type != ERR_TYPE_RECORD) i_last = i+1-tab->N;
@@ -339,7 +339,7 @@ void del_table_param(Table *& tab, int N, int N_fin, int id_static_char)
 			if (id_static_char < SPECIAL_STATE) 
 				delete [] rec->parm_values;
 		}
-		Table * table = (Table *)new_struct(sizeof(Table)+((N = tab->N-N_fin+m)-1)*sizeof(Record));
+		Table * table = (Table *)new_struct<char>(sizeof(Table)+((N = tab->N-N_fin+m)-1)*sizeof(Record));
 
 		memcpy(table, tab, sizeof(Table)+(m-1)*sizeof(Record));
 		memcpy((char *)table+sizeof(Table)+(m-1)*sizeof(Record), 
@@ -360,41 +360,41 @@ void add_table_group(Table * tab, int N_group, char ** table_names, int N_ini, i
 		for (int i = 0; i < tab->N; i++) {
 			if (tab->table[i].type < CHAR_TYPE_RECORD); else
 			if (tab->table[i].type <  INT_TYPE_RECORD) {
-				char ** new_parm_values = (char **)new_struct((N_group+1)*sizeof(char *));
+				char ** new_parm_values = new_struct<char *>(N_group+1);
 				memcpy(new_parm_values, tab->table[i].parm_values, (N_ini+1)*sizeof(char *));
 				memcpy(new_parm_values+N_group-tab->N_group+N_ini+1, (char **)tab->table[i].parm_values+N_ini+1, (tab->N_group-N_ini)*sizeof(char *));
 				delete [] tab->table[i].parm_values; tab->table[i].parm_values = new_parm_values;
 			}
 			else
 			if (tab->table[i].type < FLOAT_TYPE_RECORD) {
-				int * new_parm_values = (int *)new_struct((N_group+1)*sizeof(int));
+				int * new_parm_values = new_struct<int>(N_group+1);
 				memcpy(new_parm_values, tab->table[i].parm_values, (N_ini+1)*sizeof(int));
 				memcpy(new_parm_values+N_group-tab->N_group+N_ini+1, (int *)tab->table[i].parm_values+N_ini+1, (tab->N_group-N_ini)*sizeof(int));
 				delete [] tab->table[i].parm_values; tab->table[i].parm_values = new_parm_values;
 			}
 			else
 			if (tab->table[i].type < DOUBLE_TYPE_RECORD) {
-				float * new_parm_values = (float *)new_struct((N_group+1)*sizeof(float));
+				float * new_parm_values = new_struct<float>(N_group+1);
 				memcpy(new_parm_values, tab->table[i].parm_values, (N_ini+1)*sizeof(float));
 				memcpy(new_parm_values+N_group-tab->N_group+N_ini+1, (float *)tab->table[i].parm_values+N_ini+1, (tab->N_group-N_ini)*sizeof(float));
 				delete [] tab->table[i].parm_values; tab->table[i].parm_values = new_parm_values;
 			}
 			else
 			if (tab->table[i].type < NUM_OF_TYPE_RECORD) {
-				double * new_parm_values = (double *)new_struct((N_group+1)*sizeof(double));
+				double * new_parm_values = new_struct<double>(N_group+1);
 				memcpy(new_parm_values, tab->table[i].parm_values, (N_ini+1)*sizeof(double));
 				memcpy(new_parm_values+N_group-tab->N_group+N_ini+1, (double *)tab->table[i].parm_values+N_ini+1, (tab->N_group-N_ini)*sizeof(double));
 				delete [] tab->table[i].parm_values; tab->table[i].parm_values = new_parm_values;
 			}
 		}
 		if (tab->table_units) {
-			int * new_table_units = (int *)new_struct(N_group*sizeof(int));
+			int * new_table_units = new_struct<int>(N_group);
 			memcpy(new_table_units, tab->table_units, N_ini*sizeof(int));
 			memcpy(new_table_units+N_group-tab->N_group+N_ini, tab->table_units+N_ini, (tab->N_group-N_ini)*sizeof(int));
 			delete [] tab->table_units; tab->table_units = new_table_units;
 		}
 		if (tab->table_names && id_static_char != ADDITIONAL_STATE) {
-			char ** new_table_names = (char **)new_struct(N_group*sizeof(char *));
+			char ** new_table_names = new_struct<char *>(N_group);
 			memcpy(new_table_names, tab->table_names, N_ini*sizeof(char *));
 			memcpy(new_table_names+N_group-tab->N_group+N_ini, tab->table_names+N_ini, (tab->N_group-N_ini)*sizeof(char *));
 			if (table_names)
@@ -418,42 +418,42 @@ void del_table_group(Table * tab, int N_group, int N_ini, int id_static_char)
 		for ( i = 0; i < tab->N; i++) {
 			if (tab->table[i].type < CHAR_TYPE_RECORD); else
 			if (tab->table[i].type <  INT_TYPE_RECORD) {
-				char ** new_parm_values = (char **)new_struct((N_group+1)*sizeof(char *));
+				char ** new_parm_values = new_struct<char *>(N_group+1);
 				memcpy(new_parm_values, tab->table[i].parm_values, (m+1)*sizeof(char *));
 				memcpy(new_parm_values+m+1, ((char **)tab->table[i].parm_values)+N_ini+1, (tab->N_group-N_ini)*sizeof(char *));
 				delete [] tab->table[i].parm_values; tab->table[i].parm_values = new_parm_values;
 			}
 			else
 			if (tab->table[i].type < FLOAT_TYPE_RECORD) {
-				int * new_parm_values = (int *)new_struct((N_group+1)*sizeof(int));
+				int * new_parm_values = new_struct<int>(N_group+1);
 				memcpy(new_parm_values, tab->table[i].parm_values, (m+1)*sizeof(int));
 				memcpy(new_parm_values+m+1, ((int *)tab->table[i].parm_values)+N_ini+1, (tab->N_group-N_ini)*sizeof(int));
 				delete [] tab->table[i].parm_values; tab->table[i].parm_values = new_parm_values;
 			}
 			else
 			if (tab->table[i].type < DOUBLE_TYPE_RECORD) {
-				float * new_parm_values = (float *)new_struct((N_group+1)*sizeof(float));
+				float * new_parm_values = new_struct<float>(N_group+1);
 				memcpy(new_parm_values, tab->table[i].parm_values, (m+1)*sizeof(float));
 				memcpy(new_parm_values+m+1, ((float *)tab->table[i].parm_values)+N_ini+1, (tab->N_group-N_ini)*sizeof(float));
 				delete [] tab->table[i].parm_values; tab->table[i].parm_values = new_parm_values;
 			}
 			else
 			if (tab->table[i].type < NUM_OF_TYPE_RECORD) {
-				double * new_parm_values = (double *)new_struct((N_group+1)*sizeof(double));
+				double * new_parm_values = new_struct<double>(N_group+1);
 				memcpy(new_parm_values, tab->table[i].parm_values, (m+1)*sizeof(double));
 				memcpy(new_parm_values+m+1, ((double *)tab->table[i].parm_values)+N_ini+1, (tab->N_group-N_ini)*sizeof(double));
 				delete [] tab->table[i].parm_values; tab->table[i].parm_values = new_parm_values;
 			}
 		}
 		if (tab->table_units) {
-			int * new_table_units = (int *)new_struct(N_group*sizeof(int));
+			int * new_table_units = new_struct<int>(N_group);
 			memcpy(new_table_units, tab->table_units, m*sizeof(int));
 			memcpy(new_table_units+m, ((int *)tab->table_units)+N_ini, (tab->N_group-N_ini)*sizeof(int));
 			delete [] tab->table_units; tab->table_units = new_table_units;
 		}
 		if (tab->table_names) {
 			if (id_static_char != ADDITIONAL_STATE) {
-				char ** new_table_names = (char **)new_struct(N_group*sizeof(char *));
+				char ** new_table_names = new_struct<char *>(N_group);
 				memcpy(new_table_names, tab->table_names, m*sizeof(char *));
 				memcpy(new_table_names+m, ((char **)tab->table_names)+N_ini, (tab->N_group-N_ini)*sizeof(char *));
 				delete [] tab->table_names; tab->table_names = new_table_names;
@@ -524,7 +524,7 @@ void table_cpy(Table * tab, Table * tab_source, int id_static_char)
 					char * sss;
 					delete_struct(sss = ((char **)tab->table[i].parm_values)[j]);
 					if ((sss = ((char **)tab_source->table[i].parm_values)[j]) != NULL) {
-						( (char **)tab->table[i].parm_values)[j] = new_struct(((int)strlen(((char **)tab_source->table[i].parm_values)[j])+1)*sizeof(char));
+						( (char **)tab->table[i].parm_values)[j] = new_struct<char>((int)strlen(((char **)tab_source->table[i].parm_values)[j])+1);
 
 						::strcpy(((char **)tab->table[i].parm_values)[j], ((char **)tab_source->table[i].parm_values)[j]);
 					}
@@ -554,12 +554,12 @@ void table_cpy(Table * tab, Table * tab_source, int id_static_char)
 Table * get_table(int N, int N_group, char * table_names[])
 {
 	if (N_group < 1) return(NULL);
-	Table * table = (Table *)new_struct(sizeof(Table)+(N-1)*sizeof(Record));
+	Table * table = (Table *)new_struct<char>(sizeof(Table)+(N-1)*sizeof(Record));
 	if (table) {
 		table->N           = N;
 		table->N_group     = N_group;
 		table->table_names = table_names;
-		if ((table->table_units = (int *)new_struct(N_group*sizeof(int))) == NULL)
+		if ((table->table_units = new_struct<int>(N_group)) == NULL)
 			delete_table(table); else
 			set_table_units(table, UNIT_SI);
 	}
@@ -575,22 +575,22 @@ Table * get_shablon_table(int N, int N_group, Shablon * records, char * table_na
 	for (int i_last = 0, i = 0; i < table->N; i++) {
 		if (records[i_last].parm_type < CHAR_TYPE_RECORD); else
 		if (records[i_last].parm_type <  INT_TYPE_RECORD) {
-				char ** parm_values = id_static_char == SPECIAL_STATE ? NULL : (char **)new_struct((table->N_group+1)*sizeof(char *));
+				char ** parm_values = id_static_char == SPECIAL_STATE ? NULL : new_struct<char *>(table->N_group+1);
 				set_table_param(table, i+1, records[i_last].parm_type, records[i_last].parm_name, parm_values);
 		}
 		else
 		if (records[i_last].parm_type < FLOAT_TYPE_RECORD) {
-				int * parm_values = id_static_char == SPECIAL_STATE ? NULL : (int *)new_struct((table->N_group+1)*sizeof(int));
+				int * parm_values = id_static_char == SPECIAL_STATE ? NULL : new_struct<int>(table->N_group+1);
 				set_table_param(table, i+1, records[i_last].parm_type, records[i_last].parm_name, parm_values);
 		}
 		else
 		if (records[i_last].parm_type < DOUBLE_TYPE_RECORD) {
-				float * parm_values = id_static_char == SPECIAL_STATE ? NULL : (float *)new_struct((table->N_group+1)*sizeof(float));
+				float * parm_values = id_static_char == SPECIAL_STATE ? NULL : new_struct<float>(table->N_group+1);
 				set_table_param(table, i+1, records[i_last].parm_type, records[i_last].parm_name, parm_values);
 		}
 		else
 		if (records[i_last].parm_type < NUM_OF_TYPE_RECORD) {
-				double * parm_values = id_static_char == SPECIAL_STATE ? NULL : (double *)new_struct((table->N_group+1)*sizeof(double));
+				double * parm_values = id_static_char == SPECIAL_STATE ? NULL : new_struct<double>(table->N_group+1);
 				set_table_param(table, i+1, records[i_last].parm_type, records[i_last].parm_name, parm_values);
 		}
 		if (i+1 < table->N && records[i_last+1].parm_type != ERR_TYPE_RECORD) i_last = i+1;
@@ -604,12 +604,12 @@ Table * get_shablon_table(Table * table, int id_static_char)
 {
 	Table * tab_shablon = NULL;
 	if (table) {
-		Shablon * records = (Shablon *)new_struct(table->N*sizeof(Shablon));
+		Shablon * records = new_struct<Shablon>(table->N);
 		if (records) {
 			for (int i = 0; i < table->N; i++) {
 				char * parm_name = table->table[i].parm_name;
 				if (id_static_char == NULL_STATE && table->table[i].parm_name) {
-					parm_name = (char *)new_struct(((int)strlen(table->table[i].parm_name)+1)*sizeof(char));
+					parm_name = new_struct<char>((int)strlen(table->table[i].parm_name)+1);
 					::strcpy(parm_name, table->table[i].parm_name);
 				}
 				records[i].parm_name = parm_name;
@@ -617,11 +617,11 @@ Table * get_shablon_table(Table * table, int id_static_char)
 			}
 			char ** table_names = table->table_names;
 			if (id_static_char < ADDITIONAL_STATE && table->table_names) {
-				table_names = (char **)new_struct(table->N_group*sizeof(char *));
+				table_names = new_struct<char *>(table->N_group);
 				for (int j = 0; table_names && j < table->N_group; j++) {
 					table_names[j] = table->table_names[j];
 					if (id_static_char == NULL_STATE && table->table_names[j]) {
-							table_names[j] = (char *)new_struct(((int)strlen(table->table_names[j])+1)*sizeof(char));
+							table_names[j] = new_struct<char>((int)strlen(table->table_names[j])+1);
 							::strcpy(table_names[j], table->table_names[j]);
 					}
 				}
@@ -658,7 +658,7 @@ void SetTableParam(Table * table, int index, int N, double f, int id_static_char
 				delete_struct(((char **)rec->parm_values)[index]);
 				char * sss = (char *)(long long)f;
 				if (sss) {
-					((char **)rec->parm_values)[index] = new_struct(((int)strlen(sss)+1)*sizeof(char));
+					((char **)rec->parm_values)[index] = new_struct<char>((int)strlen(sss)+1);
 					::strcpy (((char **)rec->parm_values)[index], sss);
 				}
 			}
@@ -789,7 +789,7 @@ void LoadingParameters(Table * table, int index)
 			if ((str = ((char **)rec->parm_values)[index]) != NULL) {
    				len = (int)strlen(str);
 
-   				((char **)rec->parm_values)[0] = (char *)new_struct((len+1)*sizeof(char));
+   				((char **)rec->parm_values)[0] = new_struct<char>(len+1);
    				memcpy(((char **)rec->parm_values)[0], str, len*sizeof(char));
    				str =  ((char **)rec->parm_values)[0];
    			}
@@ -892,7 +892,7 @@ void ConvertStaticTable(void * context, int id_static_char)
 		for (int i = 0; i < tab->N; i++) {
 			rec = &tab->table[i];
 			if (ERR_TYPE_RECORD < rec->type && rec->type < INT_TYPE_RECORD && rec->parm_values) {
-				char ** new_parm_values = (char **)new_struct((tab->N+1)*sizeof(char *));
+				char ** new_parm_values = new_struct<char *>(tab->N+1);
 				memcpy (new_parm_values, rec->parm_values, (tab->N+1)*sizeof(char *));
 				rec->parm_values = new_parm_values;
 			}
@@ -901,7 +901,7 @@ void ConvertStaticTable(void * context, int id_static_char)
 	}
 	if (id_static_char < ADDITIONAL_STATE) { //,,,распределяем оболочку строковых имен групп параметров;
 		if (tab->table_names) {
-			char ** new_table_names = (char **)new_struct(tab->N_group*sizeof(char *));
+			char ** new_table_names = new_struct<char *>(tab->N_group);
 			memcpy (new_table_names, tab->table_names, tab->N_group*sizeof(char *));
 			tab->table_names = new_table_names;
 		}
@@ -914,14 +914,14 @@ void ConvertStaticTable(void * context, int id_static_char)
 				for (int j = 1; j <= tab->N_group; j++)
 					if (((char **)rec->parm_values)[j]) {
 						int m = (int)strlen(((char **)rec->parm_values)[j]);
-						char * new_parm_value = (char *)new_struct((m+1)*sizeof(char));
+						char * new_parm_value = new_struct<char>(m+1);
 						memcpy(new_parm_value, ((char **)rec->parm_values)[j], m*sizeof(char));
 						((char **)rec->parm_values)[j] = new_parm_value;
 					}
 			}
 			if (rec->parm_name) { //,,,строковые имена параметров;
 				int m = (int)strlen(rec->parm_name);
-				char * new_parm_name = (char *)new_struct((m+1)*sizeof(char));
+				char * new_parm_name = new_struct<char>(m+1);
 				memcpy(new_parm_name, rec->parm_name, m*sizeof(char));
 				rec->parm_name = new_parm_name;
 			}
@@ -930,20 +930,20 @@ void ConvertStaticTable(void * context, int id_static_char)
 			for (int i = 0; i < tab->N_group; i++)
 				if (tab->table_names[i]) {
 					int m = (int)strlen(tab->table_names[i]);
-					char * new_table_name = (char *)new_struct((m+1)*sizeof(char));
+					char * new_table_name = new_struct<char>(m+1);
 					memcpy(new_table_name, tab->table_names[i], m*sizeof(char));
 					tab->table_names[i] = new_table_name;
 				}
 		}
 		if (((Context *)context)->sample_name) { //,,,строковое именя образца;
 			int m = (int)strlen(((Context *)context)->sample_name);
-			char * new_sample_name = (char *)new_struct((m+1)*sizeof(char));
+			char * new_sample_name = new_struct<char>(m+1);
 			memcpy(new_sample_name, ((Context *)context)->sample_name, m*sizeof(char));
 			((Context *)context)->sample_name = new_sample_name;
 		}
 		if (((Context *)context)->GOST_name) { //,,,строковое именя ГОСТа образца;
 			int m = (int)strlen(((Context *)context)->GOST_name);
-			char * new_GOST_name = (char *)new_struct((m+1)*sizeof(char));
+			char * new_GOST_name = new_struct<char>(m+1);
 			memcpy(new_GOST_name, ((Context *)context)->GOST_name, m*sizeof(char));
 			((Context *)context)->GOST_name = new_GOST_name;
 		}
@@ -957,7 +957,7 @@ void str_reinst(char *& str, char * str_concat, int & buf_count, int id_reinst, 
 {
 	int  k = (int)user_strlen(str), m = (int)user_strlen(str_concat);
 	while (k+m+1 > buf_count) {
-		char * new_str = new_struct((buf_count += buf_length)*sizeof(char));
+		char * new_str = new_struct<char>(buf_count += buf_length);
 
 		if (str) ::strcpy(new_str, str);
 		delete_struct(str); str = new_str;	
@@ -971,7 +971,7 @@ void str_reinst(char *& str, const char * str_concat, int & buf_count, int id_re
 {
 	int  k = (int)user_strlen(str), m = (int)user_strlen(str_concat);
 	while (k+m+1 > buf_count) {
-		char * new_str = new_struct((buf_count += buf_length)*sizeof(char));
+		char * new_str = new_struct<char>(buf_count += buf_length);
 
 		if (str) ::strcpy(new_str, str);
 		delete_struct(str); str = new_str;	
@@ -1002,7 +1002,7 @@ char * SetTableParamsAsString(Table * table, int index, char * pchar, char *& p_
 			char Temp2 = pname[0];
 			pname[0] = '\x0';
 			if (! table->table[i].parm_name && (lenName = (int)strlen(pchar)) > 0) { // pchar -- имя параметра;
-				table->table[i].parm_name = (char *)new_struct((lenName+1)*sizeof(char));
+				table->table[i].parm_name = new_struct<char>(lenName+1);
 				memcpy(table->table[i].parm_name, pchar, lenName*sizeof(char));
 			}
 			pname[0] = Temp2;
@@ -1012,7 +1012,7 @@ char * SetTableParamsAsString(Table * table, int index, char * pchar, char *& p_
 				delete_struct(((char **)(table->table[i].parm_values))[index]);
 				if (table->table[i].type != COMMENT_CHAR_TYPE_RECORD) {
 					if ( pchar < pnext && strncmp(pchar, STRSEPARATOR, lenStrSeparator) && pchar[0] != '\xD') {
-						((char **)table->table[i].parm_values)[index] = (char *)new_struct(((int)strlen(pchar)+1)*sizeof(char));
+						((char **)table->table[i].parm_values)[index] = new_struct<char>((int)strlen(pchar)+1);
 						strcat(((char **)(table->table[i].parm_values))[index], pchar);
 					}
 				}
@@ -1038,7 +1038,7 @@ char * SetTableParamsAsString(Table * table, int index, char * pchar, char *& p_
 						Temp0 = pnext[0];	pnext[0] = '\x0';
 					}
 					if ( pchar < pnext-1) {//...записываем комментарий (в том числе и нулевой длины);
-						((char **)table->table[i].parm_values)[index] = (char *)new_struct((m = (int)strlen(pchar)-1)*sizeof(char));
+						((char **)table->table[i].parm_values)[index] = new_struct<char>(m = (int)strlen(pchar)-1);
 						memcpy(pname = ((char **)(table->table[i].parm_values))[index], pchar+1, m-1);
 
 						while ((plast = strchr(pname, '\"')) != NULL && plast < pname+m-2) {
@@ -1112,7 +1112,7 @@ const char * SetTableParamsAsString(Table * table, int index, const char * strPa
 		if (table->table[i].type <  INT_TYPE_RECORD) {
 			delete_struct(((char **)(table->table[i].parm_values))[index]);
 			if (posSemiColon-posColon-lenColon > 0) {
-				((char **)table->table[i].parm_values)[index] = (char *)new_struct((posSemiColon-posColon-lenColon+1)*sizeof(char));
+				((char **)table->table[i].parm_values)[index] = new_struct<char>(posSemiColon-posColon-lenColon+1);
 				strcat(((char **)(table->table[i].parm_values))[index], strWork);
 			}
 		}
@@ -1826,14 +1826,14 @@ void SetContextBar(void * context, void * bar, int id_block)
   if (cont && cont->sm && bar) {
       if (id_block < 0 || id_block >= cont->sm->N) {
           if (cont->sm->bar) {
-              cont->sm->bar->zero_cells(); 
+              cont->sm->bar->release(); 
               delete cont->sm->bar; 
           }
           cont->sm->bar = (CCells *)bar;
       }
       else {
           if (cont->sm->B[id_block].bar) {
-              cont->sm->B[id_block].bar->zero_cells(); 
+              cont->sm->B[id_block].bar->release(); 
               delete cont->sm->B[id_block].bar; 
           }
           cont->sm->B[id_block].bar = (CCells *)bar;
@@ -1925,7 +1925,7 @@ void * CreateContext(int N_sm)
 //...функция образования контекста для любого образца по контексту (копироание таблицы);
 void * CreateContext(void * context)
 {
-	Context * cont = (Context *)new_struct(sizeof(Context));
+	Context * cont = new_struct<Context>();
 	if (! cont) return(NULL);
 
 	cont->N           = GetSampleNumber(context);
@@ -1950,8 +1950,8 @@ void * CreateDescript(char * description)
 //...вычисление длины файла входных данных, образование контекста и копирование входных данных;
   while (description[k] != '\x0') k++;
 
-  Context * cont  = (Context *)new_struct(sizeof(Context));
-  char    * ascii = (char    *)new_struct((k+1)*sizeof(char));
+  Context * cont  = new_struct<Context>();
+  char    * ascii = new_struct<char>(k+1);
   if (! cont || ! ascii) {
      delete_struct(ascii);
      delete_struct(ascii = (char *)cont); 
@@ -1976,7 +1976,7 @@ void SetSampleDescription(void * context, char * description)
   int k = (int)strlen (description);
 
   delete_struct(cont->sample_description);
-  if ((cont->sample_description = (char *)new_struct((k+1)*sizeof(char))) != NULL)
+  if ((cont->sample_description = new_struct<char>(k+1)) != NULL)
 	  memcpy(cont->sample_description, description, k*sizeof(char));
 }
 
@@ -1987,7 +1987,7 @@ void SetSampleDescription(void * context, const char * description)
   int k = (int)strlen (description);
 
   delete_struct(cont->sample_description);
-  if ((cont->sample_description = (char *)new_struct((k+1)*sizeof(char))) != NULL)
+  if ((cont->sample_description = new_struct<char>(k+1)) != NULL)
 	  memcpy(cont->sample_description, description, k*sizeof(char));
 }
 
@@ -1998,7 +1998,7 @@ void SetSampleComment(void * context, char * comment)
   int k = (int)strlen (comment);
 
   delete_struct(cont->sample_comment);
-  if ((cont->sample_comment = (char *)new_struct((k+1)*sizeof(char))) != NULL)
+  if ((cont->sample_comment = new_struct<char>(k+1)) != NULL)
 	  memcpy(cont->sample_comment, comment, k*sizeof(char));
 }
 
@@ -2009,7 +2009,7 @@ void SetSampleComment(void * context, const char * comment)
   int k = (int)strlen (comment);
 
   delete_struct(cont->sample_comment);
-  if ((cont->sample_comment = (char *)new_struct((k+1)*sizeof(char))) != NULL)
+  if ((cont->sample_comment = new_struct<char>(k+1)) != NULL)
 	  memcpy(cont->sample_comment, comment, k*sizeof(char));
 }
 
@@ -2061,7 +2061,7 @@ void * CreateIBContext(char * description, int id_problem)
       case 3: cont->N   = NUM_SAMPLE_MPGPF3D+1; break;
       }
       if (id_problem == 2) {
-          cont->param = (Param *)new_struct(2*sizeof(Param));
+          cont->param = new_struct<Param>();
 
       }
       cont->sample_name = "Inter_Bar Sample";
@@ -2145,7 +2145,7 @@ int sample3D_init(void * context, CGrid * block_nd, int type)
 //...list of several problems creating;
 void ** CreateNewList(int iSamplesCount)
 {
-  return(void **)new_struct((iSamplesCount+1)*sizeof(void *));
+  return new_struct<void *>(iSamplesCount+1);
 }
 
 /////////////////////////////////////////

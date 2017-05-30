@@ -19,7 +19,6 @@ public:
 		T ** TT, ** TD, ** hh; //...diagonal part of sparse matrix as partional elements and right-hand part;
 static int JR_BUFF, JR_DIAG, JR_SHIFT, hh_numbs, band_buf;
 protected:
-		T * new_T(int N_stru){ T * stru = new T[N_stru]; memset(stru, 0, N_stru*sizeof(T)); return(stru);}
 		int  N_band, N_buf, buf_count; //...bufferization structure (band and elements);
 		void release_struct(int k);
 		void release_struct();
@@ -122,11 +121,11 @@ void CSparse<T>::restore_matrix(int k)
 {
 	release_matrix(k);
 	if (k < N && 0 <= k && JR && JR[k]) {
-		if (TR) TR[k] = new_T(JR[k][0]);
-		if (TL) TL[k] = new_T(JR[k][0]);
-		if (TT) TT[k] = new_T(JR[k][0]);
-		if (TD) TD[k] = new_T(JR[k][0]);
-		if (hh) hh[k] = new_T(hh_numbs);
+		if (TR) TR[k] = new_struct<T>(JR[k][0]);
+		if (TL) TL[k] = new_struct<T>(JR[k][0]);
+		if (TT) TT[k] = new_struct<T>(JR[k][0]);
+		if (TD) TD[k] = new_struct<T>(JR[k][0]);
+		if (hh) hh[k] = new_struct<T>(hh_numbs);
 	}
 }
 
@@ -136,11 +135,11 @@ template <typename T>
 void CSparse<T>::reset_indexes()
 {
 	if (p && JR && TR && TL && TT && TD) {
-		int ** new_JR = (int **)new_struct(N*sizeof(int *)), j, k, l;
-		T ** new_TR = (T **)new_struct(N*sizeof(T *)),
-		  ** new_TL = (T **)new_struct(N*sizeof(T *)),
-		  ** new_TT = (T **)new_struct(N*sizeof(T *)),
-		  ** new_TD = (T **)new_struct(N*sizeof(T *));
+		int ** new_JR = new_struct<int *>(N), j, k, l;
+		T ** new_TR = new_struct<T *>(N),
+		  ** new_TL = new_struct<T *>(N),
+		  ** new_TT = new_struct<T *>(N),
+		  ** new_TD = new_struct<T *>(N);
 
 /////////////////////////////////////////////////////////
 //...count sparse structure and allocation new arrays;
@@ -149,12 +148,12 @@ void CSparse<T>::reset_indexes()
 			if ( p[N+JR[k][j+JR_SHIFT]] < p[N+k]) new_JR[JR[k][j+JR_SHIFT]] = (int *)((long long)new_JR[JR[k][j+JR_SHIFT]]+1); 
 			else new_JR[k] = (int *)((long long)new_JR[k]+1);
 		for (k = 0; k < N; k++) {
-			new_JR[k] = (int *)new_struct( ((l = (int)(long long)new_JR[k])+JR_SHIFT)*sizeof(int));
+			new_JR[k] = new_struct<int>((l = (int)(long long)new_JR[k])+JR_SHIFT);
 			new_JR[k][JR_BUFF] = l+JR_SHIFT;
-			new_TR[k] = new_T(l);
-			new_TL[k] = new_T(l);
-			new_TT[k] = new_T(l);
-			new_TD[k] = new_T(l);
+			new_TR[k] = new_struct<T>(l);
+			new_TL[k] = new_struct<T>(l);
+			new_TT[k] = new_struct<T>(l);
+			new_TD[k] = new_struct<T>(l);
 		}
 
 ///////////////////////////////////////////////////////
@@ -200,14 +199,14 @@ template <typename T>
 int CSparse<T>::inverse_index()
 {
 	release_IL();
-	if (! p || ! JR  || ! (IL = (int **)new_struct(N*sizeof(int *)))) return(0);
+	if (! p || ! JR  || ! (IL = new_struct<int *>(N))) return(0);
 ////////////////////////////////////////////////////////////////////
 //...count structure of vertical index and allocation new arrays;
    for (int k = 0; k < N; k++)
 	for (int j = 0; j < JR[k][0]; j++) 
 		IL[JR[k][j+JR_SHIFT]] = (int *)((long long)IL[JR[k][j+JR_SHIFT]]+1);
 	for (int k = 0; k < N; k++)
-	if (! (IL[k] = (int *)new_struct(((int)(long long)IL[k]+JR_SHIFT)*sizeof(int)))) {
+	if (! (IL[k] = new_struct<int>((int)(long long)IL[k]+JR_SHIFT))) {
 		release_IL(); 
 		return(0);
 	}
@@ -235,18 +234,18 @@ void CSparse<T>::release_IL()
 template <typename T>
 int CSparse<T>::struct_permutat(int id_action)
 {
-  if (N > 0 && (p || (p = (int *)new_struct((2*N+2)*sizeof(int))) != NULL)) {
+  if (N > 0 && (p || (p = new_struct<int>(2*N+2)) != NULL)) {
       int id_err  = 0, k, i, j;
 		for (p[N*2] = 0, k = 0; k < N; k++)	//...initial band width;
 		for (j = 0; j < JR[k][0]; j++) p[N*2] = max(p[N*2], max(JR[k][j+JR_SHIFT]-k, k-JR[k][j+JR_SHIFT]));
 
 //...renumbering algorithm RCM;
 		if (id_action != NULL_STATE) {
-			int * xadj = (int *)new_struct((N+1)*sizeof(int)),
-				 * xls  = (int *)new_struct((N+1)*sizeof(int)), * iadj, m; 
+			int * xadj = new_struct<int>(N+1),
+				 * xls  = new_struct<int>(N+1), * iadj, m; 
 			for (id_err = 1, m = k = 0; k < N; k++) m += JR[k][0]*2-1;
 
-			if  (xadj && xls && (iadj = (int *)new_struct(m*sizeof(int))) != NULL) { //...reflect sample structure onto (xadj,iadj) - arrays;
+			if  (xadj && xls && (iadj = new_struct<int>(m)) != NULL) { //...reflect sample structure onto (xadj,iadj) - arrays;
 			 	for (xadj[0] = (m = 0)+1, k = 0; k < N; k++) { //...fill arrays, mapped rows;
 					for (i = max(0, k-p[N*2]); i < k; i++) {
 						for (j = JR[i][0]; j > 0; j--) 
@@ -282,32 +281,32 @@ template <typename T>
 void CSparse<T>::add_element()
 {
 	if (buf_count == 0) {
-		int ** new_JR = (int **)new_struct((N+N_buf)*sizeof(int *));
+		int ** new_JR = new_struct<int *>(N+N_buf);
 		if (JR) {
 			memcpy(new_JR, JR, N*sizeof(int *)); delete_struct(JR);
 		}
 		JR  = new_JR;
-		T ** new_TR = (T **)new_struct((N+N_buf)*sizeof(T *));
+		T ** new_TR = new_struct<T *>(N+N_buf);
 		if (TR) {
 			memcpy (new_TR, TR, N*sizeof(T *)); delete_struct(TR);
 		} 
 		TR  = new_TR;
-		T ** new_TL = (T **)new_struct((N+N_buf)*sizeof(T *));
+		T ** new_TL = new_struct<T *>(N+N_buf);
 		if (TL) {
 			memcpy (new_TL, TL, N*sizeof(T *)); delete_struct(TL);
 		}
 		TL  = new_TL;
-		T ** new_TT = (T **)new_struct((N+N_buf)*sizeof(T *));
+		T ** new_TT = new_struct<T *>(N+N_buf);
 		if (TT) {
 			memcpy (new_TT, TT, N*sizeof(T *)); delete_struct(TT);
 		}
 		TT  = new_TT;
-		T ** new_TD = (T **)new_struct((N+N_buf)*sizeof(T *));
+		T ** new_TD = new_struct<T *>(N+N_buf);
 		if (TD) {
 			memcpy (new_TD, TD, N*sizeof(T *)); delete_struct(TD);
 		}
 		TD  = new_TD; 
-		T ** new_hh = (T **)new_struct((N+N_buf)*sizeof(T *));
+		T ** new_hh = new_struct<T *>(N+N_buf);
 		if (hh) {
 			memcpy(new_hh, hh, N*sizeof(T *)); delete_struct(hh);
 		} 
@@ -324,15 +323,15 @@ void CSparse<T>::set_elements(int N_sm)
 {
 	release_struct();
 	if ((N = N_sm) > 0) {
-		JR = (int **)new_struct(N*sizeof(int *));
-		TR = (T **)new_struct(N*sizeof(T *));
-		TL = (T **)new_struct(N*sizeof(T *));
-		TT = (T **)new_struct(N*sizeof(T *));
-		TD = (T **)new_struct(N*sizeof(T *));
-		hh = (T **)new_struct(N*sizeof(T *));
+		JR = new_struct<int *>(N);
+		TR = new_struct<T *>(N);
+		TL = new_struct<T *>(N);
+		TT = new_struct<T *>(N);
+		TD = new_struct<T *>(N);
+		hh = new_struct<T *>(N);
 //////////////////////
 //...initial settings;
-		p = (int *)new_struct((2*N+2)*sizeof(int));
+		p = new_struct<int>(2*N+2);
 		for (int k = 0, j = 0; k < N; k++) {
 			set_links(k, &j); p[k] = p[N+k] = k; 
 		}
@@ -346,13 +345,13 @@ int  CSparse<T>::band_bufferizat(int k)
 {
 	int m = 1;
 	if (k < N && 0 <= k && JR) {
-		int * new_JR_k = (int *)new_struct((N_band+JR[k][JR_BUFF])*sizeof(int));
+		int * new_JR_k = new_struct<int>(N_band+JR[k][JR_BUFF]);
 		if (      JR[k]) memcpy(new_JR_k, JR[k], JR[k][JR_BUFF]*sizeof(int));
 		if (! new_JR_k) m = 0; else {
 			delete_struct(JR[k]); JR[k] = new_JR_k; JR[k][JR_BUFF] += N_band;
 		}
 		if (m && TR) {
-			T * new_TR_k = new_T(N_band+JR[k][0]);
+			T * new_TR_k = new_struct<T>(N_band+JR[k][0]);
 			if (		 TR[k]) memcpy(new_TR_k, TR[k], JR[k][0]*sizeof(T)); 
 			if (! new_TR_k) m = 0; else {
 				memset(TR[k], 0, JR[k][0]*sizeof(T));
@@ -360,7 +359,7 @@ int  CSparse<T>::band_bufferizat(int k)
 			}
 		}
 		if (m && TL) {
-			T * new_TL_k = new_T(N_band+JR[k][0]);
+			T * new_TL_k = new_struct<T>(N_band+JR[k][0]);
 			if (		 TL[k]) memcpy(new_TL_k, TL[k], JR[k][0]*sizeof(T)); 
 			if (! new_TL_k) m = 0; else {
 				memset(TL[k], 0, JR[k][0]*sizeof(T));
@@ -368,7 +367,7 @@ int  CSparse<T>::band_bufferizat(int k)
 			}
 		}
 		if (m && TT) {
-			T * new_TT_k = new_T(N_band+JR[k][0]);
+			T * new_TT_k = new_struct<T>(N_band+JR[k][0]);
 			if (		 TT[k]) memcpy(new_TT_k, TT[k], JR[k][0]*sizeof(T)); 
 			if (! new_TT_k) m = 0; else {
 				memset(TT[k], 0, JR[k][0]*sizeof(T));
@@ -376,7 +375,7 @@ int  CSparse<T>::band_bufferizat(int k)
 			}
 		}
 		if (m && TD) {
-			T * new_TD_k = new_T(N_band+JR[k][0]);
+			T * new_TD_k = new_struct<T>(N_band+JR[k][0]);
 			if (		 TD[k]) memcpy(new_TD_k, TD[k], JR[k][0]*sizeof(T)); 
 			if (! new_TD_k) m = 0; else {
 				memset(TD[k], 0, JR[k][0]*sizeof(T));
@@ -435,7 +434,7 @@ void CSparse<T>::set_links (int k, Topo * links, int shift)
       if  (0 <= links[i+shift] && p[N+links[i+shift]] > p[N+k]) kR++;
 /////////////////////////////////////////////////////////
 //...распределяем и заполняем индексный массив элементов;
-		if (( JR[k] = (int *)new_struct((kR+JR_SHIFT)*sizeof(int))) != NULL) {
+		if (( JR[k] = new_struct<int>(kR+JR_SHIFT)) != NULL) {
 			JR[k][0] = kR;	  N_band = max(N_band, JR[k][0]);
 			JR[k][JR_BUFF] = kR+JR_SHIFT;
 			JR[k][JR_DIAG] = kR+JR_SHIFT-1;

@@ -8,8 +8,8 @@ void CMapi3DSpheroid::set_shape(double R0, double eps, double p1, double p2, dou
     CMapi3DSpheroid::R0 = R0;
     R0_inv     = R0 > EE ? 1./R0 : 1.;
     int   k    = -1;
-    if (++k < size_of_param()) param[k] = (Param)eps; else return;
-    if (++k < size_of_param()) param[k] = (Param)p1; else return;
+    if (++k < size_of_param()) param[k] = Param(eps); else return;
+    if (++k < size_of_param()) param[k] = Param(p1);  else return;
 }
 
 void CMapi3DSpheroidFull::set_shape(double R0, double eps, double p1, double p2, double p3, double p4)
@@ -17,8 +17,8 @@ void CMapi3DSpheroidFull::set_shape(double R0, double eps, double p1, double p2,
     CMapi3DSpheroidFull::R0 = R0;
     R0_inv     = R0 > EE ? 1./R0 : 1.;
     int   k    = -1;
-    if (++k < size_of_param()) param[k] = (Param)eps; else return;
-    if (++k < size_of_param()) param[k] = (Param)p1; else return;
+    if (++k < size_of_param()) param[k] = Param(eps); else return;
+    if (++k < size_of_param()) param[k] = Param(p1);  else return;
 }
 
 ///////////////////////////////////////
@@ -26,10 +26,10 @@ void CMapi3DSpheroidFull::set_shape(double R0, double eps, double p1, double p2,
 void CMapi3DSpheroid::parametrization(double * P, int m)
 {
 	if (! p) {
-		p = (double *)new_struct((NN_dop = freedom(N = 1))*sizeof(double));
-		px = (double *)new_struct(4*sizeof(double));
-		py = (double *)new_struct(4*sizeof(double));
-		pz = (double *)new_struct(4*sizeof(double));
+		p  = new_struct<double>(NN_dop = freedom(N = 1));
+		px = new_struct<double>(4);
+		py = new_struct<double>(4);
+		pz = new_struct<double>(4);
 	}
 	if (P) { 
 		double  X  = P[0]*R0_inv,
@@ -114,16 +114,16 @@ void CMapi3DSpheroid::parametrization(double * P, int m)
 void CMapi3DSpheroidFull::parametrization(double * P, int m_dop)
 {
 	if (! p) {
-		p   = (double *)new_struct((NN_dop = 16/*min(freedom(N), 16)*/)*sizeof(double));
-		px  = (double *)new_struct (NN_dop*sizeof(double));
-		py  = (double *)new_struct (NN_dop*sizeof(double));
-		pz  = (double *)new_struct (NN_dop*sizeof(double));
-		pxx = (double *)new_struct (NN_dop*sizeof(double));
-		pxy = (double *)new_struct (NN_dop*sizeof(double));
-		pyy = (double *)new_struct (NN_dop*sizeof(double));
-		pxz = (double *)new_struct (NN_dop*sizeof(double));
-		pyz = (double *)new_struct (NN_dop*sizeof(double));
-		pzz = (double *)new_struct (NN_dop*sizeof(double));
+		p   = new_struct<double>(NN_dop = 16/*min(freedom(N), 16)*/);
+		px  = new_struct<double>(NN_dop);
+		py  = new_struct<double>(NN_dop);
+		pz  = new_struct<double>(NN_dop);
+		pxx = new_struct<double>(NN_dop);
+		pxy = new_struct<double>(NN_dop);
+		pyy = new_struct<double>(NN_dop);
+		pxz = new_struct<double>(NN_dop);
+		pyz = new_struct<double>(NN_dop);
+		pzz = new_struct<double>(NN_dop);
 	}
 	if (P && p) {
 		double   Z = P[2]/**R0_inv*/, rr, h0, f0 = param[1], f2, ff, f, f1 = Z*Z, f3, f4, f5;

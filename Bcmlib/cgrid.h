@@ -1,19 +1,23 @@
 /*=========================================*/
-/*                 CGrid                   */
+/*                 CGRID                   */
 /*=========================================*/
-#ifndef ___CGrid___
-#define ___CGrid___
+#ifndef ___CGRID___
+#define ___CGRID___
 
 #include "kernel.h"
+
+class CGrid;
 
 ////////////////////////////////////////////////////////
 //...description of existing types of blocks partitions;
 enum Num_Nodes {
-        NULL_NODES = 0,
+		  NULL_NODES = -1,
+     GRID_IN_NODES,
      GRID_EL_NODES,
      GRID_QG_NODES,
         NUMS_NODES
 };
+Num_Nodes grid_method(CGrid * grid);
 
 //////////////////////////////////////////////////////////
 //...description of existing types of boundary conditions;
@@ -97,15 +101,16 @@ enum Num_Bnd {
 #define AXIS_X                              1
 #define AXIS_Y                              2
 #define AXIS_Z                              3
-#define AXIS_SPH                            4
-#define AXIS_TIME                           5
+#define AXIS_CYL                            4
+#define AXIS_SPH                            5
+#define AXIS_TIME                           6
 
 /////////////////////////////////////////
 //...dividing of circle in Bars elements;
 #define MAX_KNEE                            10
 
 //////////////////////////////////////////////////////////////////////////////
-//...макросы для поиска ключевого слова и для отделения одной строки в потоке;
+//...macros for the search key word and for separating one line in the stream;
 #define PPOS_CUR(id_STREAM, pchar, ppos_cur, upper_limit, id_STRSTR)\
 if (! (pchar = strstr(id_STREAM+ppos_cur, id_STRSTR)) != 0 ||\
 	upper_limit <= (ppos_cur = (unsigned long)(pchar-id_STREAM)+strlen(id_STRSTR))) {\
@@ -131,30 +136,77 @@ protected:
 		double ** pp;	  											  //...table of addiional parameters;
 		int buf_count, buf_X, buf_Y, buf_Z, N_buf, N1buf; //...bufferization;
 		int bufferization (int buf_size, Num_State mm = OK_STATE);
-		int bufferizat_X  (int buf_size, Num_State mm = OK_STATE);
-		int bufferizat_Y  (int buf_size, Num_State mm = OK_STATE);
-		int bufferizat_Z  (int buf_size, Num_State mm = OK_STATE);
+		int bufferizat_X  (int buf_size, Num_State mm = OK_STATE) {
+			int m = 1;
+			double * new_X = new_struct<double>(N+buf_size);
+			if (mm == OK_STATE && X) memcpy(new_X, X, N*sizeof(double));
+			if (!    new_X) m = 0; else {
+				 delete_struct(X); X = new_X;
+			}
+			if (m) buf_X = buf_size;
+			return(m);
+		}
+		int bufferizat_Y  (int buf_size, Num_State mm = OK_STATE) {
+		   int m = 1;
+			double * new_Y = new_struct<double>(N1+buf_size);
+			if (mm == OK_STATE && Y) memcpy(new_Y, Y, N1*sizeof(double));
+			if (!    new_Y) m = 0; else {
+				 delete_struct(Y); Y = new_Y;
+			}
+			if (m) buf_Y = buf_size;
+			return(m);
+		}
+		int bufferizat_Z  (int buf_size, Num_State mm = OK_STATE) {
+			int m = 1;
+			double * new_Z = new_struct<double>(N2+buf_size);
+			if (mm == OK_STATE && Z) memcpy(new_Z, Z, N2*sizeof(double));
+			if (!    new_Z) m = 0; else {
+				 delete_struct(Z); Z = new_Z;
+			}
+			if (m) buf_Z = buf_size;
+			return(m);
+		}
 public:
-		virtual int type() { return NULL_NODES;}
-		void reset_hit	 () { if (hit) memset(hit, -1, N*sizeof(int));}  
-//...constructor/destructor;
-		CGrid() {
+		void set_buf_size	(int buf_size) { N_buf = buf_size;}
+		void add_buffer   (int m) {
+			N -= (m = min(max(0, m), N));
+			buf_count += m;
+		}
+public:
+		virtual void init() {
 			N = N1 = N2 = N3 = N_par = buf_count = buf_X = buf_Y = buf_Z = 0;
-			X = Y = Z =	nX = nY = nZ = NULL;
+			N_buf = N1buf = 2000;
+		}
+		virtual void release() {
+			for (; pp && N_par > 0; ) 
+			delete_struct(pp[--N_par]); delete_struct(pp);	
+			delete_struct(hit);
+			delete_struct(geom);	delete_struct(geom_ptr);
+			delete_struct(cond);	delete_struct(cond_ptr);
+			delete_struct(X); delete_struct(Y); delete_struct(Z);	delete_struct(nX); delete_struct(nY); delete_struct(nZ);
+			N = N1 = N2 = N3 = N_par = buf_count = buf_X = buf_Y = buf_Z = 0;
+		}
+public:
+		Num_Nodes type() { return grid_method(this);}
+		void reset_hit() { if (hit) memset(hit, -1, N*sizeof(int));}  
+public:
+//...constructor and destructor;
+		CGrid() {
+			pp    = NULL; 
+			hit   = NULL;
 			geom  = geom_ptr = NULL;
 			cond  = cond_ptr = NULL;
-			hit   = NULL;
-			pp    = NULL; 
-			N_buf = N1buf = 2000;
+			X = Y = Z =	nX = nY = nZ = NULL;
+			init();
 		};
       virtual ~CGrid (void) {
-			zero_grid();
+			release();
 		}
-//...quadratures;
+//...quadratures interphase;
 		virtual void facet_QG(double * P, int N_elem, Num_State mode = NULL_STATE, Num_State normal = OK_STATE) {}
 		virtual void segms_QG(CMap * mp, int N_elem, int N_max) {}
 		virtual void sphere_intrusion_QG(CMap * mp, int N_elem, double L) {}
-//...quadratures corrections;
+//...quadratures corrections interphase;
 		virtual void QG_curve  (CMap * mp) {}
 		virtual void QG_surface(CMap * mp) {}
 		virtual void QG_tria_curve(CMap * mp, double * P, int N_ini = 0) {}
@@ -162,17 +214,24 @@ public:
 		virtual void QG_tria_surface(CMap * mp, double * Po, int N_ini = 0) {}
 		virtual void QG_quad_surface(CMap * mp1, CMap * mp2, double * Po, int N_ini = 0) {}
 		virtual void QG_quad_bi(double * Po, int N_ini = 0) {}
-//...elements subdivision;
+//...elements subdivision interphase;
 		virtual void grid_box1D(int N1, int shift = 0, int id_link = 0, double fy = 0., double fz = 0.) {}
 		virtual void grid_box2D(int N1, int N2, int shift = 0, int id_link = 0, double fz = 0.) {}
 		virtual void grid_box3D(int N1, int N2, int N3, int shift = 0, int id_link = 0) {}
-//...geometrical map interior;
+//...geometrical map interior interphase;
 		virtual int maps_in (CMap * mp, double * P, double eps = EE) { return(0);}
 		virtual int segms_in(CMap * mp, double * P, double eps = EE) { return(0);}
 public:
-		void zero_grid();
-		int  add_new_point(double X, double Y, double Z, double nX = 0., double nY = 0., double nZ = 1., double * pp = NULL);
-		int  add_new_point(double X, double Y, double Z, double * pp)  { return add_new_point(X, Y, Z, 0., 0., 1., pp); }
+//...accumulation of the nodes;
+		int  add_new_point(double X, double Y, double Z, double * pp) { return add_new_point(X, Y, Z, 0., 0., 1., pp); }
+		int  add_new_point(double X, double Y, double Z, double nX = 0., double nY = 0., double nZ = 1., double * pp = NULL) {
+			if (buf_count || bufferization(N_buf)) {
+				CGrid:: X[N] =  X; CGrid:: Y[N] =  Y; CGrid:: Z[N] =  Z;
+				CGrid::nX[N] = nX; CGrid::nY[N] = nY; CGrid::nZ[N] = nZ;
+				CGrid::hit[N++] = -1; set_param(pp); buf_count--; 
+				return(1);
+			}	return(0);
+		}
 		int  add_new_point(double * P, double * pp = NULL) {
 			if (P) return add_new_point(P[0], P[1], P[2], P[3], P[4], P[5], pp);
 			else   return(0);
@@ -183,11 +242,8 @@ public:
 		int  add_new_lattice_X(double val, double eps = 0.);
 		int  add_new_lattice_Y(double val, double eps = 0.);
 		int  add_new_lattice_Z(double val, double eps = 0.);
-		void set_buf_size	  (int buf_size) { N_buf = buf_size;}
-		void add_buffer     (int m) {
-			N -= (m = min(max(0, m), N));
-			buf_count += m;
-		}
+public:
+//...accumulation of the parameters;
 		void add_params (int m = 1, int id_bufferizat = OK_STATE);
 		void set_param  (double * pp);
 		void set_param  (int m, int k, double value) {
@@ -198,6 +254,8 @@ public:
 			if (0 <= m && m < N_par && pp[m] && 0 <= k && k < N) return pp[m][k];
 			else return(0.);
 		}
+public:
+//...accumulation of the grids;
 		void grid_add(CGrid * ext_nd);
 		int  grid_add(double *& X0, double *&Y0,double *& Z0, double *& nX0, double *& nY0, 
 											 double *& nZ0, int N0, int *& gm, int id_block);
@@ -206,26 +264,27 @@ public:
 		void grid_tria_3D_refine(int N_elem, double * P, double * pp = NULL, int id_block = -1);
 		void grid_quad_3D_refine(int N_elem1, int N_elem2, double * P, double * pp = NULL, int id_block = -1);
 		void grid_quad_3D_refine_spec(int N_elem1, int N_elem2, double * P, double * pp = NULL, int id_block = -1);
-//...operations with grid lattice;
+//...construction grid lattice;
 		void grid_lattice(CGrid * nd, double * par, double eps = 0.);
-//...operations with geometry;
-		void init_geom   (int m = 1) { delete_struct(geom); geom = (int *)new_struct((m+1)*sizeof(int)); };
+public:
+//...operations with nodes topology;
+		void init_geom   (int m = 1) { delete_struct(geom); geom = new_struct<int>(m+1); };
 		int  stru_install(int k, int mm_facet[6][5]);
 		int  link_number (Topo * link, int id_arc);
 		int  geom_element(int k);
 		int  geom_add_ptr(int N, int type = GL_POINTS) {
-			if (! geom_ptr) {//...инициализация;
-					geom_ptr = (int *)new_struct(sizeof(int)*2); geom_ptr[0] = 1;
-					delete_struct(geom); geom = (int *)new_struct(sizeof(int)*2);
+			if (! geom_ptr) {//...initialization;
+				geom_ptr = new_struct<int>(2); geom_ptr[0] = 1;
+				delete_struct(geom); geom = new_struct<int>(2);
 			}
-			if (! geom_ptr[geom[0]+1]) {//...буфферизация указателя;
-			int *	geom_ptr_new = (int *)new_struct((geom[0]+2)*sizeof(int));
+			if (! geom_ptr[geom[0]+1]) {//...pointer bufferization;
+				int *	geom_ptr_new = new_struct<int>(geom[0]+2);
 					memcpy(geom_ptr_new, geom_ptr, (geom[0]+1)*sizeof(int)); geom_ptr_new[geom[0]+1] = SPTR_BUF;
 					delete_struct(geom_ptr); geom_ptr = geom_ptr_new;
 			}
-			if (  geom[geom_ptr[geom[0]]] < 2+N) {//...буфферизация геометрии;
-					int buff = max (STRU_BUF, 2+N), * geom_new;
-					geom_new = (int *)new_struct((geom_ptr[geom[0]]+buff+1)*sizeof(int));
+			if (geom[geom_ptr[geom[0]]] < 2+N) {//...geometry bufferization;
+				int buff = max (STRU_BUF, 2+N), * geom_new;
+					geom_new = new_struct<int>(geom_ptr[geom[0]]+buff+1);
 					memcpy(geom_new, geom, geom_ptr[geom[0]]*sizeof(int)); geom_new[geom_ptr[geom[0]]] = buff;
 					delete_struct(geom); geom = geom_new;
 			}
@@ -238,13 +297,13 @@ public:
 			return(geom_ptr[geom[0]-1]);
 		};
 		void geom_ptr_add(int N, int & N_geom) {
-			if (! geom_ptr) {//...инициализация;
-					geom_ptr = (int *)new_struct(sizeof(int)*2); 
-					geom_ptr[N_geom = 0] = 1;
+			if (! geom_ptr) {//...initialization;
+				geom_ptr = new_struct<int>(2); 
+				geom_ptr[N_geom = 0] = 1;
 			}
 			if (N >= 0) {
-				if (! geom_ptr[N_geom+1]) {//...буфферизация указателя;
-				int *	geom_ptr_new = (int *)new_struct((N_geom+SPTR_BUF+2)*sizeof(int));
+				if (! geom_ptr[N_geom+1]) {//...pointer bufferization;
+					int *	geom_ptr_new = new_struct<int>(N_geom+SPTR_BUF+2);
 						memcpy(geom_ptr_new, geom_ptr, (N_geom+1)*sizeof(int)); geom_ptr_new[N_geom+1] = SPTR_BUF;
 						delete_struct(geom_ptr); geom_ptr = geom_ptr_new;
 				}
@@ -253,18 +312,18 @@ public:
 			}
 		};
 		int  cond_add_ptr(int N, int type = GL_POINTS) {
-			if (! cond_ptr) {//...инициализация;
-					cond_ptr = (int *)new_struct(sizeof(int)*2); cond_ptr[0] = 1;
-					delete_struct(cond); cond = (int *)new_struct(sizeof(int)*2);
+			if (! cond_ptr) {//...initialization;
+					cond_ptr = new_struct<int>(2); cond_ptr[0] = 1;
+					delete_struct(cond); cond = new_struct<int>(2);
 			}
-			if (! cond_ptr[cond[0]+1]) {//...буфферизация указателя;
-			int *	cond_ptr_new = (int *)new_struct((cond[0]+SPTR_BUF+2)*sizeof(int));
+			if (! cond_ptr[cond[0]+1]) {//...pointer bufferization;
+				int *	cond_ptr_new = new_struct<int>(cond[0]+SPTR_BUF+2);
 					memcpy(cond_ptr_new, cond_ptr, (cond[0]+1)*sizeof(int)); cond_ptr_new[cond[0]+1] = SPTR_BUF;
 					delete_struct(cond_ptr); cond_ptr = cond_ptr_new;
 			}
-			if (  cond[cond_ptr[cond[0]]] < 2+N) {//...буфферизация геометрии;
-					int buff = max (STRU_BUF, 2+N), * cond_new;
-					cond_new = (int *)new_struct((cond_ptr[cond[0]]+buff+1)*sizeof(int));
+			if (cond[cond_ptr[cond[0]]] < 2+N) {//...geometry bufferization;
+				int buff = max (STRU_BUF, 2+N), * cond_new;
+					cond_new = new_struct<int>(cond_ptr[cond[0]]+buff+1);
 					memcpy(cond_new, cond, cond_ptr[cond[0]]*sizeof(int)); cond_new[cond_ptr[cond[0]]] = buff;
 					delete_struct(cond); cond = cond_new;
 			}
@@ -277,13 +336,13 @@ public:
 			return(cond_ptr[cond[0]-1]);
 		};
 		void cond_ptr_add(int N, int & N_cond) {
-			if (! cond_ptr) {//...инициализация;
-					cond_ptr = (int *)new_struct(sizeof(int)*2); 
-					cond_ptr[N_cond = 0] = 1;
+			if (! cond_ptr) {//...initialization;
+				cond_ptr = new_struct<int>(2); 
+				cond_ptr[N_cond = 0] = 1;
 			}
 			if (N >= 0) {
-				if (! cond_ptr[N_cond+1]) {//...буфферизация указателя;
-				int *	cond_ptr_new = (int *)new_struct((N_cond+SPTR_BUF+2)*sizeof(int));
+				if (! cond_ptr[N_cond+1]) {//...pointer bufferization;
+					int *	cond_ptr_new = new_struct<int>(N_cond+SPTR_BUF+2);
 						memcpy(cond_ptr_new, cond_ptr, (N_cond+1)*sizeof(int)); cond_ptr_new[N_cond+1] = SPTR_BUF;
 						delete_struct(cond_ptr); cond_ptr = cond_ptr_new;
 				}
@@ -291,14 +350,17 @@ public:
 				cond_ptr[N_cond+1] = cond_ptr[N_cond]+N+2; N_cond++;
 			}
 		};
+public:
+//...quick and binary search functions;
 		void quick_sort			  (int first, int last, int * index);
 		void quick_sort_inverse	  (int first, int last, int * index);
 		int  binary_search		  (int first, int last, int elem, int * index);
 		int  binary_search_inverse(int first, int last, int elem, int * index);
-//...nodes reading from NASTRAN and ABAQUS input file;
+public:
+//...table of NASTRAN and ABAQUS elements for convertation;
 		int element_type(int & elem, char * id_NODES = NULL) {
 			int quad = 0;
-			if (id_NODES) { //...,определяем тип элемента и его квадратичную характеристику; 
+			if (id_NODES) { //...defining type of elements and it's qudratic characterization; 
 				if (! ::strncmp(id_NODES, "B31",   3) ||
 					 ! ::strncmp(id_NODES, "B21",   3) ||
 					 ! ::strncmp(id_NODES, "T3D2",  4)) elem = GL_LINE_STRIP; else
@@ -327,7 +389,7 @@ public:
 				}
 			}
 			int elem_params = 0;
-			if (elem != ERR_STATE) { //...,определяем число параметров для зачитывания элемента;
+			if (elem != ERR_STATE) { //...defining number of parameters for reading of element;
 				if (elem == GL_LINE_STRIP) elem_params = quad ? 3 : 2; else
 				if (elem == GL_TRIANGLES)  elem_params = quad ? 6 : 3; else
 				if (elem == GL_QUADS) elem_params = quad ?  8 : 4; else 
@@ -338,6 +400,8 @@ public:
 			}
 			return elem_params;
 		}
+public:
+//...convertation functions (for elements, conditions and nodes) for NASTRAN format;
 		int  converts_nas(char * id_NODES, unsigned long & count, unsigned long upper_limit, int id_long);
 		void converts_nas(char * ch_NODES, int id_long = 0);
 		void converts_nas(const char * ch_NODES, int id_long = 0);
@@ -349,7 +413,7 @@ public:
 		int  nodes_nas(char * id_NODES, unsigned long & count, unsigned long upper_limit, int id_long, int id_status = OK_STATE);
 		void nodes_nas(char * ch_NODES, int id_long = 0);
 		void nodes_nas(const char * ch_NODES, int id_long = 0);
-
+//...convertation functions for ABAQUS format;
 		int  converts_inp(char * id_NODES, unsigned long & count, unsigned long upper_limit);
 		void converts_inp(char * ch_NODES);
 		void converts_inp(const char * ch_NODES);
@@ -361,7 +425,7 @@ public:
 		int  nodes_inp(char * id_NODES, unsigned long & count, unsigned long upper_limit);
 		void nodes_inp(char * ch_NODES, int max_phase = 2);
 		void nodes_inp(const char * ch_NODES, int max_phase = 2);
-
+//...universal convertation functions;
 		void nodes_in (char * ch_NODES, int max_phase = 2) {
 			char * pchar = ::strrchr(ch_NODES, '.');
 			if (pchar && (! ::strncmp(pchar, ".nas", 4) || ! ::strncmp(pchar, ".NAS", 4))) nodes_nas(ch_NODES); else
@@ -372,13 +436,13 @@ public:
 			if (pchar && (! ::strncmp(pchar, ".nas", 4) || ! ::strncmp(pchar, ".NAS", 4))) nodes_nas(ch_NODES); else
 			if (pchar && (! ::strncmp(pchar, ".inp", 4) || ! ::strncmp(pchar, ".INP", 4))) nodes_inp(ch_NODES, max_phase);
 		};
-
-//...зачитывание структуры включений с межфазным слоем;
+public:
+//...reading of strucures in format of inclusions with interface layers;
 		int  stru_in(char * id_STRU, unsigned long & count, unsigned long upper_limit, double * par);
 		void stru_in(char * ch_STRU, double * par);
 		void stru_in(const char * ch_STRU, double * par);
-
-//...testing functions;
+public:
+//...testing and visualization functions for nodes and strucuters;
 		void set_point(double * P, int k,
 							double & CZ, double & SZ, double & CY, double & SY, double & CX, double & SX) {
 			P[0] = X ? X[k] : 0.;
@@ -424,13 +488,7 @@ public:
 		void TestGrid (const char * GR_FILE, double mtb, double fi = 0., double theta = 0.,
 																 double fX = 0., int m_axis = AXIS_Z, int id_normal = 0);
 };
-/////////////////////////////////////////
-//...complete deleting of abstract nodes;
-inline void delete_nodes(CGrid *& nd) {
-	delete nd; nd = NULL;
-}
-
 //////////////////////////////////////////////////////////////////////////
 //...global function for construction of all existing types of grid nodes;
-CGrid * CreateNodes(Num_Nodes id_NODES = NULL_NODES);
+CGrid * CreateNodes(Num_Nodes id_NODES = GRID_IN_NODES);
 #endif

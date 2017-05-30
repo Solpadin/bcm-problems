@@ -1,39 +1,39 @@
 #include "stdafx.h"
 #include "kernel.h"
 
-//////////////////////////////////////////////////////////////////////////
-//...удаление из памяти всей внутренней структуры пространственной ячейки;
-void zero_cells(Cells * ce)
+///////////////////////////////////////////////////
+//...removing all internal structure of space cell;
+void release(Cells * ce)
 {
 	if (ce) {
 		for (int l, m = ce->graph ? ce->graph[0] : -1, k = 0; k <= m; k++)
 		if (ce->ce && ce->ce[k]) {
 			delete_struct(ce->ce[k]->mp); l = ce->ce[k]->pm && ce->ce[k]->graph ? ce->ce[k]->graph[1] : 0;
 			delete_struct(ce->ce[k]->graph);
-			
+
 			for (l--; l >= 0; l--)
 				delete_struct(ce->ce[k]->pm[l]);
 				delete_struct(ce->ce[k]->pm);
 
 			if (k != m) delete_struct(ce->ce[k]);
 		}
-		delete_struct(ce->ce); 
+		delete_struct(ce->ce);
 	}
 	return;
 }
 
-///////////////////////////////////////////////////////////////////////////
-//...освобождение динамической памяти, занятой составной поверхностью тела;
+///////////////////////////////////
+//...deleting compose body surface;
 void delete_bar(int N, Bar ** & bar)
 {
-	for (N--; bar && N >= 0; N--) 
+	for (N--; bar && N >= 0; N--)
 		delete_bar(bar[N]);
-		delete_struct(bar); 
+		delete_struct(bar);
 	return;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////
-//...зачитывание геометрической карты и топологии ячейки в кодах ASCII (рабочие программы);
+///////////////////////////////////////////////////////////////////////////
+//...reading geometrical card and topology in ASCII code (working program);
 CMap * map_in(char * id_MAP, unsigned long & count, unsigned long upper_limit)
 {
 	CMap * mp = NULL;
@@ -47,8 +47,8 @@ CMap * map_in(char * id_MAP, unsigned long & count, unsigned long upper_limit)
 		if ((mp = get_map(i, k)) != NULL) for (i = k = 1; k < m; k++)
 		if ( user_Read(buf, id_MAP, count, upper_limit)) mp[i++] = user_strtod(buf); else goto err;
 
-//////////////////////////////////////////////////////
-//...определяем и зачитываем дополнительные параметры;
+////////////////////////////////////////////////
+//...defining and writing additional parameters;
       if (! add_new_maps(mp, m, k = size_of_dop(mp))) goto err;
       switch ((int)mp[i-1]) {
 			case      NULL_CELL: goto err;
@@ -105,7 +105,7 @@ Topo * topo_in(char * id_GRAF, unsigned long & count, unsigned long upper_limit,
 		if ( user_Read(buf, id_GRAF, count, upper_limit)) m0 = atoi(buf); else goto err;
 		if ( user_Read(buf, id_GRAF, count, upper_limit)) m1 = atoi(buf); else goto err;
 
-		if ((graph    = (Topo *)new_struct((m1+2)*sizeof(Topo))) != NULL)
+		if ((graph    = new_struct<Topo>(m1+2)) != NULL)
 		for (graph[0] = m0, graph[1] = m1, k = 2; k < m1+2; k++)
 		if ( user_Read(buf, id_GRAF, count, upper_limit)) graph[k] = atoi(buf)-N; else goto err;
 	}
@@ -113,8 +113,8 @@ err:
 	return graph;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////
-//...запись геометрической карты и топологии ячейки в кодах ASCII (рабочие программы);
+///////////////////////////////////////////////////////////////////////////
+//...writing geometrical card and topology in ASCII code (working program);
 void map_out(FILE * id_MAP, CMap * mp, int id_long)
 {
 	if (mp) {
@@ -139,7 +139,7 @@ void map_out(FILE * id_MAP, CMap * mp, int id_long)
 						for (fprintf(id_MAP, "        "), m = 0; m < m1; m++) fprintf(id_MAP, ch_format, mp[i++]);
 						fprintf(id_MAP, "\n");
 					}
-			}		break;  
+			}		break;
 			case  B2SPLINE_CELL: {
 					m1 = (int)mp[7]/4;
 					m2 = (int)mp[8]+2;
@@ -157,7 +157,7 @@ void map_out(FILE * id_MAP, CMap * mp, int id_long)
 						for (fprintf(id_MAP, "        "), m = 0; m < m1; m++) fprintf(id_MAP, ch_format, mp[i++]);
 						fprintf(id_MAP, "\n");
 					}
-         }		break;  
+         }		break;
          case  B1POLY_CELL: {
 					m1 = (int)mp[7]/2;
 					m3 = (int)mp[9];
@@ -166,7 +166,7 @@ void map_out(FILE * id_MAP, CMap * mp, int id_long)
 						for (fprintf(id_MAP, "        "), m = 0; m < m1; m++) fprintf(id_MAP, ch_format, mp[i++]);
 						fprintf(id_MAP, "\n");
 					}
-         }		break;  
+         }		break;
          default: {
 					for (fprintf(id_MAP, "    "); i < m; i++) fprintf(id_MAP, ch_format, mp[i]);
 					fprintf(id_MAP, "\n");
@@ -186,8 +186,8 @@ void topo_out(FILE * id_GRAF, Topo * graph)
 	return;
 }
 
-////////////////////////////////////////////////////////
-//...обмен данными структуры Bar с диском в кодах ASCII;
+////////////////////////////////////////////////////////////
+//...exchange data of Bar structure with disk in ASCII code;
 void bar_out(char * ch_BAR, Bar * bar)
 {
 	if (ch_BAR && bar && ! bar->mp) {
@@ -198,8 +198,8 @@ void bar_out(char * ch_BAR, Bar * bar)
 			fprintf (id_BAR, "%d:| ", k);  map_out(id_BAR, bar->ce[k]->mp);
 			fprintf (id_BAR, "%d:| ", k); topo_out(id_BAR, bar->ce[k]->graph);
 
-/////////////////////////////////////////////////
-//...записываем ячейку в пространстве параметров;
+/////////////////////////////////////
+//...writing cell in parameter space;
 			for (int m = bar->ce[k]->pm && bar->ce[k]->graph ? bar->ce[k]->graph[1] : 0,
 						l = 0; l < m; l++) {
 				fprintf(id_BAR, "%d:| ", k);  map_out(id_BAR, bar->ce[k]->pm[l]);
@@ -210,8 +210,8 @@ void bar_out(char * ch_BAR, Bar * bar)
 	return;
 }
 
-//////////////////////////////////
-//...размерность поверхности тела;
+///////////////////////////////
+//...dimention of body surface;
 int bar_dim(Bar * bar)
 {
 	int dim = ERR_DIM;
@@ -220,8 +220,8 @@ int bar_dim(Bar * bar)
 	return dim;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-//...нормализация геометрической карты (т.е. извлечение ее опорной точки и трех координатных осей);
+//////////////////////////////////////////////////////////////////////////////////////////////////
+//...normalization of geometrical card (i.e. extracting reference point and tree coordinate axis);
 void map_normalizat(CMap * mp, double * P, double * ort)
 {
 	if (mp && ort) {
@@ -248,8 +248,8 @@ void map_normalizat(CMap * mp, double * P, double * ort)
 	return;
 }
 
-//////////////////////////////////////////////////////////
-//...нормализация геометрической карты для плоской фасеты;
+///////////////////////////////////////////////////////
+//...normalization of geometrical card for plane facet;
 void map_normalizat_facet(CMap * mp, double * P, double * ort)
 {
 	if (mp && ort) {
@@ -274,8 +274,8 @@ void map_normalizat_facet(CMap * mp, double * P, double * ort)
 	return;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-//...относительное перемещение и поворот геометрической карты (и вычисление новых Эйлеровых углов);
+///////////////////////////////////////////////////////////////////////////////////////
+//...displacement and rotate of geometrical card (and calculation of new Euler angles);
 void map_iso(CMap * mp, double * P, double & CZ, double & SZ,
                                     double & CY, double & SY, double & CX, double & SX)
 {
@@ -299,8 +299,8 @@ void map_iso(CMap * mp, double * P, double & CZ, double & SZ,
 	return;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////
-//...относительное перемещение и поворот геометрической карты на углы, заданные в pадианах;
+///////////////////////////////////////////////////////////////////////
+//...displacement and rotate of geometrical card with angles in radian;
 void map_iso(CMap * mp, double * P, double fi, double theta, double fX)
 {
 	if (mp) {
@@ -311,8 +311,8 @@ void map_iso(CMap * mp, double * P, double fi, double theta, double fX)
 	return;
 }
 
-////////////////////////////////////////////////////////////////////////
-//...относительное перемещение и поворот ячейки (рекурсивная процедура);
+///////////////////////////////////////////////////////////////
+//...displacement and rotate of the cell (recurrent procedure);
 void cells_iso(Cells * ce, double * P, double & CZ, double & SZ,
                                        double & CY, double & SY, double & CX, double & SX)
 {
@@ -322,8 +322,8 @@ void cells_iso(Cells * ce, double * P, double & CZ, double & SZ,
 	return;
 }
 
-////////////////////////////////////////////////
-//...относительное перемещение и поворот ячейки;
+/////////////////////////////////////////
+//...displacement and rotate of the cell;
 void cells_iso(Cells * ce, double * P, double fi, double theta, double fX)
 {
 	if (ce && ce->mp) {
@@ -334,8 +334,8 @@ void cells_iso(Cells * ce, double * P, double fi, double theta, double fX)
 	return;
 }
 
-/////////////////////////////////////////////////////
-//...относительное перемещение и поворот поверхности;
+////////////////////////////////////////////
+//...displacement and rotate of the surface;
 void bar_iso(Bar * bar, double * P, double fi, double theta, double fX)
 {
 	if (bar) {
@@ -346,8 +346,8 @@ void bar_iso(Bar * bar, double * P, double fi, double theta, double fX)
 	return;
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////
-//...приведение ячейки к стандартному положению, при котором обнуляется геометрическая карта;
+////////////////////////////////////////////////////////////////////////
+//...transformation to standerd position, when nulling geometrical card;
 void cells_to_origine(Cells * ce)
 {
 	if (ce && ce->mp) {
@@ -360,8 +360,8 @@ void cells_to_origine(Cells * ce)
 	return;
 }
 
-/////////////////////////////////////////////////
-//...перевод точки в локальную систему кооpдинат;
+/////////////////////////////////////////////////////
+//...transformation point in local coordinate system;
 void make_local(double * P, CMap * mp, int id_shift)
 {
 	if (P && mp) {
@@ -372,8 +372,8 @@ void make_local(double * P, CMap * mp, int id_shift)
 	return;
 }
 
-//////////////////////////////////////////////////////////
-//...и наобоpот - перевод точки в общую систему кооpдинат;
+///////////////////////////////////////////////////////////////////
+//...vise verse - transformation point in common coordinate system;
 void make_common(double * P, CMap * mp, int id_shift)
 {
 	if (P && mp) {
@@ -385,7 +385,7 @@ void make_common(double * P, CMap * mp, int id_shift)
 }
 
 ////////////////////////////////////////////////////////////////
-//...перевод геометpической каpты в локальную систему кооpдинат;
+//...transformation geometrical card in local coordinate system;
 void map_local(CMap * mp, CMap * ext_mp)
 {
 	if (mp && ext_mp) {
@@ -396,8 +396,8 @@ void map_local(CMap * mp, CMap * ext_mp)
 	return;
 }
 
-/////////////////////////////////////////////////////////////////////////
-//...и наобоpот - перевод геометpической каpты в общую систему кооpдинат;
+/////////////////////////////////////////////////////////////////
+//...transformation geometrical card in common coordinate system;
 void map_common(CMap * mp, CMap * ext_mp)
 {
 	if (mp && ext_mp) {
@@ -408,8 +408,8 @@ void map_common(CMap * mp, CMap * ext_mp)
 	return;
 }
 
-//////////////////////////////////////////////////
-//...перевод ячейки в локальную систему кооpдинат;
+////////////////////////////////////////////////////
+//...transformation cell in local coordinate system;
 void cells_local(Cells * ce, CMap * ext_mp)
 {
 	if (ce && ext_mp) {
@@ -422,8 +422,8 @@ void cells_local(Cells * ce, CMap * ext_mp)
 	return;
 }
 
-///////////////////////////////////////////////////////////
-//...и наобоpот - перевод ячейки в общую систему кооpдинат;
+/////////////////////////////////////////////////////
+//...transformation cell in common coordinate system;
 void cells_common(Cells * ce, CMap * ext_mp)
 {
 	if (ce && ext_mp) {
@@ -437,7 +437,7 @@ void cells_common(Cells * ce, CMap * ext_mp)
 }
 
 ///////////////////////////////////////////////////////
-//...перевод поверхности в локальную систему кооpдинат;
+//...transformation surface in local coordinate system;
 void bar_local(Bar * bar, CMap * ext_mp)
 {
 	if (bar && ext_mp) {
@@ -450,8 +450,8 @@ void bar_local(Bar * bar, CMap * ext_mp)
 	return;
 }
 
-////////////////////////////////////////////////////////////////
-//...и наобоpот - перевод поверхности в общую систему кооpдинат;
+////////////////////////////////////////////////////////
+//...transformation surface in common coordinate system;
 void bar_common(Bar * bar, CMap * ext_mp)
 {
 	if (bar && ext_mp) {
@@ -464,14 +464,14 @@ void bar_common(Bar * bar, CMap * ext_mp)
 	return;
 }
 
-///////////////////////////////////////////////////////////////////////////////////
-//...вспомогательная процедура - преобразование геометрической карты к новому виду;
+////////////////////////////////////////////////////////////////////////
+//...auxilliary procedure - transformation geometrical card to new kind;
 void map_to(CMap *& mp, int dim, int genus)
 {
 	int m = size_of_map(mp), mmm = size_of_map(dim, genus);
 	if (m < mmm) {
-		CMap * new_map = (CMap *)new_struct((mmm+1)*sizeof(CMap));
-		if ( ! new_map) return; 
+		CMap * new_map = new_struct<CMap>(mmm+1);
+		if ( ! new_map) return;
 		else {
 			memcpy(new_map, mp, m*sizeof(CMap));
 			delete_struct(mp); mp = new_map;
@@ -484,8 +484,8 @@ void map_to(CMap *& mp, int dim, int genus)
 	return;
 }
 
-////////////////////////////////////////////////////////////////////////////////////
-//... вспомогательная функция -- идентификация принадлежности точки геометрии карты;
+///////////////////////////////////////////////////////////////////////////
+//...auxilliary function - identification of the point in geometrical card;
 int map_into(CMap * mp, double X, double Y, double Z, int id_special) //...for blocks intersection;
 {
 	int k;
@@ -504,8 +504,8 @@ int map_into(CMap * mp, double X, double Y, double Z, int id_special) //...for b
 	}
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////
-//...идентификация принадлежности точки геометрии карты без торцевых связующих элементов;
+/////////////////////////////////////////////////////////////////////////////////
+//...point identification in geometrical card without ending connecting elements;
 int map1into(CMap * mp, double X, double Y, double Z) //...for blocks visualization;
 {
 	int k;
@@ -524,15 +524,15 @@ int map1into(CMap * mp, double X, double Y, double Z) //...for blocks visualizat
 	}
 }
 
-///////////////////////////////////////////////////////////////////////////
-//...идентификация каpты (для пpотивоположно оpиентиpованных карт id = -1);
+///////////////////////////////////////////////////////////////////
+//...identification of the cards (for inverse orientation id = -1);
 int map_id(CMap * mp, CMap * ext_mp)
 {
 	if (! mp || ! ext_mp) return(0);
 	int id = mp[0] == ext_mp[0], m, k;
 
-//////////////////////////////////////////////////////////////
-//...сравниваем ориентацию и расположение геометрических карт;
+///////////////////////////////////////////////////////////
+//...compare orientation and position of geometrical cards;
 	if (id) {
 		double P[4], ext_P[4], ort[9], ext_ort[9];
 		if (mp[size_of_map(mp)] == (CMap)FACET_CELL) map_normalizat_facet(mp, P, ort);
@@ -541,8 +541,8 @@ int map_id(CMap * mp, CMap * ext_mp)
 		if (ext_mp[size_of_map(ext_mp)] == (CMap)FACET_CELL) map_normalizat_facet(ext_mp, ext_P, ext_ort);
 		else                                                 map_normalizat      (ext_mp, ext_P, ext_ort);
 
-/////////////////////////////////
-//...сравниваем ориентацию оси Z;
+///////////////////////////////////
+//...compare orientation of Z axis;
      if (abs(id) && ID_MAP(2,  SPHERE_GENUS) != mp[0]) //...сфера;
      id *= (max(fabs(ort[0]-ext_ort[0]),
             max(fabs(ort[1]-ext_ort[1]), fabs(ort[2]-ext_ort[2]))
@@ -551,37 +551,37 @@ int map_id(CMap * mp, CMap * ext_mp)
             max(fabs(ort[1]+ext_ort[1]), fabs(ort[2]+ext_ort[2]))
            ) < EE_ker);
 
-     if (abs(id) && (ID_MAP(2,       CONE_GENUS) == mp[0] ||  //...конус;
-                     ID_MAP(2,   ELL_CONE_GENUS) == mp[0] ||  //...эллиптический конус;
-                     ID_MAP(2,      PARAB_GENUS) == mp[0] ||  //...параболоид;
-                     ID_MAP(2,  ELL_PARAB_GENUS) == mp[0] ||  //...эллиптический параболоид;
-                     ID_MAP(2,     BI_HYP_GENUS) == mp[0] ||  //...двуполостной гиперболоид;
-                     ID_MAP(2, ELL_BI_HYP_GENUS) == mp[0] ||   //...эллиптический двуполостной гиперболоид;
+     if (abs(id) && (ID_MAP(2,       CONE_GENUS) == mp[0] ||  //...cone;
+                     ID_MAP(2,   ELL_CONE_GENUS) == mp[0] ||  //...elliptice cone;
+                     ID_MAP(2,      PARAB_GENUS) == mp[0] ||  //...paraboloid;
+                     ID_MAP(2,  ELL_PARAB_GENUS) == mp[0] ||  //...elliptic paraboloid;
+                     ID_MAP(2,     BI_HYP_GENUS) == mp[0] ||  //...two-sheeted hyperboloid;
+                     ID_MAP(2, ELL_BI_HYP_GENUS) == mp[0] ||   //...elliptic two-sheeted hyperboloid;
                                     NURBS_GENUS  == map_genus(mp) ||   //...Nurbs;
                                    BEZIER_GENUS  == map_genus(mp)))    //...Bezier;
      id *= id > 0;
 
-///////////////////////////////////////////
-//...сравниваем расположение опорной точки;
-     if (abs(id) && ID_MAP(1,    NULL_GENUS) != mp[0]  //...прямая;
-                 && ID_MAP(2,     CYL_GENUS) != mp[0]  //...цилиндр;
-                 && ID_MAP(2, ELL_CYL_GENUS) != mp[0]) //...эллиптический цилиндр;
+////////////////////////////////////////
+//...compare position ofreference point;
+     if (abs(id) && ID_MAP(1,    NULL_GENUS) != mp[0]  //...line;
+                 && ID_MAP(2,     CYL_GENUS) != mp[0]  //...cylinder;
+                 && ID_MAP(2, ELL_CYL_GENUS) != mp[0]) //...elliptic cylinder;
      id *= (fabs(P[3]-id*ext_P[3]) < EE_ker);
 
-     if (abs(id) && ID_MAP(2,    NULL_GENUS) != mp[0]) //...плоскость;
+     if (abs(id) && ID_MAP(2,    NULL_GENUS) != mp[0]) //...plane;
      id *= max(fabs(P[0]-ext_P[0]),
            max(fabs(P[1]-ext_P[1]), fabs(P[2]-ext_P[2]))
            ) < EE_ker;
 
 /////////////////////////////////////////
-//...сравниваем ориентацию оси Y и оси X;
-     if (abs(id) && ID_MAP(1,        CYL_GENUS) == mp[0] ||  //...эллипс;
-                    ID_MAP(1,       CONE_GENUS) == mp[0] ||  //...гипербола;
-                    ID_MAP(1,   ELL_CONE_GENUS) == mp[0] ||  //...парабола;
-                    ID_MAP(2,  ELLIPSOID_GENUS) == mp[0] ||  //...эллипсоид;
-                    ID_MAP(2,  ELL_PARAB_GENUS) == mp[0] ||  //...эллиптический параболоид;
-                    ID_MAP(2, ELL_HYPERB_GENUS) == mp[0] ||  //...эллиптический гиперболоид;
-                    ID_MAP(2, ELL_BI_HYP_GENUS) == mp[0]) {  //...эллиптический двуполостной гиперболоид;
+//...compare orientation of the axis Y  and axis X;
+     if (abs(id) && ID_MAP(1,        CYL_GENUS) == mp[0] ||  //...ellipse;
+                    ID_MAP(1,       CONE_GENUS) == mp[0] ||  //...hyperbola;
+                    ID_MAP(1,   ELL_CONE_GENUS) == mp[0] ||  //...parabola;
+                    ID_MAP(2,  ELLIPSOID_GENUS) == mp[0] ||  //...ellipsoid;
+                    ID_MAP(2,  ELL_PARAB_GENUS) == mp[0] ||  //...elliptic paraboloid;
+                    ID_MAP(2, ELL_HYPERB_GENUS) == mp[0] ||  //...elliptic hyperboloid;
+                    ID_MAP(2, ELL_BI_HYP_GENUS) == mp[0]) {  //...elliptic two-sheeted hyperboloid;
 
          id *= (max(fabs(ort[3]-ext_ort[3]),
                 max(fabs(ort[4]-ext_ort[4]), fabs(ort[5]-ext_ort[5]))
@@ -590,63 +590,63 @@ int map_id(CMap * mp, CMap * ext_mp)
                 max(fabs(ort[4]+ext_ort[4]), fabs(ort[5]+ext_ort[5]))
                ) < EE_ker);
 
-         if (abs(id) && (ID_MAP(1,       CONE_GENUS) == mp[0] ||  //...гипербола;
-                         ID_MAP(1,   ELL_CONE_GENUS) == mp[0] ||  //...парабола;
-                         ID_MAP(2,  ELL_PARAB_GENUS) == mp[0] ||  //...эллиптический параболоид;
-                         ID_MAP(2, ELL_BI_HYP_GENUS) == mp[0] ||   //...эллиптический двуполостной гиперболоид;
+         if (abs(id) && (ID_MAP(1,       CONE_GENUS) == mp[0] ||  //...hyperbola;
+                         ID_MAP(1,   ELL_CONE_GENUS) == mp[0] ||  //...parabola;
+                         ID_MAP(2,  ELL_PARAB_GENUS) == mp[0] ||  //...elliptic paraboloid;
+                         ID_MAP(2, ELL_BI_HYP_GENUS) == mp[0] ||   //...elliptic two-sheeted hyperboloid;
                                         NURBS_GENUS  == map_genus(mp) ||   //...Nurbs;
                                        BEZIER_GENUS  == map_genus(mp)))    //...Bezier;
          id *= id > 0;
      }
 
-////////////////////////////////////////////////////////////////////////////
-//...сравниваем дополнительные параметры в общей части геометрической карты;
+//////////////////////////////////////////////////////////////////////
+//...compare additional parameters in common part of geometrical card;
      if (abs(id) && BEZIER_GENUS != map_genus(mp))  //...Bezier;
          for (k = 7; id && k < (m = size_of_map(map_dim(mp), map_genus(mp))); k++)
          id *= fabs(fabs(mp[k])-fabs(ext_mp[k])) < EE_ker; //...по абсолютной величине!
 
-////////////////////////////////////////////////////////////////////////////
-//...более строгая проверка для окружности (проверяем совпадение оси X);
+//////////////////////////////////////////////////////////////////////////
+//...more strictly verification for circle (verify coincidence of X axis);
      if (abs(id) && ID_MAP(1,  SPHERE_GENUS) == mp[0]) //...окружность;
      id *= (max(fabs(ort[6]-ext_ort[6]),
             max(fabs(ort[7]-ext_ort[7]), fabs(ort[8]-ext_ort[8]))
            ) < EE_ker);
 
-////////////////////////////////////////////////////////////////////////////////
-//...сравниваем дополнительные параметры для размерных ячеек (в т.ч. для Nurbs);
+////////////////////////////////////////////////////////////////////////
+//...compare additional parameters for dimension cells (for Nurbs also);
      if (abs(id) && mp[m]  ==  ext_mp[m] && mp[m] != (CMap)FACET_CELL) {
          for (k = size_of_dop((int)mp[m], mp)+m; id && k > m; k--)
          id *= fabs(mp[k]-ext_mp[k]) < EE_ker;
      }
 
-////////////////////////////////////////////////////
-//...сравниваем дополнительные параметры для Bezier;
+//////////////////////////////////////////////
+//...compare additional parameters for Bezier;
      if (abs(id) && BEZIER_GENUS == map_genus(mp))  //...Bezier;
      id *= (int)mp[7] == (int)ext_mp[7];
   }
   return id;
 }
 
-/////////////////////////////////////////////////////////////////
-//...идентификация ячейки (для реверсированных ячеек -- id = -1);
+///////////////////////////////////////////////////////////
+//...cells identification (for reversing cells -- id = -1);
 int cells_id(Cells * ce, Cells * ext_ce, int id_num_correct)
-{//...правило: ячейка с отрицательной границей в пределах структуры -- идентифицирована,
- //...с отрицательной границей вне структуры -- не идентифицирована;
+{//...rule: cekk with negative boundary in the structure -- identifying,
+ //...with negative boundary out of the structure -- not identifying;
 	if (! ext_ce	  || ! ce)		return(1);
 	if (! ext_ce->mp || ! ce->mp) return(0);
 
 /////////////////////////////
-//...проверка границы ячейки;
+//...check of the cell boundary;
 	int id = ce->graph[1] == ext_ce->graph[1], i, k, l, m_ce;
 	for (k = ce->graph[1]+1; id && k > 1; k--) if (ext_ce->graph[k] <= -ce->graph[0]-1) id = 0;
-  
-//////////////////////////////////////////
-//...проверка геометрической карты ячейки;  
+
+////////////////////////////////////////
+//...check geometrical card of the cell;
 	if (id)
       id *= map_id (ce->mp, ext_ce->mp);
 
 /////////////////////////////////////////////////////////////////////////
-//...сравнение элементов границы ячейки и маркировка совпавших элементов;
+//...compare elements of cell boundary and marking of coincided elements;
 	if (id) {
 		for (l = ext_ce->graph[1]+1; id && l > 1; l--) {
 			for (k = ce->graph[1]+1; k > 1; k--) if (ce->graph[k] >= 0)
@@ -654,17 +654,17 @@ int cells_id(Cells * ce, Cells * ext_ce, int id_num_correct)
 					  m_ce >= 0 && (i = cells_id(ce->ce[ce->graph[k]], ext_ce->ce[m_ce])) != 0) break;
 
 			id *= abs(i);
-			if (k > 1) { //...маркируем границу и отмечаем в ячейке совпавшие элементы;
+			if (k > 1) { //...marking boundary and coincided elements;
 				ce->graph[k] = -ce->graph[k]-1;
-				if (id_num_correct && m_ce >= 0) { 
+				if (id_num_correct && m_ce >= 0) {
 					topo_correct(ext_ce->ce[ext_ce->graph[0]], m_ce, ce->graph[k], NULL_STATE);
 					if (m_ce >= 0) ext_ce->graph[l] = m_ce;
 				}
 			}
 		}
 
-//////////////////////////////////////////
-//... восстановление отмеченных элементов;
+/////////////////////////////////////
+//...reconstruction marking elements;
 		for (k = ce->graph[1]+1; k > 1; k--) if (ce->graph[k] < 0)
 					ce->graph[k] = -ce->graph[k]-1;
 	}
@@ -689,7 +689,7 @@ int common_id(Cells * ce, Cells * ext_ce)
 ///////////////////////////////////////////////////////////////////////////////////////////
 //...identification of the cell number into the structure (with opposite sign for id = -1);
 int cells_in_struct(Cells * ce, Cells * ext_ce, int id_num_correct)
-{//...правило: нулевая ячейка -- идентифицируется автоматически;
+{//...rule: null cell -- identifying automatically;
 
 	if (! ext_ce || ! ce) return(1);
 	if (! ext_ce->mp)		 return(0);
@@ -710,8 +710,8 @@ int cells_in_struct(Cells * ce, Cells * ext_ce, int id_num_correct)
 	return N;
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////
-//...идентификация номера ячейки внутри повеpхности (с отрицательным знаком для id = -1);
+//////////////////////////////////////////////////////////////////////////////////
+//...indentification cell number into the surface (with negativ sign for id = -1);
 int cells_in_bar(Bar * bar, Cells * ce)
 {
 	if (! bar || bar->mp || ! ce || ! ce->mp) return(0);
@@ -723,14 +723,14 @@ int cells_in_bar(Bar * bar, Cells * ce)
 	return N;
 }
 
-/////////////////////////////////////////////////////////////////////////
-//...вспомогательная функция -- построение списка элементов подструктуры;
+///////////////////////////////////////////////////////////////////////
+//...auxilliary function -- construction list of substructure elements;
 void search_cells_element(Cells * ce, int *& id, int & N_buf, int & buf_size, int buf_delta)
 {
 	if (ce && ce->graph)
 	for ( int k = 0; k < ce->graph[1]; k++) {
 			if (buf_size == N_buf) {
-				int * new_id = (int *)new_struct((buf_size += buf_delta)*sizeof(int));
+				int * new_id = new_struct<int>(buf_size += buf_delta);
 				memcpy(new_id, id, N_buf*sizeof(int));
 				delete_struct(id); id = new_id;
 			}
@@ -739,8 +739,8 @@ void search_cells_element(Cells * ce, int *& id, int & N_buf, int & buf_size, in
 	}
 }
 
-///////////////////////////////////////////////////
-//...длина дуги одномерной пространственной ячейки;
+//////////////////////////////////////////////
+//...arc length of one-dimensional space cell;
 double cells_length(Cells * ce)
 {
 	double length = 0.;
@@ -750,19 +750,19 @@ double cells_length(Cells * ce)
 		length = abs_point(ce->ce[get_num(ce->graph, 0)]->mp+1,
 								 ce->ce[get_num(ce->graph, 1)]->mp+1);
 	}
-	else  
+	else
 	if (ce->mp[0] == ID_MAP(1, SPHERE_GENUS)) {
 		length = fabs(ce->mp[7]*2.*ce->mp[8]);
 	}
-	else  
+	else
 	if (ce->mp[0] == ID_MAP(1, CYL_GENUS)) {
 		length = 0.;
 	}
-	else  
+	else
 	if (ce->mp[0] == ID_MAP(1, CONE_GENUS)) {
 		length = 0.;
 	}
-	else  
+	else
 	if (ce->mp[0] == ID_MAP(1, ELL_CONE_GENUS)) {
 		length = 0.;
 	}
@@ -770,7 +770,7 @@ double cells_length(Cells * ce)
 }
 
 ////////////////////////////////////////////////////////////////
-//...коррекция локальной системы координат в произвольном ребре;
+//...correction of local coordinate system;
 void edge_correct(Cells * ce)
 {
 	if (ce && ce->mp && ce->graph[1] > 0)
@@ -782,7 +782,7 @@ void edge_correct(Cells * ce)
 		ce->mp[3] = (CMap)(ce->ce[get_num(ce->graph, 0)]->mp[3]+
 								 ce->ce[get_num(ce->graph, 1)]->mp[3])*.5;
 	}
-	else  
+	else
 	if (ce->mp[0] == ID_MAP(1, SPHERE_GENUS)) {
 		int     m1    = get_num(ce->graph, 0),
 				  m2    = get_num(ce->graph, 1);
@@ -804,20 +804,20 @@ void edge_correct(Cells * ce)
 		ce->mp[6] += .5*(f1+f2);
 		ce->mp[8]  = .5*fabs(f2-f1);
 	}
-	else  
+	else
    if (ce->mp[0] == ID_MAP(1, CYL_GENUS)) {
 	}
-	else  
+	else
    if (ce->mp[0] == ID_MAP(1, CONE_GENUS)) {
 	}
-	else  
+	else
    if (ce->mp[0] == ID_MAP(1, ELL_CONE_GENUS)) {
    }
 	return;
 }
 
-/////////////////////////////////
-//...упорядочивание графа связей;
+////////////////////////////////
+//...ordering graph of topology;
 void topo_ord(Topo * graph)
 {
 	for (int k = graph[1]+1; k > 1; k--)
@@ -826,13 +826,13 @@ void topo_ord(Topo * graph)
 }
 
 /////////////////////////////////////////////////////////
-//...увеличение размера графа связей (рабочая программа);
+//...increasing size of topologe graph (working program);
 int topo_pad(Topo *& graph, int N_pad)
 {
 	if (N_pad > 0) {
 		int m = graph[1]+2;
 
-		Topo * new_graph = (Topo *)new_struct((m+N_pad)*sizeof(Topo));
+		Topo * new_graph = new_struct<Topo>(m+N_pad);
 		if (! new_graph) return(0);
 
 		while (--m >= 2) new_graph[m+N_pad] = graph[m]; ++m;
@@ -844,8 +844,8 @@ int topo_pad(Topo *& graph, int N_pad)
 	return(1);
 }
 
-//////////////////////////////////////////////////////////////////
-//...добавление нового элемента в граф связей (рабочая программа);
+////////////////////////////////////////////////////////////////
+//...addition new element in graph topology (working procedure);
 int topo_insert(Topo *& graph, Topo new_element)
 {
 	if (topo_pad(graph, 1)) graph[2] = new_element;
@@ -853,8 +853,8 @@ int topo_insert(Topo *& graph, Topo new_element)
 	return(1);
 }
 
-//////////////////////////////////////////////////////////////////////
-//...идентификация элемента в одном списке связей (рабочая программа);
+//////////////////////////////////////////////////////////////////////////
+//...identification of element in one list of linking (working procwdure);
 int topo_id(Topo * graph, Topo some_element)
 {
 	int j = graph[1]+1;
@@ -863,8 +863,8 @@ int topo_id(Topo * graph, Topo some_element)
 	return(1 < j);
 }
 
-///////////////////////////////////////////////////////////////////
-//...удаление элемента из одного списка связей (рабочая программа);
+////////////////////////////////////////////////////////////////////
+//...deleting elements from one list of linking (working procedure);
 void topo_exc(Topo * graph, Topo some_element)
 {
 	int j = graph[1]+1;
@@ -875,71 +875,71 @@ void topo_exc(Topo * graph, Topo some_element)
 	return;
 }
 
-////////////////////////////////////////////////////
-//...идентификация элемента в списках связей ячейки;
+//////////////////////////////////////////////////////////
+//...identification elementin list of linking of the cell;
 int topo_id(Cells * ce, Topo some_element, Topo exc_element)
 {
 	if (! ce || ! ce->mp) return(0);
 	int id = topo_id(ce->graph, some_element), k;
 
-////////////////////////////////////
-//...сравниваем списки подэлементов;
+///////////////////////////////////////
+//...compare      lists of subelements;
 	for (k = ce->graph[1]+1; ! id && k > 1; k--)
 	if (ce->graph[k] != exc_element) id = topo_id(ce->ce[ce->graph[k]], some_element, exc_element);
 	return id;
 }
 
-//////////////////////////////////////////
-//...коррекция связей в списках топологии;
+////////////////////////////////////////
+//...correction links in topology graph;
 void topo_correct(Cells * ce, int N, int N_new, int id_list)
 {
 	int k, i;
 	if (! ce) return;
-	if (id_list || ! ce->mp) { //...корректируем или устанавливаем номер по общему списку;
+	if (id_list || ! ce->mp) { //...correcting or installingnumber by common list;
 		for (k = ce->graph[0]; k >= 0; k--) if (ce->ce[k])
 		for (i = ce->ce[k]->graph[1]+1; i > 1; i--)
 			if (N == -1 && N_new  == -1 && ce->ce[k]->graph[i] < 0) ++(ce->ce[k]->graph[i]) *= -1; else
 			if (N ==  ce->ce[k]->graph[i]) ce->ce[k]->graph[i] = N_new;
 	}
-	else 
-		if (N == -1 && N_new == -1) { //...корректируем номер (для ячейки) по структуре
+	else
+		if (N == -1 && N_new == -1) { //...correcting number (for cell) by structure;
 			for (i = 0; i < ce->graph[1]; i++)
-				if (ce->graph[i+2] < 0) ++(ce->graph[i+2]) *= -1; 
+				if (ce->graph[i+2] < 0) ++(ce->graph[i+2]) *= -1;
 				else   topo_correct(ce->ce[ce->graph[i+2]], N, N_new);
 		}
-		else //...устанавливаем номер (для ячейки) по структуре;
+		else //...installing number (for cell) by structure;
 			for (i = 0; i < ce->graph[1]; i++)
 			if (ce->graph[i+2] >= 0) {
-				if (ce->graph[i+2] == N) ce->graph[i+2] = N_new; 
+				if (ce->graph[i+2] == N) ce->graph[i+2] = N_new;
 				else topo_correct(ce->ce[ce->graph[i+2]], N, N_new);
 			}
 }
 
-////////////////////////////////////////////////////////////////////////////////
-//...перестановка двух элементов в общем списке поверхности (рабочая программа);
+////////////////////////////////////////////////////////////////////////////
+//...permutation of two element in common list of surface (working program);
 void bar_mutat(Bar * bar, int k, int m)
 {
 	if (! bar || bar->mp || bar->graph[0] <= k || k < 0 || bar->graph[0] <= m || m < 0) return;
 
 	(bar->graph[0])--;
 
-	topo_correct((Cells *)bar, k, -m-1); 
+	topo_correct((Cells *)bar, k, -m-1);
 	topo_correct((Cells *)bar, m, -k-1);
 	topo_correct((Cells *)bar);
 
-	bar->graph[0]++; 
-	
+	bar->graph[0]++;
+
 	Bar * temp_bar = bar->ce[k]; bar->ce[k] = bar->ce[m]; bar->ce[m] = temp_bar;
 	return;
 }
 
-///////////////////////////////////////////////////////////////////////////
-//...перестановка двух элементов в общем списке ячейки (рабочая программа);
+///////////////////////////////////////////////////////////////////////////////
+//...permutation of two element in common list of the cell (working procedure);
 void cells_mutat(Cells * ce, int k, int m)
 {
 	if (! ce || ! ce->mp || ce->graph[0] <= k || k < 0 || ce->graph[0] <= m || m < 0) return;
-	
-	topo_correct(ce, k, -m-1); 
+
+	topo_correct(ce, k, -m-1);
 	topo_correct(ce, m, -k-1);
 	topo_correct(ce);
 
@@ -947,8 +947,8 @@ void cells_mutat(Cells * ce, int k, int m)
 	return;
 }
 
-//////////////////////////////////////////////////////////////////////////////
-//...упорядочивание элементов общего списка поверхности и всех списков связей;
+/////////////////////////////////////////////////////////////////////////////////
+//...ordering elemnts in common list of surface and correction lists of topology;
 void bar_ord(Bar * bar)
 {
 	if (bar && ! bar->mp)
@@ -958,8 +958,8 @@ void bar_ord(Bar * bar)
 	return;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-//...упорядочивание элементов общего списка ячейки (не включенной в список) и всех списков связей;
+///////////////////////////////////////////////////////////////////////////////////////////////
+//...ordering elements of common list (not including in the list) and correction link topology;
 void cells_ord(Cells * ce)
 {
 	if (ce && ce->mp) {
@@ -968,16 +968,16 @@ void cells_ord(Cells * ce)
 			for (k = j-1; k >= 0; k--)
 				if (dim == cells_dim(ce->ce[k])) cells_mutat(ce, k, --j);
 
-////////////////////////////////////////////////
-//...зеркально отражаем элементы границы ячейки;
+////////////////////////////////////////////
+//...mirror reflection of boundary elements;
 		m = 0; while (cells_dim(ce->ce[m]) < cells_dim(ce)-1) m++;
 		for (k = 0; k < (ce->graph[0]-m)/2; k++) cells_mutat(ce, m+k, ce->graph[0]-1-k);
 	}
 	return;
 }
 
-////////////////////////////////////////////////////////////////////////////////
-//...упорядочивание элементов размерности 0 в общем списке ячейки размерности 2;
+///////////////////////////////////////////////////////////////////////////////
+//...ordering of elements by 0 dimension in common list of cell by 2 dimension;
 void cells_ord0(Cells * ce, int id_ord)
 {
 	int  k, l, j = 0, arc, prev;
@@ -985,8 +985,8 @@ void cells_ord0(Cells * ce, int id_ord)
 	if (cells_dim(ce) == 2 && ce->graph) {
 		prev = ce->graph[ce->graph[1]+1];
 
-///////////////////////////////////////////
-//...цикл по всем элементам границы ячейки;
+///////////////////////////////////////
+//...cycle on all elements of boundary;
 		for (l = 0; l < ce->graph[1]; l++, prev = arc)
 			if (ce->ce[arc = ce->graph[l+2]]->graph[1] == 2) {
 			if (! topo_id(ce->ce[prev], k = ce->ce[arc]->graph[2]))
@@ -997,8 +997,8 @@ void cells_ord0(Cells * ce, int id_ord)
 	return;
 }
 
-///////////////////////////////////////////////////
-//...зеркальное отражение элементов границы ячейки;
+/////////////////////////////////////////////////////
+//...mirror reflection  of boundary elements of cell;
 void bar_invers(Bar * bar)
 {
 	int dim, k, m;
@@ -1013,21 +1013,21 @@ void bar_invers(Bar * bar)
 	return;
 }
 
-////////////////////////////////////////////
-//...изменение ориентации одномерной ячейки;
+////////////////////////////////////////////////
+//...change of one-dimensional cell orientation;
 void cells_invers1(Cells * ce)
 {
 	if (ce && 1 == cells_dim(ce) && ce->graph) {
 		int N = ce->graph[1], k;
 
-////////////////////////////////////////////////
-//...зеркально отражаем элементы границы ячейки;
+////////////////////////////////////////////
+//...mirror reflection of boundary elements;
 		for (k = 0; k < N/2; k++) swap(ce->graph[k+2], ce->graph[ce->graph[1]+1-k]);
 
-/////////////////////////////////////////////
-//...преобразуем геометрическую карту ячейки;
+////////////////////////////////////////
+//...transformation of geometrical card;
 		if (ce->mp[0] == ID_MAP(1, SPHERE_GENUS) ||
-			 ce->mp[0] == ID_MAP(1,   NULL_GENUS)) { //...пpеобpазование оставляет ось X на месте;
+			 ce->mp[0] == ID_MAP(1,   NULL_GENUS)) { //...transformation leaves X axis at place;
 			 ce->mp[6]  = M_PI - ce->mp[6];
 			 ce->mp[5] += M_PI;
 		}
@@ -1035,37 +1035,37 @@ void cells_invers1(Cells * ce)
 	return;
 }
 
-///////////////////////////////////////////
-//...изменение ориентации двумерной ячейки;
+////////////////////////////////////////////////
+//...change orientation of two-dimensional cell;
 void cells_invers2(Cells * ce)
 {
 	if (ce && 2 == cells_dim(ce) && ce->graph) {
 		int N = ce->graph[1], k;
 
-//////////////////////////////////////////////////////////////////////
-//...зеркально отражаем и циклически сдвигаем элементы границы ячейки;
+////////////////////////////////////////////////////////////////
+//...mirror reflecion  and cyclic shifting of boundary elements;
 		for (k = 0; k < N/2; k++) swap(ce->graph[k+2], ce->graph[N+1-k]);
-		//for (k = 0; k < N-1; k++) swap(ce->graph[(k*(N-1))%N+2], ce->graph[((k+1)*(N-1))%N+2]);//...зачем сдвигать элементы на одну позицию???
+		//for (k = 0; k < N-1; k++) swap(ce->graph[(k*(N-1))%N+2], ce->graph[((k+1)*(N-1))%N+2]); //...way shift of elements on one position???
 
 /////////////////////////////////////////////
 //...преобразуем геометрическую карту ячейки;
-		if (ce->mp[0] == ID_MAP(2, NULL_GENUS)) { //...пpеобpазование оставляет ось X на месте;
+		if (ce->mp[0] == ID_MAP(2, NULL_GENUS)) { //...transformation leaves X axis at place;
 			 ce->mp[6]  = M_PI - ce->mp[6];
 			 ce->mp[5] += M_PI;
 		}
-		else  
+		else
 		if (ce->mp[0] == ID_MAP(2, SPHERE_GENUS) ||
 			 ce->mp[0] == ID_MAP(2,    CYL_GENUS) ||
 			 ce->mp[0] == ID_MAP(2,   CONE_GENUS) ||
-			 ce->mp[0] == ID_MAP(2,  TORUS_GENUS)) { //...изменяем знак параметра, отвечающего за нормаль;
+			 ce->mp[0] == ID_MAP(2,  TORUS_GENUS)) { //...change sign of parameter, replyed to normal;
 			 ce->mp[7]  = -ce->mp[7];
 		}
 	}
 	return;
 }
 
-//////////////////////////////////////////////////////
-//...изменение ориентации общей геометрической ячейки;
+/////////////////////////////////////////
+//...changing orientation of common cell;
 void cells_invers(Cells * ce, int id_sub_element)
 {
 	if (ce && ce->mp && ce->graph) {
@@ -1079,29 +1079,29 @@ void cells_invers(Cells * ce, int id_sub_element)
 	return;
 }
 
-////////////////////////////////////////////////////////
-//...циклическая сдвижка элементов границы общей ячейки;
+//////////////////////////////////////////////////////////
+//...cyclic shift of boundary elements of the common cell;
 void cells_cyclic_shift(Cells * ce, int m)
 {
 	if (ce && ce->graph) {
 		int   k, l, p, N = ce->graph[1];
 
-//////////////////////////////////////////
-//...нормируем модуль циклической сдвижки;
+///////////////////////////////////////
+//...normalize modulus of cyclic shift;
 		while ((m %= N) <= -1) m += N;
 		while ( m       >=  N) m -= N;
 
-/////////////////////////////////////////////////
-//...циклически сдвигаем элементы границы ячейки;
+////////////////////////////////////////////////
+//...cyclic shift of the cell boundary elements;
 		for (l = 0;                    m && l < abs(m); l++)
-		for (k = 0, p = max(N/abs(m)-1, 1); k < p;      k++) 
+		for (k = 0, p = max(N/abs(m)-1, 1); k < p;      k++)
 			swap(ce->graph[(k*(N-m)+l)%N+2], ce->graph[((k+1)*(N-m)+l)%N+2]);
 	}
 	return;
 }
 
-////////////////////////////////////////////////////////////////
-//...вспомогательная функция -- удаление элементов подструктуры;
+//////////////////////////////////////////////////////////////
+//...auxilliary function -- removing of substructure elements;
 void delete_cells_in_struct(Cells * ce)
 {
 	if (ce)
@@ -1121,22 +1121,22 @@ void delete_cells_in_struct(Cells * ce)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
-//...идентификация элементов подструктуры, внесение новых элементов в список и удаление повторяющихся;
+//...identification substructure elements, adding new elements in list and removing repeting elements;
 void search_cells_in_struct(Cells * ce, Cells * ext_ce, int & i, int id_cell, Cells **& dop_ce, int & N_buf, int & buf_size, int buf_delta)
 {
 	int k, m, l, m_ce;
 	if (ce && ext_ce)
 	for ( k = 0; k < ce->graph[1]; k++) if ((m_ce = ce->graph[k+2]) >= 0 && ce->ce[m_ce]) {
 			m = id_cell != NULL_STATE  ? cells_in_struct(ext_ce, ce->ce[m_ce], OK_STATE) : 0;
-			if (! m) { //...запоминаем новый номер в структуре поверхности;
+			if (! m) { //...storage new number in surface structure;
 				if (buf_size == N_buf) {
-					Cells ** new_ce = (Cells **)new_struct((buf_size += buf_delta)*sizeof(Cells *));
+					Cells ** new_ce = new_struct<Cells *>(buf_size += buf_delta);
 					memcpy  (new_ce, dop_ce, N_buf*sizeof(Cells *)); delete_struct(dop_ce); dop_ce = new_ce;
 				}
 				search_cells_in_struct(ce->ce[m_ce], ext_ce, i, id_cell, dop_ce, N_buf, buf_size, buf_delta);
 				topo_correct(ce->ce[ce->graph[0]], m_ce, -(++i), NULL_STATE); dop_ce[N_buf++] = ce->ce[m_ce];
 			}
-			else if (ce->ce[m_ce]) { //...удаляем повторяющиеся структуры;
+			else if (ce->ce[m_ce]) { //...removing repeting elements of structure;
 				l = ce->ce[m_ce]->pm ? ce->ce[m_ce]->graph[1] : 0;
 				delete_struct(ce->ce[m_ce]->mp);
 
@@ -1146,39 +1146,39 @@ void search_cells_in_struct(Cells * ce, Cells * ext_ce, int & i, int id_cell, Ce
 
 				delete_cells_in_struct(ce->ce[m_ce]);
 				topo_correct(ce->ce[ce->graph[0]], m_ce, -abs(m), NULL_STATE);
-			
+
 				delete_struct(ce->ce[m_ce]->graph);
 				delete_cells (ce->ce[m_ce], NULL_STATE);
 			}
 	}
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-//...включение элементов структуры в общий список на основе анализа подструктуры элемента;
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//...including elemnts of structure in common list on the base of analysis of elements substructure;
 int bar_add(Bar * bar, Cells *& ext_ce, int id_cell, int buf_delta)
 {
-///////////////////////////////////////////////////
-//...начальные проверки и инициализация параметров;
+////////////////////////////////////////////////////
+//...initial checking and parameters initialization;
 	if (! ext_ce)												  return(1);
 	if (! bar || bar->mp || ! ext_ce || ! ext_ce->mp) return(0);
 
 	int  i = bar->graph[0], k, l, m, N, N_buf = 0, buf_size = 0;
-	Cells ** dop_ce = (Cells **)new_struct((buf_size += buf_delta)*sizeof(Cells *));
+	Cells ** dop_ce = new_struct<Cells *>(buf_size += buf_delta);
 
-///////////////////////////////////////////////////////////////////
-//...идентификация геометрической ячейки в целом и коррекция связей;
+///////////////////////////////////////////////////////////
+//...identification of cell as a hole and links correction;
 	m = id_cell != NULL_STATE ? cells_in_struct(bar, ext_ce, OK_STATE) : 0;
 
-////////////////////////////////////////////////////
-//...запоминаем новый номер в структуре поверхности;
+/////////////////////////////////////////////
+//...storage new number in surface structure;
 	if (! m) {
 		dop_ce[N_buf++] = ext_ce; N = ++i;
 		search_cells_in_struct(ext_ce, bar, i, id_cell, dop_ce, N_buf, buf_size, buf_delta);
 		topo_correct(ext_ce);
 	}
 
-////////////////////////////////////
-//...удаляем повторяющуюся структур;
+/////////////////////////////////////////////
+//...removing repeting elements of structure;
 	else {
 		N = m; l = ext_ce->pm ? ext_ce->graph[1] : 0;
 		delete_struct(ext_ce->mp);
@@ -1193,10 +1193,10 @@ int bar_add(Bar * bar, Cells *& ext_ce, int id_cell, int buf_delta)
 		delete_cells (ext_ce, NULL_STATE);
 	}
 
-/////////////////////////////////////////////
-//...формирование нового общего списка ячеек;
+//////////////////////////////////////
+//...forming new common list of cells;
 	if (i > bar->graph[0]) {
-		Cells ** new_ce = (Cells **)new_struct((i+1)*sizeof(Cells *));
+		Cells ** new_ce = new_struct<Cells *>(i+1);
 		for (k = 0; k < bar->graph[0]; k++) {
 			new_ce[k] =  bar->ce[k]; new_ce[k]->ce = new_ce;
 		}
@@ -1206,32 +1206,32 @@ int bar_add(Bar * bar, Cells *& ext_ce, int id_cell, int buf_delta)
 		delete_struct(bar->ce); bar->ce = new_ce;
 		bar->ce[bar->graph[0] = i] = bar;
 	}
-	install_struct(bar);	
+	install_struct(bar);
 
-//////////////////////////
-//...выходим из программы;
+/////////////////////////////
+//...return from the program;
 	delete_struct(dop_ce);
 	return abs(N);
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////
-//...включение ячейки в описание поверхности (возвращает номер включенной ячейки или ошибку);
+////////////////////////////////////////////////////////////////////////////////////////////////
+//...including of the cell insurface description (return number of included cell or error code);
 int bar_add(Bar * bar, Cells *& ext_ce, int id_cell)
 {
 	if (! ext_ce)												  return(1);
 	if (! bar || bar->mp || ! ext_ce || ! ext_ce->mp) return(0);
-	
-	Cells ** ce_ce = ext_ce->ce;	
-	int i, k, m, l, N, dim, dim_N = cells_dim(ext_ce); 
 
-////////////////////////////////////////////////////////////////////////////////////////
-//...идентифицируем элементы геометрических структур и корретируем списки связей ячейки;
+	Cells ** ce_ce = ext_ce->ce;
+	int i, k, m, l, N, dim, dim_N = cells_dim(ext_ce);
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//...identification of elements of geometrical strucutures and correction of link lists of the cell;
 	for ( i = bar->graph[0], dim = dim_N; dim >= 0; dim--)
 	for ( k = ext_ce->graph[0]; k >= 0; k--) if (dim == cells_dim(ce_ce[k])) {
 			m = id_cell ? cells_in_bar(bar, ce_ce[k]) : 0;
 
-///////////////////////////////////////////////////////////
-//...запоминаем новый номер ячейки в структуре поверхности;
+////////////////////////////////////////////////////////
+//...storing new numberof the cell in surface structure;
 		if (k == ext_ce->graph[0]) N = m ? m : i+1;
 		if (! m) topo_correct(ext_ce, k, -(++i));
 		else {
@@ -1247,10 +1247,10 @@ int bar_add(Bar * bar, Cells *& ext_ce, int id_cell)
 	}
 	topo_correct(ext_ce);
 
-//////////////////////////////////////////////////////////////
-//...формируем новый общий список и устанавливаем поверхность;
+/////////////////////////////////////////////////
+//...forming new common list and install surface;
 	if (i > bar->graph[0]) {
-		Cells ** new_ce = (Cells **)new_struct((i+1)*sizeof(Cells *));
+		Cells ** new_ce = new_struct<Cells *>(i+1);
       for (k = 0; k < bar->graph[0]; k++) {
 			new_ce[k] = bar->ce[k]; bar->ce[k]->ce = new_ce;
       }
@@ -1258,13 +1258,13 @@ int bar_add(Bar * bar, Cells *& ext_ce, int id_cell)
 		for (m = ext_ce->graph[0]; m >= 0; m--) if (dim == cells_dim(ce_ce[m])) {
 			new_ce[k] = ce_ce[m]; new_ce[k++]->ce = new_ce;
 		}
-		delete_struct(bar->ce); bar->ce = new_ce; 
+		delete_struct(bar->ce); bar->ce = new_ce;
 		bar->ce[bar->graph[0] = i] = bar;
 	}
-	install_struct(bar);	
+	install_struct(bar);
 
-/////////////////////////////////////////////////////////////////
-//...удаляем отработанные элементы ячейки и выходим из программы;
+/////////////////////////////////////////////////////////
+//...removing the used elementsand return of the program;
 	for (k = 0; k <= ext_ce->graph[0]; k++) if (! ce_ce[k]->mp) {
 		delete_struct(ce_ce[k]->graph); delete_struct(ce_ce[k]);
 	}
@@ -1273,25 +1273,25 @@ int bar_add(Bar * bar, Cells *& ext_ce, int id_cell)
 	return abs(N);
 }
 
-////////////////////////////////////////////////////////
-//...функция, добавляющая параметрическое описание тела;
+//////////////////////////////////////////////////////////////
+//...function for addition parametric description of the body;
 void trim_add(Cells * ce, Cells *& trim, int id_mp)
 {
 	if (ce && trim && ce->mp && trim->mp && ! ce->pm && ce->graph && trim->graph && (ce->graph[1] <= trim->graph[1])) {
 		int k, N_pad;
 
-///////////////////////////
-//...выравниваем топологию;
+//////////////////////
+//...justify topology;
 		if  (topo_pad(ce->graph, N_pad = trim->graph[1]-ce->graph[1]))
 		for (k = 0; k < N_pad; k++) ce->graph[k+2] = ce->graph[N_pad+2]/*ERR_GRAPH*/;
 
-/////////////////////////////////////////////////////
-//...распределяем и переносим параметрические кривые;
-		for (ce->pm = (CMap **)new_struct(ce->graph[1]*sizeof(CMap *)), k = 0; ce->pm && k < ce->graph[1]; k++)
+///////////////////////////////////////////////
+//...distribute and transfer parametric curves;
+		for (ce->pm = new_struct<CMap *>(ce->graph[1]), k = 0; ce->pm && k < ce->graph[1]; k++)
 			swap(ce->pm[k], trim->ce[trim->graph[k+2]]->mp);
 
-////////////////////////////////////////////////////////////////
-//...переносим параметризацию и освобождаем оставшиеся элементы;
+////////////////////////////////////////////////////////
+//...transfer parametrization and release rest elements;
 		if (id_mp) {
 			delete_struct(ce->mp); swap(ce->mp, trim->mp);
 		}
@@ -1299,8 +1299,8 @@ void trim_add(Cells * ce, Cells *& trim, int id_mp)
 	}
 }
 
-/////////////////////////////////////////////////////
-//...натягивание на повеpхность геометpической каpты;
+///////////////////////////////////////////////////////////
+//...spanning of the geometrical card on surface structure;
 int bar_span(Bar * bar, CMap *& ext_mp)
 {
 	if (! bar || ! ext_mp || bar->mp) return(1);
@@ -1308,35 +1308,35 @@ int bar_span(Bar * bar, CMap *& ext_mp)
 	int  k, j = 1, m = map_dim(ext_mp);
 	if ((k = bar_dim(bar)) != m-1 && k != ERR_DIM) j = 0;
 
-///////////////////////////////////////////////////////////////////////////////////////////
-//...просматриваем все элементы размерности на единицу меньше и заносим их в список связей;
+///////////////////////////////////////////////////////////////////////////////
+//...search all elements by dimention minus one and including its in link list;
 	for (k = 0; j && k < bar->graph[0]; k++)
 		if (cells_dim(bar->ce[k]) == m-1 && ! topo_insert(bar->graph, k)) j = 0;
 
-////////////////////////////////////////////////////////////////////////////////////
-//...подключаем геометpическую каpту, упорядочиваем элементы и выходим из пpогpаммы;
+////////////////////////////////////////////////////////////////////////////
+//...connecting geometrical card, ordering elements and return from program;
 	bar->mp = ext_mp; ext_mp = NULL; cells_ord(bar);
 	return(j);
 }
 
-/////////////////////////////////////////////
-//...удаление ячейки из описания поверхности;
+/////////////////////////////////////////////////
+//...excluding cell from the surface description;
 void bar_exc(Bar * bar, int N)
 {
 	if (! bar ||  --N > bar->graph[0] || N < 0 || bar->mp) return;
-	int i, j, k, l; 
+	int i, j, k, l;
 
-///////////////////////////////////////////////////////////////////
-//...просматриваем общий список ячеек и удаляем не нужные элементы;
+/////////////////////////////////////////////////////////////
+//...look over common list and removing not needded elements;
 	for (k = 0; k < bar->graph[0]; k++) if (topo_id(bar->ce[N], k)) {
 		for (j = i = 0; ! j && i < bar->graph[0]; i++)
 		if (i != N) j = topo_id(bar->ce[i], k, N);
 
-////////////////////////////////////////////////////////////////////////
-//...удаляем элемент, который не входит во все ячейки, кроме bar->ce[N];
+////////////////////////////////////////////////////////////////
+//...remove elemnt, which out of all cells and not a bar->ce[N];
 		if (! j && k != N) {
 			l = bar->ce[k]->pm && bar->ce[k]->graph ? bar->ce[k]->graph[1] : 0;
-			delete_struct(bar->ce[k]->mp); 
+			delete_struct(bar->ce[k]->mp);
 
 			for (l--; l >= 0; l--)
 				delete_struct(bar->ce[k]->pm[l]);
@@ -1346,17 +1346,17 @@ void bar_exc(Bar * bar, int N)
 			delete_struct(bar->ce[k]);
 
 ///////////////////////////////////////////////////////////
-//...изменяем нумерацию и удаляем элемент из общего списка;
+//...change numeration and remove element from common list;
 			for (i = k; i < bar->graph[0];  i++) bar->ce[i] = bar->ce[i+1]; bar->graph[0] -= 1;
 			for (i = 0; i < bar->graph[0];  i++) topo_exc(bar->ce[i]->graph, k);
 			for (i = k; i < bar->graph[0]+1; i++) topo_correct((Cells *)bar, i+1, i);
 		}
 	}
 
-////////////////////////////////
-//...удаляем элемент bar->ce[N];
+///////////////////////////////
+//...remove element bar->ce[N];
 	l = bar->ce[N]->pm && bar->ce[N]->graph ? bar->ce[N]->graph[1] : 0;
-	delete_struct(bar->ce[N]->mp); 
+	delete_struct(bar->ce[N]->mp);
 
 	for (l--; l >= 0; l--)
 		delete_struct(bar->ce[N]->pm[l]);
@@ -1365,29 +1365,29 @@ void bar_exc(Bar * bar, int N)
 	delete_struct(bar->ce[N]->graph);
 	delete_struct(bar->ce[N]);
 
-//////////////////////////////////////////////////////////////////////
-//...изменяем нумерацию и удаляем элемент bar->ce[N] из общего списка;
+/////////////////////////////////////////////////////////////////////////
+//...change numbering and remove element bar->ce[N] from the common list;
 	for (i = N; i < bar->graph[0];  i++) bar->ce[i] = bar->ce[i+1]; bar->graph[0] -= 1;
 	for (i = 0; i < bar->graph[0];  i++) topo_exc(bar->ce[i]->graph, N);
 	for (i = N; i < bar->graph[0]+1; i++) topo_correct((Cells *)bar, i+1, i);
- 
-///////////////////////////////////////////////////
-//...устанавливаем структуру, выходим из программы;
+
+///////////////////////////////////////////////
+//...install structure and return from program;
 	install_struct(bar);
 	return;
 }
 
-//////////////////////////////////////////////////////////
-//...копирование геометрической карты (рабочая программа);
+/////////////////////////////////////////////
+//...copy geometrical card (working program);
 CMap * map_cpy(CMap * mp, int id_dop)
 {
 	if (mp) {
 		int      N_mp = size_of_map(map_dim(mp), map_genus(mp)), k = N_mp;
-		CMap * new_map = (CMap *)new_struct((N_mp += (id_dop ? size_of_dop((int)mp[N_mp], mp) : 0)+1)*sizeof(CMap));
+		CMap * new_map = new_struct<CMap>(N_mp += (id_dop ? size_of_dop((int)mp[N_mp], mp) : 0)+1);
 		if (! new_map) return(new_map);
 
-////////////////////////////////////////////////////////////////////////////////
-//...готовим новую геометрическую карту выбранной ячейки и выходим из программы;
+///////////////////////////////////////////////////////////////////////////////
+//...prepare new geometrical card of the selected cell and return from program;
 		memcpy(new_map, mp, N_mp*sizeof(CMap));
 		if  (! id_dop) new_map[k] = (CMap)NULL_CELL;
 
@@ -1396,28 +1396,28 @@ CMap * map_cpy(CMap * mp, int id_dop)
 	return(NULL);
 }
 
-////////////////////////////////////////////////////////////////////////////////////////
-//...копирование описания заданной ячейки в пространстве параметров (рабочая программа);
+///////////////////////////////////////////////////////////////////////////////////
+//...copy description of the selected cell in parametric space (working procedure);
 CMap ** pm_cpy(CMap ** pm, int l)
 {
 	if (pm) {
-		CMap ** new_pm = (CMap **)new_struct(l*sizeof(CMap *));
+		CMap ** new_pm = new_struct<CMap *>(l);
 		for (l--; new_pm && l >= 0; l--) new_pm[l] = map_cpy(pm[l]);
 		return(new_pm);
 	}
 	return(NULL);
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////
-//...извлечение геометрической карты заданной ячейки из описания поверхности (рабочая программа);
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+//...extractiong geometrical card of the selected cell from the surface description (working program);
 CMap * map_cpy(Bar * bar, int N)
 {
 	if (bar && 0 <= N && N < bar->graph[0]) return(map_cpy(bar->ce[N]->mp));
 	else                                    return(NULL);
 }
 
-///////////////////////////////////////////////////////////////////////////////////////
-//...извлечение описания заданной ячейки в пространстве параметров (рабочая программа);
+/////////////////////////////////////////////////////////////////////////////////////////
+//...extractiong of the selected cell description in parametric space (workin procedure);
 CMap ** pm_cpy(Bar * bar, int N)
 {
 	if (bar && 0 <= N && N < bar->graph[0] && bar->ce[N] && bar->ce[N]->graph && bar->ce[N]->pm)
@@ -1425,73 +1425,73 @@ CMap ** pm_cpy(Bar * bar, int N)
 		return(NULL);
 }
 
-//////////////////////////////////////////////////////////////////////////////////
-//...извлечение графа заданной ячейки из описания поверхности (рабочая программа);
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+//...extracting topology graph of the selected cell from the surface description (working procedure);
 Topo * graph_cpy(Bar * bar, int N)
 {
 	if (! bar || N >= bar->graph[0] || N < 0) return(NULL);
-	Topo * new_graph = (Topo *)new_struct((bar->ce[N]->graph[1]+2)*sizeof(Topo));
+	Topo * new_graph = new_struct<Topo>(bar->ce[N]->graph[1]+2);
 	if ( ! new_graph) return(new_graph);
 	memcpy(new_graph, bar->ce[N]->graph, (bar->ce[N]->graph[1]+2)*sizeof(Topo));
 	return(new_graph);
 }
 
-////////////////////////////////////////////////////////////
-//...копирование ячейки из описания поверхности (по номеру);
+////////////////////////////////////////////////////////
+//...copy cell from the surface description (by number);
 Cells * bar_cpy(Bar * bar, int N, int id_origine)
 {
 	if (! bar || --N >= bar->graph[0] || N < 0) return(NULL);
 
-	Cells * bar_N = bar->ce[N]; 
-	Topo  * id; 
+	Cells * bar_N = bar->ce[N];
+	Topo  * id;
 	int N_dim = cells_dim(bar_N), i, k, m = 1;
 
-////////////////////////////////////////////////////
-//...формируем заготовку структуры выбранной ячейки;
+/////////////////////////////////////////////
+//...forming workpiece of the cell structure;
 	Cells *	 ce = new_cells(); if (! ce) return(ce);
-	cells_new(ce, bar_N->graph[0]+1, 0, 0);
+	init(ce, bar_N->graph[0]+1, 0, 0);
 
-	id = (Topo *)new_struct((bar_N->graph[0]+1)*sizeof(Topo));
+	id = new_struct<Topo>(bar_N->graph[0]+1);
 	if (ce->ce && id) {
 		ce->graph = graph_cpy(bar, N);
 		ce->mp    = map_cpy  (bar, N);
 		ce->pm    = pm_cpy   (bar, N);
 		if (! ce->graph || ! ce->mp) m = 0;
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-//...формируем все списки ячеек, списки связей и геометрические карты в структуре выбранной ячейки;
+/////////////////////////////////////////////////////////////////////////////////////
+//...forming all lists, link list and geometrical card in structure of selected cell;
 		for (i = k = 0; m && k < bar->graph[0]; k++)
 		if ( i < ce->graph[0] && cells_dim(bar->ce[k]) < N_dim && topo_id(bar_N, k)) {
-			if (! (ce->ce[i] = new_cells())) m = 0; 
+			if (! (ce->ce[i] = new_cells())) m = 0;
 			else {
 				ce->ce[i]->graph = graph_cpy(bar, k);
 				ce->ce[i]->mp    = map_cpy  (bar, k);
 				ce->ce[i]->pm    = pm_cpy   (bar, k);
 				ce->ce[i]->ce    = ce->ce;
 				if (! ce->ce[i]->graph || ! ce->ce[i]->mp) m = 0;
-			}  
+			}
 			id[i++] = k;
 		}
 		if (! m || i != ce->graph[0]) goto err;
 
-////////////////////////////////////////////////////////////////////////////////////////
-//...осуществляем перенумерацию списков связей и приводим ячейку к начальному положению;
+//////////////////////////////////////////////////////////////////////////////
+//...reordering of the link lists and transforms cell to the initial position;
 		for (i = 0; i < ce->graph[0]; i++) topo_correct(ce, id[i], -(i+1));
 		topo_correct(ce);
-		cells_ord	(ce); 
+		cells_ord	(ce);
 
 		if (id_origine) cells_to_origine(ce);
 
-//////////////////////////
-//...выходим из программы;
+/////////////////////////////
+//...return from the program;
 		delete_struct(id); return(ce);
 	}
 err:
 	delete_struct(id); delete_cells(ce); return(NULL);
 }
 
-///////////////////////////////////////////////////////////
-//...извлечение ячейки из описания поверхности (по номеру);
+//////////////////////////////////////////////////////////////
+//...extraction cell from the surface description (by number);
 Cells * bar_sub(Bar * bar, int N, int id_origine)
 {
 	Cells * ce = bar_cpy(bar, N, id_origine);
@@ -1499,21 +1499,21 @@ Cells * bar_sub(Bar * bar, int N, int id_origine)
 	return(ce);
 }
 
-//////////////////////////////////////////////////////////////////
-//...устанавливаем размерность общей структуры для всех элементов;
+////////////////////////////////////////////////////////////////////
+//...install dimension of the common structure for the all elements;
 void install_struct(Bar * bar)
 {
 	if (bar && ! bar->mp)
-	for ( int i = 0; i < bar->graph[0]; i++) 
+	for ( int i = 0; i < bar->graph[0]; i++)
 		if (bar->ce[i]) bar->ce[i]->graph[0] = bar->graph[0];
 }
 
-///////////////////////////////////////////////////////////////////////////
-//...удаление из поверхности вырожденных элементов (единичной размерности);
+//////////////////////////////////////////////////////////////////////
+//...removing degenerate elements from the surface (by one dimension);
 void bar_generate(Bar * bar, double eps)
 {
 	for (int m, l, k = bar->graph[0]-1; bar && k >= 0; k--)
-	if (1 == cells_dim(bar->ce[k]) && 
+	if (1 == cells_dim(bar->ce[k]) &&
 		(1 == bar->ce[k]->graph[1] ||
 		 2 == bar->ce[k]->graph[1] && bar->ce[k]->graph[2] == bar->ce[k]->graph[3]))
 	if (bar->ce[k]->mp[0] == ID_MAP(1, SPHERE_GENUS)) {
@@ -1523,10 +1523,10 @@ void bar_generate(Bar * bar, double eps)
 	else
 	if (bar->ce[k]->mp[0] == ID_MAP(1, NULL_GENUS)) {
 		 bar_exc(bar, k+1);
-	} 
-///////////////////////////////////////////////////////////////////////////////
-//...удаление из поверхности двумерных вырожденных элементов (убираем повторы);
-	else 
+	}
+/////////////////////////////////////////////////////////////////////////
+//...removing from the surface two dimwnsionalelements (remov repetings);
+	else
 	if (2 == cells_dim(bar->ce[k]))
 	for (l = bar->ce[k]->graph[1]-1; l > 0; l--) if (bar->ce[k]->graph[2+l] == bar->ce[k]->graph[1+l]) {
 		for (m = l; m < bar->ce[k]->graph[1]; m++) {
@@ -1539,8 +1539,8 @@ void bar_generate(Bar * bar, double eps)
 	return;
 }
 
-////////////////////////////////////////////////////////////////////////
-//...исключение двойной нумерации точки в описании лоскутов поверхности;
+////////////////////////////////////////////////////////////////////////////////////
+//...excluded double nbering of the point in the description of the surface patches;
 void bar_correct_double_point(Bar * bar, double eps)
 {
 	if (bar)
@@ -1551,13 +1551,13 @@ void bar_correct_double_point(Bar * bar, double eps)
 
 		(bar->graph[0])--; topo_correct((Cells *)bar, m, l);
 		(bar->graph[0])++; bar_exc     ((Cells *)bar, m+1);
-	
+
 	}
 	return;
 }
 
-////////////////////////////////////////////////////////////////////////////////
-//...исключение двойной нумерации точки в описании ячейки единичной размерности;
+//////////////////////////////////////////////////////////////////////////////////////
+//...excluded double numberingof the point in description of the one dimensional cell;
 void cell_correct_double_point(Cells * ce, double eps)
 {
 	int l, m;
@@ -1578,19 +1578,19 @@ void cell_correct_double_point(Cells * ce, double eps)
 	}
 }
 
-/*===============================================================================================*/
-/*                  ВСПОМОГАТЕЛЬНЫЕ СРЕДСТВА ДЛЯ ПРЯМЫХ И ДУГ ОКРУЖНОСТЕЙ                        */
-/*===============================================================================================*/
-///////////////////////////////////////////////////////////
-//...извлечение центра дуги окружности (плоского элемента);
+/*====================================================================================*/
+/*                  AUXILLIARY TOOLS FOR LINES AND CIRCLE ARCS                        */
+/*====================================================================================*/
+//////////////////////////////////////////////////////////////
+//...extractiong of the circle arc centre (for plane element);
 complex get_arc_center(Cells * ce)
 {
 	if (ce && ce->mp && ID_MAP(1, SPHERE_GENUS) == ce->mp[0]) return comp(ce->mp[1], ce->mp[2]);
 	else return comp(0.);
 }
 
-//////////////////////////////////////////////////////////////////////////////////
-//...извлечение начальной или конечной точки гpаничного звена (плоского элемента);
+////////////////////////////////////////////////////////////////////////////////////////
+//...extracting of the beginning and ending point of boundary chain (for plane element);
 complex get_arc_point(Cells * ce, int m)
 {
 	if (1 == cells_dim(ce)) {
@@ -1602,7 +1602,7 @@ complex get_arc_point(Cells * ce, int m)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-//...извлечение начальной или конечной точки гpаничного звена с поворотом точки;
+//...extracting of the beginning and ending point of boundary chain with return;
 complex get_arc_point(Cells * ce, int m, double & CZ, double & SZ, double & CY, double & SY,
                                          double & CX, double & SX)
 {
@@ -1619,8 +1619,8 @@ complex get_arc_point(Cells * ce, int m, double & CZ, double & SZ, double & CY, 
 	return comp(0.);
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////
-//...вспомогательная функция для метода in_bar - приращение аргумента вдоль граничной дуги;
+//////////////////////////////////////////////////////////////////////////////////////////
+//...auxilliary function for in_bar method - increment of argument along the boundary arc;
 double arc_delta(complex z0, complex z1, complex z2, int topo)
 {
   double r, f0;
@@ -1651,8 +1651,8 @@ double arc_delta(complex z0, complex z1, complex z2, int topo)
   return(0.);
 }
 
-//////////////////////////////////////////////////////////////////////////////////
-//...вспомогательная функция для сеток - длина дуги (в формате комплексных чисел);
+//////////////////////////////////////////////////////////////////////
+//...auxilliary function for the mesh - length arc (in complex fomat);
 double arc_length(complex z0, complex z1, complex z2, int topo)
 {
   if (z0 == z1) return abs(z2-z1);
@@ -1662,8 +1662,8 @@ double arc_length(complex z0, complex z1, complex z2, int topo)
   }
 }
 
-////////////////////////////////////////////////////////////////////////////
-//...установка начальной или конечной точки гpаничного звена (на плоскости);
+///////////////////////////////////////////////////////////////////////////////////////
+//...installing of the beginning and ending point of the boundary chain (on the plane);
 void set_arc_point(Cells * ce, int m, complex z)
 {
 	if (1 == cells_dim(ce)) {
@@ -1676,8 +1676,8 @@ void set_arc_point(Cells * ce, int m, complex z)
 	return;
 }
 
-////////////////////////////////////////////////////
-//...установка цетра дуги окружности (на плоскости);
+////////////////////////////////////////////////////////
+//...installing centre of the circle arc (on the plane);
 void set_arc_center(Cells * ce, complex z)
 {
 	if (ce && ce->mp && ID_MAP(1, SPHERE_GENUS) == ce->mp[0]) {
@@ -1688,8 +1688,8 @@ void set_arc_center(Cells * ce, complex z)
 	return;
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
-//...коррекция описания прямой (установка локальной системы координат и касательной);
+//////////////////////////////////////////////////////////////////////////////////
+//...correction line description (installing local coordinate system and tangent);
 void line_correct(Cells * ce, int id_fast)
 {
 	if (ce && ce->mp && ID_MAP(1, NULL_GENUS) == ce->mp[0] && ce->graph[1] > 0) {
@@ -1707,8 +1707,8 @@ void line_correct(Cells * ce, int id_fast)
 		X -= P2[0];
 		Y -= P2[1];
 		Z -= P2[2];
-////////////////////////////////////
-//...коррекция геометрической карты;
+/////////////////////////////////
+//...geometrical card correction;
 		ce->mp[1] = (CMap)(P1[0]+P2[0])*.5;
 		ce->mp[2] = (CMap)(P1[1]+P2[1])*.5;
 		ce->mp[3] = (CMap)(P1[2]+P2[2])*.5;
@@ -1734,8 +1734,8 @@ void line_correct(Cells * ce, int id_fast)
 	return;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////
-//...коррекция описания окружности на плоскости XY (установка локальной системы координат);
+////////////////////////////////////////////////////////////////////////////////////////
+//...correction circle description on the plane XY (installing local coordinate system);
 void circ_correct(Cells * ce, double R, int topo, int points_inverse)
 {
 	if (ce && ce->mp && ID_MAP(1, SPHERE_GENUS) == ce->mp[0] && ce->graph[1] > 0) {

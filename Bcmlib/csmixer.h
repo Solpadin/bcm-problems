@@ -24,7 +24,7 @@ public:
 		int num_usual() {return nm;}
 public:
 		static T * deriv, * p_cpy;	//...derivative and function (technical arrays);
-		static T * d_cmp, * p_cmp;	//...another part (real or imag) of multipokes (technical arrays);
+		//static T * d_cmp, * p_cmp;	//...another part (real or imag) of multipoles (technical arrays);
 		static int N_mx;				//...max local freedom of technical arrays;
 public:
 		Num_Shape type	(int k = 0) { return (shape && k < N_shape ? shape[k]->type() : NULL_SHAPE);}
@@ -33,12 +33,12 @@ public:
 //...initialization of multipoles;
 		void add_shape(		 CShape<T> * sp, int usual = 1);
 		void add_shape(int k, CShape<T> * sp, int usual = 1);
-		void init1(			int N, int m, int dim);
-		void init1(int k, int N, int m, int dim);
-		void init2(			int N, int M, int m, int dim);
-		void init2(int k, int N, int M, int m, int dim);
-		void init3(			int N, int N1, int N2, int m, int dim);
-		void init3(int k, int N, int N1, int N2, int m, int dim);
+		void degree_init1(		 int N, int m, int dim);
+		void degree_init1(int k, int N, int m, int dim);
+		void degree_init2(		 int N, int M, int m, int dim);
+		void degree_init2(int k, int N, int M, int m, int dim);
+		void degree_init3(		 int N, int N1, int N2, int m, int dim);
+		void degree_init3(int k, int N, int N1, int N2, int m, int dim);
 		void release();
 		void release(int k) { if (shape && k < N_shape) shape[k]->release();}
 		void set_shape(		 double R0, double kk = 0., double p1 = 0., double p2 = 0., double p3 = 0., double p4 = 0.);
@@ -65,6 +65,8 @@ public:
 		void make_common(double  * P) { point_iso<double>(P, P0, CZ, SZ, CY, SY, CX, SX);}
 		void norm_local (double  * P) { point_iso<double>(P, NULL, CX, -SX, CY, -SY, CZ, -SZ);}
 		void norm_common(double  * P) { point_iso<double>(P, NULL, CZ,  SZ, CY,  SY, CX,  SX);}
+		void norm_local2D (double  * P) { point_rotZ<double>(P, CZ, -SZ);}
+		void norm_common2D(double  * P) { point_rotZ<double>(P, CZ,  SZ);}
 		void set_norm_cs(double  * P)	{ cs[0] = P[3]; cs[1] = P[4]; cs[2] = P[5];}
 		void norm_local_T (T * P) { point_iso<T>(P, NULL, CX, -SX, CY, -SY, CZ, -SZ);}
 		void norm_common_T(T * P) { point_iso<T>(P, NULL, CZ,  SZ, CY,  SY, CX,  SX);}
@@ -108,10 +110,9 @@ public:
 		void primitive(		 T * deriv); //...интегрируем все;
 		void primitive(int k, T * deriv);
 //...setting potentials;
-		void   init_potential();
-		void delete_potential();
-		void get_potential(T * AA, int m) {	if (A && AA && m < n) memcpy(AA, A[m], NN*sizeof(T));}
-		void set_potential(T * AA, int m) {	if (A && AA && m < n) memcpy(A[m], AA, NN*sizeof(T));}
+		void init_potential();
+		void  get_potential(T * AA, int m) { if (A && AA && m < n) memcpy(AA, A[m], NN*sizeof(T));}
+		void  set_potential(T * AA, int m) { if (A && AA && m < n) memcpy(A[m], AA, NN*sizeof(T));}
 //...calculation potentials;
 		T potential(		 T * p_cpy, int m);
 		T potential(int k, T * p_cpy, int m);
@@ -201,11 +202,12 @@ template <typename T> T * CShapeMixer<T>::p_cpy = NULL;
 template <typename T>
 CShapeMixer<T>::~CShapeMixer(void)
 {
-	delete_potential();
    if (shape)
-		for (int k = 0; k < N_shape; k++) 
-			delete shape[k];
+		for (int k = 0; k < N_shape; k++) delete shape[k];
 	delete_struct(shape);
+	delete_struct(deriv);
+	delete_struct(p_cpy);
+	delete_struct(A);
 }
 
 /////////////////////////////////
@@ -213,19 +215,18 @@ CShapeMixer<T>::~CShapeMixer(void)
 template <typename T>
 void CShapeMixer<T>::add_shape(CShape<T> * shape, int usual)
 {
-	CShape<T> ** new_shape = (CShape<T> **)new_struct(++N_shape*sizeof(CShape<T> *));
-	memcpy (new_shape, this->shape, (N_shape-1)*sizeof(CShape<T> *));
-	delete [] this->shape;
+	CShape<T> ** new_shape = new_struct<CShape<T> *>(N_shape+1);
+	memcpy (new_shape, this->shape, N_shape*sizeof(CShape<T> *));
+	delete_struct(this->shape); 
 	this->shape = new_shape;
-	this->shape[N_shape-1] = shape;
+	this->shape[N_shape++] = shape;
 	nm += usual;
 }
 template <typename T>
 void CShapeMixer<T>::add_shape(int k, CShape<T> * shape, int usual)
 {
 	if (shape && k < N_shape) {
-		delete_potential();
-		delete shape[k]; shape[k] = shape;
+		delete shape[k]; shape[k] = shape; N_mx = 0;
 		nm += usual;
 	}
 }
@@ -236,18 +237,10 @@ template <typename T>
 void CShapeMixer<T>::init_potential()
 {
 	if (N_mx < NN_local) {
-		delete_struct(deriv); deriv = (T *)new_struct(NN_local*sizeof(T));
-		delete_struct(p_cpy); p_cpy = (T *)new_struct(NN_local*sizeof(T)); N_mx = NN_local;
+		delete_struct(deriv); deriv = new_struct<T>(NN_local);
+		delete_struct(p_cpy); p_cpy = new_struct<T>(NN_local); N_mx = NN_local;
 	}
 	set_matrix(A, n, NN);
-}
-template <typename T>
-void CShapeMixer<T>::delete_potential()
-{
-	release();
-	delete_struct(deriv);
-	delete_struct(p_cpy);
-	delete_struct(A);	N_mx = NN_local = NN = n = 0;
 }
 
 //////////////////////////
@@ -255,68 +248,68 @@ void CShapeMixer<T>::delete_potential()
 template <typename T>
 int CShapeMixer<T>::freedom(Num_State id_full)
 {
-	int k, NN_local = 0;
+	int k, NN_temp = 0;
 	if (shape) {
 		if (id_full == NULL_STATE)
-		for (k = 0; k < N_shape; k++)	NN_local += shape[k]->NN;	else
-		for (k = 0; k < N_shape; k++)	NN_local += shape[k]->NN*shape[k]->dim();
+		for (k = 0; k < N_shape; k++)	NN_temp += shape[k]->NN;	else
+		for (k = 0; k < N_shape; k++)	NN_temp += shape[k]->NN*shape[k]->dim();
 	}
-	return NN_local;
+	return NN_temp;
 }
 
 /////////////////////////////////
 //...initialization of the shape;
 template <typename T>
-void CShapeMixer<T>::init1(int N, int m, int dim)
+void CShapeMixer<T>::degree_init1(int N, int m, int dim)
 {
-	this->n = m;
+	n = m;
    if (shape)
 		for (int k = 0; k < N_shape; k++)
-			shape[k]->init1(N, dim);
+			shape[k]->degree_init1(N, dim);
 	NN			= freedom(OK_STATE); 
 	NN_local = freedom(NULL_STATE); 
 }
 template <typename T>
-void CShapeMixer<T>::init1(int k, int N, int m, int dim)
+void CShapeMixer<T>::degree_init1(int k, int N, int m, int dim)
 {
-	this->n = m;
-	if (shape && k < N_shape) shape[k]->init1(N, dim);
+	n = m;
+	if (shape && k < N_shape) shape[k]->degree_init1(N, dim);
 	NN			= freedom(OK_STATE); 
 	NN_local = freedom(NULL_STATE); 
 }
 template <typename T>
-void CShapeMixer<T>::init2(int N, int M, int m, int dim)
+void CShapeMixer<T>::degree_init2(int N, int M, int m, int dim)
 {
-	this->n = m;
+	n = m;
    if (shape)
 		for (int k = 0; k < N_shape; k++)
-			shape[k]->init2(N, M, dim);
+			shape[k]->degree_init2(N, M, dim);
 	NN			= freedom(OK_STATE); 
 	NN_local = freedom(NULL_STATE); 
 }
 template <typename T>
-void CShapeMixer<T>::init2(int k, int N, int M, int m, int dim)
+void CShapeMixer<T>::degree_init2(int k, int N, int M, int m, int dim)
 {
-	this->n = m;
-   if (shape && k < N_shape) shape[k]->init2(N, M, dim);
+	n = m;
+   if (shape && k < N_shape) shape[k]->degree_init2(N, M, dim);
 	NN			= freedom(OK_STATE); 
 	NN_local = freedom(NULL_STATE); 
 }
 template <typename T>
-void CShapeMixer<T>::init3(int N, int N1, int N2, int m, int dim)
+void CShapeMixer<T>::degree_init3(int N, int N1, int N2, int m, int dim)
 {
-	this->n = m;
+	n = m;
    if (shape)
 		for (int k = 0; k < N_shape; k++)
-			shape[k]->init3(N, N1, N2, dim);
+			shape[k]->degree_init3(N, N1, N2, dim);
 	NN			= freedom(OK_STATE); 
 	NN_local = freedom(NULL_STATE); 
 }
 template <typename T>
-void CShapeMixer<T>::init3(int k, int N, int N1, int N2, int m, int dim)
+void CShapeMixer<T>::degree_init3(int k, int N, int N1, int N2, int m, int dim)
 {
-	this->n = m;
-   if (shape && k < N_shape) shape[k]->init3(N, N1, N2, dim);
+	n = m;
+   if (shape && k < N_shape) shape[k]->degree_init3(N, N1, N2, dim);
 	NN			= freedom(OK_STATE); 
 	NN_local = freedom(NULL_STATE); 
 }
@@ -324,8 +317,7 @@ template <typename T>
 void CShapeMixer<T>::release()
 {
    if (shape)
-		for (int k = 0; k < N_shape; k++) 
-			shape[k]->release();
+		for (int k = 0; k < N_shape; k++) shape[k]->release();
 }
 
 /////////////////////////////////////
@@ -571,6 +563,7 @@ T CShapeMixer<T>::potential(T * p_cpy, int m)
 {
 	T f(0);
 	if (A && p_cpy && m < n)
+
 	for (int k = 0; k < NN; k++) f += A[m][k]*p_cpy[k];
 	return f;
 }
@@ -1121,7 +1114,7 @@ void CShapeMixer<T>::GetSurferFormat(FILE * SURF, FILE * SURF1, double * par, in
 		double pp[7] = {0., 0., 0., 0., 1., 0., 0.}, dd,
 				  min1F = 0., max1F = 1., 
 				  min2F = 0., max2F = 1., f = 1./NX, g = 1./NY;
-		T *	  out_F = (T *)new_struct(3*sizeof(T));
+		T *	  out_F = new_struct<T>(3);
 
 		res = fwrite("DSBB", sizeof(char)*4,  1, SURF);
 		res = fwrite(& i0,   sizeof(short int), 1, SURF); res = fwrite(& j0, sizeof(short int), 1, SURF);

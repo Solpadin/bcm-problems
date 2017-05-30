@@ -16,7 +16,6 @@
 template <typename T>
 class CMapi2DPoly : public CShape<T> {
 public:
-		Num_Shape   type() {return MP2D_POLY_SHAPE;}
 		int freedom(int m) { return m*2+1;}
 public:
 //...calculation of multipoles;
@@ -26,9 +25,15 @@ public:
 //...differentiation;
 		void deriv_X(T * deriv, double f = 1.);
 		void deriv_Y(T * deriv, double f = 1.);
+public:
+		void init() {
+			delete_struct(this->param);
+			this->param = new_struct<Param>(this->size_of_param());
+		}
+public:
 //...constructor;
 		CMapi2DPoly() {
-			this->param = (Param *)new_struct(this->size_of_param()*sizeof(Param));
+			init();
 		}
 };
 
@@ -37,7 +42,6 @@ public:
 template <typename T>
 class CMapi3DPoly : public CShape<T> {
 public:
-		Num_Shape   type() {return MP3D_POLY_SHAPE;}
 		int freedom(int m) { return sqr(m+1);}
 public:
 //...calculation of multipoles;
@@ -50,11 +54,45 @@ public:
 		void deriv_X(T * deriv, double f = 1.);
 		void deriv_Y(T * deriv, double f = 1.);
 		void deriv_Z(T * deriv, double f = 1.);
+public:
+		void init() {
+			delete_struct(this->param);
+			this->param = new_struct<Param>(this->size_of_param());
+		}
+public:
 //...constructor;
 		CMapi3DPoly() {
-			this->param = (Param *)new_struct(this->size_of_param()*sizeof(Param));
+			init();
 		}
 };
+
+////////////////////////////////////////////////////////////////////////////////////
+//...class of 2D harmonical multipoles for circle exteriour with boundary condition;
+template <typename T>
+class CMapi2DZoom : public CShape<T> {
+public:
+		int freedom (int m) { return(m*2+1);}
+		int size_of_param() { return(1);}
+public:
+//...calculation of multipoles;
+		void parametrization		 (double * P = NULL, int m_dop = 0);
+		void parametrization_grad(double * P = NULL, int m_dop = 0);
+		void parametrization_hess(double * P = NULL, int m_dop = 0);
+//...differentiation;
+		void deriv_X(T * deriv, double f = 1.);
+		void deriv_Y(T * deriv, double f = 1.);
+public:
+		void init() {
+			delete_struct(this->param);
+			this->param = new_struct<Param>(size_of_param());
+		}
+public:
+//...constructor;
+		CMapi2DZoom() {
+			init();
+		}
+};
+
 
 ///////////////////////////////////////////////////////////
 //...class of 3D harmonical multipoles for external sphere;
@@ -63,14 +101,7 @@ class CMapi3DZoom : public CShape<T> {
 protected:
        T * ap;
 public:
-		Num_Shape   type() {return MP3D_ZOOM_SHAPE;}
 		int freedom(int m) { return sqr(m+1);}
-public:
-//...initialization of multipoles;
-		void release() {
-			delete_struct(ap);
-			CShape<T>::release();
-		}
 public:
 //...calculation of multipoles;
 		void parametrization(double * P = NULL, int m = 0);
@@ -80,19 +111,27 @@ public:
 		void deriv_X(T * deriv, double f = 1.);
 		void deriv_Y(T * deriv, double f = 1.);
 		void deriv_Z(T * deriv, double f = 1.);
-//...constructor;
+public:
+		void init() {
+			delete_struct(this->param);
+			this->param = new_struct<Param>(this->size_of_param());
+		}
+public:
+//...constructor and destructor;
 		CMapi3DZoom () {
-			this->param = (Param *)new_struct(this->size_of_param()*sizeof(Param));
 			ap = NULL;
+			init();
+		}
+		virtual ~CMapi3DZoom(void) { 
+			delete_struct(ap);
 		}
 };
 
 ////////////////////////////////////////////////////////////////////////////////////
 //...class of 2D harmonical multipoles for circle exteriour with boundary condition;
 template <typename T>
-class CMapi2DCircle : public CShape<T> {
+class CMapi2DCircle : public CShape<T> { //...íå ðåàëèçîâàí!!!
 public:
-		Num_Shape    type() { return MP2D_CIRCLE_SHAPE;}
 		int freedom (int m) { return(2*m+1);}
 		int size_of_param() { return(1);}
 public:
@@ -101,9 +140,15 @@ public:
 //...differentiation;
 		void deriv_X(T * deriv, double f = 1.){}
 		void deriv_Y(T * deriv, double f = 1.){}
+public:
+		void init() {
+			delete_struct(this->param);
+			this->param = new_struct<Param>(size_of_param());
+		}
+public:
 //...constructor;
 		CMapi2DCircle() {
-			this->param = (Param *)new_struct(size_of_param()*sizeof(Param));
+			init();
 		}
 };
 
@@ -112,7 +157,6 @@ public:
 template <typename T>
 class CMapi3DSphere : public CShape<T> {
 public:
-		Num_Shape    type() { return MP3D_SPHERE_SHAPE;}
 		int freedom (int m) { return sqr(m+1);}
 		int size_of_param() { return(1);}
 public:
@@ -124,9 +168,15 @@ public:
 		void deriv_X(T * deriv, double f = 1.);
 		void deriv_Y(T * deriv, double f = 1.);
 		void deriv_Z(T * deriv, double f = 1.);
+public:
+		void init() {
+			delete_struct(this->param);
+			this->param = new_struct<Param>(size_of_param());
+		}
+public:
 //...constructor;
 		CMapi3DSphere() {
-			this->param = (Param *)new_struct(size_of_param()*sizeof(Param));
+			init();
 		}
 };
 
@@ -141,7 +191,7 @@ template <typename T>
 void CMapi2DPoly<T>::parametrization(double * P, int m_dop)
 {
 	if (! this->p) {
-			this->p  = (T *)new_struct((this->NN_dop = freedom(this->N))*sizeof(T));
+		this->p = new_struct<T>(this->NN_dop = freedom(this->N));
 	}
 	if (P && this->p) {
 		complex z = comp(P[0], P[1])*this->R0_inv;
@@ -165,7 +215,7 @@ template <typename T>
 void CMapi3DPoly<T>::parametrization(double * P, int m_dop)
 {
 	if (! this->p) {
-			this->p  = (T *)new_struct((this->NN_dop = freedom(this->N))*sizeof(T));
+		this->p = new_struct<T>(this->NN_dop = freedom(this->N));
 	}
 	if (P && this->p) {
 		double   Z = P[2]*this->R0_inv;
@@ -211,14 +261,40 @@ void CMapi3DPoly<T>::parametrization(double * P, int m_dop)
 	}
 }
 
+
+///////////////////////////////////////////////////////////
+//...parametrization of the multipoles for external domain;
+template <typename T>
+void CMapi2DZoom<T>::parametrization(double * P, int m_dop)
+{
+	if (! this->p) {
+		this->p = new_struct<T>(this->NN_dop = freedom(this->N+m_dop));
+	}
+	if (P && this->p) {
+		complex z = comp(P[0], P[1])*this->R0_inv;
+		T		  hh, zm = 1., zm_i = 0.;
+		double  f3 = real(z)*real(z)+imag(z)*imag(z);
+		this->cs[0] = P[3];
+		this->cs[1] = P[4];
+		z /= f3; 
+
+///////////////////////////////////
+//...calculation of the multipoles;
+		int m;
+		for ( this->p[0] = 0.5*log(f3), m = 1; m <= this->N+m_dop; m++) {
+				this->p[m*2-1] = (zm_i = zm*imag(z)+(hh = zm_i)*real(z));
+				this->p[m*2]   = (zm = zm*real(z)-hh*imag(z));
+		}
+	}
+}
 template <typename T>
 void CMapi3DZoom<T>::parametrization(double * P, int m_dop)
 {
 	if (! this->p) {
-			this->p  = (T *)new_struct((this->NN_dop = freedom(this->N+m_dop))*sizeof(T));
+		this->p = new_struct<T>(this->NN_dop = freedom(this->N+m_dop));
 /////////////////////////////////////////
 //...technical support (for primitive_Z);
-			delete_struct(ap); ap = (T *)new_struct(this->N*sizeof(T));        
+		delete_struct(ap); ap = new_struct<T>(this->N);        
 	}
 	if (P && this->p) {
 		double   Z = P[2]*this->R0_inv, f3 = Z*Z, rad;
@@ -262,7 +338,7 @@ template <typename T>
 void CMapi3DSphere<T>::parametrization(double * P, int m_dop)
 {
 	if (! this->p) {
-			this->p  = (T *)new_struct((this->NN_dop = this->NN+freedom(this->N+m_dop))*sizeof(T));
+		this->p = new_struct<T>(this->NN_dop = this->NN+freedom(this->N+m_dop));
 	}
 	if (P && this->p) {
 		double   Z = P[2]*this->R0_inv, f3 = Z*Z, rad;
@@ -330,9 +406,13 @@ template <typename T>
 void CMapi2DPoly<T>::parametrization_grad(double * P, int m_dop)
 {
 	parametrization(P);
-	if (! this->px && ! this->py) {
-		this->px = (T *)new_struct((this->NN_grad = this->NN_dop)*sizeof(T));
-		this->py = (T *)new_struct( this->NN_grad*sizeof(T));
+	if (! P) {
+		delete_struct(this->px);
+		delete_struct(this->py);
+	}
+	if (P && ! this->px && ! this->py) {
+		this->px = new_struct<T>(this->NN_grad = this->NN_dop);
+		this->py = new_struct<T>(this->NN_grad);
 	}
 	if (P && this->px && this->py) {
 		memset (this->px, 0, this->NN_grad*sizeof(T));
@@ -345,10 +425,15 @@ template <typename T>
 void CMapi3DPoly<T>::parametrization_grad(double * P, int m_dop)
 {
 	parametrization(P);
-	if (! this->px && ! this->py && ! this->pz) {
-		this->px = (T *)new_struct((this->NN_grad = this->NN_dop)*sizeof(T));
-		this->py = (T *)new_struct( this->NN_grad*sizeof(T));
-		this->pz = (T *)new_struct( this->NN_grad*sizeof(T));
+	if (! P) {
+		delete_struct(this->px);
+		delete_struct(this->py);
+		delete_struct(this->pz);
+	}
+	if (P && ! this->px && ! this->py && ! this->pz) {
+		this->px = new_struct<T>(this->NN_grad = this->NN_dop);
+		this->py = new_struct<T>(this->NN_grad);
+		this->pz = new_struct<T>(this->NN_grad);
 	}
 	if (P && this->px && this->py && this->pz) {
 		memset (this->px, 0, this->NN_grad*sizeof(T));
@@ -360,13 +445,39 @@ void CMapi3DPoly<T>::parametrization_grad(double * P, int m_dop)
 	}
 }
 template <typename T>
-void CMapi3DSphere<T>::parametrization_grad(double * P, int m_dop)
+void CMapi2DZoom<T>::parametrization_grad(double * P, int m_dop)
 {
 	parametrization(P, m_dop+1);
-	if (! this->px && ! this->py && ! this->pz) {
-		this->px = (T *)new_struct((this->NN_grad = this->NN+freedom(this->N+m_dop))*sizeof(T));
-		this->py = (T *)new_struct( this->NN_grad*sizeof(T));
-		this->pz = (T *)new_struct( this->NN_grad*sizeof(T));
+	if (! P) {
+		delete_struct(this->px);
+		delete_struct(this->py);
+	}
+	if (P && ! this->px && ! this->py) {
+		this->px = new_struct<T>(this->NN_grad = freedom(this->N+m_dop));
+		this->py = new_struct<T>(this->NN_grad);
+	}
+	if (P && this->px && this->py) {
+		memset (this->px, 0, this->NN_grad*sizeof(T));
+		memset (this->py, 0, this->NN_grad*sizeof(T));
+		this->N += m_dop; 
+		deriv_X(this->px);
+		deriv_Y(this->py);
+		this->N -= m_dop; 
+	}
+}
+template <typename T>
+void CMapi3DSphere<T>::parametrization_grad(double * P, int m_dop)
+{
+	parametrization(P	, m_dop+1);
+	if (! P) {
+		delete_struct(this->px);
+		delete_struct(this->py);
+		delete_struct(this->pz);
+	}
+	if (P && ! this->px && ! this->py && ! this->pz) {
+		this->px = new_struct<T>(this->NN_grad = this->NN+freedom(this->N+m_dop));
+		this->py = new_struct<T>(this->NN_grad);
+		this->pz = new_struct<T>(this->NN_grad);
 	}
 	if (P && this->px && this->py && this->pz) {
 		memset (this->px, 0, this->NN_grad*sizeof(T));
@@ -390,10 +501,15 @@ template <typename T>
 void CMapi2DPoly<T>::parametrization_hess(double * P, int m_dop)
 {
 	parametrization_grad(P);
-	if (! this->pxx && ! this->pxy && ! this->pyy) {
-		this->pxx = (T *)new_struct((this->NN_hess = this->NN_grad)*sizeof(T));
-		this->pxy = (T *)new_struct( this->NN_hess*sizeof(T));
-		this->pyy = (T *)new_struct( this->NN_hess*sizeof(T));
+	if (! P) {
+		delete_struct(this->pxx);
+		delete_struct(this->pxy);
+		delete_struct(this->pyy);
+	}
+	if (P && ! this->pxx && ! this->pxy && ! this->pyy) {
+		this->pxx = new_struct<T>(this->NN_hess = this->NN_grad);
+		this->pxy = new_struct<T>(this->NN_hess);
+		this->pyy = new_struct<T>(this->NN_hess);
 	}
 	if (P && this->pxx && this->pxy && this->pyy) {
 		memset (this->pxx, 0, this->NN_hess*sizeof(T));
@@ -412,13 +528,21 @@ template <typename T>
 void CMapi3DPoly<T>::parametrization_hess(double * P, int m_dop)
 {
 	parametrization_grad(P);
-	if (! this->pxx && ! this->pxy && ! this->pyy && ! this->pxz && ! this->pyz && ! this->pzz) {
-		this->pxx = (T *)new_struct((this->NN_hess = this->NN_grad)*sizeof(T));
-		this->pxy = (T *)new_struct( this->NN_hess*sizeof(T));
-		this->pyy = (T *)new_struct( this->NN_hess*sizeof(T));
-		this->pxz = (T *)new_struct( this->NN_hess*sizeof(T));
-		this->pyz = (T *)new_struct( this->NN_hess*sizeof(T));
-		this->pzz = (T *)new_struct( this->NN_hess*sizeof(T));
+	if (! P) {
+		delete_struct(this->pxx);
+		delete_struct(this->pxy);
+		delete_struct(this->pyy);
+		delete_struct(this->pxz);
+		delete_struct(this->pyz);
+		delete_struct(this->pzz);
+	}
+	if (P && ! this->pxx && ! this->pxy && ! this->pyy && ! this->pxz && ! this->pyz && ! this->pzz) {
+		this->pxx = new_struct<T>(this->NN_hess = this->NN_grad);
+		this->pxy = new_struct<T>(this->NN_hess);
+		this->pyy = new_struct<T>(this->NN_hess);
+		this->pxz = new_struct<T>(this->NN_hess);
+		this->pyz = new_struct<T>(this->NN_hess);
+		this->pzz = new_struct<T>(this->NN_hess);
 	}
 	if (P && this->pxx && this->pxy && this->pyy && this->pxz && this->pyz && this->pzz) {
 		memset (this->pxx, 0, this->NN_hess*sizeof(T));
@@ -442,16 +566,53 @@ void CMapi3DPoly<T>::parametrization_hess(double * P, int m_dop)
 	}
 }
 template <typename T>
+void CMapi2DZoom<T>::parametrization_hess(double * P, int m_dop)
+{
+	parametrization_grad(P, m_dop+1);
+	if (! P) {
+		delete_struct(this->pxx);
+		delete_struct(this->pxy);
+		delete_struct(this->pyy);
+	}
+	if (P && ! this->pxx && ! this->pxy && ! this->pyy) {
+		this->pxx = new_struct<T>(this->NN_hess = freedom(this->N+m_dop));
+		this->pxy = new_struct<T>(this->NN_hess);
+		this->pyy = new_struct<T>(this->NN_hess);
+	}
+	if (P && this->pxx && this->pxy && this->pyy) {
+		memset (this->pxx, 0, this->NN_hess*sizeof(T));
+		memset (this->pxy, 0, this->NN_hess*sizeof(T));
+		memset (this->pyy, 0, this->NN_hess*sizeof(T));
+		this->N += m_dop; 
+		swap(this->p, this->px);
+			deriv_X(this->pxx);
+		swap(this->p, this->px);
+		swap(this->p, this->py);
+			deriv_X(this->pxy);
+			deriv_Y(this->pyy);
+		swap(this->p, this->py);
+		this->N -= m_dop; 
+	}
+}
+template <typename T>
 void CMapi3DSphere<T>::parametrization_hess(double * P, int m_dop)
 {
 	parametrization_grad(P, m_dop+1);
-	if (! this->pxx && ! this->pxy && ! this->pyy && ! this->pxz && ! this->pyz && ! this->pzz) {
-		this->pxx = (T *)new_struct((this->NN_hess = this->NN+freedom(this->N+m_dop))*sizeof(T));
-		this->pxy = (T *)new_struct( this->NN_hess*sizeof(T));
-		this->pyy = (T *)new_struct( this->NN_hess*sizeof(T));
-		this->pxz = (T *)new_struct( this->NN_hess*sizeof(T));
-		this->pyz = (T *)new_struct( this->NN_hess*sizeof(T));
-		this->pzz = (T *)new_struct( this->NN_hess*sizeof(T));
+	if (! P) {
+		delete_struct(this->pxx);
+		delete_struct(this->pxy);
+		delete_struct(this->pyy);
+		delete_struct(this->pxz);
+		delete_struct(this->pyz);
+		delete_struct(this->pzz);
+	}
+	if (P && ! this->pxx && ! this->pxy && ! this->pyy && ! this->pxz && ! this->pyz && ! this->pzz) {
+		this->pxx = new_struct<T>(this->NN_hess = this->NN+freedom(this->N+m_dop));
+		this->pxy = new_struct<T>(this->NN_hess);
+		this->pyy = new_struct<T>(this->NN_hess);
+		this->pxz = new_struct<T>(this->NN_hess);
+		this->pyz = new_struct<T>(this->NN_hess);
+		this->pzz = new_struct<T>(this->NN_hess);
 	}
 	if (P && this->pxx && this->pxy && this->pyy && this->pxz && this->pyz && this->pzz) {
 		memset (this->pxx, 0, this->NN_hess*sizeof(T));
@@ -576,6 +737,17 @@ void CMapi3DPoly<T>::deriv_X(T * deriv, double f)
 	}
 }
 template <typename T>
+void CMapi2DZoom<T>::deriv_X(T * deriv, double f)
+{
+	if (! deriv || ! this->p) return;
+	int m;
+	for (f *= this->R0_inv, m = this->N; m > 0; m--) {
+		deriv[m*2-1] -= m*this->p[m*2+1]*f;
+		deriv[m*2]   -= m*this->p[m*2+2]*f;
+	}
+	deriv[0] += this->p[2]*f;
+}
+template <typename T>
 void CMapi3DZoom<T>::deriv_X(T * deriv, double f)
 {
 	if (! deriv || ! this->p) return;
@@ -677,6 +849,17 @@ void CMapi3DPoly<T>::deriv_Y(T * deriv, double f)
 		}
 		deriv[ii] -= .5*i*(i-1.)*this->p[jj+1]*f;
 	}
+}
+template <typename T>
+void CMapi2DZoom<T>::deriv_Y(T * deriv, double f)
+{
+	if (! deriv || ! this->p) return;
+	int m;
+	for (f *= this->R0_inv, m = this->N; m > 0; m--) {
+		deriv[m*2-1] += m*this->p[m*2+2]*f;
+		deriv[m*2]   -= m*this->p[m*2+1]*f;
+	}
+	deriv[0] += this->p[1]*f;
 }
 template <typename T>
 void CMapi3DZoom<T>::deriv_Y(T * deriv, double f)
@@ -828,13 +1011,8 @@ protected:
       T * sk;
 		static double NORMALIZATION_EXPO_LIMIT;
 public:
-		Num_Shape    type() { return SK2D_POLY_SHAPE;}
-		int size_of_param() { return(4);}
 		int freedom (int m) { return m*2+1;}
-		void release() {
-			 delete_struct(sk);
-			 CShape<T>::release();
-		}
+		int size_of_param() { return(4);}
 public:
 //...initialization and calculation of multipoles;
 		void parametrization     (double * P = NULL, int m_dop = 0);
@@ -843,11 +1021,19 @@ public:
 //...differentiation;
 		void deriv_X(T * deriv, double f = 1.);
 		void deriv_Y(T * deriv, double f = 1.);
-//...constructor;
-		CSkin2DPoly () {
+public:
+		void init() {
 			delete_struct(this->param);
-			this->param = (Param *)new_struct(size_of_param()*sizeof(Param));
-			sk    = NULL;
+			this->param = new_struct<Param>(size_of_param());
+		}
+public:
+//...constructor and destructor;
+		CSkin2DPoly() {
+			sk = NULL;
+			init();
+		}
+		virtual ~CSkin2DPoly(void) { 
+			 delete_struct(sk);
 		}
 };
 template <typename T> double CSkin2DPoly<T>::NORMALIZATION_EXPO_LIMIT = 5.;
@@ -870,14 +1056,8 @@ class CSkin3DPoly : public CShape<T> {
 protected:
 		T * sk, * E1;
 public:
-		Num_Shape    type() { return SK3D_POLY_SHAPE;}
-		int size_of_param() { return(4);};
 		int freedom (int m) { return sqr(m+1);}
-		void release() {
-			 delete_struct(sk);
-			 delete_struct(E1);
-			 CShape<T>::release();
-		}
+		int size_of_param() { return(4);};
 public:
 //...initialization and calculation of multipoles;
 		void parametrization(double * P = NULL, int m_dop = 0);
@@ -885,11 +1065,20 @@ public:
 		void deriv_X(T * deriv, double f = 1.);
 		void deriv_Y(T * deriv, double f = 1.);
 		void deriv_Z(T * deriv, double f = 1.);
-//...constructor;
-		CSkin3DPoly () {
+public:
+		void init() {
 			delete_struct(this->param);
-			this->param   = (Param *)new_struct(size_of_param()*sizeof(Param));
+			this->param = new_struct<Param>(size_of_param());
+		}
+public:
+//...constructor and destructor;
+		CSkin3DPoly() {
 			sk = E1 = NULL;
+			init();
+		}
+		virtual ~CSkin3DPoly(void) { 
+			 delete_struct(sk);
+			 delete_struct(E1);
 		}
 };
 
@@ -910,10 +1099,10 @@ template <typename T>
 void CSkin2DPoly<T>::parametrization(double * P, int m_dop)
 {
 	if (! this->p) {
-			this->p  = (T *)new_struct((this->NN_dop = freedom(this->N+m_dop))*sizeof(T));
+		this->p  = new_struct<T>(this->NN_dop = freedom(this->N+m_dop));
 ///////////////////////
 //...technical support;
-			delete_struct(sk); sk = (T *)new_struct((this->N+1+m_dop)*sizeof(T));
+		delete_struct(sk); sk = new_struct<T>(this->N+1+m_dop);
 	}
 	if (P && this->p) {
 		complex w = comp(P[0], P[1])*this->R0_inv;
@@ -979,11 +1168,11 @@ template <typename T>
 void CSkin3DPoly<T>::parametrization(double * P, int m_dop)
 {
 	if (! this->p) {
-			this->p = (T *)new_struct((this->NN_dop = freedom(this->N+m_dop))*sizeof(T));
+		this->p = new_struct<T>(this->NN_dop = freedom(this->N+m_dop));
 ///////////////////////
 //...technical support;
-			delete_struct(sk); sk = (T *)new_struct(( this->N+1+m_dop)*sizeof(T));        
-			delete_struct(E1); E1 = (T *)new_struct(((this->N+m_dop)/2+1)*sizeof(T));
+		delete_struct(sk); sk = new_struct<T>(this->N+1+m_dop);        
+		delete_struct(E1); E1 = new_struct<T>((this->N+m_dop)/2+1);
 	}
 	if (P && this->p) {
 		int  i, l, nm, m;
@@ -1040,9 +1229,13 @@ template <typename T>
 void CSkin2DPoly<T>::parametrization_grad(double * P, int m_dop)
 {
 	parametrization(P, m_dop+1);
-	if (! this->px && ! this->py) {
-		this->px = (T *)new_struct((this->NN_grad = freedom(this->N+m_dop))*sizeof(T));
-		this->py = (T *)new_struct( this->NN_grad*sizeof(T));
+	if (! P) {
+		delete_struct(this->px);
+		delete_struct(this->py);
+	}
+	if (P && ! this->px && ! this->py) {
+		this->px = new_struct<T>(this->NN_grad = freedom(this->N+m_dop));
+		this->py = new_struct<T>(this->NN_grad);
 	}
 	if (P && this->px && this->py) {
 		memset (this->px, 0, this->NN_grad*sizeof(T));
@@ -1060,10 +1253,15 @@ template <typename T>
 void CSkin2DPoly<T>::parametrization_hess(double * P, int m_dop)
 {
 	parametrization_grad(P, m_dop+1);
-	if (! this->pxx && ! this->pxy && ! this->pyy) {
-		this->pxx = (T *)new_struct((this->NN_hess = freedom(this->N+m_dop))*sizeof(T));
-		this->pxy = (T *)new_struct( this->NN_hess*sizeof(T));
-		this->pyy = (T *)new_struct( this->NN_hess*sizeof(T));
+	if (! P) {
+		delete_struct(this->pxx);
+		delete_struct(this->pxy);
+		delete_struct(this->pyy);
+	}
+	if (P && ! this->pxx && ! this->pxy && ! this->pyy) {
+		this->pxx = new_struct<T>(this->NN_hess = freedom(this->N+m_dop));
+		this->pxy = new_struct<T>(this->NN_hess);
+		this->pyy = new_struct<T>(this->NN_hess);
 	}
 	if (P && this->pxx && this->pxy && this->pyy) {
 		memset (this->pxx, 0, this->NN_hess*sizeof(T));
@@ -1216,26 +1414,20 @@ protected:
 		T * pim;
 		complex * E1;
 public:
-		Num_Shape    type() { return MP2D_CLAYER_SHAPE;}
-		int size_of_param() { return(5);}
 		int freedom (int m) { return m*2+1;}
+		int size_of_param() { return(5);}
 public:
 //...initialization of multipoles;
 		void set_shape(double R0 = 1., double K1 = 1., double K2 = 1., double K3 = 1., double R1 = 1., double R2 = 1) {
-			CMapi2DClayer<T>:: R0 = R0;
-			this->R0_inv     = R0 > EE ? 1./R0 : 1.;
-			int   k    = -1;
+			this->R0		 = R0;
+			this->R0_inv = R0 > EE ? 1./R0 : 1.;
+			int   k		 = -1;
 			if (++k < size_of_param()) this->param[k] = (Param)(K1);
 			if (++k < size_of_param()) this->param[k] = (Param)(K2);
 			if (++k < size_of_param()) this->param[k] = (Param)(K3);
 			if (++k < size_of_param()) this->param[k] = (Param)(R1);
 			if (++k < size_of_param()) this->param[k] = (Param)(R2);
 		}		
-		void release() {
-			delete_struct(pim);
-			delete_struct(E1);
-			CShape<T>::release();
-		}
 public:
 //...calculation of multipoles;
 		void parametrization     (double * P = NULL, int m_dop = 0);
@@ -1244,12 +1436,22 @@ public:
 //...differentiation;
 		void deriv_X(T * deriv, double f = 1.);
 		void deriv_Y(T * deriv, double f = 1.);
-//...constructor;
+public:
+		void init() {
+			delete_struct(this->param);
+			this->param = new_struct<Param>(size_of_param());
+		}
+public:
+//...constructor and destructor;
 		CMapi2DClayer() {
-			this->param = (Param *)new_struct(size_of_param()*sizeof(Param));
 			pim = NULL;
 			E1  = NULL;
-		};
+			init();
+		}
+		virtual ~CMapi2DClayer(void) { 
+			delete_struct(pim);
+			delete_struct(E1);
+		}
 };
 
 ////////////////////////////////////////////////////////////
@@ -1257,7 +1459,6 @@ public:
 template <typename T>
 class CMapi3DClayer : public CMapi2DClayer<T> {
 public:
-		Num_Shape   type() { return MP3D_CLAYER_SHAPE;}
 		int freedom(int m) { return sqr(m+1);}
 public:
 //...initialization and calculation of multipoles;
@@ -1288,11 +1489,11 @@ template <typename T>
 void CMapi2DClayer<T>::parametrization(double * P, int m_dop)
 {
 	if (! this->p) {
-			this->p = (T *)new_struct((this->NN_dop = freedom(this->N+m_dop))*sizeof(T));
-			pim 	= (T *)new_struct( this->NN_dop*sizeof(T));
+		this->p = new_struct<T>(this->NN_dop = freedom(this->N+m_dop));
 /////////////////////////////////////////////////////////////////////
 //...technical support (calculation of the conjunction coeffiñients);
-			delete_struct(E1); E1 = (complex *)new_struct((this->N+m_dop+1)*sizeof(complex));
+		delete_struct(pim); pim = new_struct<T>(this->NN_dop);
+		delete_struct(E1);  E1  = new_struct<complex>(this->N+m_dop+1);
 	}
 	if (P && this->p && pim) {
 		complex z = this->R0_inv*comp(P[0], P[1])/this->param[4], w;
@@ -1356,11 +1557,11 @@ template <typename T>
 void CMapi3DClayer<T>::parametrization(double * P, int m_dop)
 {
 	if (! this->p) {
-			this->p   = (T *)new_struct((this->NN_dop = freedom(this->N+m_dop))*sizeof(T));
-			this->pim = (T *)new_struct( this->NN_dop*sizeof(T));
+		this->p = new_struct<T>(this->NN_dop = freedom(this->N+m_dop));
 /////////////////////////////////////////////////////////////////////
 //...technical support (calculation of the conjunction coeffiñients);
-			delete_struct(this->E1); this->E1 = (complex *)new_struct((this->N+m_dop+1)*sizeof(complex));
+		delete_struct(this->pim); this->pim = new_struct<T>(this->NN_dop);
+		delete_struct(this->E1);  this->E1  = new_struct<complex>(this->N+m_dop+1);
 	}
 	if (P && this->p && this->pim) {
 		int i, m, k, m2;
@@ -1440,9 +1641,13 @@ template <typename T>
 void CMapi2DClayer<T>::parametrization_grad(double * P, int m_dop)
 {
 	parametrization(P, m_dop+1);
-	if (! this->px && ! this->py) {
-			this->px = (T *)new_struct((this->NN_grad = freedom(this->N+m_dop))*sizeof(T));
-			this->py = (T *)new_struct( this->NN_grad*sizeof(T));
+	if (! P) {
+		delete_struct(this->px);
+		delete_struct(this->py);
+	}
+	if (P && ! this->px && ! this->py) {
+			this->px = new_struct<T>(this->NN_grad = freedom(this->N+m_dop));
+			this->py = new_struct<T>(this->NN_grad);
 	}
 	if (P && this->px && this->py) {
 		memset (this->px, 0, this->NN_grad*sizeof(T));
@@ -1453,35 +1658,35 @@ void CMapi2DClayer<T>::parametrization_grad(double * P, int m_dop)
 		this->N += m_dop;
 		if (this->id_inverse > 0) { //...external system;
 			for ( int m = 1; m <= this->N; m++) {
-				double A = real(this->E1[m])/(real(this->E1[m-1])*this->param[4])*m*this->R0_inv, 
-					B = fabs(imag(this->E1[m+1])) > EE ? imag(this->E1[m])/(imag(this->E1[m+1])*this->param[4])*m*this->R0 : 0.;
+				double A = real(E1[m])/(real(E1[m-1])*this->param[4])*m*this->R0_inv, 
+					B = fabs(imag(E1[m+1])) > EE ? imag(E1[m])/(imag(E1[m+1])*this->param[4])*m*this->R0 : 0.;
 				if (m != 1)
-				this->px[m*2-1]  = A*(this->p[m*2-3]-this->pim[m*2-3]);
-				this->px[m*2-1] -= B*this->pim[m*2+1];
-				this->py[m*2] = -this->px[m*2-1]-B*2.*this->pim[m*2+1];
-				this->px[m*2] =  this->py[m*2-1] = A*(this->p[m*2-2]-this->pim[m*2-2])-B*this->pim[m*2+2];
-				this->py[m*2-1] += B*2.*this->pim[m*2+2];
+				this->px[m*2-1]  = A*(this->p[m*2-3]-pim[m*2-3]);
+				this->px[m*2-1] -= B*pim[m*2+1];
+				this->py[m*2] = -this->px[m*2-1]-B*2.*pim[m*2+1];
+				this->px[m*2] =  this->py[m*2-1] = A*(this->p[m*2-2]-pim[m*2-2])-B*pim[m*2+2];
+				this->py[m*2-1] += B*2.*pim[m*2+2];
 			}
 		}
 		else
 		if (! this->id_inverse) { //...internal system;
 			for ( int m = 1; m <= this->N; m++) {
-				double A = real(this->E1[m])/(real(this->E1[m-1])*this->param[4])*m*this->R0_inv;
+				double A = real(E1[m])/(real(E1[m-1])*this->param[4])*m*this->R0_inv;
 				if (m != 1)
-				this->px[m*2-1] = A*(this->p[m*2-3]-this->pim[m*2-3]);
+				this->px[m*2-1] = A*(this->p[m*2-3]-pim[m*2-3]);
 				this->py[m*2] = -this->px[m*2-1];
-				this->px[m*2] =  this->py[m*2-1] = A*(this->p[m*2-2]-this->pim[m*2-2]);
+				this->px[m*2] =  this->py[m*2-1] = A*(this->p[m*2-2]-pim[m*2-2]);
 			}
 		}
 		else { //...intermediate system;
 			for ( int m = 1; m <= this->N; m++) {
-				double A = real(this->E1[m])/(real(this->E1[m-1])*this->param[4])*m*this->R0_inv, 
-					B = fabs(imag(this->E1[m+1])) > EE ? imag(this->E1[m])/(imag(this->E1[m+1])*this->param[3])*m*this->R0 : 0.;
+				double A = real(E1[m])/(real(E1[m-1])*this->param[4])*m*this->R0_inv, 
+					B = fabs(imag(E1[m+1])) > EE ? imag(E1[m])/(imag(E1[m+1])*this->param[3])*m*this->R0 : 0.;
 				if (m != 1)
-				this->px[m*2-1]  = A*(this->p[m*2-3]-this->pim[m*2-3]);
-				this->px[m*2-1] -= B*this->pim[m*2+1];
-				this->py[m*2] = -this->px[m*2-1]-B*2.*this->pim[m*2+1];
-				this->px[m*2] =  this->py[m*2-1] = A*(this->p[m*2-2]-this->pim[m*2-2])-B*this->pim[m*2+2];
+				this->px[m*2-1]  = A*(this->p[m*2-3]-pim[m*2-3]);
+				this->px[m*2-1] -= B*pim[m*2+1];
+				this->py[m*2] = -this->px[m*2-1]-B*2.*pim[m*2+1];
+				this->px[m*2] =  this->py[m*2-1] = A*(this->p[m*2-2]-pim[m*2-2])-B*pim[m*2+2];
 				this->py[m*2-1] += B*2.*pim[m*2+2];
 			}
 		}
@@ -1493,10 +1698,15 @@ template <typename T>
 void CMapi3DClayer<T>::parametrization_grad(double * P, int m_dop)
 {
 	parametrization(P, m_dop+1);
-	if (! this->px && ! this->py && ! this->pz) {
-			this->px = (T *)new_struct((this->NN_grad = freedom(this->N+m_dop))*sizeof(T));
-			this->py = (T *)new_struct( this->NN_grad*sizeof(T));
-			this->pz = (T *)new_struct( this->NN_grad*sizeof(T));
+	if (! P) {
+		delete_struct(this->px);
+		delete_struct(this->py);
+		delete_struct(this->pz);
+	}
+	if (P && ! this->px && ! this->py && ! this->pz) {
+		this->px = new_struct<T>(this->NN_grad = freedom(this->N+m_dop));
+		this->py = new_struct<T>(this->NN_grad);
+		this->pz = new_struct<T>(this->NN_grad);
 	}
 	if (P && this->px && this->py) {
 		memset (this->px, 0, this->NN_grad*sizeof(T));
@@ -1563,10 +1773,15 @@ template <typename T>
 void CMapi2DClayer<T>::parametrization_hess(double * P, int m_dop)
 {
 	parametrization_grad(P, m_dop+1);
-	if (! this->pxx && ! this->pxy && ! this->pyy) {
-		this->pxx = (T *)new_struct((this->NN_hess = freedom(this->N+m_dop))*sizeof(T));
-		this->pxy = (T *)new_struct( this->NN_hess*sizeof(T));
-		this->pyy = (T *)new_struct( this->NN_hess*sizeof(T));
+	if (! P) {
+		delete_struct(this->pxx);
+		delete_struct(this->pxy);
+		delete_struct(this->pyy);
+	}
+	if (P && ! this->pxx && ! this->pxy && ! this->pyy) {
+		this->pxx = new_struct<T>(this->NN_hess = freedom(this->N+m_dop));
+		this->pxy = new_struct<T>(this->NN_hess);
+		this->pyy = new_struct<T>(this->NN_hess);
 	}
 	if (P && this->pxx && this->pxy && this->pyy) {
 		memset (this->pxx, 0, this->NN_hess*sizeof(T));

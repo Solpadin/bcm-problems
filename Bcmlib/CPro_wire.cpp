@@ -1036,7 +1036,7 @@ void * CreateWIREContext(int N_sm)
 {
 	if (N_sm < 0 || N_sm >= NUM_WIRE_SAMPLES) N_sm = 0;
 
-	Context * cont = (Context *)new_struct(sizeof(Context));
+	Context * cont = new_struct<Context>();
 	if (! cont) return(NULL);
 
 	cont->N           = N_sm+SHIFT_WIRE_SAMPLES;
@@ -1079,7 +1079,7 @@ void * CreateREDUCEDWIREContext(int N_sm)
 {
   if (N_sm < 0 || N_sm >= NUM_REDUCEDWIRE_SAMPLES) N_sm = 0;
 
-  Context * cont = (Context *)new_struct(sizeof(Context));
+  Context * cont = new_struct<Context>();
   if (! cont) return(NULL);
 
   cont->N           = N_sm+SHIFT_REDUCEDWIRE_SAMPLES;
@@ -1230,7 +1230,7 @@ int wire2D_init(void * context, CGrid * block_nd)
                          cont->sm->set_block(cont->sm->B[cont->sm->N-1], SPHERE_GENUS, (D+diam)*.5) &&
                          cont->sm->set_link (cont->sm->B[cont->sm->N-1], 1)) {
                          cont->sm->B[cont->sm->N-1].bar = new CCells;
-                         cont->sm->B[cont->sm->N-1].bar->cells_new(1, 2, 0);
+                         cont->sm->B[cont->sm->N-1].bar->init(1, 2, 0);
                          ce = new CCells;  ce->get_arc((D+diam)*.5, -M_PI, M_PI);  
                          cont->sm->B[cont->sm->N-1].bar->bar_add(ce);
                          cont->sm->B[cont->sm->N-1].bar->bar_ord();
@@ -1238,7 +1238,7 @@ int wire2D_init(void * context, CGrid * block_nd)
                      delete_struct(cont->sm->link);
                      
                      if (user_Read (buf, N_layer, count5, upper5)) N_lr1 = atoi(buf);
-                     cont->sm->link = (Topo *)new_struct((N_lr1+3)*sizeof(Topo));
+                     cont->sm->link = new_struct<Topo>(N_lr1+3);
                      cont->sm->link[0] = N_lr1;
                      cont->sm->link[1] = 0;
 
@@ -1272,7 +1272,7 @@ int wire2D_init(void * context, CGrid * block_nd)
                                cont->sm->set_block(cont->sm->B[cont->sm->N-1], SPHERE_GENUS, diam*.5, 0, P0[0], P0[1]);
                                cont->sm->set_link (cont->sm->B[cont->sm->N-1], 1);
                                cont->sm->B[cont->sm->N-1].bar = new CCells;
-                               cont->sm->B[cont->sm->N-1].bar->cells_new(1, 2, 0);
+                               cont->sm->B[cont->sm->N-1].bar->init(1, 2, 0);
 
                                ce = new CCells;  ce->get_ellipt_arc(a, b, -M_PI, M_PI);
                                cont->sm->B[cont->sm->N-1].bar->bar_add(ce);
@@ -1360,7 +1360,7 @@ int wire2D_init(void * context, CGrid * block_nd)
                          cont->sm->set_block(cont->sm->B[cont->sm->N-1], SPHERE_GENUS, (D+diam)*.5) &&
                          cont->sm->set_link (cont->sm->B[cont->sm->N-1], 1)) {
                          cont->sm->B[cont->sm->N-1].bar = new CCells;
-                         cont->sm->B[cont->sm->N-1].bar->cells_new(1, 2, 0);
+                         cont->sm->B[cont->sm->N-1].bar->init(1, 2, 0);
                          ce = new CCells;  ce->get_arc((D+diam)*.5, -M_PI, M_PI);  
                          cont->sm->B[cont->sm->N-1].bar->bar_add(ce);
                          cont->sm->B[cont->sm->N-1].bar->bar_ord();
@@ -1368,7 +1368,7 @@ int wire2D_init(void * context, CGrid * block_nd)
                      delete_struct(cont->sm->link);
                      if (user_Read (buf, N_layer, count5, upper5)) N_lr1 = N_lr2 = atoi(buf);
                      if (user_Read (buf, N_layer, count5, upper5)) N_lr2 = atoi(buf);
-                     cont->sm->link = (Topo *)new_struct((N_lr1+N_lr2+3)*sizeof(Topo));
+                     cont->sm->link = new_struct<Topo>(N_lr1+N_lr2+3);
                      cont->sm->link[0] = N_lr1;
                      cont->sm->link[1] = N_lr1+N_lr2;
 
@@ -1403,7 +1403,7 @@ int wire2D_init(void * context, CGrid * block_nd)
                                cont->sm->set_block(cont->sm->B[cont->sm->N-1], SPHERE_GENUS, diam*.5, 0, P0[0], P0[1]);
                                cont->sm->set_link (cont->sm->B[cont->sm->N-1], 1);
                                cont->sm->B[cont->sm->N-1].bar = new CCells;
-                               cont->sm->B[cont->sm->N-1].bar->cells_new(1, 2, 0);
+                               cont->sm->B[cont->sm->N-1].bar->init(1, 2, 0);
 
                                ce = new CCells;  ce->get_ellipt_arc(a, b, -M_PI, M_PI);
                                cont->sm->B[cont->sm->N-1].bar->bar_add(ce);

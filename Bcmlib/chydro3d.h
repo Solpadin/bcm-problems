@@ -15,27 +15,32 @@ int regul = 1;
 template <typename T> 
 class CHydro3D : public CComput3D<T> {
 public:
-		Num_Draft type   () { return HYDRO3D_DRAFT;}
 		int size_of_param() { return(10);}
-//...constructor and destructor;
-		CHydro3D (int num_phase = 8) {
-			this->param = (Param *)new_struct(size_of_param()*sizeof(Param));
+public:
+		void init() {
+			delete_struct(this->param);
+			this->param = new_struct<Param>(size_of_param());
 			this->param[this->NUM_MPLS] = 
 			this->param[this->NUM_QUAD] = PackInts(2, 2);
 			this->param[this->NUM_MPLS+1]  = 1.;
 			this->param[this->NUM_GEOMT]	 = 1.;
 			this->param[this->NUM_SHEAR]	 = 1.;
 			this->param[this->NUM_SHEAR+2] = 1.;
-			this->NUM_PHASE = num_phase;
-			TT = TH = NULL; TN = NULL;
 			this->BOX_LINK_PERIOD = OK_STATE;
+		}
+public:
+//...constructor and destructor;
+		CHydro3D (int num_phase = 8) {
+			TT = TH = NULL; TN = NULL;
+			this->NUM_PHASE = num_phase;
+			init();
 		}
       virtual ~CHydro3D (void);
 protected:
 static int NUM_SHEAR, NUM_HESS, NUM_GEOMT, MAX_PHASE;
 		T *** TT, *** TH, ** TN;
 		int  block_shape_init(Block<T> & B, Num_State id_free);
-//...auxilliary operations with block matrix;
+//...auxilliary operations with block matrix;this->shapes_init
 		void jump0_pressure(double * P, int i, int m);
 		void jump0_sphere  (double * P, int i, int m);
 		void jump0_current (double * P, int i, int m);
@@ -277,37 +282,38 @@ public:
 		void set_fasa_hmg(double R0, double ll, double G_dynamic, double alpha, double kk);
 		void set_fasa_hmg(double G_dynamic, double alpha) { set_fasa_hmg(this->get_param(this->NUM_GEOMT), this->get_param(this->NUM_GEOMT+1), G_dynamic, alpha, this->get_param(this->NUM_SHEAR+2));}
 		void set_fasa_hmg(double alpha = 0.) {set_fasa_hmg(this->get_param(this->NUM_GEOMT), this->get_param(this->NUM_GEOMT+1), this->get_param(this->NUM_SHEAR), alpha, this->get_param(this->NUM_SHEAR+2));}
-		void set_geometry(double rad, double layer = 0.) { this->set_param(this->NUM_GEOMT, rad); this->set_param(this->NUM_GEOMT+1, rad+layer);}
 //...результаты решени€ задачи;
 		void GetFuncAllValues(double X, double Y, double Z, T * F, int id_block, Num_Value id_F, int id_variant = 0, int iparam = 0);
 //...аналитические модели (течение Ѕринкмана);
 		double TakeLayer	 (double ff);
 		double TakeCylinder(double ff, double eps = EE);
 		double CylinderVelocity(double rr, double RR, double eps = EE);
+//...тестовый пример;
+		void testEshelby_Darcy (double X, double Y, double Z, double GG, double beta, double kk, double rad, double& UX, double& UY, double& UZ, double& pressure);
 };
 
 /////////////////////////////////////////////////
-//...this->parametrization of the sample (preliminary);
+//...parametrization of the sample (preliminary);
 #define DRAFT_N                     2    //...degree of multipoles;
-#undef  DRAFT_N                          //...this->param(0);
+#undef  DRAFT_N                          //...param(0);
 #define DRAFT_Q                     1.	//...normalization coefficient;
-#undef  DRAFT_Q                          //...this->param(1);
-#define DRAFT_N_quad                2    //...this->parameters of quadrature;
-#undef  DRAFT_N_quad                     //...this->param(2);
+#undef  DRAFT_Q                          //...param(1);
+#define DRAFT_N_quad                2    //...parameters of quadrature;
+#undef  DRAFT_N_quad                     //...param(2);
 #define DRAFT_Q_facet               1.   //...normalization coefficient in facet subdivision;
-#undef  DRAFT_Q_facet                    //...this->param(3);
+#undef  DRAFT_Q_facet                    //...param(3);
 #define DRAFT_R0                    1.   //...radius of inclusion;
-#undef  DRAFT_R0                         //...this->param(4);
+#undef  DRAFT_R0                         //...param(4);
 #define DRAFT_R1							1.	//...radius of intermediate layer;
-#undef  DRAFT_R1									//...this->param(5);
+#undef  DRAFT_R1									//...param(5);
 #define DRAFT_G0                    1.   //...dynamic shear modulus in fluid;
-#undef  DRAFT_G0                         //...this->param(6);
+#undef  DRAFT_G0                         //...param(6);
 #define DRAFT_alpha                 0.   //...normalized Brinkman;
-#undef  DRAFT_alpha                      //...this->param(7);
+#undef  DRAFT_alpha                      //...param(7);
 #define DRAFT_kk                    1.   //...permability of intermediate layer;
-#undef  DRAFT_kk                         //...this->param(8);
+#undef  DRAFT_kk                         //...param(8);
 #define DRAFT_lagrange              1.   //...Lagrange coefficient for energy in block functional;
-#undef  DRAFT_lagrange                   //...this->param(9);
+#undef  DRAFT_lagrange                   //...param(9);
 
 //////////////////////////////////////////////////////
 //        TEMPLATE VARIANT OF CHydro3D CLASS        //
@@ -344,20 +350,20 @@ int CHydro3D<T>::block_shape_init(Block<T> & B, Num_State id_free)
 			B.shape->add_shape(CreateShape<T>(MP3D_POLY_SHAPE));
 			B.shape->add_shape(CreateShape<T>(MP3D_ZOOM_SHAPE));
 
-			B.shape->init1(0, UnPackInts(this->get_param(this->NUM_MPLS)), this->solver.id_norm, draft_dim(type()));
+			B.shape->degree_init1(0, UnPackInts(this->get_param(this->NUM_MPLS)), this->solver.id_norm, draft_dim(this->type()));
  			B.shape->set_shape(0, this->get_param(this->NUM_MPLS+1)*fabs(B.mp[7]));
 
-			B.shape->init1(1, UnPackInts(this->get_param(this->NUM_MPLS), 1), this->solver.id_norm, draft_dim(type()));
+			B.shape->degree_init1(1, UnPackInts(this->get_param(this->NUM_MPLS), 1), this->solver.id_norm, draft_dim(this->type()));
 			B.shape->set_shape(1, sqr(B.mp[8])/(this->get_param(this->NUM_MPLS+1)*fabs(B.mp[7])));
 
 			if (this->get_param(this->NUM_SHEAR+1)) { //...подключаем две дополнительные экспоненциальные системы функций;
 				B.shape->add_shape(CreateShape<T>(SK3D_EXPP_SHAPE),	 NULL_STATE);
 				B.shape->add_shape(CreateShape<T>(SK3D_EXPP_SHAPE, 1), NULL_STATE);
 
-				B.shape->init1(2, UnPackInts(this->get_param(this->NUM_MPLS)), this->solver.id_norm, 0);
+				B.shape->degree_init1(2, UnPackInts(this->get_param(this->NUM_MPLS)), this->solver.id_norm, 0);
 				B.shape->set_shape(2, this->get_param(this->NUM_MPLS+1)*fabs(B.mp[7]), sqrt(this->get_param(this->NUM_SHEAR+1)));
 
-				B.shape->init1(3, UnPackInts(this->get_param(this->NUM_MPLS), 1), this->solver.id_norm, 0);
+				B.shape->degree_init1(3, UnPackInts(this->get_param(this->NUM_MPLS), 1), this->solver.id_norm, 0);
 				B.shape->set_shape(3, this->get_param(this->NUM_MPLS+1)*fabs(B.mp[7]), sqrt(this->get_param(this->NUM_SHEAR+1)));
 			}
 		}
@@ -366,20 +372,20 @@ int CHydro3D<T>::block_shape_init(Block<T> & B, Num_State id_free)
 			B.shape->add_shape(CreateShape<T>(MP3D_POLY_SHAPE));
 			B.shape->add_shape(CreateShape<T>(MP3D_ZOOM_SHAPE), NULL_STATE);
 
-			B.shape->init1(0, UnPackInts(this->get_param(this->NUM_MPLS)), this->solver.id_norm, draft_dim(type()));
+			B.shape->degree_init1(0, UnPackInts(this->get_param(this->NUM_MPLS)), this->solver.id_norm, draft_dim(this->type()));
  			B.shape->set_shape(0, this->get_param(this->NUM_MPLS+1)*fabs(B.mp[7]));
 
-			B.shape->init1(1, UnPackInts(this->get_param(this->NUM_MPLS), 1), this->solver.id_norm, 0);
+			B.shape->degree_init1(1, UnPackInts(this->get_param(this->NUM_MPLS), 1), this->solver.id_norm, 0);
 			B.shape->set_shape(1, sqr(B.mp[8] = this->get_param(this->NUM_GEOMT))/(this->get_param(this->NUM_MPLS+1)*fabs(B.mp[7])));
 
 			if (this->get_param(this->NUM_SHEAR+1)) { //...подключаем две дополнительные экспоненциальные системы функций;
 				B.shape->add_shape(CreateShape<T>(SK3D_EXPP_SHAPE),	  NULL_STATE);
 				B.shape->add_shape(CreateShape<T>(SK3D_EXPP_SHAPE, 1), NULL_STATE);
 
-				B.shape->init1(2, UnPackInts(this->get_param(this->NUM_MPLS)), this->solver.id_norm, 0);
+				B.shape->degree_init1(2, UnPackInts(this->get_param(this->NUM_MPLS)), this->solver.id_norm, 0);
 				B.shape->set_shape(2, this->get_param(this->NUM_MPLS+1)*fabs(B.mp[7]), sqrt(this->get_param(this->NUM_SHEAR+1)), fabs(B.mp[8])); 
 
-				B.shape->init1(3, UnPackInts(this->get_param(this->NUM_MPLS), 1), this->solver.id_norm, 0);
+				B.shape->degree_init1(3, UnPackInts(this->get_param(this->NUM_MPLS), 1), this->solver.id_norm, 0);
 				B.shape->set_shape(3, this->get_param(this->NUM_MPLS+1)*fabs(B.mp[7]), sqrt(this->get_param(this->NUM_SHEAR+1)), fabs(B.mp[8])); 
 			}
 		}
@@ -387,31 +393,31 @@ int CHydro3D<T>::block_shape_init(Block<T> & B, Num_State id_free)
 		if ((B.type & ERR_CODE) == POLY_BLOCK && B.mp[0] == ID_MAP(2, SPHEROID_GENUS)) {
 			B.shape->add_shape(CreateShape<T>(MP3D_SPHERE_SHAPE));
 
-			B.shape->init1(0, UnPackInts(this->get_param(this->NUM_MPLS)), this->solver.id_norm, 1/*draft_dim(type())*/);
+			B.shape->degree_init1(0, UnPackInts(this->get_param(this->NUM_MPLS)), this->solver.id_norm, 1/*draft_dim(this->type())*/);
  			B.shape->set_shape(0, fabs(B.mp[7]), fabs(B.mp[8]/B.mp[7]));
 		}
 		else {
 			B.shape->add_shape(CreateShape<T>(MP3D_POLY_SHAPE));
 
-			B.shape->init1(0, UnPackInts(this->get_param(this->NUM_MPLS)), this->solver.id_norm, draft_dim(type()));
+			B.shape->degree_init1(0, UnPackInts(this->get_param(this->NUM_MPLS)), this->solver.id_norm, draft_dim(this->type()));
 			B.shape->set_shape(0, this->get_param(this->NUM_MPLS+1)*fabs(B.mp[7]));
 
 			if (this->get_param(this->NUM_SHEAR+1)) { //...подключаем дополнительную экспоненциальную систему функций;
 				B.shape->add_shape(CreateShape<T>(SK3D_ZOOM_SHAPE), NULL_STATE);
 
-				B.shape->init1(1, UnPackInts(this->get_param(this->NUM_MPLS)), this->solver.id_norm, 0);
+				B.shape->degree_init1(1, UnPackInts(this->get_param(this->NUM_MPLS)), this->solver.id_norm, 0);
 				B.shape->set_shape(1, this->get_param(this->NUM_MPLS+1)*fabs(B.mp[7]), sqrt(this->get_param(this->NUM_SHEAR+1)), this->get_param(this->NUM_MPLS+1)*fabs(B.mp[7]));
 			}
 		}
 
 /////////////////////////////////////////////////////
-//...local system of coordinates and this->parametrization;
+//...local system of coordinates and parametrization;
       B.shape->set_local(B.mp+1);
       B.shape->release();
    }
 
 ///////////////////////////////////////
-//...setting this->parameters and potentials;
+//...setting parameters and potentials;
    if (B.shape && id_free != INITIAL_STATE) {
 		if (id_free == SPECIAL_STATE) { //...переустановка радиуса и центра мультиполей;
 			B.shape->set_local(B.mp+1);
@@ -3620,7 +3626,7 @@ Num_State CHydro3D<T>::rigidy2(CGrid * nd, int i, T * K)
 }
 
 ////////////////////////////////////////////////////
-//...istalling this->parameters of doubly connected media;
+//...istalling parameters of doubly connected media;
 template <typename T>
 void CHydro3D<T>::set_fasa_hmg(double R0, double ll, double G_dynamic, double alpha, double kk)
 {
@@ -3761,7 +3767,7 @@ void CHydro3D<T>::add_collocation(int i, int m, int j)
 template <typename T>
 void CHydro3D<T>::intern_matrix(T **& TT, int N, T **& TH)
 {
-	int l, m, n = N, nn = 2*n+1, mm = nn-4; 
+	int l, m, n = this->N, nn = 2*n+1, mm = nn-4; 
 	if (! TT)   set_matrix(TT, 3*nn, 3*nn);
 	else		clean_matrix(TT, 3*nn, 3*nn);
 //...Re fw;
@@ -3769,13 +3775,13 @@ void CHydro3D<T>::intern_matrix(T **& TT, int N, T **& TH)
 	TT[nn][nn] = -(TT[0][0] = ff*((n-1.)*n*.5-(2.*n-1.))*.5);
 	if (n >= 2) TT[0][4] = TT[0][3+nn] = TT[nn][4+nn] = -(TT[nn][3] = ff);
 	if (n >= 1) TT[0][2+nn*2] = -(TT[nn][1+nn*2] = -ff*n*.5);
-	for (m = 1; m <= N; m++) { 
+	for (m = 1; m <= this->N; m++) { 
 		TT[m*2][m*2-1+nn] = TT[m*2-1][m*2-1] = TT[m*2-1][m*2+nn] = -(TT[m*2][m*2] = ff*((m-1.)*(2.*n-1.)+(n-m-1.)*(n-m)*.5)*.25);
 		if (m+2 <= n) TT[m*2][m*2+4] = TT[m*2][m*2+3+nn] = TT[m*2-1][m*2+4+nn] = -(TT[m*2-1][m*2+3] = ff*(m+1.)*(m+2.)*.5);
 		if (m+1 <= n) TT[m*2][m*2+2+nn*2] = -(TT[m*2-1][m*2+1+nn*2] = -ff*(m+1.)*(n+m)*.5);
 	}
 //...Im fw;
-	for (m = 1; m <= N; m++) { 
+	for (m = 1; m <= this->N; m++) { 
 		TT[m*2+nn][m*2] = TT[m*2+nn][m*2-1+nn] = TT[m*2-1+nn][m*2+nn] = -(TT[m*2-1+nn][m*2-1] = -ff*((n-m-1.)*(n-m)*.5-(2.*n-1.))*.25);
 		if (m == 2) TT[m*2+nn][0] = -(TT[m*2-1+nn][nn] = ff*(2.*n-1.+(n-3.)*(n-2.)*.25)*(n-1.)*n*.125);
 		if (m == 1)	{	
@@ -3790,7 +3796,7 @@ void CHydro3D<T>::intern_matrix(T **& TT, int N, T **& TH)
 //...fz;
 	TT[nn*2][nn*2] = ff*(n-1.)*(n-1.);
 	if (n >= 1) TT[nn*2][2] = TT[nn*2][1+nn] = -ff*(n-1.);
-	for (m = 1; m <= N; m++) { 
+	for (m = 1; m <= this->N; m++) { 
 		TT[m*2+nn*2][m*2+nn*2] = -(TT[m*2-1+nn*2][m*2-1+nn*2] = -ff*(n+m-1.)*(n-m-1.)*.5);
 		if (m == 1)	TT[m*2+nn*2][0] = -(TT[m*2-1+nn*2][nn] = -ff*n*(2.*n-1.+(n-2.)*(n-1.)*.5)*.5);
 		if (n >= 1+m) TT[m*2+nn*2][m*2+2] = TT[m*2+nn*2][m*2+1+nn] = TT[m*2-1+nn*2][m*2+2+nn] = 
@@ -3798,7 +3804,7 @@ void CHydro3D<T>::intern_matrix(T **& TT, int N, T **& TH)
 		if (m > 1) TT[m*2+nn*2][m*2-3+nn] = TT[m*2-1+nn*2][m*2-3] = TT[m*2-1+nn*2][m*2-2+nn] = 
 					-(TT[m*2+nn*2][m*2-2] = ff*(n-m+1.)*(2.*n-1.+(n-m-1.)*(n-m)*.5/m)*.25);
 	}
-	if (N == 1 && regul) {
+	if (this->N == 1 && regul) {
 		double G1 = 1./this->get_param(this->NUM_SHEAR);
 		TT[8][0] -= 1.25*G1;
 		TT[1][1] += .625*G1; TT[4][1] -= .625*G1;
@@ -3815,7 +3821,7 @@ void CHydro3D<T>::intern_matrix(T **& TT, int N, T **& TH)
 //...раскомплексификаци€ строчек;
 	for (l = 3*nn-1; l >= 0; l--) {				
 		TT[0][l] *= 2.; TT[nn][l] *= -2.;
-		for (m = 1; m <= N; m++) {
+		for (m = 1; m <= this->N; m++) {
 			TT[m*2][l] = 2.*(TT[m*2+nn][l]+TT[m*2][l]); 
 			TT[m*2-1][l] = -2.*(TT[m*2-1+nn][l]+TT[m*2-1][l]);
 			TT[m*2+nn][l] = 4.*TT[m*2+nn][l]-TT[m*2][l];
@@ -3829,18 +3835,18 @@ void CHydro3D<T>::intern_matrix(T **& TT, int N, T **& TH)
 //...повтор€ем процедуру дл€ матрицы перехода;
 	if (n > 1) {
 	  	if (! TH) set_matrix(TH, 3*mm, 3*nn);	
-		else		clean_matrix(TH, 3*mm, 3*nn); N -= 2;
+		else		clean_matrix(TH, 3*mm, 3*nn); this->N -= 2;
 //...Re fw;
 		TH[0][0] = -(TH[mm][nn] = n*(n-1.)*.125);
 		TH[0][4] = TH[0][3+nn] = TH[mm][4+nn] = -(TH[mm][3] = -.5);
 		TH[0][2+nn*2] = -(TH[mm][1+nn*2] = -(n-1.)*.25);
-		for (m = 1; m <= N; m++) { 
+		for (m = 1; m <= this->N; m++) { 
 			TH[m*2][m*2-1+nn] = TH[m*2-1][m*2-1] = TH[m*2-1][m*2+nn] = -(TH[m*2][m*2] = -(n-m-1.)*(n-m)*.0625);
 			TH[m*2][m*2+4] = TH[m*2][m*2+3+nn] = TH[m*2-1][m*2+4+nn] = -(TH[m*2-1][m*2+3] = -(m+1.)*(m+2.)*.25);
 			TH[m*2][m*2+2+nn*2] = -(TH[m*2-1][m*2+1+nn*2] = -(m+1.)*(n-m-1.)*.25);
 		}
 //...Im fw;
-		for (m = 1; m <= N; m++) { 
+		for (m = 1; m <= this->N; m++) { 
 			TH[m*2+mm][m*2] = TH[m*2+mm][m*2-1+nn] = TH[m*2-1+mm][m*2+nn] = -(TH[m*2-1+mm][m*2-1] = (n-m-1.)*(n-m)*.0625);
 			if (m == 2) TH[m*2+mm][0] = -(TH[m*2-1+mm][nn] = -(n-3.)*(n-2.)*(n-1.)*n*.015625);
 			if (m == 1)	{	
@@ -3855,7 +3861,7 @@ void CHydro3D<T>::intern_matrix(T **& TT, int N, T **& TH)
 //...fz;
 		TH[mm*2][nn*2] = n*(n-1.)*.5;
 		TH[mm*2][2] = TH[mm*2][1+nn] = (n-1.)*.5;
-		for (m = 1; m <= N; m++) { 
+		for (m = 1; m <= this->N; m++) { 
 			TH[m*2+mm*2][m*2+nn*2] = -(TH[m*2-1+mm*2][m*2-1+nn*2] = -(n-m-1.)*(n-m)*.25);
 			if (m == 1)	TH[m*2+mm*2][0] = -(TH[m*2-1+mm*2][nn] = (n-2.)*(n-1.)*n*.125 );
 			TH[m*2+mm*2][m*2+2] = TH[m*2+mm*2][m*2+1+nn] = TH[m*2-1+mm*2][m*2+2+nn] = 
@@ -3868,7 +3874,7 @@ void CHydro3D<T>::intern_matrix(T **& TT, int N, T **& TH)
 //...раскомплексификаци€ строчек;
 		for (l = 3*nn-1; l >= 0; l--) {				
 			TH[0][l] *= 2.; TH[mm][l] *= -2.;
-			for (m = 1; m <= N; m++) {
+			for (m = 1; m <= this->N; m++) {
 				TH[m*2][l] = 2.*(TH[m*2+mm][l]+TH[m*2][l]); 
 				TH[m*2-1][l] = -2.*(TH[m*2-1+mm][l]+TH[m*2-1][l]);
 				TH[m*2+mm][l] = 4.*TH[m*2+mm][l]-TH[m*2][l];
@@ -3885,20 +3891,20 @@ void CHydro3D<T>::intern_matrix(T **& TT, int N, T **& TH)
 template <typename T>
 void CHydro3D<T>::extern_matrix(T **& TT, int N)
 {
-	int l, m, n = N, nn = 2*n+1; 
+	int l, m, n = this->N, nn = 2*n+1; 
 	if (! TT)  set_matrix(TT, 3*nn, 3*nn);	
 	else		clean_matrix(TT, 3*nn, 3*nn);
 //...Re fw;
 	TT[nn][nn] = -(TT[0][0] = (n+1.)+(n-1.)*n*.125);
 	if (n >= 2) TT[0][4] = TT[0][3+nn] = TT[nn][4+nn] = -(TT[nn][3] = .5);
 	if (n >= 1) TT[0][2+nn*2] = -(TT[nn][1+nn*2] = (n+1.)*.25);
-	for (m = 1; m <= N; m++) { 
+	for (m = 1; m <= this->N; m++) { 
 		TT[m*2][m*2-1+nn] = TT[m*2-1][m*2-1] = TT[m*2-1][m*2+nn] = -(TT[m*2][m*2] = (n+1.)*.5-m*.25+(n-m-1.)*(n-m)*.0625);
 		if (m+2 <= n) TT[m*2][m*2+4] = TT[m*2][m*2+3+nn] = TT[m*2-1][m*2+4+nn] = -(TT[m*2-1][m*2+3] = (m+1.)*(m+2.)*.25);
 		if (m+1 <= n) TT[m*2][m*2+2+nn*2] = -(TT[m*2-1][m*2+1+nn*2] = (m+1.)*(n-m+1.)*.25);
 	}
 //...Im fw;
-	for (m = 1; m <= N; m++) { 
+	for (m = 1; m <= this->N; m++) { 
 		TT[m*2+nn][m*2] = TT[m*2+nn][m*2-1+nn] = TT[m*2-1+nn][m*2+nn] = -(TT[m*2-1+nn][m*2-1] = -((n+1.)*.5+m*(n+.5)*.25+(n-m-1.)*(n-m)*.0625));
 		if (m == 2) TT[m*2+nn][0] = -(TT[m*2-1+nn][nn] = (2.*n-1.+(n-3.)*(n-2.)*.25)*(n-1.)*n*.0625);
 		if (m == 1)	{	
@@ -3913,7 +3919,7 @@ void CHydro3D<T>::extern_matrix(T **& TT, int N)
 //...fz;
 	TT[nn*2][nn*2] = (n+2.)*(n+2.)*.5;
 	if (n >= 1) TT[nn*2][2] = TT[nn*2][1+nn] = (n+2.)*.5;
-	for (m = 1; m <= N; m++) { 
+	for (m = 1; m <= this->N; m++) { 
 		TT[m*2+nn*2][m*2+nn*2] = -(TT[m*2-1+nn*2][m*2-1+nn*2] = -((n+1.)+(n-m)*(n+m)*.25));
 		if (m == 1)	TT[m*2+nn*2][0] = -(TT[m*2-1+nn*2][nn] = n*((n-1.)*(n+3.)+4.)*.125);
 		if (n >= 1+m) TT[m*2+nn*2][m*2+2] = TT[m*2+nn*2][m*2+1+nn] = TT[m*2-1+nn*2][m*2+2+nn] = 
@@ -3926,7 +3932,7 @@ void CHydro3D<T>::extern_matrix(T **& TT, int N)
 //...раскомплексификаци€ строчек;
 	for (l = 3*nn-1; l >= 0; l--) {				
 		TT[0][l] *= 2.; TT[nn][l] *= -2.;
-		for (m = 1; m <= N; m++) {
+		for (m = 1; m <= this->N; m++) {
 			TT[m*2][l] = 2.*(TT[m*2+nn][l]+TT[m*2][l]); 
 			TT[m*2-1][l] = -2.*(TT[m*2-1+nn][l]+TT[m*2-1][l]);
 			TT[m*2+nn][l] = 4.*TT[m*2+nn][l]-TT[m*2][l];
@@ -3942,9 +3948,9 @@ void CHydro3D<T>::extern_matrix(T **& TT, int N)
 template <typename T>
 void CHydro3D<T>::set_eshelby_matrix(int N_mpl)
 {
-	T ** TX = NULL, * H = (T *)new_struct((2*N_mpl+1)*3*sizeof(T));
-	TT = (T ***)new_struct((N_mpl+2)*sizeof(T **));
-	TH = (T ***)new_struct((N_mpl+1)*sizeof(T **));
+	T ** TX = NULL, * H = new_struct<T>(2*N_mpl+1);
+	TT = new_struct<T **>(N_mpl+2);
+	TH = new_struct<T **>(N_mpl+1);
 
 /////////////////////////////////////////////// 
 //...формирование решени€ граничного уравнени€;
@@ -4051,11 +4057,12 @@ void CHydro3D<T>::GetFuncAllValues(double X, double Y, double Z, T * F, int i, N
 //...operation with all input points;
 	if (0 <= i && i < this->N && this->B[i].shape && this->B[i].mp) {
 		int m = this->solver.id_norm;
-//////////////////////////////////////////////////////////////////
-//memset(this->solver.hh[i][0][0], 0, this->solver.dim[i]*sizeof(double));
-//this->B[i].shape->FULL(this->solver.hh[i][0][0], 0, 2)[4] = this->B[i].shape->get_R();	
-//this->B[i].shape->set_potential(this->solver.hh[i][0][0], 0);
-////////////////////////////////////////////////////////////////////
+//===============================================================//
+//...задание тестовых коэффициентов в задаче Ёшелби (28.09.2016);
+		//memset(this->solver.hh[i][0][0], 0, this->solver.dim[i]*sizeof(double));
+		//this->B[i].shape->FULL(this->solver.hh[i][0][0], 0, 2)[4] = this->B[i].shape->get_R();
+		//this->B[i].shape->set_potential(this->solver.hh[i][0][0], 0);
+//===============================================================//
 //////////////////////////////////////////////////////
 //...reset auxilliary arrays and calculation function;
 		for (int num = m; num < this->solver.n; num++)
@@ -4072,6 +4079,13 @@ void CHydro3D<T>::GetFuncAllValues(double X, double Y, double Z, T * F, int i, N
 
 				F[0] = F[1] = this->B[i].shape->potential(this->solver.hh[i][0][m], id_variant);
 				F[0] += Z;
+//=============================================//
+//...тестовый расчет задачи Ёшелби (14.10.2016);
+//double GG = 10., kk = 1.0, beta = 7.0, rad = 0.5, UX, UY, UZ, pressure;
+//testEshelby_Darcy(X, Y, Z, GG, kk, beta, rad, UX, UY, UZ, pressure);
+//F[0] = F[1] = pressure;
+//F[0] += Z;
+//=============================================//
 		}		break;
 		case VELOCITY_VALUE: {
 /////////////////////////////////////
@@ -4091,6 +4105,14 @@ void CHydro3D<T>::GetFuncAllValues(double X, double Y, double Z, T * F, int i, N
 ////////////////////////////
 				F[2] = /*smooth**/this->B[i].shape->potential(this->solver.hh[i][0][m+2], id_variant);
 				this->B[i].shape->norm_common_T(F);
+//=============================================//
+//...тестовый расчет задачи Ёшелби (14.10.2016);
+//double GG = 10., kk = 1.0, beta = 7.0, rad = 0.5, UX, UY, UZ, pressure;
+//testEshelby_Darcy(X, Y, Z, GG, kk, beta, rad, UX, UY, UZ, pressure);
+//F[0] = UX;
+//F[1] = UY;
+//F[2] = UZ;
+//=============================================//
 		}		break;
 		case NORMAL_R_VALUE: {
 /////////////////////////////////////////////
@@ -4186,7 +4208,7 @@ void CHydro3D<T>::GetFuncAllValues(double X, double Y, double Z, T * F, int i, N
 				F[1]  = this->B[i].shape->potential(0, this->B[i].shape->FULL(this->B[i].shape->p_cpy, 0, iparam+1), id_variant);
 				F[2]  = this->B[i].shape->potential(0, this->B[i].shape->FULL(this->B[i].shape->p_cpy, 0, iparam+2), id_variant);
 		}		break;
-		default: F[0] = i; F[1] = F[2] = 0.;
+		default: F[0] = T(i); F[1] = F[2] = 0.;
 		}
 	}
 }
@@ -4237,6 +4259,55 @@ double CHydro3D<T>::CylinderVelocity(double rr, double RR, double eps)
 			sum2 += (f2 *= kappa2/(k*k));
 		}
 		return((1.-sum1/sum2)/fabs(alpha));
+	}
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+//... тестовый расчет обтекани€ сферической пористой частицы с услови€ми Ѕиверса-ƒжозефа;
+template <typename T>
+void CHydro3D<T>::testEshelby_Darcy(double X, double Y, double Z, double GG, double kk, double beta, double rad, double& UX, double& UY, double& UZ, double& pressure)
+{
+	double A0 = 2.*kk,
+		B0 = 2.*kk/(rad*sqr(sqr(sqr(rad)))),
+		A1 = -(kk+sqr(rad)*.1)*rad*sqr(rad), B1 = 0.4,
+		C1 =  (rad*sqr(sqr(sqr(rad))))/120.,
+		D1 = -(kk*.25+sqr(rad)/30.),
+		A = -(1./rad+beta/GG)/(1.-4./rad+beta/GG)*rad*sqr(sqr(rad)),
+		B = ((1./rad+beta*.5/GG)+C1*30.*(-5./rad+beta*.5/GG)/(rad*sqr(sqr(sqr(rad))))+A*(-4./rad+beta*.5/GG)/(rad*sqr(sqr(rad)))-B0*5.*A)/(8./rad-.5/GG-15.*B0*(rad*sqr(sqr(rad))))*rad*sqr(sqr(rad)),
+		C = (-A0*.5/(GG*sqr(rad))+A1*(-3./rad+beta*.5/GG)/(rad*sqr(sqr(rad)))+C1*30.*(-5./rad+beta*.5/GG)/(rad*sqr(sqr(sqr(rad))))+B*(-4./rad+beta*.5/GG)/(rad*sqr(sqr(rad)))+B1*(-1./rad+beta*.5/GG)/(rad*sqr(sqr(rad)))*(A-2.*B)-B0*(A+3.*B))/
+			 (12./rad-beta/GG-10.*B1*(1./rad-beta*.5/GG)-11.*B0*rad*sqr(sqr(rad)))*rad*sqr(sqr(rad)),
+		f0_X = 0, f0_Y = Y*Z, f0_Z = 0.,
+		fM_X = (B+C)*X*Z,
+		fM_Y = (A+B+C)*Y*Z,
+		fM_Z = B*(sqr(Y)-sqr(Z))+C*(sqr(X)+sqr(Y)-2.*sqr(Z)); 
+
+	UX = 0.;	UY = 0.;	UZ = 0.; pressure = 0.; 
+
+	double R = sqrt(sqr(X)+sqr(Y)+sqr(Z)), div0 = Z, divM = (A-2.*C)*Z, scal0 = X*f0_X+Y*f0_Y+Z*f0_Z,
+	scalM = X*fM_X+Y*fM_Y+Z*fM_Z, deldiv0_Z = 1., deldivM_Z = (A-2.*C), deldiv0_X = 0., deldiv0_Y = 0., 
+	deldivM_X = 0., deldivM_Y = 0., delscal0_X = 0., delscal0_Y = 2.*Y*Z, delscal0_Z = sqr(Y), 
+	delscalM_X = 2.*(B+2.*C)*X*Z, delscalM_Y = 2.*(A+2.*B+2.*C)*Y*Z, 
+	delscalM_Z = (B+C)*sqr(X)+(A+B+C)*sqr(Y)+B*(sqr(Y)-3.*sqr(Z))+C*(sqr(X)+sqr(Y)-6.*sqr(Z));
+		
+	if (R < rad) {
+		pressure += -(A0*div0+B0*(sqr(R)*divM-5.*scalM))/(2.*kk);
+		UX += (A0*deldiv0_X+B0*(sqr(R)*deldivM_X+2.*X*divM-5.*delscalM_X))/(2.*GG);
+		UY += (A0*deldiv0_Y+B0*(sqr(R)*deldivM_Y+2.*Y*divM-5.*delscalM_Y))/(2.*GG);
+		UZ += (A0*deldiv0_Z+B0*(sqr(R)*deldivM_Z+2.*Z*divM-5.*delscalM_Z))/(2.*GG);
+	}
+	else {
+		pressure += -(div0+(sqr(R)*divM-5.*scalM)/(R*sqr(sqr(sqr(R)))));
+		UX += (f0_X-delscal0_X*.5+(fM_X-delscalM_X*.5+2.5*X*scalM/sqr(R))/(R*sqr(sqr(R))))/GG;
+		UY += (f0_Y-delscal0_Y*.5+(fM_Y-delscalM_Y*.5+2.5*Y*scalM/sqr(R))/(R*sqr(sqr(R))))/GG;
+		UZ += (f0_Z-delscal0_Z*.5+(fM_Z-delscalM_Z*.5+2.5*Z*scalM/sqr(R))/(R*sqr(sqr(R))))/GG;
+//...градиентна€ часть основного потенциала;
+		UX += 15.*(sqr(R)*.2*(C1*deldiv0_X+D1*deldivM_X)-(C1*delscal0_X+D1*delscalM_X)-X*(C1*div0+D1*divM)+7.*X*(C1*scal0+D1*scalM)/sqr(R))/(GG*R*sqr(sqr(sqr(R))));
+		UY += 15.*(sqr(R)*.2*(C1*deldiv0_Y+D1*deldivM_Y)-(C1*delscal0_Y+D1*delscalM_Y)-Y*(C1*div0+D1*divM)+7.*Y*(C1*scal0+D1*scalM)/sqr(R))/(GG*R*sqr(sqr(sqr(R))));
+		UZ += 15.*(sqr(R)*.2*(C1*deldiv0_Z+D1*deldivM_Z)-(C1*delscal0_Z+D1*delscalM_Z)-Z*(C1*div0+D1*divM)+7.*Z*(C1*scal0+D1*scalM)/sqr(R))/(GG*R*sqr(sqr(sqr(R))));
+//...градиентна€ часть гармонического потенциала;
+		UX += (sqr(R)*(A1*deldiv0_X+B1*deldivM_X)-3.*X*(A1*div0+B1*divM))/(2.*GG*R*sqr(sqr(R)));
+		UY += (sqr(R)*(A1*deldiv0_Y+B1*deldivM_Y)-3.*Y*(A1*div0+B1*divM))/(2.*GG*R*sqr(sqr(R)));
+		UZ += (sqr(R)*(A1*deldiv0_Z+B1*deldivM_Z)-3.*Z*(A1*div0+B1*divM))/(2.*GG*R*sqr(sqr(R)));
 	}
 }
 #undef  Message

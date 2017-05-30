@@ -338,7 +338,7 @@ Table * GetMontageTable(int N_group, int N, double * temper)
 	for (int i = 0; table && temper && i < table->N; i++) {
 		char buff[201], * sss;
 		sprintf(buff, "%g", temper[i]);
-		sss = (char *)new_struct(((int)strlen(buff)+1)*sizeof(char));
+		sss = new_struct<char>((int)strlen(buff)+1);
 		::strcpy(sss, buff);
 		table->table[i].parm_name = sss;
 	}
@@ -505,7 +505,7 @@ void comment_correct(Table * table, int id_static_char)
 		if (table->table[i].type == COMMENT_CHAR_TYPE_RECORD)
 			for (int j = 1; j <= table->N_group; j++) 
 				if (! ((char **)table->table[i].parm_values)[j])
-						((char **)table->table[i].parm_values)[j] = new_struct(sizeof(char));
+						((char **)table->table[i].parm_values)[j] = new_struct<char>();
 //					SetTableParam(table, j, i, (unsigned long)"");
 }
 void comment_correct(void * context) { 
@@ -1426,7 +1426,7 @@ void TowerCSVConvertToLPR(void * context, void ** anker_list, int mufta_num)
 				if ((pchar = ((char **)tab_csv->table[11].parm_values)[i+k]) != NULL && strlen(pchar) > 0)
 					comment_length += (int)strlen(pchar)+2;
 
-				char * comment = new_struct((comment_length+1)*sizeof(char));
+				char * comment = new_struct<char>(comment_length+1);
 				for ( k = -3; k <= 2; k++)
 				if ((pchar = ((char **)tab_csv->table[11].parm_values)[i+k]) != NULL && strlen(pchar) > 0 && strstr(pchar, " ")) {
 					if (! first)

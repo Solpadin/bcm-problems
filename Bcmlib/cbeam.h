@@ -16,9 +16,8 @@
 template <typename T>
 class CBeamShape : public CShape<T> {
 public:
-		Num_Shape	 type() { return BEAM_POLY_SHAPE;}
-		int size_of_param() { return(11);};
 		int freedom (int m) { return(4); };
+		int size_of_param() { return(11);};
 public:
 //...calculation of multipoles;
 		void parametrization     (double * P = NULL, int m_dop = 0);
@@ -26,12 +25,17 @@ public:
 		void parametrization_hess(double * P = NULL, int m_dop = 0);
 //...differentiation;
 		void deriv_Z(T * deriv, double f = 1.);
-//...constructor;
-		CBeamShape() {
-			this->param = (Param *)new_struct(size_of_param()*sizeof(Param));
-			this->param[0] = this->param[1] = this->param[3] = this->param[4] = 
-			this->param[5] = this->param[6] = 1.;
+public:
+		void init() {
+			delete_struct(this->param);
+			this->param = new_struct<Param>(size_of_param());
 			this->param[2] = .3;
+			this->param[0] = this->param[1] = this->param[3] = this->param[4] = this->param[5] = this->param[6] = 1.;
+		}
+public:
+//...constructor;
+		CBeamShape(){
+			init();
 		};
 };
 
@@ -66,7 +70,7 @@ template <typename T>
 void CBeamShape<T>::parametrization(double * P, int m_dop)
 {
 	if (! this->p) {
-			this->p  = (T *)new_struct((this->NN_dop = freedom(this->N = 4))*sizeof(T));
+			this->p  = new_struct<T>(this->NN_dop = freedom(this->N = 4));
 	}
 	if (P && this->p) {
 		double Z = P[2]*this->R0_inv;
@@ -89,8 +93,11 @@ template <typename T>
 void CBeamShape<T>::parametrization_grad(double * P, int m_dop)
 {
 	parametrization(P);
-	if (! this->pz) {
-		this->pz = (T *)new_struct((this->NN_grad = this->NN_dop)*sizeof(T));
+	if (! P) {
+		delete_struct(this->pz);
+	}
+	if (P && ! this->pz) {
+		this->pz = new_struct<T>(this->NN_grad = this->NN_dop);
 	}
 	if (P && this->pz) {
 		memset (this->pz, 0, this->NN_grad*sizeof(T));
@@ -104,8 +111,11 @@ template <typename T>
 void CBeamShape<T>::parametrization_hess(double * P, int m_dop)
 {
 	parametrization_grad(P);
-	if (! this->pzz) {
-		this->pzz = (T *)new_struct((this->NN_hess = this->NN_grad)*sizeof(T));
+	if (! P) {
+		delete_struct(this->pzz);
+	}
+	if (P && ! this->pzz) {
+		this->pzz = new_struct<T>(this->NN_hess = this->NN_grad);
 	}
 	if (P && this->pzz) {
 		memset (this->pzz, 0, this->NN_hess*sizeof(T));
@@ -140,38 +150,32 @@ protected:
 		double * b, * B;
 		double alpha, sigma, l, L, test1, test2, test3;//...internal paramters of conformal maqpping;
 		complex Conform, DConform, DDConform;			  //...conformal maqpping and derivatives;
-		void   mapping();
-		double gamma(double z);
+protected:
 		static const double c0[15];
+		double gamma(double z);
+		void   mapping();
 public:
-		Num_Shape    type() { return MP2D_CORNER_SHAPE;}
 		int size_of_param() { return(4);};
 		int freedom (int m) { return m*2+1; }
 public:
 //...initialization of multipoles;
-		void init1(int N, int dim) { init3(N, 0, 0, dim);}
-		void init3(int N, int N1, int N2, int dim) {
-			CShape<T>::N  = N;
-			CShape<T>::N1 = N1;
-			CShape<T>::N2 = N2;
-			CShape<T>::id_dim = dim;
-			this->NN = freedom(N);
-			release();
-			//this->NN = (CMapi2DCorner::N1*2+1)*(CMapi2DCorner::N2*2+1);
+		void degree_init1(int N, int dim) { degree_init3(N, 0, 0, dim);}
+		void degree_init3(int N, int N1, int N2, int dim) {
+			this->N  = N;
+			this->N1 = N1;
+			this->N2 = N2;
+			this->id_dim = dim;
+			this->NN = freedom(N);//this->NN = (this->N1*2+1)*(this->N2*2+1);
+			this->release();
 		}
 		void set_shape(double R0 = 0., double beta = 0., double radc = 0., double L1 = 0., double L2 = 0., double L3 = 0.) {
 			CMapi2DCorner::R0 = R0;
 			this->R0_inv  = R0 > EE ? 1./R0 : 1.;
 			int   k = -1;
-			if (++k < size_of_param()) this->param[k] = (Param)(1./beta);
-			if (++k < size_of_param()) this->param[k] = (Param)radc;
-			if (++k < size_of_param()) this->param[k] = (Param)(radc/cos(beta*M_PI_2));
-			if (++k < size_of_param()) this->param[k] = (Param)(fabs(radc*tan(beta*M_PI_2)));
-		}
-		void release() {
-			delete_struct(b);
-			delete_struct(B);
-			CShape<T>::release();
+			if (++k < size_of_param()) this->param[k] = Param(1./beta);
+			if (++k < size_of_param()) this->param[k] = Param(radc);
+			if (++k < size_of_param()) this->param[k] = Param(radc/cos(beta*M_PI_2));
+			if (++k < size_of_param()) this->param[k] = Param(fabs(radc*tan(beta*M_PI_2)));
 		}
 public:
 //...calculation of multipoles;
@@ -181,13 +185,23 @@ public:
 //...differentiation;
 		void deriv_X(T * deriv, double f = 1.);
 		void deriv_Y(T * deriv, double f = 1.);
-//...constructor;
-		CMapi2DCorner() {
-			this->param = (Param *)new_struct(size_of_param()*sizeof(Param));
-			b = B = NULL;
+public:
+		void init() {
+			delete_struct(this->param);
+			this->param = new_struct<Param>(size_of_param());
 			alpha = sigma = l = L = test1 = test2 = test3 = 0.;
 			Conform = DConform = DDConform = comp(0.);
-		};
+		}
+public:
+//...constructor and destructor;
+		CMapi2DCorner() {
+			B = b = NULL;
+			init();
+		}
+		virtual ~CMapi2DCorner(void) { 
+			delete_struct(b);
+			delete_struct(B);
+		}
 };
 
 ///////////////////////////////////////
@@ -225,7 +239,7 @@ double CMapi2DCorner<T>::gamma(double z)
   t2 = 2.*(z-3.)-1.; z = 2.*t2;
 
 ////////////////////////////////////////////////////////////////
-//...суммиpуем pяд из полиномов Чебышева и возвpащаем pезультат;
+//...суммируем ряд из полиномов Чебышева и возвращаем результат;
   for (int i = 1; i <= 14; i++) {
        sum += t2*c0[i]; t0 = t2; t2 = z*t2-t1; t1 = t0;
   }
@@ -233,7 +247,7 @@ double CMapi2DCorner<T>::gamma(double z)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
-//...процедура вычисления коэффициентов для конфоpмного отобpажения уголковой области;
+//...процедура вычисления коэффициентов для конформного отображения уголковой области;
 template <typename T>
 void CMapi2DCorner<T>::mapping()
 {
@@ -260,8 +274,8 @@ void CMapi2DCorner<T>::mapping()
 
 /////////////////////////////////////////////////////
 //...распределяем в общей памяти два рабочих массива;
-	double * S = (double *)new_struct((2+max(this->N1, this->N2*(this->N2+1)/2))*sizeof(double)),
-			 * C = (double *)new_struct((2+max(this->N1, this->N2))*sizeof(double));
+	double * S = new_struct<double>(2+max(this->N1, this->N2*(this->N2+1)/2)),
+			 * C = new_struct<double>(2+max(this->N1, this->N2));
 
 /////////////////////////////////////////////////////////////////////
 //...делим два гипергеометрических ряда (для внутреннего разложения);
@@ -319,7 +333,7 @@ void CMapi2DCorner<T>::mapping()
 	test2 += 1.-g2; test3 = test2*L-test1*sigma;
 
 ///////////////////////////////////////////////////////////////////
-//...освобождаем память от рабочих массивов и выходим из пpогpаммы;
+//...освобождаем память от рабочих массивов и выходим из программы;
 	delete_struct(C); 
 	delete_struct(S);
 }
@@ -341,12 +355,12 @@ template <typename T>
 void CMapi2DCorner<T>::parametrization(double * P, int m_dop)
 {
 	if (! this->p) {
-			this->p  = (T *)new_struct((this->NN_dop = freedom(this->N))*sizeof(T));
+		this->p = new_struct<T>(this->NN_dop = freedom(this->N));
 /////////////////////////////////////////////////////////////////////
 //...technical support (calculation of the conjunction coeffiсients);
-			delete_struct(b); b = (double  *)new_struct((this->N1+1)*sizeof(double));
-			delete_struct(B); B = (double  *)new_struct((this->N2+1)*sizeof(double));
-			mapping();
+		delete_struct(b); b = new_struct<double>(this->N1+1);
+		delete_struct(B); B = new_struct<double>(this->N2+1);
+		mapping();
 	}
 	if (P && this->p) {
 		complex z = comp(P[0], P[1]), w0;
@@ -358,7 +372,7 @@ void CMapi2DCorner<T>::parametrization(double * P, int m_dop)
 		this->cs[2] = 0.;
 
 //////////////////////////////////////////////////
-//...конфоpмное отобpажение во внутpенней области;
+//...конформное отображение во внутренней области;
 		Conform = comp(0.);
 
 		if (R < this->param[3]) {
@@ -371,7 +385,7 @@ void CMapi2DCorner<T>::parametrization(double * P, int m_dop)
 		else
 
 ///////////////////////////////////////////////
-//...конфоpмное отобpажение во внешней области;
+//...конформное отображение во внешней области;
 		if (R >= EE) {
 			Conform = polar(pow(R*this->R0_inv, this->param[0]), fi*this->param[0])*comp(0., 1.); 
 
@@ -399,9 +413,13 @@ template <typename T>
 void CMapi2DCorner<T>::parametrization_grad(double * P, int m_dop)
 {
 	parametrization(P);
-	if (! this->px && ! this->py) {
-		this->px = (T *)new_struct((this->NN_grad = this->NN_dop)*sizeof(T));
-		this->py = (T *)new_struct( this->NN_grad*sizeof(T));
+	if (! P) {
+		delete_struct(this->px);
+		delete_struct(this->py);
+	}
+	if (P && ! this->px && ! this->py) {
+		this->px = new_struct<T>(this->NN_grad = this->NN_dop);
+		this->py = new_struct<T>(this->NN_grad);
 	}
 	if (P && this->px && this->py) {
 		memset (this->px, 0, this->NN_grad*sizeof(T));
@@ -412,7 +430,7 @@ void CMapi2DCorner<T>::parametrization_grad(double * P, int m_dop)
 				 LL = pow(this->param[3]*this->R0_inv, this->param[0]), R = abs(z), fi = arg2(z);
 
 ///////////////////////////////////////////////////////////////
-//...пpоизводная конфоpмного отобpажения во внутpенней области;
+//...производная конформного отображения во внутренней области;
 		DConform = comp(0.);
 
 		if (R < this->param[3]) {
@@ -425,7 +443,7 @@ void CMapi2DCorner<T>::parametrization_grad(double * P, int m_dop)
 		else
 
 ////////////////////////////////////////////////////////////
-//...пpоизводная конфоpмного отобpажения во внешней области;
+//...производная конформного отображения во внешней области;
 		if (this->param[0] == 1. && R < EE) DConform = comp(0., this->R0_inv); 	else 
 		if (R >= EE) {
 			DConform = (w = polar(pow(R*this->R0_inv, this->param[0]), fi*this->param[0])*comp(0., 1.))*this->param[0]/z; 
@@ -463,10 +481,15 @@ template <typename T>
 void CMapi2DCorner<T>::parametrization_hess(double * P, int m_dop)
 {
 	parametrization_grad(P);
-	if (! this->pxx && ! this->pxy && ! this->pyy) {
-		this->pxx = (T *)new_struct((this->NN_hess = this->NN_grad)*sizeof(T));
-		this->pxy = (T *)new_struct( this->NN_hess*sizeof(T));
-		this->pyy = (T *)new_struct( this->NN_hess*sizeof(T));
+	if (! P) {
+		delete_struct(this->pxx);
+		delete_struct(this->pxy);
+		delete_struct(this->pyy);
+	}
+	if (P && ! this->pxx && ! this->pxy && ! this->pyy) {
+		this->pxx = new_struct<T>(this->NN_hess = this->NN_grad);
+		this->pxy = new_struct<T>(this->NN_hess);
+		this->pyy = new_struct<T>(this->NN_hess);
 	}
 	if (P && this->pxx && this->pxy && this->pyy) {
 		memset (this->pxx, 0, this->NN_hess*sizeof(T));
@@ -478,7 +501,7 @@ void CMapi2DCorner<T>::parametrization_hess(double * P, int m_dop)
 				 LL = pow(this->param[3]*this->R0_inv, this->param[0]), R = abs(z), fi = arg2(z);
 
 //////////////////////////////////////////////////////////////////////
-//...вторая пpоизводная конфоpмного отобpажения во внутpенней области;
+//...вторая производная конформного отображения во внутренней области;
 		DDConform = comp(0.);
 
 		int j, m;
@@ -497,7 +520,7 @@ void CMapi2DCorner<T>::parametrization_hess(double * P, int m_dop)
 		else
 
 ///////////////////////////////////////////////////////////////////
-//...вторая пpоизводная конфоpмного отобpажения во внешней области;
+//...вторая производная конформного отображения во внешней области;
 		if (R >= EE) {
 			DDConform  = (w = polar(pow(R*this->R0_inv, this->param[0]), fi*this->param[0])*comp(0., 1.))*(nm = 1./z);
 			DDConform *= (this->param[0]-1.)*(nm *= this->param[0]);

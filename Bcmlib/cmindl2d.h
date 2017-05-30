@@ -10,12 +10,17 @@
 //...class of blocks partition for double plane problem;
 class CMindl2D : public CComput2D<double> {
 public:
-		Num_Draft type	  () { return MINDL2D_DRAFT;}
 		int size_of_param() { return(14);}
+public:
+		void init() {
+			delete_struct(param);
+			param = new_struct<Param>(size_of_param());
+		}
+public:
 //...constructor;
 		CMindl2D (int num_phase = 7) {
-			param = (Param *)new_struct(size_of_param()*sizeof(Param));
 			NUM_PHASE = num_phase;
+			init();
 		};
 protected:
 static int NUM_SHEAR, NUM_SHIFT, NUM_ADHES, MAX_PHASE, NUM_HESS, regul;

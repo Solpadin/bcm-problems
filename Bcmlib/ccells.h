@@ -6,13 +6,16 @@
 
 #include "cgrid.h"
 
+class CCells;
+
 ////////////////////////////////////////////////////////
 //...description of existing types of geometrical cells;
 enum Num_Cells {
-        NULL_CELLS = 0,
-       //BASIC_CELLS,
+        NULL_CELLS = -1,
+       BASIC_CELLS,
         NUMS_CELLS
-};
+}; 
+Num_Cells cells_method(CCells * cells);
 
 ///////////////////////////////////////////////////////////////////////////
 //...the main object of geometrical kernel -- basic class of spatial cells;
@@ -23,32 +26,42 @@ public:
 		CMap   *  mp;    //...geometrical map of the cell;
 		CMap   ** pm;    //...geometrical map of the cell in 2D parametric space;
 public:
-		virtual int type() { return NULL_CELLS;}
-//...constructors/destructor;
-       CCells(int N_ce = 0) {
-              ce    = NULL;
-              graph = NULL;
-              mp    = NULL;
-              pm    = NULL;
-              if (N_ce >= 0) cells_new(N_ce+1, 2, 0);
-       }
-      virtual ~CCells(void) { //...здесь нельз€ уничтожать все €чейки "автоматом" функцией zero_cells()!!!
+		void init(int N_ce = 0, int N_graph = 0, int N_mp = 0) {
+				release();
+				ce    = new_struct<CCells *>(N_ce);
+				graph = new_struct<Topo>(N_graph);
+				mp    = new_struct<CMap>(N_mp);
+				if (! ce	  && N_ce    > 0 ||
+					! graph && N_graph > 0 ||
+					! mp    && N_mp    > 0) release();
+				if (mp) mp[N_mp-1] = (CMap)NULL_CELL;
+				if (ce) ce[N_ce-1] = this;
+		}
+		void release();
+public:
+		Num_Cells type() { return cells_method(this);}
+public:
+//...constructor;
+		CCells(int N_ce = 0) {
+			ce    = NULL;
+			graph = NULL;
+			mp    = NULL;
+			pm    = NULL;
+			init(N_ce+1, 2);
+      }
+private:
+//...inline deleting;
+		inline void delete_cells(CCells *& ce, Num_State id_zero = OK_STATE) {
+			if ( id_zero == OK_STATE) ce->release(); delete ce; 
+			ce = NULL;
 		}
 public:
-		inline void add_pm(int k, CMap *& mp) {
-			if (graph && 0 <= k && k < graph[1] && pm) { pm[k] = mp; mp = NULL;}
-		}
-		inline void delete_cells(CCells *& ce, Num_State id_zero = OK_STATE) {
-			if (id_zero == OK_STATE) ce->zero_cells(); 
-			delete ce; ce = NULL;
-		}
-		void cells_new (int N_ce = 0, int N_graph = 0, int N_mp = 0);
-		void zero_cells();
-//...cell printing and reading in ASCII;
+//...printing and reading cells in ASCII-code;
 		void cells_out(char * ch_CELLS, int id_long = 0);
 		void cells_out(FILE * id_CELLS, int id_long = 0);
 		int  cells_in (char * id_CELLS, unsigned long & count, unsigned long upper_limit);
 		void cells_in (char * ch_CELLS);
+public:
 //...dimension characteristics of the cell;
 		inline int cells_genus() {
 			return map_genus(mp);
@@ -59,10 +72,14 @@ public:
 		inline void cells_to(int genus) {
 			map_to(mp, map_dim(mp), genus);
 		}
+		inline void add_pm(int k, CMap *& mp) {
+			if (graph && 0 <= k && k < graph[1] && pm) { pm[k] = mp; mp = NULL;}
+		}
 		int bar_dim();
 		int arcs_number();
 		int arcs_number(int id_arc);
 		int circ_number(int id_arc);
+public:
 //...isometric transformations;
 		void cells_iso(double * P, double &CZ, double &SZ, double &CY, double &SY, double &CX, double &SX);
 		void cells_iso(double * P, double fi = 0., double theta = 0., double fX = 0.);
@@ -107,6 +124,7 @@ public:
 				bar_iso (P);
 			}
 		}
+public:
 //...spatial arc of the cell;
 		inline double cells_length() {
 			double length = 0.;
@@ -173,9 +191,11 @@ public:
 			if (mp[0] == ID_MAP(1, ELL_CONE_GENUS)) {
 			}
 		}
+public:
 //...cells identification;
 		int   topo_id(Topo some_element, Topo exc_element = -1);
 		int common_id(CCells * ce);
+public:
 //...cells ordering;
 		inline void bar_mutat(int k, int m) {
 			if (! mp && k < graph[0] && m < graph[0]) {
@@ -201,7 +221,8 @@ public:
 		void cells_invers2();
 		void cells_invers(int id_sub_element = NULL_STATE);
 		void cells_cyclic_shift(int m = 1);
-//...cells including in the surface structure;
+public:
+//...cells including in structure of surface;
 		void topo_correct	  (int N = -1,  int N_new = -1, int id_list = OK_STATE);
 		int  cells_id		  (CCells * ce, int id_num_correct = NULL_STATE);
 		int  cells_in_struct(CCells * ce, int id_num_correct = NULL_STATE);
@@ -210,6 +231,7 @@ public:
 		void search_cells_element	(int *& id, int & N_buf, int & buf_size, int buf_delta = 20);
 		int   bar_add(CCells * ext_ce, int id_cell = OK_STATE, int buf_delta = 20);
 		void trim_add(CCells *& trim,  int id_mp   = OK_STATE);
+public:
 //...cells extraction from surface geometry;
 		inline CMap * map_cpy(int N) {
 			if (0 <= N && N < graph[0]) return(::map_cpy(ce[N]->mp));
@@ -222,11 +244,13 @@ public:
 		}
 		inline Topo  * graph_cpy(int N) {
 			if (N >= graph[0] || N < 0) return(NULL);
-			Topo * new_graph = (Topo *)new_struct((ce[N]->graph[1]+2)*sizeof(Topo));
+			Topo * new_graph = new_struct<Topo>(ce[N]->graph[1]+2);
 			if ( ! new_graph) return(new_graph);
 			memcpy(new_graph, ce[N]->graph, (ce[N]->graph[1]+2)*sizeof(Topo));
 			return(new_graph);
 		}
+public:
+//...bar functions;
 		int		bar_span(CMap *& ext_mp);
 		CCells * bar_cpy(int N, int id_origine = NULL_STATE, int buf_delta = 20);
 		CCells * bar_sub(int N, int id_origine = NULL_STATE, int buf_delta = 20);
@@ -254,27 +278,31 @@ protected:
 		int id_curve3_quad();
 		int id_curve4_quad();
 public:
+//...universal identification;
 		int segms_id ();
 		int segms_bar();
 protected:
-//...uniform grid for one dimension cells;
+//...uniform gridding for one dimension cells;
 		int  grid_line     (CGrid * nd, double h, int Max_N, int hit = 1);
 		int  grid_circ     (CGrid * nd, double h, int Max_N, int hit = 0);
 		int  grid_ellipt   (CGrid * nd, double h, int Max_N, int hit = 1);
 public:
+//...universal one dimension gridding;
 		int  grid_cells1   (CGrid * nd, double h = 0., int Max_knee = 20);
 		int  grid_skeleton (CGrid * nd, double h = 0., int Max_knee = 10, int id_full = 0, Topo * link = NULL);
 protected:
-//...cells interior;
+//...cells auto-interior;
 		int  in_plane_facet(double * P, double *  pm, int   N_arc, int k1, int k2);
 		int  in_plane_facet(double * P, double *& pm, int & N_ini, int * mm, int id_fast);
 		int  in_half_plane (double X, double Y, double Z, int id_local = OK_STATE, double eps = EE_ker);
 public:
+//...universal interior functions;
 		int  in_poly_body	(double X, double Y, double Z, int id_local = NULL_STATE, int * mm = NULL, double eps = EE_ker);
 		int  in_poly_facet(double X, double Y, double Z, int id_fast = OK_STATE, double eps = EE_ker);
 		int  in_bar_facet	(double X, double Y, double Z, int id_fast = ZERO_STATE);
 		int  in_bar			(double X, double Y);
 		int  in_bar_cell	(double X, double Y);
+public:
 //...auxilliary functions for lines and circular arcs;
 		inline complex get_arc_center() {
 			if (mp && ID_MAP(1, SPHERE_GENUS) == mp[0]) return comp(mp[1], mp[2]);
@@ -329,8 +357,8 @@ public:
 				X -= P2[0];
 				Y -= P2[1];
 				Z -= P2[2];
-		////////////////////////////////////
-		//...коррекци€ геометрической карты;
+////////////////////////////////
+//...geometrical map correction;
 				mp[1] = (CMap)(P1[0]+P2[0])*.5;
 				mp[2] = (CMap)(P1[1]+P2[1])*.5;
 				mp[3] = (CMap)(P1[2]+P2[2])*.5;
@@ -392,7 +420,7 @@ public:
 					mp[1] = (CMap)(P1[0]+sg*R*cos(fi+sg*beta));
 					mp[2] = (CMap)(P1[1]+sg*R*sin(fi+sg*beta));
 					mp[5] = (CMap)theta;
-					mp[6] = (CMap)(cos(theta)*fi); //...устанавливаем "доворот" в mp[6];
+					mp[6] = (CMap)(cos(theta)*fi); //...installing additional turn in mp[6];
 					mp[7] = (CMap)R;
 					mp[8] = (CMap)beta;
 					mp[3] =
@@ -405,13 +433,15 @@ protected:
 		void curve1_tria_QG(CGrid * nd, int N_elem);
 		void curve2_tria_QG(CGrid * nd, int N_elem);
 		void curve1_quad_QG(CGrid * nd, int N_elem);
-		void curve2_quad_QG(CGrid * nd, int N_elem);
+		void curve2_quad_QG(CGrid * nd, int N_elem) {};
 		void curve11quad_QG(CGrid * nd, int N_elem);
-		void curve3_quad_QG(CGrid * nd, int N_elem);
-		void curve4_quad_QG(CGrid * nd, int N_elem);
+		void curve3_quad_QG(CGrid * nd, int N_elem) {};
+		void curve4_quad_QG(CGrid * nd, int N_elem) {};
 public:
+//...universal quadratures;
 		void facet_QG(CGrid * nd, int N_elem, int N_max = 1, double * pp_cond = NULL, int id_fast = OK_STATE);
 		void segms_QG(CGrid * nd, int N_elem, int N_max = 1, double * pp_cond = NULL, int id_fast = OK_STATE);
+public:
 //...library of basic elements;
       void get_point				(double * P);
       void get_point				(double X, double Y, double Z);
@@ -433,11 +463,13 @@ public:
 		void get_sheet_intrusion(double A, double B, double rad);
       void get_box				(double A, double B, double C);
 		void get_sph_intrusion	(double R, double L);
+public:
 //...special compositions;
 		void get_circle_profile	(double r);
       void get_ugolok			(double beta, double radc, double rad, double A1, double B1, double A2, double B2);
       void get_ugolok_cell		(double A1, double A2, double B1, double B2, double radc,
 										 double rad, double beta, double x0 = 0., double y0 = 0., double f0 = 0.);
+public:
 //...geometrical segments;
       void get_blend_cyl_segment	(double beta, double R, double L, int * mm = NULL);
       void get_torus_segment		(double r0,    double r1, double f0, double f1, double t0, double t1);
@@ -445,16 +477,19 @@ public:
       void get_cone_segment		(double theta, double f0, double f1, double t0, double t1);
       void get_cyl_segment			(double R,     double f0, double f1, double t0, double t1);
       void get_sph_segment			(double R,     double f0, double f1, double t0, double t1);
+public:
 //...plane and space composition of cells;
       void get_polygon_directly    (double * X, double * Y, int N, int id_dbl = 0, double eps = EE_ker);
       void get_arc_polygon_directly(double * X, double * Y, double * R, int * topo, int N, int id_dbl = 0, double eps = EE_ker);
       void get_line_strip_directly (double * X, double * Y, double * Z, int * geom, int * mask = NULL, int shift = 2, int id_fast = OK_STATE, int id_dbl = NULL_STATE, double eps = EE_ker);
       void get_beam                (CCells * f0, double length);
       void get_cyl_beam            (CCells * f0, double fi);
+public:
 //...plane facet compositions;
       void get_facet_directly(double * P, int N, int id_plane = NULL_STATE, int id_fast = NULL_STATE, int id_dbl_point = NULL_STATE, double eps = EE_ker);
       void get_tria_facet(double * P1, double * P2, double * P3, int id_fast = OK_STATE);
       void get_quad_facet(double * P1, double * P2, double * P3, double * P4, int id_fast = OK_STATE);
+public:
 //...plane facet and node compositions;
       int  SetFacetParam (int k, double square, double * pp = NULL, int id_property = DEFAULT_BND);
       void SetFacetXParam(int k, double X0, double * pp, int id_property) {
@@ -477,6 +512,7 @@ public:
 		void SetNodeXZParam (double X0, double Z0, double * pp, int id_property);
 		void SetNodeYZParam (double Y0, double Z0, double * pp, int id_property);
 		void SetNodeXYZParam(double X0, double Y0, double Z0, double * pp, int id_property);
+public:
 //...polygonal compositions and boundary conditions;
       void get_nd_bar_directly(CGrid * nd, int k);
       int  set_nd_bar_condit(int k, CGrid * nd, int k1, int k2, int id_property, double * pp, int * id_pp, double & S, int id_facet = -1);
@@ -485,6 +521,6 @@ public:
 ////////////////////////////////////////
 //...complete deleting of abstract cell;
 inline void delete_cells(CCells *& ce) {
-	ce->zero_cells(); delete ce; ce = NULL;
+	ce->release(); delete ce; ce = NULL;
 }
 #endif

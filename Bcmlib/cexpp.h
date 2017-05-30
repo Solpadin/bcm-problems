@@ -18,17 +18,12 @@ class CSkin3DExpp : public CShape<T> {
 protected:
 		T * sk;
 public:
-		Num_Shape    type() { return SK3D_EXPP_SHAPE;}
 		int freedom (int m) { return sqr(m+1);}
 		int size_of_param() { return(2);}
 public:
 //...initialization of multipoles;
-		void release() {
-			 delete_struct(sk); 
-			 CShape<T>::release();
-		}
 		void set_shape(double R0, double kk = 0., double p1 = 0., double p2 = 0., double p3 = 0., double p4 = 0.) {
-			 CShape<T>::R0 = R0;
+			 this->R0 = R0;
 			 this->R0_inv  = R0 > EE ? 1./R0 : 1.;
 			 int   k    = -1;
 			 if (++k < size_of_param()) this->param[k] = (Param)kk; else return;
@@ -46,13 +41,21 @@ public:
 		void deriv_X(T * deriv, double f = 1.);
 		void deriv_Y(T * deriv, double f = 1.);
 		void deriv_Z(T * deriv, double f = 1.);
-//...constructor;
-		CSkin3DExpp (int inverse = 0) {
+public:
+		void init() {
 			delete_struct(this->param);
-			this->param = (Param *)new_struct(size_of_param()*sizeof(Param));
+			this->param = new_struct<Param>(size_of_param());
+		}
+public:
+//...constructor and destructor;
+		CSkin3DExpp(int inverse = 0) {
+			this->sk = NULL;
 			this->id_inverse = inverse;
-			sk = NULL;
+			init();
        }
+		virtual ~CSkin3DExpp(void) { 
+			 delete_struct(this->sk); 
+		}
 };
 
 ////////////////////////////////////////////////////////////////
@@ -60,7 +63,6 @@ public:
 template <typename T>		
 class CSkin3DZoom : public CSkin3DExpp<T> {
 public:
-		Num_Shape   type() { return SK3D_ZOOM_SHAPE;}
 		int freedom(int m) { return(sqr(m+1));}
 public:
 //...initialization and calculation of multipoles;
@@ -86,10 +88,10 @@ template <typename T>
 void CSkin3DExpp<T>::parametrization(double * P, int m_dop)
 {
 	if (! this->p) {
-			this->p  = (T *)new_struct((this->NN_dop = freedom(this->N+m_dop))*sizeof(T));
+		this->p = new_struct<T>(this->NN_dop = freedom(this->N+m_dop));
 ///////////////////////
 //...technical support;
-			delete_struct(sk); sk = (T *)new_struct((this->N+m_dop+1)*sizeof(T));
+		delete_struct(this->sk); this->sk = new_struct<T>(this->N+m_dop+1);
 	}
 	if (P && this->p) {
 		double  Z = P[2], f3 = Z*Z, rr, r2, r1, r0 = sqr(0.5*this->param[1]);
@@ -117,7 +119,7 @@ void CSkin3DExpp<T>::parametrization(double * P, int m_dop)
 		//	r0 = sqr(this->param[1]/sqr(this->param[0]));
 		//	hh = exp( this->param[0]*rr)*.5; 
 		//	h1 = exp(-this->param[0]*rr)*.5; 
-		//	h2 = (hh-h1)/(r0*param[0]);
+		//	h2 = (hh-h1)/(r0*this->param[0]);
 		//	h1 = (hh+h1)/rr; 
 		//	this->cs[4] = (sqr(rr*this->param[0])-2.*(rr*this->param[0])+2.)/sqr(rr*this->param[0]);
 		//	this->cs[5] = 2./(sqr(rr*this->param[0])*rr);
@@ -144,8 +146,8 @@ void CSkin3DExpp<T>::parametrization(double * P, int m_dop)
 ////////////////////////////////////////////////////////////
 //...рабочая прогонка специальных функций в оба направления;
 		//int M = 15;
-		//T * sk1 = (T *)new_struct(M*sizeof(T)),
-		//  * sk2 = (T *)new_struct(M*sizeof(T));
+		//T * sk1 = new_struct<T>(M),
+		//  * sk2 = new_struct<T>(M);
 
 		//for (sk1[m = 0] = h1; m < M; sk1[++m] = h1) {
 		//	  h2 = (sqr(this->param[0])*h2*r0-(2.*m+1.)*h1)*r0/sqr(rr); 
@@ -155,28 +157,28 @@ void CSkin3DExpp<T>::parametrization(double * P, int m_dop)
 		//		sk2[m] = (sk2[m+2]*sqr(rr)/r0+(2.*m+3.)*sk2[m+1])/(sqr(this->param[0])*r0); 
 //...рабочая прогонка специальных функций в оба направления;
 ////////////////////////////////////////////////////////////
-		for ( sk[m = 0] = h1; m < this->N+m_dop; sk[++m] = h1) {
+		for ( this->sk[m = 0] = h1; m < this->N+m_dop; this->sk[++m] = h1) {
 			  h2 = sqr(this->param[0])*h2*r2-(2.*m+1.)*h1*r1; 
 			  swap(h1, h2);
 		}
 ///////////////////////////////////
 //...calculation of the multipoles;
 		for (F1 = (zm = 1.),  F2 = (zm_i = 0.), i = 0; i < this->N+m_dop; i++) {
-			  F2 = ((2.*i+1.)*Z*F1-i*f3*F2)/(i+1.); this->p[i*i] = F1*sk[i]; 
+			  F2 = ((2.*i+1.)*Z*F1-i*f3*F2)/(i+1.); this->p[i*i] = F1*this->sk[i]; 
 			  swap(F1, F2);
 		}
-		for (this->p[i*i] = F1*sk[i],	m = 1; m <= this->N+m_dop; m++) {
+		for (this->p[i*i] = F1*this->sk[i],	m = 1; m <= this->N+m_dop; m++) {
 			 for (F1 = (zm = (hh = zm)*real(z)-zm_i*imag(z)), F2 = 0., 
 					F1_i = (zm_i = hh*imag(z)+zm_i*real(z)), F2_i = 0., i = m; i < this->N+m_dop; i++) {
-					this->p[i*i+m*2-1] = F1_i*sk[i];
-					this->p[i*i+m*2]   = F1*sk[i];
+					this->p[i*i+m*2-1] = F1_i*this->sk[i];
+					this->p[i*i+m*2]   = F1*this->sk[i];
 					F2 = ((h1 = (2.*i+1.)*Z)*F1-(h2 = (i-m)*f3)*F2)*(hh = 1./(i+m+1.)); 
 					F2_i = (h1*F1_i-h2*F2_i)*hh; 
 					swap(F1, F2);
 					swap(F1_i, F2_i);
 			 }
-			 this->p[i*i+m*2-1] = F1_i*sk[i];
-			 this->p[i*i+m*2]   = F1*sk[i];
+			 this->p[i*i+m*2-1] = F1_i*this->sk[i];
+			 this->p[i*i+m*2]   = F1*this->sk[i];
 		}
 	}
 }
@@ -184,10 +186,10 @@ template <typename T>
 void CSkin3DZoom<T>::parametrization(double * P, int m_dop)
 {
 	if (! this->p) {
-			this->p  = (T *)new_struct((this->NN_dop = freedom(this->N+m_dop))*sizeof(T));
+		this->p = new_struct<T>(this->NN_dop = freedom(this->N+m_dop));
 ///////////////////////
 //...technical support;
-			delete_struct(this->sk); this->sk = (T *)new_struct((this->N+m_dop+2)*sizeof(T));
+		delete_struct(this->sk); this->sk = new_struct<T>(this->N+m_dop+2);
 	}
 	if (P && this->p) {
 		double   Z = P[2]*this->R0_inv;
@@ -204,7 +206,7 @@ void CSkin3DZoom<T>::parametrization(double * P, int m_dop)
 		r2		= rr*rr;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
-//...prepare of the skin functions: sk[m] = Norm*(1/r*d/dr)**m [sh(kappa*r)/r]*(kappa)*(-2*m-1);
+//...prepare of the skin functions: this->sk[m] = Norm*(1/r*d/dr)**m [sh(kappa*r)/r]*(kappa)*(-2*m-1);
 		hh = fabs(this->param[0]*this->param[1]);
 		if ( to_double(hh) > 5e-4) hh = this->param[0]*this->param[1]/(1.-exp(to_double(-2.*this->param[0]*this->param[1]))); 
 		else hh = .5+hh*hh*.25*(1.-hh*hh*.1);
@@ -552,7 +554,6 @@ void CSkin3DZoom<T>::deriv_Z(T * deriv, double f)
 template <typename T>
 class CMapi3DEll : public CShape<T> {
 public:
-		Num_Shape   type() {return MP3D_ELLI_SHAPE;}
 		int freedom(int m) {return (m+1)*(m+2);}
 public:
 //...calculation of multipoles;
@@ -563,9 +564,9 @@ public:
 		void deriv_X(T * deriv, double f = 1.);
 		void deriv_Y(T * deriv, double f = 1.);
 		void deriv_Z(T * deriv, double f = 1.);
+public:
 //...constructor;
-		CMapi3DEll () {
-			this->param = (Param *)new_struct(this->size_of_param()*sizeof(Param));
+		CMapi3DEll() {
 		}
 };
 
@@ -574,7 +575,6 @@ public:
 template <typename T>
 class CSkin2DEll : public CShape<T> {
 public:
-		Num_Shape    type() { return SK2D_ELLI_SHAPE;}
 		int freedom (int m) { return (m+1)*2;}
 		int size_of_param() { return(5);}
 public:
@@ -585,10 +585,15 @@ public:
 //...differentiation;
 		void deriv_X(T * deriv, double f = 1.);
 		void deriv_Y(T * deriv, double f = 1.);
+public:
+		void init() {
+			delete_struct(this->param);
+			this->param = new_struct<Param>(size_of_param());
+		}
+public:
 //...constructor;
 		CSkin2DEll() {
-			delete_struct(this->param);
-			this->param = (Param *)new_struct(size_of_param()*sizeof(Param));
+			init();
 		}
 };
 
@@ -611,7 +616,7 @@ template <typename T>
 void CMapi3DEll<T>::parametrization(double * P, int m_dop)
 {
 	if (! this->p) {
-		this->p = (T *)new_struct((this->NN_dop = freedom(this->N))*sizeof(T));
+		this->p = new_struct<T>(this->NN_dop = freedom(this->N));
 	}
 	if (P) { //...индексация -- [n*(n+1)+m*2], [n*(n+1)+m*2+1];
 		int m0(0), m1(2), m2, i, i0, i1, i2, m;
@@ -642,7 +647,7 @@ template <typename T>
 void CSkin2DEll<T>::parametrization(double * P, int m_dop)
 {
 	if (! this->p) {
-		this->p = (T *)new_struct((this->NN_dop = freedom(this->N))*sizeof(T));
+		this->p = new_struct<T>(this->NN_dop = freedom(this->N));
 	}
 	if (P) {
 		int  i, i2;
@@ -681,10 +686,15 @@ template <typename T>
 void CMapi3DEll<T>::parametrization_grad(double * P, int m_dop)
 {
 	parametrization(P);
-	if (! this->px && ! this->py && ! this->pz) {
-		this->px = (T *)new_struct((this->NN_grad = this->NN_dop)*sizeof(T));
-		this->py = (T *)new_struct( this->NN_grad*sizeof(T));
-		this->pz = (T *)new_struct( this->NN_grad*sizeof(T));
+	if (! P) {
+		delete_struct(this->px);
+		delete_struct(this->py);
+		delete_struct(this->pz);
+	}
+	if (P && ! this->px && ! this->py && ! this->pz) {
+		this->px = new_struct<T>(this->NN_grad = this->NN_dop);
+		this->py = new_struct<T>(this->NN_grad);
+		this->pz = new_struct<T>(this->NN_grad);
 	}
 	if (P && this->px && this->py && this->pz) {
 		memset (this->px, 0, this->NN_grad*sizeof(T));
@@ -700,9 +710,13 @@ template <typename T>
 void CSkin2DEll<T>::parametrization_grad(double * P, int m_dop)
 {
 	parametrization(P);
-	if (! this->px && ! this->py) {
-		this->px = (T *)new_struct((this->NN_grad = this->NN_dop)*sizeof(T));
-		this->py = (T *)new_struct( this->NN_grad*sizeof(T));
+	if (! P) {
+		delete_struct(this->px);
+		delete_struct(this->py);
+	}
+	if (P && ! this->px && ! this->py) {
+		this->px = new_struct<T>(this->NN_grad = this->NN_dop);
+		this->py = new_struct<T>(this->NN_grad);
 	}
 	if (P && this->px && this->py) {
 		memset (this->px, 0, this->NN_grad*sizeof(T));
@@ -718,13 +732,21 @@ template <typename T>
 void CMapi3DEll<T>::parametrization_hess(double * P, int m_dop)
 {
 	parametrization_grad(P);
-	if (! this->pxx && ! this->pxy && ! this->pyy && ! this->pxz && ! this->pyz && ! this->pzz) {
-		this->pxx = (T *)new_struct((this->NN_hess = this->NN_grad)*sizeof(T));
-		this->pxy = (T *)new_struct( this->NN_hess*sizeof(T));
-		this->pyy = (T *)new_struct( this->NN_hess*sizeof(T));
-		this->pxz = (T *)new_struct( this->NN_hess*sizeof(T));
-		this->pyz = (T *)new_struct( this->NN_hess*sizeof(T));
-		this->pzz = (T *)new_struct( this->NN_hess*sizeof(T));
+	if (! P) {
+		delete_struct(this->pxx);
+		delete_struct(this->pxy);
+		delete_struct(this->pyy);
+		delete_struct(this->pxz);
+		delete_struct(this->pyz);
+		delete_struct(this->pzz);
+	}
+	if (P && ! this->pxx && ! this->pxy && ! this->pyy && ! this->pxz && ! this->pyz && ! this->pzz) {
+		this->pxx = new_struct<T>(this->NN_hess = this->NN_grad);
+		this->pxy = new_struct<T>(this->NN_hess);
+		this->pyy = new_struct<T>(this->NN_hess);
+		this->pxz = new_struct<T>(this->NN_hess);
+		this->pyz = new_struct<T>(this->NN_hess);
+		this->pzz = new_struct<T>(this->NN_hess);
 	}
 	if (P && this->pxx && this->pxy && this->pyy && this->pxz && this->pyz && this->pzz) {
 		memset (this->pxx, 0, this->NN_hess*sizeof(T));
@@ -752,10 +774,15 @@ template <typename T>
 void CSkin2DEll<T>::parametrization_hess(double * P, int m_dop)
 {
 	parametrization_grad(P);
-	if (! this->pxx && ! this->pxy && ! this->pyy) {
-		this->pxx = (T *)new_struct((this->NN_hess = this->NN_grad)*sizeof(T));
-		this->pxy = (T *)new_struct( this->NN_hess*sizeof(T));
-		this->pyy = (T *)new_struct( this->NN_hess*sizeof(T));
+	if (! P) {
+		delete_struct(this->pxx);
+		delete_struct(this->pxy);
+		delete_struct(this->pyy);
+	}
+	if (P && ! this->pxx && ! this->pxy && ! this->pyy) {
+		this->pxx = new_struct<T>(this->NN_hess = this->NN_grad);
+		this->pxy = new_struct<T>(this->NN_hess);
+		this->pyy = new_struct<T>(this->NN_hess);
 	}
 	if (P && this->pxx && this->pxy && this->pyy) {
 		memset (this->pxx, 0, this->NN_hess*sizeof(T));
@@ -850,7 +877,6 @@ void CMapi3DEll<T>::deriv_Z(T * deriv, double f)
 template <typename T>
 class CSkin2DBeamZ : public CShape<T> {
 public:
-		Num_Shape    type() { return SK2D_BEAMZSHAPE;}
 		int freedom (int m) { return((m+1)*2);}
 		int size_of_param() { return(2);}
 public:
@@ -861,10 +887,15 @@ public:
 //...differentiation;
 		void deriv_X(T * deriv, double f = 1.);
 		void deriv_Y(T * deriv, double f = 1.);
-//...constructor;
-		CSkin2DBeamZ () {
+public:
+		void init() {
 			delete_struct(this->param);
-			this->param = (Param *)new_struct(size_of_param()*sizeof(Param));
+			this->param = new_struct<Param>(size_of_param());
+		}
+public:
+//...constructor;
+		CSkin2DBeamZ() {
+			init();
 		}
 };
 
@@ -889,25 +920,15 @@ public:
 public:
 //...initialization of multipoles;
 		void set_shape(double R0, double kk = 0., double kk_dop = 0., double L1 = 0., double L2 = 0.) {
-			CSkin3DBeam<T>::R0 = R0;
-			this->R0_inv     = R0 > EE ? 1./R0 : 1.;
+			this->R0 = R0;
+			this->R0_inv     = this->R0 > EE ? 1./this->R0 : 1.;
 			int   k    = -1;
-			if (++k < size_of_param()) this->param[k] = (Param)((kk = sqrt(fabs(kk*kk-kk_dop*kk_dop)))*this->R0);
-			if (++k < size_of_param()) this->param[k] = (Param)(this->param[0] > EE ? 1./this->param[0] : 1.);
-			if (++k < size_of_param()) this->param[k] = (Param)(this->param[0]*this->param[0]);
-			if (++k < size_of_param()) this->param[k] = (Param)kk;
-			if (++k < size_of_param()) this->param[k] = (Param)((kk_dop = fabs(kk_dop))*this->R0);
-			if (++k < size_of_param()) this->param[k] = (Param)kk_dop;
-		}
-		void release() {
-			delete_struct(pim);
-			delete_struct(pxim);
-			delete_struct(pyim);
-			delete_struct(pzim);
-			delete_struct(sk);
-			delete_struct(sz);
-			delete_struct(E1);
-			CShape<T>::release();
+			if (++k < size_of_param()) this->param[k] = Param((kk = sqrt(fabs(kk*kk-kk_dop*kk_dop)))*this->R0);
+			if (++k < size_of_param()) this->param[k] = Param(this->param[0] > EE ? 1./this->param[0] : 1.);
+			if (++k < size_of_param()) this->param[k] = Param(this->param[0]*this->param[0]);
+			if (++k < size_of_param()) this->param[k] = Param(kk);
+			if (++k < size_of_param()) this->param[k] = Param((kk_dop = fabs(kk_dop))*this->R0);
+			if (++k < size_of_param()) this->param[k] = Param(kk_dop);
 		}
 public:
 //...calculation of multipoles;
@@ -918,12 +939,23 @@ public:
 		void deriv_X(T * deriv, double f = 1.);
 		void deriv_Y(T * deriv, double f = 1.);
 		void deriv_Z(T * deriv, double f = 1.);
-//...constructor;
-		CSkin3DBeam () {
+public:
+		void init() {
 			delete_struct(this->param);
-			this->param   = (Param *)new_struct(size_of_param()*sizeof(Param));
-			sk = sz = pim = pxim = pyim = pzim = NULL;
+			this->param = new_struct<Param>(size_of_param());
+		}
+public:
+//...constructor and destructor;
+		CSkin3DBeam () {
+			this->sk = sz = pim = pxim = pyim = pzim = NULL;
 			E1 = E1_i = NULL;
+			init();
+		}
+		virtual ~CSkin3DBeam(void) { 
+			delete_struct(pim);
+			delete_struct(pxim);	delete_struct(pyim);	delete_struct(pzim);
+			delete_struct(this->sk);   delete_struct(sz);
+			delete_struct(E1);	delete_struct(E1_i);
 		}
 };
 
@@ -947,7 +979,7 @@ template <typename T>
 void CSkin2DBeamZ<T>::parametrization(double * P, int m_dop)
 {
 	if (! this->p) {
-			this->p = (T *)new_struct((this->NN_dop = freedom(this->N))*sizeof(T));
+		this->p = new_struct<T>(this->NN_dop = freedom(this->N));
 	}
 	if (P && this->p) {
 		T   X = P[0]*this->R0_inv, Y = P[1]*this->R0_inv,
@@ -979,14 +1011,14 @@ template <typename T>
 void CSkin3DBeam<T>::parametrization(double * P, int m_dop)
 {
 	if (! this->p) {
-			this->p   = (T *)new_struct((this->NN_dop = freedom(this->N+m_dop))*sizeof(T));
-			pim = (T *)new_struct( this->NN_dop*sizeof(T));
+		this->p = new_struct<T>(this->NN_dop = freedom(this->N+m_dop));
 ///////////////////////
 //...technical support;
-			delete_struct(sk); sk = (T *)new_struct((this->N+1+m_dop)*sizeof(T));
-			delete_struct(sz); sz = (T *)new_struct((this->N+1+m_dop)*sizeof(T));
-			delete_struct(E1); E1 = (T *)new_struct((this->N+1+m_dop)*sizeof(T));
-			delete_struct(E1_i); E1_i = (T *)new_struct((this->N+1+m_dop)*sizeof(T));
+		delete_struct(pim);  pim  = new_struct<T>(this->NN_dop);
+		delete_struct(this->sk);   this->sk   = new_struct<T>(this->N+1+m_dop);
+		delete_struct(sz);   sz   = new_struct<T>(this->N+1+m_dop);
+		delete_struct(E1);   E1   = new_struct<T>(this->N+1+m_dop);
+		delete_struct(E1_i); E1_i = new_struct<T>(this->N+1+m_dop);
 	}
 	if (P && this->p && pim) {
 		int  i, j, l, ii, nm, m;
@@ -1005,7 +1037,7 @@ void CSkin3DBeam<T>::parametrization(double * P, int m_dop)
 ///////////////////////////////////
 //...calculation of the multipoles;
 		for (sz[i = 0] = 1.; i < this->N+m_dop; i++) sz[i+1] = sz[i]*Z;
-		if (sk) {
+		if (this->sk) {
 			T  z = this->param[0]*rr, h0, rr0 = z*z*.25;
 			int m;
 			for ( m = 0, h0 = 1.; m <= this->N+m_dop; m++, h0 *= rr) {
@@ -1015,14 +1047,14 @@ void CSkin3DBeam<T>::parametrization(double * P, int m_dop)
 					 P += (f *= rr0/((T)k*(m+k))); ++k;
 				}
 				while (fabs(f) > EE);
-				sk[m] = h0*P;
+				this->sk[m] = h0*P;
 			}
 		}
 		for (i = 0; i <= this->N+m_dop; i++) {
 			memset(E1, 0, (this->N+m_dop+1)*sizeof(T));
 			memset(E1_i, 0, (this->N+m_dop+1)*sizeof(T));
 			E1[nm = i] = 1.; E1_i[nm] = 1.;
-			F = (ff = .5)*E1[nm]*sz[nm]*sk[0]; F_i = ff*E1_i[nm]*sz[nm]*sk[0];
+			F = (ff = .5)*E1[nm]*sz[nm]*this->sk[0]; F_i = ff*E1_i[nm]*sz[nm]*this->sk[0];
 			for (ii = i*i, j = 1; j <= nm; j++) {
 				f = .25/sqr(j);
 				A = 0.; A_i = 0.;
@@ -1035,7 +1067,7 @@ void CSkin3DBeam<T>::parametrization(double * P, int m_dop)
 				E1[l] = (l+1.)*(-2.*this->param[4]*E1[l+1])*f;
 				E1_i[l] = (l+1.)*(2.*this->param[4]*E1_i[l+1])*f;
 				A += E1[l]*d; A_i += E1_i[l]*d;
-				F += (ff *= rr)*A*sk[j]; F_i += ff*A_i*sk[j];
+				F += (ff *= rr)*A*this->sk[j]; F_i += ff*A_i*this->sk[j];
 			}
 			this->p  [ii] = F*Co+F_i*Si;
 			pim[ii] = F*Co-F_i*Si;
@@ -1045,7 +1077,7 @@ void CSkin3DBeam<T>::parametrization(double * P, int m_dop)
 			memset(E1, 0, (this->N+m_dop+1)*sizeof(T)); memset(E1_i, 0, (this->N+m_dop+1)*sizeof(T)); 
 
 			E1[nm = i-m] = 1.; E1_i[nm] = 1.;
-			F = (ff = .5)*E1[nm]*sz[nm]*sk[m]; F_i = ff*E1_i[nm]*sz[nm]*sk[m];
+			F = (ff = .5)*E1[nm]*sz[nm]*this->sk[m]; F_i = ff*E1_i[nm]*sz[nm]*this->sk[m];
 			for (ii = i*i, j = 1; j <= nm; j++) {
 				f = .25/(j*(m+j));
 				A = 0.; A_i = 0.;
@@ -1059,7 +1091,7 @@ void CSkin3DBeam<T>::parametrization(double * P, int m_dop)
 				E1[l] = (l+1.)*(-2.*this->param[4]*E1[l+1])*f;
 				E1_i[l] = (l+1.)*(2.*this->param[4]*E1_i[l+1])*f;
 				A += E1[l]*d; A_i += E1_i[l]*d;
-				F += (ff *= rr)*A*sk[m+j];	F_i += ff*A_i*sk[m+j];
+				F += (ff *= rr)*A*this->sk[m+j];	F_i += ff*A_i*this->sk[m+j];
 			}
 			this->p  [ii+m*2-1] = (F*Co+F_i*Si)*zm_i;
 			this->p  [ii+m*2]   = (F*Co+F_i*Si)*zm;
@@ -1079,9 +1111,9 @@ void CSkin2DBeamZ<T>::parametrization_grad(double * P, int m_dop)
 		delete_struct(this->px);
 		delete_struct(this->py);
 	}
-	if (! this->px && ! this->py) {
-		this->px = (T *)new_struct((this->NN_grad = this->NN_dop)*sizeof(T));
-		this->py = (T *)new_struct( this->NN_grad*sizeof(T));
+	if (P && ! this->px && ! this->py) {
+		this->px = new_struct<T>(this->NN_grad = this->NN_dop);
+		this->py = new_struct<T>(this->NN_grad);
 	}
 	if (P && this->px && this->py) {
 		memset (this->px, 0, this->NN_grad*sizeof(T));
@@ -1095,13 +1127,20 @@ template <typename T>
 void CSkin3DBeam<T>::parametrization_grad(double * P, int m_dop)
 {
 	parametrization(P, m_dop+1);
-	if (! this->px && ! this->py && ! this->pz && ! pxim && ! pyim && ! pzim) {
-		this->px = (T *)new_struct((this->NN_grad = freedom(this->N+m_dop))*sizeof(T));
-		this->py = (T *)new_struct( this->NN_grad*sizeof(T));
-		this->pz = (T *)new_struct( this->NN_grad*sizeof(T));
-		pxim = (T *)new_struct( this->NN_grad*sizeof(T));
-		pyim = (T *)new_struct( this->NN_grad*sizeof(T));
-		pzim = (T *)new_struct( this->NN_grad*sizeof(T));
+	if (! P) {
+		delete_struct(this->px);
+		delete_struct(this->py);
+		delete_struct(this->pz);
+	}
+	if (P && ! this->px && ! this->py && ! this->pz) {
+		this->px = new_struct<T>(this->NN_grad = freedom(this->N+m_dop));
+		this->py = new_struct<T>(this->NN_grad);
+		this->pz = new_struct<T>(this->NN_grad);
+///////////////////////
+//...technical support;
+		delete_struct(pxim); pxim = new_struct<T>(this->NN_grad);
+		delete_struct(pyim); pyim = new_struct<T>(this->NN_grad);
+		delete_struct(pzim); pzim = new_struct<T>(this->NN_grad);
 	}
 	if (P && this->px && this->py && this->pz && pxim && pyim && pzim) {
 		memset (this->px, 0, this->NN_grad*sizeof(T));
@@ -1134,10 +1173,10 @@ void CSkin2DBeamZ<T>::parametrization_hess(double * P, int m_dop)
 		delete_struct(this->pxy);
 		delete_struct(this->pyy);
 	}
-	if (! this->pxx && ! this->pxy && ! this->pyy) {
-		this->pxx = (T *)new_struct((this->NN_hess = this->NN_grad)*sizeof(T));
-		this->pxy = (T *)new_struct( this->NN_hess*sizeof(T));
-		this->pyy = (T *)new_struct( this->NN_hess*sizeof(T));
+	if (P && ! this->pxx && ! this->pxy && ! this->pyy) {
+		this->pxx = new_struct<T>(this->NN_hess = this->NN_grad);
+		this->pxy = new_struct<T>(this->NN_hess);
+		this->pyy = new_struct<T>(this->NN_hess);
 	}
 	if (P && this->pxx && this->pxy && this->pyy) {
 		memset (this->pxx, 0, this->NN_hess*sizeof(T));
@@ -1159,13 +1198,21 @@ template <typename T>
 void CSkin3DBeam<T>::parametrization_hess(double * P, int m_dop)
 {
 	parametrization_grad(P, m_dop+1);
-	if (! this->pxx && ! this->pxy && ! this->pyy && ! this->pxz && ! this->pyz && ! this->pzz) {
-		this->pxx = (T *)new_struct((this->NN_hess = freedom(this->N+m_dop))*sizeof(T));
-		this->pxy = (T *)new_struct( this->NN_hess*sizeof(T));
-		this->pyy = (T *)new_struct( this->NN_hess*sizeof(T));
-		this->pxz = (T *)new_struct( this->NN_hess*sizeof(T));
-		this->pyz = (T *)new_struct( this->NN_hess*sizeof(T));
-		this->pzz = (T *)new_struct( this->NN_hess*sizeof(T));
+	if (! P) {
+		delete_struct(this->pxx);
+		delete_struct(this->pxy);
+		delete_struct(this->pyy);
+		delete_struct(this->pxz);
+		delete_struct(this->pyz);
+		delete_struct(this->pzz);
+	}
+	if (P && ! this->pxx && ! this->pxy && ! this->pyy && ! this->pxz && ! this->pyz && ! this->pzz) {
+		this->pxx = new_struct<T>(this->NN_hess = freedom(this->N+m_dop));
+		this->pxy = new_struct<T>(this->NN_hess);
+		this->pyy = new_struct<T>(this->NN_hess);
+		this->pxz = new_struct<T>(this->NN_hess);
+		this->pyz = new_struct<T>(this->NN_hess);
+		this->pzz = new_struct<T>(this->NN_hess);
 	}
 	if (P && this->pxx && this->pxy && this->pyy && this->pxz && this->pyz && this->pzz) {
 		memset (this->pxx, 0, this->NN_hess*sizeof(T));

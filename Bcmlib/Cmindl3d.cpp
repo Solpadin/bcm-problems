@@ -1,6 +1,6 @@
 #include "stdafx.h"
 
-#include "shapes.h"
+#include "cshapes.h"
 #include "cmindl3d.h"
 
 #define  Message(Msg)   { printf("%s", Msg);  printf("\n");}
@@ -23,10 +23,10 @@ int  CMindl3D::block_shape_init(Block<double> & B, Num_State id_free)
 			B.shape->add_shape(CreateShape<double>(MP3D_POLY_SHAPE));
 			B.shape->add_shape(CreateShape<double>(MP3D_ZOOM_SHAPE));
 
-			B.shape->init1(0, UnPackInts(get_param(NUM_MPLS)), solver.id_norm, draft_dim(type()));
+			B.shape->degree_init1(0, UnPackInts(get_param(NUM_MPLS)), solver.id_norm, draft_dim(type()));
  			B.shape->set_shape(0, get_param(NUM_MPLS+1)*fabs(B.mp[7]));
 
-			B.shape->init1(1, UnPackInts(get_param(NUM_MPLS), 1), solver.id_norm, draft_dim(type()));
+			B.shape->degree_init1(1, UnPackInts(get_param(NUM_MPLS), 1), solver.id_norm, draft_dim(type()));
 			B.shape->set_shape(1, sqr(B.mp[8])/(get_param(NUM_MPLS+1)*fabs(B.mp[7])));
 
 ////////////////////////////////////////////////////////////////
@@ -37,22 +37,22 @@ int  CMindl3D::block_shape_init(Block<double> & B, Num_State id_free)
 			B.shape->add_shape(CreateShape<double>(SK3D_EXPP_SHAPE),	  NULL_STATE);
 			B.shape->add_shape(CreateShape<double>(SK3D_EXPP_SHAPE, 1), NULL_STATE);
 
-			B.shape->init1(2, UnPackInts(get_param(NUM_MPLS)), solver.id_norm, draft_dim(type()));
+			B.shape->degree_init1(2, UnPackInts(get_param(NUM_MPLS)), solver.id_norm, draft_dim(type()));
 			B.shape->set_shape(2, get_param(NUM_MPLS+1)*fabs(B.mp[7]), get_param(NUM_SHEAR+3));
 
-			B.shape->init1(3, UnPackInts(get_param(NUM_MPLS), 1), solver.id_norm, draft_dim(type()));
+			B.shape->degree_init1(3, UnPackInts(get_param(NUM_MPLS), 1), solver.id_norm, draft_dim(type()));
 			B.shape->set_shape(3, get_param(NUM_MPLS+1)*fabs(B.mp[7]), get_param(NUM_SHEAR+3));
 
-			B.shape->init1(4, UnPackInts(get_param(NUM_MPLS)), solver.id_norm, draft_dim(type()));
+			B.shape->degree_init1(4, UnPackInts(get_param(NUM_MPLS)), solver.id_norm, draft_dim(type()));
 			B.shape->set_shape(2, get_param(NUM_MPLS+1)*fabs(B.mp[7]), get_param(NUM_SHEAR+2));
 
-			B.shape->init1(5, UnPackInts(get_param(NUM_MPLS), 1), solver.id_norm, draft_dim(type()));
+			B.shape->degree_init1(5, UnPackInts(get_param(NUM_MPLS), 1), solver.id_norm, draft_dim(type()));
 			B.shape->set_shape(3, get_param(NUM_MPLS+1)*fabs(B.mp[7]), get_param(NUM_SHEAR+2));
 		}
 		else {
 			B.shape->add_shape(CreateShape<double>(MP3D_POLY_SHAPE));
 
-			B.shape->init1(0, UnPackInts(get_param(NUM_MPLS)), solver.id_norm, draft_dim(type()));
+			B.shape->degree_init1(0, UnPackInts(get_param(NUM_MPLS)), solver.id_norm, draft_dim(type()));
 			B.shape->set_shape(0, get_param(NUM_MPLS+1)*fabs(B.mp[7]));
 
 ////////////////////////////////////////////////////////////
@@ -60,10 +60,10 @@ int  CMindl3D::block_shape_init(Block<double> & B, Num_State id_free)
 			B.shape->add_shape(CreateShape<double>(SK3D_ZOOM_SHAPE), NULL_STATE);
 			B.shape->add_shape(CreateShape<double>(SK3D_ZOOM_SHAPE), NULL_STATE);
 
-			B.shape->init1(1, UnPackInts(get_param(NUM_MPLS)), solver.id_norm, draft_dim(type()));
+			B.shape->degree_init1(1, UnPackInts(get_param(NUM_MPLS)), solver.id_norm, draft_dim(type()));
 			B.shape->set_shape(1, get_param(NUM_MPLS+1)*fabs(B.mp[7]), get_param(NUM_SHEAR+3));
 
-			B.shape->init1(2, UnPackInts(get_param(NUM_MPLS)), solver.id_norm, draft_dim(type()));
+			B.shape->degree_init1(2, UnPackInts(get_param(NUM_MPLS)), solver.id_norm, draft_dim(type()));
 			B.shape->set_shape(1, get_param(NUM_MPLS+1)*fabs(B.mp[7]), get_param(NUM_SHEAR+2));
 		}
 

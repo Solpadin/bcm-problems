@@ -231,12 +231,12 @@
 
 /////////////////////////////////////////////
 //...функция, генерирующая квадратуры Гаусса;
-void QG_generate(int N, long double cc[][2])
+void CGrid_QG::QG_generate(int N, long double cc[][2])
 {
-	long double * h  = (long double *)new_struct(1500*sizeof(long double)), 
-					* an = (long double *)new_struct(30*sizeof(long double)),
-					* bn = (long double *)new_struct(30*sizeof(long double)),
-					* dn = (long double *)new_struct(30*sizeof(long double));
+	long double * h  = new_struct<long double>(1500), 
+					* an = new_struct<long double>(30),
+					* bn = new_struct<long double>(30),
+					* dn = new_struct<long double>(30);
 
 	int N1 = (N+1)/2, N2, N3, i, j, k, sg, 
 		 nn, m, m1, m2, m3, m5, ms, ns;

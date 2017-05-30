@@ -10,11 +10,12 @@
 /////////////////////////////////////////////////
 //...description of existing types of multipoles;
 enum Num_Shape {
-						NULL_SHAPE = 0,
+						NULL_SHAPE,
 ///////////////////////////
 //...гармонические функции;
 				 MP2D_POLY_SHAPE,
 				 MP3D_POLY_SHAPE,
+				 MP2D_ZOOM_SHAPE,
 				 MP3D_ZOOM_SHAPE,
 				 MP3D_ELLI_SHAPE,
 				 BEAM_POLY_SHAPE,
@@ -57,8 +58,19 @@ enum Num_Shape {
 				 AU3D_BEAMZSHAPE,
 				  AU_YJUMP_SHAPE,
 			  AU3D_CORNER_SHAPE,
+//////////////////////////////////////////////////////////////
+//...системы радиальных функций (экспоненциальных и волновых);
+		 SK2D_RADII_POLY_SHAPE,
+		 SK2D_RADII_ZOOM_SHAPE,
+		 SK3D_RADII_POLY_SHAPE,
+		 SK3D_RADII_ZOOM_SHAPE,
+		 AU2D_RADII_POLY_SHAPE,
+		 AU2D_RADII_ZOOM_SHAPE,
+		 AU3D_RADII_POLY_SHAPE,
+		 AU3D_RADII_ZOOM_SHAPE,
 						NUMS_SHAPE
 };
+Num_Shape shape_method(CBase * shape);
 
 /////////////////////////////////////////////////
 //...базовый класс для специальных функций формы;
@@ -76,15 +88,7 @@ protected:
 						 * pyy, * pxz, * pyz, * pzz;
 		double CX, CY, CZ, SX, SY, SZ, P0[3], cs[6];	//...local coordinate system;
 public:
-		virtual Num_Shape   type() {return NULL_SHAPE;}
-		virtual int freedom(int m) {return 0;}
 //...auxilliary functions;
-		virtual void release() { 
-			delete_struct(p);   delete_struct(px);  
-			delete_struct(py);  delete_struct(pz);
-			delete_struct(pxx); delete_struct(pxy); delete_struct(pyy);  
-			delete_struct(pxz); delete_struct(pyz); delete_struct(pzz);
-		}
 		virtual void cpy(T * p_ext) {
 			if (p_ext && p)
 				memcpy(p_ext, p, NN*sizeof(T));
@@ -149,6 +153,7 @@ public:
 		void adm_yz(T * p_ext, T adm);
 		void adm_zz(T * p_ext, T adm);
 		void admittance(T * dd, T * pp, T adm_dd, T adm_pp);
+public:
 //...dimension and inverse;
 		int  dim			 (){ return id_dim;}
 		int  cmpl		 (){ return id_cmpl;};
@@ -157,6 +162,7 @@ public:
 		void change_cmpl(double *& pp, double *& dd) { if (cmpl() == 1 && dd)  swap(pp, dd);};
 		void set_cmpl	 (int m_cmpl = 0){ id_inverse = m_cmpl;}
 		void set_inverse(int m_inv  = 0){ id_inverse = m_inv; }
+public:
 //...setting of coordinate system;
 		void set_local(double * P = NULL) {
 			if (P) { 
@@ -179,33 +185,48 @@ public:
 		void norm_common (double * P) { point_iso<double>(P, NULL, CZ,  SZ, CY,  SY, CX,  SX);}
 		void norm_local_T (T * P) { point_iso<T>(P, NULL, CX, -SX, CY, -SY, CZ, -SZ);}
 		void norm_common_T(T * P) { point_iso<T>(P, NULL, CZ,  SZ, CY,  SY, CX,  SX);}
-//...constructor and destructor;
-		CShape() {
-			N = M  = N1 = N2 = NN = 0;
-			NN_dop = NN_grad = NN_hess = 0;
-			R0 = R0_inv  = 1.;
-			p  = px = py = pz = pxx = pxy = pyy = pxz = pyz = pzz = NULL;
-			id_inverse = id_dim = 0; set_local();
-			id_cmpl = 0;
+public:
+		Num_Shape   type() {return shape_method(this);}
+		virtual int freedom(int m) {return 0;}
+public:
+		void init() { 
+			set_local(); R0 = R0_inv = 1.;  
+			id_inverse = id_dim = id_cmpl = 0;
 		}
-		virtual ~CShape(void) { release();}
-//...initialization multipoles;
-		virtual void init1(int N, int dim) { this->N = N; this->id_dim = dim; NN = freedom(N); release();}
-		virtual void init2(int N, int M, int dim) { init1(M, dim);}
-		virtual void init3(int N, int N1, int N2, int dim) { init1(N, dim);}
+		void release() { 
+			delete_struct(p); 
+			delete_struct(px);  delete_struct(py);  delete_struct(pz);
+			delete_struct(pxx); delete_struct(pxy); delete_struct(pyy); delete_struct(pxz); delete_struct(pyz); delete_struct(pzz);
+	}
+public:
+//...constructor and destructor;
+		CShape () {
+			N = M = N1 = N2 = NN = NN_dop = NN_grad = NN_hess = 0;
+			p = px = py = pz = pxx = pxy = pyy = pxz = pyz = pzz = NULL;
+			init();
+		}
+		virtual ~CShape(void) { 
+			release();
+		}
+		virtual void degree_init1(int N, int dim) { CShape<T>::N = N; CShape<T>::id_dim = dim; NN = freedom(N); release();}
+		virtual void degree_init2(int N, int M, int dim) { degree_init1(M, dim);}
+		virtual void degree_init3(int N, int N1, int N2, int dim) { degree_init1(N, dim);}
+public:
+//...parameters of multipoles;
 		virtual void set_shape(double R0, double kk = 0., double p1 = 0., double p2 = 0., double p3 = 0., double p4 = 0.){
 			int   k  = -1;
-			this->R0 = R0;
+			R0 = R0;
 			R0_inv   = R0 > EE ? 1./R0 : 1.;
-			if (++k < this->size_of_param()) this->param[k] = (Param)(kk*R0); else return;
-			if (++k < this->size_of_param()) this->param[k] = (Param)(this->param[0] > EE ? 1./this->param[0] : 1.); else return;
-			if (++k < this->size_of_param()) this->param[k] = (Param)(this->param[0]*this->param[0]); else return;
-			if (++k < this->size_of_param()) this->param[k] = (Param)kk; else return;
-			if (++k < this->size_of_param()) this->param[k] = (Param)p1; else return;
-			if (++k < this->size_of_param()) this->param[k] = (Param)p2; else return;
-			if (++k < this->size_of_param()) this->param[k] = (Param)p3; else return;
-			if (++k < this->size_of_param()) this->param[k] = (Param)p4; else return;
+			if (++k < this->size_of_param()) this->param[k] = Param(kk*R0); else return;
+			if (++k < this->size_of_param()) this->param[k] = Param(this->param[0] > EE ? 1./this->param[0] : 1.); else return;
+			if (++k < this->size_of_param()) this->param[k] = Param(this->param[0]*this->param[0]); else return;
+			if (++k < this->size_of_param()) this->param[k] = Param(kk); else return;
+			if (++k < this->size_of_param()) this->param[k] = Param(p1); else return;
+			if (++k < this->size_of_param()) this->param[k] = Param(p2); else return;
+			if (++k < this->size_of_param()) this->param[k] = Param(p3); else return;
+			if (++k < this->size_of_param()) this->param[k] = Param(p4); else return;
 		}
+public:
 //...calculation multipoles;
 		virtual void parametrization     (double * P = NULL, int m_dop = 0){}
 		virtual void parametrization_grad(double * P = NULL, int m_dop = 0);
@@ -218,6 +239,10 @@ public:
 //...integration multipoles;
 		virtual void primitive(T * deriv){}
 };
+////////////////////////////////////////////////////////////////////////////////
+//...global functions for construction of all existing types of shape functions;
+template <typename T>
+CShape<T> * CreateShape(Num_Shape id_SHAPE = NULL_SHAPE, int id_dop = 0);
 
 ////////////////////////////////////////////////////
 //           TEMPLATE VARIANT OF SHAPES           //
@@ -299,10 +324,15 @@ template <typename T>
 void CShape<T>::parametrization_grad(double * P, int m_dop)
 {
 	parametrization(P, m_dop+1);
-	if (! px && ! py && ! pz) {
-		px = (T *)new_struct((NN_grad = freedom(N+m_dop))*sizeof(T));
-		py = (T *)new_struct( NN_grad*sizeof(T));
-		pz = (T *)new_struct( NN_grad*sizeof(T));
+	if (! P) {
+		delete_struct(px);
+		delete_struct(py);
+		delete_struct(pz);
+	}
+	if (P && ! px && ! py && ! pz) {
+		px = new_struct<T>(NN_grad = freedom(N+m_dop));
+		py = new_struct<T>(NN_grad);
+		pz = new_struct<T>(NN_grad);
 	}
 	if (P && px && py && pz) {
 		memset (px, 0, NN_grad*sizeof(T));
@@ -322,13 +352,21 @@ template <typename T>
 void CShape<T>::parametrization_hess(double * P, int m_dop)
 {
 	parametrization_grad(P, m_dop+1);
-	if (! pxx && ! pxy && ! pyy && ! pxz && ! pyz && ! pzz) {
-		pxx = (T *)new_struct((NN_hess = freedom(N+m_dop))*sizeof(T));
-		pxy = (T *)new_struct( NN_hess*sizeof(T));
-		pyy = (T *)new_struct( NN_hess*sizeof(T));
-		pxz = (T *)new_struct( NN_hess*sizeof(T));
-		pyz = (T *)new_struct( NN_hess*sizeof(T));
-		pzz = (T *)new_struct( NN_hess*sizeof(T));
+	if (! P) {
+		delete_struct(pxx);
+		delete_struct(pxy);
+		delete_struct(pyy);
+		delete_struct(pxz);
+		delete_struct(pyz);
+		delete_struct(pzz);
+	}
+	if (P && ! pxx && ! pxy && ! pyy && ! pxz && ! pyz && ! pzz) {
+		pxx = new_struct<T>(NN_hess = freedom(N+m_dop));
+		pxy = new_struct<T>(NN_hess);
+		pyy = new_struct<T>(NN_hess);
+		pxz = new_struct<T>(NN_hess);
+		pyz = new_struct<T>(NN_hess);
+		pzz = new_struct<T>(NN_hess);
 	}
 	if (P && pxx && pxy && pyy && pxz && pyz && pzz) {
 		memset (pxx, 0, NN_hess*sizeof(T));

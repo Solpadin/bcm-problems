@@ -10,16 +10,20 @@
 //...class of blocks partition for acoustics problem;
 class CAcou3D : public CComput3D<complex> {
 public:
-		Num_Draft type   () { return ACOU3D_DRAFT;}
 		int size_of_param() { return(19);};
+public:
+		void init() {
+			delete_struct(param);
+			param = new_struct<Param>(size_of_param());
+		}
+public:
 //...constructor;
 		CAcou3D (int num_phase = 7) {
-			param = (Param *)new_struct(size_of_param()*sizeof(Param));
 			NUM_PHASE = num_phase;
 			NUM_QUAD  = 3;
 			NUM_VIBRO = 5;
+			init();
 		};
-      virtual ~CAcou3D (void);
 protected:
 static int NUM_KAPPA, NUM_SHEAR, NUM_HESS;
 		int  block_shape_init(Block<complex> & B, Num_State id_free);

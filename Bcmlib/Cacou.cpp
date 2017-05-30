@@ -11,7 +11,7 @@
 void CAcou3DEll::parametrization(double * P, int m_dop)
 {
 	if (! p) {
-		p = (double *)new_struct((NN_dop = freedom(N))*sizeof(double));
+		p = new_struct<double>(NN_dop = freedom(N));
 	}
 	if (P) {
 		int m0(0), m1(2), m2, i, i0, i1, i2, m;
@@ -66,10 +66,15 @@ void CAcou3DEll::parametrization(double * P, int m_dop)
 void CAcou3DEll::parametrization_grad(double * P, int m_dop)
 {
 	parametrization(P);
-	if (! px && ! py && ! pz) {
-		px = (double *)new_struct((NN_grad = NN_dop)*sizeof(double));
-		py = (double *)new_struct( NN_grad*sizeof(double));
-		pz = (double *)new_struct( NN_grad*sizeof(double));
+	if (! P) {
+		delete_struct(px);
+		delete_struct(py);
+		delete_struct(pz);
+	}
+	if (P && ! px && ! py && ! pz) {
+		px = new_struct<double>(NN_grad = NN_dop);
+		py = new_struct<double>(NN_grad);
+		pz = new_struct<double>(NN_grad);
 	}
 	if (P && px && py && pz) {
 		memset (px, 0, NN_grad*sizeof(double));
@@ -86,13 +91,21 @@ void CAcou3DEll::parametrization_grad(double * P, int m_dop)
 void CAcou3DEll::parametrization_hess(double * P, int m_dop)
 {
 	parametrization_grad(P);
-	if (! pxx && ! pxy && ! pyy && ! pxz && ! pyz && ! pzz) {
-		pxx = (double *)new_struct((NN_hess = NN_grad)*sizeof(double));
-		pxy = (double *)new_struct( NN_hess*sizeof(double));
-		pyy = (double *)new_struct( NN_hess*sizeof(double));
-		pxz = (double *)new_struct( NN_hess*sizeof(double));
-		pyz = (double *)new_struct( NN_hess*sizeof(double));
-		pzz = (double *)new_struct( NN_hess*sizeof(double));
+	if (! P) {
+		delete_struct(pxx);
+		delete_struct(pxy);
+		delete_struct(pyy);
+		delete_struct(pxz);
+		delete_struct(pyz);
+		delete_struct(pzz);
+	}
+	if (P && ! pxx && ! pxy && ! pyy && ! pxz && ! pyz && ! pzz) {
+		pxx = new_struct<double>(NN_hess = NN_grad);
+		pxy = new_struct<double>(NN_hess);
+		pyy = new_struct<double>(NN_hess);
+		pxz = new_struct<double>(NN_hess);
+		pyz = new_struct<double>(NN_hess);
+		pzz = new_struct<double>(NN_hess);
 	}
 	if (P && pxx && pxy && pyy && pxz && pyz && pzz) {
 		memset (pxx, 0, NN_hess*sizeof(double));
@@ -161,25 +174,16 @@ void CAcou3DEll::deriv_Z(double * deriv, double f)
 //  ACOUSTIC MULTIPOLES with POLYNOMIAL CHARACTERISTIC   //
 //																			//
 ///////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////
-//...realization of the multipoles with polynomial characteristics;
-void CAcou3DPoly::release()
-{
-	delete_struct(au);
-	delete_struct(E1);
-	CShape<complex>::release();
-}
-
 ///////////////////////////////////////
 //...parametrization of the multipoles;
 void CAcou3DPoly::parametrization(double * P, int m_dop)
 {
 	if (! p) {
-			p = (complex *)new_struct((NN_dop = freedom(N+m_dop))*sizeof(complex));
+		p = new_struct<complex>(NN_dop = freedom(N+m_dop));
 ///////////////////////
 //...technical support;
-			delete_struct(au); au = (double *)new_struct((N+1+m_dop)*sizeof(double));        
-			delete_struct(E1); E1 = (double *)new_struct(((N+m_dop)/2+1)*sizeof(double));        
+		delete_struct(au); au = new_struct<double>(N+1+m_dop);        
+		delete_struct(E1); E1 = new_struct<double>((N+m_dop)/2+1);        
 	}
 	if (P && p) {
 		int  i, l, nm, m, ii;
@@ -299,24 +303,16 @@ void CAcou3DPoly::deriv_Z(complex * deriv, double f)
 //  ACOUSTIC MULTIPOLES for SPHERE INTERIOUR OR EXTERIOR  //
 //																			 //
 ////////////////////////////////////////////////////////////
-///////////////////////////////////
-//...realization of the multipoles;
-void CAcou3DZoom::release()
-{
-    delete_struct(au);
-    CShape<double>::release();
-}
-
 ///////////////////////////////////////
 //...parametrization of the multipoles;
 void CAcou3DZoom::parametrization(double * P, int m_dop)
 {
 	if (id_cmpl == 2) return;
 	if (! p) {
-			p = (double *)new_struct((NN_dop = freedom(N+m_dop))*sizeof(double));
+		p = new_struct<double>(NN_dop = freedom(N+m_dop));
 ///////////////////////
 //...technical support;
-			delete_struct(au); au = (double *)new_struct((N+1+m_dop)*sizeof(double));        
+		delete_struct(au); au = new_struct<double>(N+1+m_dop);        
 	}
 	if (P && p) {
 		int i, m;
@@ -412,10 +408,15 @@ void CAcou3DZoom::parametrization(double * P, int m_dop)
 void CAcou3DZoom::parametrization_grad(double * P, int m)
 {
 	parametrization(P, m+1);
-	if (! px && ! py && ! pz) {
-		px = (double *)new_struct((NN_grad = freedom(N+m))*sizeof(double));
-		py = (double *)new_struct( NN_grad*sizeof(double));
-		pz = (double *)new_struct( NN_grad*sizeof(double));
+	if (! P) {
+		delete_struct(px);
+		delete_struct(py);
+		delete_struct(pz);
+	}
+	if (P && ! px && ! py && ! pz) {
+		px = new_struct<double>(NN_grad = freedom(N+m));
+		py = new_struct<double>(NN_grad);
+		pz = new_struct<double>(NN_grad);
 	}
 	if (P && px && py && pz) {
 		memset (px, 0, NN_grad*sizeof(double));
@@ -434,13 +435,21 @@ void CAcou3DZoom::parametrization_grad(double * P, int m)
 void CAcou3DZoom::parametrization_hess(double * P, int m)
 {
 	parametrization_grad(P, m+1);
-	if (! pxx && ! pxy && ! pyy && ! pxz && ! pyz && ! pzz) {
-		pxx = (double *)new_struct((NN_hess = freedom(N+m))*sizeof(double));
-		pxy = (double *)new_struct( NN_hess*sizeof(double));
-		pyy = (double *)new_struct( NN_hess*sizeof(double));
-		pxz = (double *)new_struct( NN_hess*sizeof(double));
-		pyz = (double *)new_struct( NN_hess*sizeof(double));
-		pzz = (double *)new_struct( NN_hess*sizeof(double));
+	if (! P) {
+		delete_struct(pxx);
+		delete_struct(pxy);
+		delete_struct(pyy);
+		delete_struct(pxz);
+		delete_struct(pyz);
+		delete_struct(pzz);
+	}
+	if (P && ! pxx && ! pxy && ! pyy && ! pxz && ! pyz && ! pzz) {
+		pxx = new_struct<double>(NN_hess = freedom(N+m));
+		pxy = new_struct<double>(NN_hess);
+		pyy = new_struct<double>(NN_hess);
+		pxz = new_struct<double>(NN_hess);
+		pyz = new_struct<double>(NN_hess);
+		pzz = new_struct<double>(NN_hess);
 	}
 	if (P && pxx && pxy && pyy && pxz && pyz && pzz) {
 		memset (pxx, 0, NN_hess*sizeof(double));
@@ -585,16 +594,6 @@ void CAcou3DZoom::deriv_Z(double * deriv, double f)
 //      SUPERPOSITION of COMPLEX PLANE WAVES      //
 //																  //
 ////////////////////////////////////////////////////
-////////////////////////////////////////////////////
-//...destructor of class of exponential plane waves;
-CAcou3DWave::~CAcou3DWave (void)
-{
-    delete_struct(cz);
-    delete_struct(sz);
-    delete_struct(cy);
-    delete_struct(sy);
-}
-
 //////////////////////////////////////////////////
 //...calculation of directions of the plane waves;
 int CAcou3DWave::add_expo_power(double X, double Y, double Z, int flag)
@@ -605,10 +604,10 @@ int CAcou3DWave::add_expo_power(double X, double Y, double Z, int flag)
 /////////////////////////////////////////////////////////////
 //...calculation new number of directions of the plane waves;
     while (M >= N) {
-        double * new_cz = (double *)new_struct((N+buf_size)*sizeof(double)), 
-               * new_sz = (double *)new_struct((N+buf_size)*sizeof(double)), 
-               * new_cy = (double *)new_struct((N+buf_size)*sizeof(double)), 
-               * new_sy = (double *)new_struct((N+buf_size)*sizeof(double));
+        double * new_cz = new_struct<double>(N+buf_size), 
+               * new_sz = new_struct<double>(N+buf_size), 
+               * new_cy = new_struct<double>(N+buf_size), 
+               * new_sy = new_struct<double>(N+buf_size);
 
         memcpy(new_cz, cz, N*sizeof(double));
         memcpy(new_sz, cz, N*sizeof(double));
@@ -638,13 +637,13 @@ int CAcou3DWave::add_expo_power(double X, double Y, double Z, int flag)
 
 //////////////////////////////////////
 //...initialization of the multipoles;
-void CAcou3DWave::init2(int id_flag, int N, int dim)
+void CAcou3DWave::degree_init2(int id_flag, int N, int dim)
 {
 	if (id_flag != 1) {
-		double * new_cz = (double *)new_struct(N*sizeof(double)), 
-				 * new_sz = (double *)new_struct(N*sizeof(double)), 
-				 * new_cy = (double *)new_struct(N*sizeof(double)), 
-				 * new_sy = (double *)new_struct(N*sizeof(double));
+		double * new_cz = new_struct<double>(N), 
+				 * new_sz = new_struct<double>(N), 
+				 * new_cy = new_struct<double>(N), 
+				 * new_sy = new_struct<double>(N);
 
 		memcpy(new_cz, cz, CAcou3DWave::N*sizeof(double));
 		memcpy(new_sz, cz, CAcou3DWave::N*sizeof(double));
@@ -668,13 +667,13 @@ void CAcou3DWave::init2(int id_flag, int N, int dim)
 //...parametrization of the multipoles;
 void CAcou3DWave::parametrization(double * P, int m_dop)
 {
-    if (id_cmpl == 2) return;
-    if (! p) {
-          p = (double *)new_struct(2*NN*sizeof(double));
-    }
-    cs[0] = P[3];
-    cs[1] = P[4];
-    cs[2] = P[5];
+	if (id_cmpl == 2) return;
+	if (! p) {
+		p = new_struct<double>(2*NN);
+	}
+	cs[0] = P[3];
+	cs[1] = P[4];
+	cs[2] = P[5];
 
 ////////////////////////////////////
 //...calculation of the plane waves;
@@ -761,31 +760,6 @@ void CAcou3DWave::deriv_N()
 //  BASIC SYSTEM of ACOUSTIC MULTIPOLES (acoustic beam)   //
 //																			 //
 ////////////////////////////////////////////////////////////
-///////////////////////////////////
-//...realization of the multipoles;
-void CAcou3DBeam::release()
-{
-	delete_struct(pim);
-	delete_struct(pxim);
-	delete_struct(pyim);
-	delete_struct(pzim);
-	delete_struct(au);
-	delete_struct(az);
-	delete_struct(E1);
-	CShape<double>::release();
-}
-
-void CAcou3DBeamZ::release()
-{
-	delete_struct(pim);
-	delete_struct(pxim);
-	delete_struct(pyim);
-	delete_struct(pzim);
-	delete_struct(az);
-	delete_struct(E1);
-	CShape<double>::release();
-}
-
 ///////////////////////////////
 //...setting of the parameters;
 void CAcou3DBeam::set_shape(double R0, double kk, double kk_dop, double L1, double L2)
@@ -793,12 +767,12 @@ void CAcou3DBeam::set_shape(double R0, double kk, double kk_dop, double L1, doub
 	CAcou3DBeam::R0 = R0;
 	R0_inv     = R0 > EE ? 1./R0 : 1.;
 	int   k    = -1;
-	if (++k < size_of_param()) param[k] = (Param)((kk = sqrt(fabs(kk*kk-kk_dop*kk_dop)))*R0);
-	if (++k < size_of_param()) param[k] = (Param)(param[0] > EE ? 1./param[0] : 1.);
-	if (++k < size_of_param()) param[k] = (Param)(param[0]*param[0]);
-	if (++k < size_of_param()) param[k] = (Param)kk;
-	if (++k < size_of_param()) param[k] = (Param)((kk_dop = fabs(kk_dop))*R0);
-	if (++k < size_of_param()) param[k] = (Param)kk_dop;
+	if (++k < size_of_param()) param[k] = Param((kk = sqrt(fabs(kk*kk-kk_dop*kk_dop)))*R0);
+	if (++k < size_of_param()) param[k] = Param(param[0] > EE ? 1./param[0] : 1.);
+	if (++k < size_of_param()) param[k] = Param(param[0]*param[0]);
+	if (++k < size_of_param()) param[k] = Param(kk);
+	if (++k < size_of_param()) param[k] = Param((kk_dop = fabs(kk_dop))*R0);
+	if (++k < size_of_param()) param[k] = Param(kk_dop);
 }
 
 ///////////////////////////////////////
@@ -807,13 +781,13 @@ void CAcou3DBeam::parametrization(double * P, int m_dop)
 {
 	if (id_cmpl == 2) return;
 	if (! p) {
-			p   = (double *)new_struct((NN_dop = freedom(N+m_dop))*sizeof(double));
-			pim = (double *)new_struct( NN_dop*sizeof(double));
+		p = new_struct<double>(NN_dop = freedom(N+m_dop));
 ///////////////////////
 //...technical support;
-			delete_struct(au); au = (double  *)new_struct((N+1+m_dop)*sizeof(double));
-			delete_struct(az); az = (double  *)new_struct((N+1+m_dop)*sizeof(double));
-			delete_struct(E1); E1 = (complex *)new_struct((N+1+m_dop)*sizeof(complex));
+		delete_struct(pim); pim = new_struct<double>(NN_dop);
+		delete_struct(au);  au  = new_struct<double> (N+1+m_dop);
+		delete_struct(az);  az  = new_struct<double> (N+1+m_dop);
+		delete_struct(E1);  E1  = new_struct<complex>(N+1+m_dop);
 	}
 	if (P && p && pim) {
 		int  i, j, l, ii, nm, m;
@@ -924,12 +898,12 @@ void CAcou3DBeamZ::parametrization(double * P, int m_dop)
 {
 	if (id_cmpl == 2) return;
 	if (! p) {
-			p   = (double *)new_struct((NN_dop = freedom(N))*sizeof(double));
-			pim = (double *)new_struct( NN_dop*sizeof(double));
+		p = new_struct<double>(NN_dop = freedom(N));
 ///////////////////////
 //...technical support;
-			delete_struct(az); az = (double  *)new_struct((N+1)*sizeof(double));
-			delete_struct(E1); E1 = (complex *)new_struct((N+1)*sizeof(complex));
+		delete_struct(pim); pim = new_struct<double>(NN_dop);
+		delete_struct(az);  az  = new_struct<double> (N+1);
+		delete_struct(E1);  E1  = new_struct<complex>(N+1);
 	}
 	if (P && p && pim) {
 		int  i, j, l, ii, nm, m;
@@ -1006,18 +980,25 @@ void CAcou3DBeamZ::parametrization(double * P, int m_dop)
 void CAcou3DBeam::parametrization_grad(double * P, int m_dop)
 {
 	parametrization(P, m_dop+1);
-	if (! px && ! py && ! pz && ! pxim && ! pyim && ! pzim) {
-		px = (double *)new_struct((NN_grad = freedom(N+m_dop))*sizeof(double));
-		py = (double *)new_struct( NN_grad*sizeof(double));
-		pz = (double *)new_struct( NN_grad*sizeof(double));
-		pxim = (double *)new_struct( NN_grad*sizeof(double));
-		pyim = (double *)new_struct( NN_grad*sizeof(double));
-		pzim = (double *)new_struct( NN_grad*sizeof(double));
+	if (! P) {
+		delete_struct(px);
+		delete_struct(py);
+		delete_struct(pz);
+	}
+	if (P && ! px && ! py && ! pz) {
+		px = new_struct<double>(NN_grad = freedom(N+m_dop));
+		py = new_struct<double>(NN_grad);
+		pz = new_struct<double>(NN_grad);
+///////////////////////
+//...technical support;
+		delete_struct(pxim); pxim = new_struct<double>(NN_grad);
+		delete_struct(pyim); pyim = new_struct<double>(NN_grad);
+		delete_struct(pzim); pzim = new_struct<double>(NN_grad);
 	}
 	if (P && px && py && pz && pxim && pyim && pzim) {
-		memset (px, 0, NN_grad*sizeof(double));
-		memset (py, 0, NN_grad*sizeof(double));
-		memset (pz, 0, NN_grad*sizeof(double));
+		memset (px,   0, NN_grad*sizeof(double));
+		memset (py,   0, NN_grad*sizeof(double));
+		memset (pz,   0, NN_grad*sizeof(double));
 		memset (pxim, 0, NN_grad*sizeof(double));
 		memset (pyim, 0, NN_grad*sizeof(double));
 		memset (pzim, 0, NN_grad*sizeof(double));
@@ -1037,18 +1018,25 @@ void CAcou3DBeam::parametrization_grad(double * P, int m_dop)
 void CAcou3DBeamZ::parametrization_grad(double * P, int m_dop)
 {
 	parametrization(P);
-	if (! px && ! py && ! pz && ! pxim && ! pyim && ! pzim) {
-		px = (double *)new_struct((NN_grad = NN_dop)*sizeof(double));
-		py = (double *)new_struct( NN_grad*sizeof(double));
-		pz = (double *)new_struct( NN_grad*sizeof(double));
-		pxim = (double *)new_struct( NN_grad*sizeof(double));
-		pyim = (double *)new_struct( NN_grad*sizeof(double));
-		pzim = (double *)new_struct( NN_grad*sizeof(double));
+	if (! P) {
+		delete_struct(px);
+		delete_struct(py);
+		delete_struct(pz);
+	}
+	if (P && ! px && ! py && ! pz) {
+		px = new_struct<double>(NN_grad = NN_dop);
+		py = new_struct<double>(NN_grad);
+		pz = new_struct<double>(NN_grad);
+///////////////////////
+//...technical support;
+		delete_struct(pxim); pxim = new_struct<double>(NN_grad);
+		delete_struct(pyim); pyim = new_struct<double>(NN_grad);
+		delete_struct(pzim); pzim = new_struct<double>(NN_grad);
 	}
 	if (P && px && py && pz && pxim && pyim && pzim) {
-		memset (px, 0, NN_grad*sizeof(double));
-		memset (py, 0, NN_grad*sizeof(double));
-		memset (pz, 0, NN_grad*sizeof(double));
+		memset (px,   0, NN_grad*sizeof(double));
+		memset (py,   0, NN_grad*sizeof(double));
+		memset (pz,   0, NN_grad*sizeof(double));
 		memset (pxim, 0, NN_grad*sizeof(double));
 		memset (pyim, 0, NN_grad*sizeof(double));
 		memset (pzim, 0, NN_grad*sizeof(double));
@@ -1068,13 +1056,21 @@ void CAcou3DBeamZ::parametrization_grad(double * P, int m_dop)
 void CAcou3DBeam::parametrization_hess(double * P, int m_dop)
 {
 	parametrization_grad(P, m_dop+1);
-	if (! pxx && ! pxy && ! pyy && ! pxz && ! pyz && ! pzz) {
-		pxx = (double *)new_struct((NN_hess = freedom(N+m_dop))*sizeof(double));
-		pxy = (double *)new_struct( NN_hess*sizeof(double));
-		pyy = (double *)new_struct( NN_hess*sizeof(double));
-		pxz = (double *)new_struct( NN_hess*sizeof(double));
-		pyz = (double *)new_struct( NN_hess*sizeof(double));
-		pzz = (double *)new_struct( NN_hess*sizeof(double));
+	if (! P) {
+		delete_struct(pxx);
+		delete_struct(pxy);
+		delete_struct(pyy);
+		delete_struct(pxz);
+		delete_struct(pyz);
+		delete_struct(pzz);
+	}
+	if (P && ! pxx && ! pxy && ! pyy && ! pxz && ! pyz && ! pzz) {
+		pxx = new_struct<double>(NN_hess = freedom(N+m_dop));
+		pxy = new_struct<double>(NN_hess);
+		pyy = new_struct<double>(NN_hess);
+		pxz = new_struct<double>(NN_hess);
+		pyz = new_struct<double>(NN_hess);
+		pzz = new_struct<double>(NN_hess);
 	}
 	if (P && pxx && pxy && pyy && pxz && pyz && pzz) {
 		memset (pxx, 0, NN_hess*sizeof(double));
@@ -1103,13 +1099,21 @@ void CAcou3DBeam::parametrization_hess(double * P, int m_dop)
 void CAcou3DBeamZ::parametrization_hess(double * P, int m_dop)
 {
 	parametrization_grad(P);
-	if (! pxx && ! pxy && ! pyy && ! pxz && ! pyz && ! pzz) {
-		pxx = (double *)new_struct((NN_hess = NN_grad)*sizeof(double));
-		pxy = (double *)new_struct( NN_hess*sizeof(double));
-		pyy = (double *)new_struct( NN_hess*sizeof(double));
-		pxz = (double *)new_struct( NN_hess*sizeof(double));
-		pyz = (double *)new_struct( NN_hess*sizeof(double));
-		pzz = (double *)new_struct( NN_hess*sizeof(double));
+	if (! P) {
+		delete_struct(pxx);
+		delete_struct(pxy);
+		delete_struct(pyy);
+		delete_struct(pxz);
+		delete_struct(pyz);
+		delete_struct(pzz);
+	}
+	if (P && ! pxx && ! pxy && ! pyy && ! pxz && ! pyz && ! pzz) {
+		pxx = new_struct<double>(NN_hess = NN_grad);
+		pxy = new_struct<double>(NN_hess);
+		pyy = new_struct<double>(NN_hess);
+		pxz = new_struct<double>(NN_hess);
+		pyz = new_struct<double>(NN_hess);
+		pzz = new_struct<double>(NN_hess);
 	}
 	if (P && pxx && pxy && pyy && pxz && pyz && pzz) {
 		memset (pxx, 0, NN_hess*sizeof(double));

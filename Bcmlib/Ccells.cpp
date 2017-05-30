@@ -1,6 +1,16 @@
 #include "stdafx.h"
 #include "ccells.h"
 
+#include <typeinfo>
+
+//////////////////////////
+//...nodes identification;
+Num_Cells cells_method(CCells * cells) 
+{
+	if (! cells) return NULL_CELLS;
+	if (typeid(* cells) == typeid(CCells))	 return BASIC_CELLS; else return NULL_CELLS;
+}
+
 /////////////////////////////////////////////////////////
 //...test printing surface cells structure in ASCII code;
 void CCells::cells_out(FILE * id_CELLS, int id_long)
@@ -53,7 +63,7 @@ int  CCells::cells_in(char * id_CELLS, unsigned long & count, unsigned long uppe
 		}
 		if (user_Read (buf, id_CELLS, count, upper_limit)) N_ce = atoi(buf);
 
-      for (cells_new(N_ce+1), N_ce += (id_bar ? 0 : 1), k = 0; k < N_ce; k++) {
+      for (init(N_ce+1), N_ce += (id_bar ? 0 : 1), k = 0; k < N_ce; k++) {
 			if (! user_Count(id_CELLS, count, count, '|')) return(0); 
 			if (  id_bar || k != N_ce-1) 
 			ce[k] = new CCells(-1);
@@ -69,7 +79,7 @@ int  CCells::cells_in(char * id_CELLS, unsigned long & count, unsigned long uppe
 				count--;
 				if (k == j) {
 					if (! user_Count(id_CELLS, count, count, '|')) return(0); 
-					ce[k]->pm = (CMap **)new_struct(ce[k]->graph[1]*sizeof(CMap *));
+					ce[k]->pm = new_struct<CMap *>(ce[k]->graph[1]);
 				}
 				for (m = ce[k]->pm && ce[k]->graph ? ce[k]->graph[1] : 0, l = 0; l < m; l++) {
 					if (user_Read (buf, id_CELLS, count, upper_limit)) j = atoi(buf); else j = -1;
@@ -80,7 +90,7 @@ int  CCells::cells_in(char * id_CELLS, unsigned long & count, unsigned long uppe
 				}
 			}
 		}
-		if (id_bar && N_ce && (graph = (int *)new_struct(2*sizeof(int))) != NULL) graph[0] = N_ce;
+		if (id_bar && N_ce && (graph = new_struct<int>(2)) != NULL) graph[0] = N_ce;
 	}
 	return(1);
 }
@@ -95,27 +105,9 @@ void CCells::cells_in(char * ch_CELLS)
 	delete_struct(id_CELLS);
 }
 
-////////////////////////////////////////////////////////////////
-//...распределение внутренней структуры пространственной ячейки;
-void CCells::cells_new (int N_ce, int N_graph, int N_mp) 
-{
-	zero_cells();
-
-	ce    = (CCells **)new_struct(N_ce*sizeof(CCells *));
-	graph = (Topo    *)new_struct(N_graph*sizeof(Topo));
-	mp    = (CMap    *)new_struct(N_mp*sizeof(CMap));
-	if (! ce    && N_ce    > 0 ||
-		 ! graph && N_graph > 0 ||
-		 ! mp    && N_mp    > 0) 
-	zero_cells();
-
-	if (mp) mp[N_mp-1] = (CMap)NULL_CELL;
-	if (ce) ce[N_ce-1] = this;
-}
-
-//////////////////////////////////////////////////////////////////////////
-//...удаление из памяти всей внутренней структуры пространственной ячейки;
-void CCells::zero_cells()
+/////////////////////////////////////////////////////////////////////
+//...удаление из памяти внутренней структуры пространственной ячейки;
+void CCells::release()
 {
 	for (int l, m = graph ? graph[0] : -1, k = 0; k <= m; k++)
 	if (ce && ce[k]) {
@@ -126,7 +118,7 @@ void CCells::zero_cells()
 			delete_struct(ce[k]->pm[l]);
 			delete_struct(ce[k]->pm);
 
-		if (k != m) delete(ce[k]);
+		if (k != m) delete(ce[k]); //...delete_struct(ce[k]) ??? 
 	}
 	delete_struct(ce);
 }
@@ -484,7 +476,7 @@ void CCells::search_cells_in_struct(CCells * ext_ce, int & i, int id_cell, CCell
 			m = id_cell != NULL_STATE  ? ext_ce->cells_in_struct(ce[m_ce], OK_STATE) : 0;
 			if (! m) { //...запоминаем новый номер в структуре поверхности;
 				if (buf_size == N_buf) {
-					CCells ** new_ce = (CCells **)new_struct((buf_size += buf_delta)*sizeof(CCells *));
+					CCells ** new_ce = new_struct<CCells *>(buf_size += buf_delta);
 					memcpy	(new_ce, dop_ce, N_buf*sizeof(CCells *));	delete_struct(dop_ce); dop_ce = new_ce;
 				}
 				ce[m_ce]->search_cells_in_struct(ext_ce, i, id_cell, dop_ce, N_buf, buf_size, buf_delta);
@@ -514,7 +506,7 @@ void CCells::search_cells_element(int *& id, int & N_buf, int & buf_size, int bu
 	if (graph)
 	for ( int k = 0; k < graph[1]; k++) {
 			if (buf_size == N_buf) {
-				int * new_id = (int *)new_struct((buf_size += buf_delta)*sizeof(int));
+				int * new_id = new_struct<int>(buf_size += buf_delta);
 				memcpy(new_id, id, N_buf*sizeof(int));
 				delete_struct(id); id = new_id;
 			}
@@ -533,7 +525,7 @@ int CCells::bar_add(CCells * ext_ce, int id_cell, int buf_delta)
 	if (! ext_ce->mp || mp) return(0);
 
 	int  i = graph[0], k, l, m, N, N_buf = 0, buf_size = 0;
-	CCells ** dop_ce = (CCells **)new_struct((buf_size += buf_delta)*sizeof(CCells *));
+	CCells ** dop_ce = new_struct<CCells *>(buf_size += buf_delta);
 
 ///////////////////////////////////////////////////////////////////
 //...идентификация геометрической ячейки в целом и коррекция связей;
@@ -566,7 +558,7 @@ int CCells::bar_add(CCells * ext_ce, int id_cell, int buf_delta)
 /////////////////////////////////////////////
 //...формирование нового общего списка ячеек;
 	if (i > graph[0]) {
-		CCells ** new_ce = (CCells **)new_struct((i+1)*sizeof(CCells *));
+		CCells ** new_ce = new_struct<CCells *>(i+1);
 		for (k = 0; k < graph[0]; k++) {
 			new_ce[k] = ce[k]; new_ce[k]->ce = new_ce;
 		}
@@ -598,7 +590,7 @@ void CCells::trim_add(CCells *& trim, int id_mp)
 
 /////////////////////////////////////////////
 //...allocation and transfer parametric maps;
-		for (pm = (CMap **)new_struct(graph[1]*sizeof(CMap *)), k = 0; pm && k < graph[1]; k++)
+		for (pm = new_struct<CMap *>(graph[1]), k = 0; pm && k < graph[1]; k++)
 			swap(pm[k], trim->ce[trim->graph[k+2]]->mp);
 
 ///////////////////////////////////////////////////////
@@ -644,7 +636,7 @@ CCells * CCells::bar_cpy(int N, int id_origine, int buf_delta)
 		cpy_ce->mp		 = map_cpy(N);
 		cpy_ce->pm		 = pm_cpy (N);
 
-		id = (int *)new_struct((buf_size += buf_delta)*sizeof(int));
+		id = new_struct<int>(buf_size += buf_delta);
 		ce[N]->search_cells_element(id, N_buf, buf_size, buf_delta);
 
 /////////////////////////////////////////////////////////////////////
@@ -654,7 +646,7 @@ CCells * CCells::bar_cpy(int N, int id_origine, int buf_delta)
 		if (id[k] < min_id) min_id = id[k]; else
 		if (id[k] > max_id) max_id = id[k];
 
-		int * mask = (int *)new_struct((max_id-min_id+1)*sizeof(int));
+		int * mask = new_struct<int>(max_id-min_id+1);
 		for (k = 0; k < N_buf; k++)
 		if ( mask[id[k]-min_id]) id[k] = -id[k]-1; 
 		else mask[id[k]-min_id]++;
@@ -671,7 +663,7 @@ CCells * CCells::bar_cpy(int N, int id_origine, int buf_delta)
 
 ///////////////////////////////////////////////
 //...заполняем данные общего списока элементов;
-		cpy_ce->ce = (CCells **)new_struct((N_buf+1)*sizeof(CCells *));
+		cpy_ce->ce = new_struct<CCells *>(N_buf+1);
 		for (i = 0; i < N_buf; i++) {
 			cpy_ce->ce[i] = new CCells(-1);
 			cpy_ce->ce[i]->graph = graph_cpy(id[i]);
@@ -712,7 +704,7 @@ CCells * CCells::bar_sub(int N, int id_origine, int buf_delta)
 CCells * CCells::bar_cpy()
 {
 	CCells * bar_N = new CCells(-1);
-	bar_N->cells_new(1, 2, 0);
+	bar_N->init(1, 2, 0);
 
 	for (int i = 0; i < graph[0]; i++)
 		bar_N->bar_add(bar_cpy(i+1), OK_STATE);
@@ -882,7 +874,7 @@ int CCells::id_sheet()
 
 ///////////////////////////////////////////////////////////
 //...добавляем параметры (и копируем геометрическую карту);
-		CMap * map = (CMap *)new_struct(((m = size_of_map(2, NULL_GENUS))+1)*sizeof(CMap));
+		CMap * map = new_struct<CMap>((m = size_of_map(2, NULL_GENUS))+1);
 		if ( ! map || ! add_new_maps(mp, m+1, 2)) {
 			delete[] map; return(0);
 		}
@@ -1061,7 +1053,7 @@ int CCells::id_cyl_segment()
 
 ///////////////////////////////////////////////////////////
 //...добавляем параметры (и копируем геометрическую карту);
-		CMap * map = (CMap *)new_struct(((m = size_of_map(2, CYL_GENUS))+1)*sizeof(CMap));
+		CMap * map = new_struct<CMap>((m = size_of_map(2, CYL_GENUS))+1);
 		if (! map || ! add_new_maps(mp, m+1, size_of_dop(CYL_SEGMENT))) {
 			delete[] map; return(0);
 		}
@@ -1128,7 +1120,7 @@ int CCells::id_sph_segment()
 
 ///////////////////////////////////////////////////////////
 //...добавляем параметры (и копируем геометрическую карту);
-		CMap * map = (CMap *)new_struct(((m = size_of_map(2, CYL_GENUS))+1)*sizeof(CMap));
+		CMap * map = new_struct<CMap>((m = size_of_map(2, CYL_GENUS))+1);
 		if (! map || ! add_new_maps(mp, m+1, size_of_dop(SPH_SEGMENT))) {
 			delete[] map; return(0);
 		}
@@ -1212,7 +1204,7 @@ int CCells::id_cone_segment()
 
 ///////////////////////////////////////////////////////////
 //...добавляем параметры (и копируем геометрическую карту);
-		CMap * map = (CMap *)new_struct(((m = size_of_map(2, CYL_GENUS))+1)*sizeof(CMap));
+		CMap * map = new_struct<CMap>((m = size_of_map(2, CYL_GENUS))+1);
 		if (! map || ! add_new_maps(mp, m+1, size_of_dop(CONE_SEGMENT))) {
 			delete[] map; return(0);
 		}
@@ -1550,13 +1542,13 @@ int CCells::grid_line(CGrid * nd, double h, int Max_N, int hit)
 
 ///////////////////////////////////////////////////////////////////////
 //...распределяем массивы точек для всего контура и описание геометрии;
-		X0  = (double *)new_struct (N0*sizeof(double));
-		Y0  = (double *)new_struct (N0*sizeof(double));
-		Z0  = (double *)new_struct (N0*sizeof(double));
-		nX0 = (double *)new_struct (N0*sizeof(double));
-		nY0 = (double *)new_struct (N0*sizeof(double));
-		nZ0 = (double *)new_struct (N0*sizeof(double));
-		gm  = (int    *)new_struct((N0+3)*sizeof(int));
+		X0  = new_struct<double>(N0);
+		Y0  = new_struct<double>(N0);
+		Z0  = new_struct<double>(N0);
+		nX0 = new_struct<double>(N0);
+		nY0 = new_struct<double>(N0);
+		nZ0 = new_struct<double>(N0);
+		gm  = new_struct<int>(N0+3);
 		if (! X0 || ! Y0 || ! Z0 || ! nX0 || ! nY0 || ! nZ0 || ! gm || m1 < 0 || m2 < 0) {
 			delete_struct(X0); delete_struct(nX0);
 			delete_struct(Y0); delete_struct(nY0);
@@ -1588,7 +1580,7 @@ int CCells::grid_line(CGrid * nd, double h, int Max_N, int hit)
 			delete_struct(X0); delete_struct(nX0);
 			delete_struct(Y0); delete_struct(nY0);
 			delete_struct(Z0); delete_struct(nZ0);
-			delete_struct(gm); nd->zero_grid(); return(0);
+			delete_struct(gm); nd->release(); return(0);
 		}
 	}
 	return(0);
@@ -1619,13 +1611,13 @@ int CCells::grid_circ(CGrid * nd, double h, int Max_N, int hit)
 
 ///////////////////////////////////////////////////////////////////////
 //...распределяем массивы точек для всего контура и описание геометрии;
-		X0  = (double *)new_struct (N0*sizeof(double));
-		Y0  = (double *)new_struct (N0*sizeof(double));
-		Z0  = (double *)new_struct (N0*sizeof(double));
-		nX0 = (double *)new_struct (N0*sizeof(double));
-		nY0 = (double *)new_struct (N0*sizeof(double));
-		nZ0 = (double *)new_struct (N0*sizeof(double));
-		gm  = (int    *)new_struct((N0+3)*sizeof(int));
+		X0  = new_struct<double>(N0);
+		Y0  = new_struct<double>(N0);
+		Z0  = new_struct<double>(N0);
+		nX0 = new_struct<double>(N0);
+		nY0 = new_struct<double>(N0);
+		nZ0 = new_struct<double>(N0);
+		gm  = new_struct<int>(N0+3);
 		if (! X0 || ! Y0 || ! Z0 || ! nX0 || ! nY0 || ! nZ0 || ! gm) {
 			delete_struct(X0); delete_struct(nX0);
 			delete_struct(Y0); delete_struct(nY0);
@@ -1635,8 +1627,9 @@ int CCells::grid_circ(CGrid * nd, double h, int Max_N, int hit)
 
 ////////////////////////////////////////////////////////////////
 //...инициализиpуем узлы сетки и касательную на дуге окружности;
-		X0[0] =  R*(nY0[0] = cos(f)); nY0[N0-1] =  nY0[0];
-		Y0[0] = -R*(nX0[0] = sin(f)); nX0[N0-1] = -nX0[0]; fi /= N0-1;
+		X0[0] =  R*(nY0[0] =  cos(f)); nY0[N0-1] = nY0[0];
+		//Y0[0] = -R*(nX0[0] = sin(f)); nX0[N0-1] = -nX0[0]; fi /= N0-1;
+		Y0[0] = -R*(nX0[0] = -sin(f)); nX0[N0-1] = nX0[0]; fi /= N0-1; //...исправлено 07.01.2017!!!
 
 		gm[0]  = 1;  gm[1] = GL_LINE_STRIP;
 		gm[2]  = N0; gm[3] = l; gm[2+N0] = N0-1+l;
@@ -1651,7 +1644,7 @@ int CCells::grid_circ(CGrid * nd, double h, int Max_N, int hit)
 			delete_struct(X0); delete_struct(nX0);
 			delete_struct(Y0); delete_struct(nY0);
 			delete_struct(Z0); delete_struct(nZ0);
-			delete_struct(gm); nd->zero_grid(); return(0);
+			delete_struct(gm); nd->release(); return(0);
 		}
 
 /////////////////////////////////////////////////////////////////////////
@@ -1706,19 +1699,19 @@ int CCells::grid_ellipt(CGrid * nd, double h, int Max_N, int hit)
 
 ///////////////////////////////////////////////////////////////////////
 //...распределяем массивы точек для всего контура и описание геометрии;
-     X0  = (double *)new_struct (N0*sizeof(double));
-     Y0  = (double *)new_struct (N0*sizeof(double));
-     Z0  = (double *)new_struct (N0*sizeof(double));
-     nX0 = (double *)new_struct (N0*sizeof(double));
-     nY0 = (double *)new_struct (N0*sizeof(double));
-     nZ0 = (double *)new_struct (N0*sizeof(double));
-     gm  = (int    *)new_struct((N0+3)*sizeof(int));
-     if (! X0 || ! Y0 || ! Z0 || ! nX0 || ! nY0 || ! nZ0 || ! gm) {
-         delete_struct(X0); delete_struct(nX0);
-         delete_struct(Y0); delete_struct(nY0);
-         delete_struct(Z0); delete_struct(nZ0);
-         delete_struct(gm); return(0);
-     }
+		X0  = new_struct<double>(N0);
+		Y0  = new_struct<double>(N0);
+		Z0  = new_struct<double>(N0);
+		nX0 = new_struct<double>(N0);
+		nY0 = new_struct<double>(N0);
+		nZ0 = new_struct<double>(N0);
+		gm  = new_struct<int>(N0+3);
+		if (! X0 || ! Y0 || ! Z0 || ! nX0 || ! nY0 || ! nZ0 || ! gm) {
+			delete_struct(X0); delete_struct(nX0);
+			delete_struct(Y0); delete_struct(nY0);
+			delete_struct(Z0); delete_struct(nZ0);
+			delete_struct(gm); return(0);
+		}
 
 ////////////////////////////////////////////////////////////////
 //...инициализиpуем узлы сетки и касательную на дуге окружности;
@@ -1738,7 +1731,7 @@ int CCells::grid_ellipt(CGrid * nd, double h, int Max_N, int hit)
          delete_struct(X0); delete_struct(nX0);
          delete_struct(Y0); delete_struct(nY0);
          delete_struct(Z0); delete_struct(nZ0);
-         delete_struct(gm); nd->zero_grid(); return(0);
+         delete_struct(gm); nd->release(); return(0);
      }
 
 /////////////////////////////////////////////////////////////////////////
@@ -1842,7 +1835,7 @@ int CCells::in_plane_facet(double * P, double *& pm, int & N_ini, int * mm, int 
 /////////////////////
 //...проверяем буфер;
      if (N_ini < N_arc) {
-         if (NULL != (pm_new = (double *)new_struct(3*N_arc*sizeof(double)))) {
+         if (NULL !=  (pm_new = new_struct<double>(3*N_arc))) {
              delete_struct(pm); pm = pm_new; N_ini = N_arc;
          } else return(0);
      }
@@ -1937,7 +1930,7 @@ int CCells::in_plane_facet(double * P, double *& pm, int & N_ini, int * mm, int 
 int CCells::in_bar_facet(double X, double Y, double Z, int id_fast)
 {
   int		mm[6] = {0, 0, 0, 0, 0, 0}, k, N_ini = 6;
-  double *	pm = (double *)new_struct(3*N_ini*sizeof(double)), P[3] = {X, Y, Z};
+  double *	pm = new_struct<double>(3*N_ini), P[3] = {X, Y, Z};
   if (pm && graph && ! mp) {
       for (k = 0; k < graph[0]; k++)
           ce[k]->in_plane_facet(P, pm, N_ini, mm, id_fast);
@@ -2021,6 +2014,7 @@ int CCells::in_poly_facet(double X, double Y, double Z, int id_fast, double eps)
 				m2  = get_num(ce[arc]->graph, 1);
 				if (! ce[prev]->topo_id(m1)) swap(m1, m2);
 			}
+
 			px = ce[m2]->mp[1]-ce[m1]->mp[1];
 			py = ce[m2]->mp[2]-ce[m1]->mp[2];
 			pz = ce[m2]->mp[3]-ce[m1]->mp[3];
@@ -2331,7 +2325,7 @@ void CCells::facet_QG(CGrid * nd, int N_elem, int N_max, double * pp_cond, int i
 		swap(nd_Y, nd->Y);
 		swap(nd_Z, nd->Z);
 		swap(nd_geom, nd->geom);
-		nd->zero_grid();
+		nd->release();
 		nd->add_params(1);
 
 /////////////////////////////////
@@ -2409,7 +2403,7 @@ void CCells::get_point(double * P)
 void CCells::get_point(double X, double Y, double Z)
 {
 	int l;
-	cells_new(1, 2, (l = size_of_map(0, NULL_GENUS))+1);
+	init(1, 2, (l = size_of_map(0, NULL_GENUS))+1);
 	if (mp) {
 		mp[0] = ID_MAP(0, NULL_GENUS);
 		mp[1] = (CMap)X;
@@ -2424,7 +2418,7 @@ void CCells::get_point(double X, double Y, double Z)
 void CCells::get_circle(double R)
 {
 	int l;
-	cells_new(1, 2, (l = size_of_map(1, SPHERE_GENUS))+1);
+	init(1, 2, (l = size_of_map(1, SPHERE_GENUS))+1);
 	if (mp) {
       mp[0] = ID_MAP(1, SPHERE_GENUS);
       mp[7] = (CMap)fabs(R);
@@ -2441,7 +2435,7 @@ void CCells::get_disk(double R)
 	CMap     * mp = get_map(2, NULL_GENUS);
 
 	ce->get_circle(R); 
-	cells_new(1, 2, 0);
+	init(1, 2, 0);
 
 	bar_add((CCells *)ce);
 	bar_span(mp);
@@ -2455,7 +2449,7 @@ void CCells::get_ring(double rad, double R)
 	CMap     * mp = get_map(2, NULL_GENUS);
 
 	ce->get_circle(rad); 
-	cells_new(1, 2, 0);
+	init(1, 2, 0);
 	if (ce->mp) ce->mp[5] = M_PI;
 
 	bar_add((CCells *)ce); ce = new CCells; ce->get_circle(R);
@@ -2469,7 +2463,7 @@ void CCells::get_ring(double rad, double R)
 void CCells::get_cylinder(double R)
 {
 	int l;
-	cells_new(1, 2, (l = size_of_map(2, CYL_GENUS))+1);
+	init(1, 2, (l = size_of_map(2, CYL_GENUS))+1);
 	if (mp) {
 		mp[0] = ID_MAP(2, CYL_GENUS);
 		mp[7] = (CMap)R; //...R < 0 - internal side of surface;
@@ -2482,7 +2476,7 @@ void CCells::get_cylinder(double R)
 void CCells::get_sphere(double R)
 {
 	int l;
-	cells_new(1, 2, (l = size_of_map(2, SPHERE_GENUS))+1);
+	init(1, 2, (l = size_of_map(2, SPHERE_GENUS))+1);
 	if (mp) {
 		mp[0] = ID_MAP(2, SPHERE_GENUS);
 		mp[7] = (CMap)R; //...R < 0 - internal side of surface;
@@ -2495,7 +2489,7 @@ void CCells::get_sphere(double R)
 void CCells::get_spheroid(double A, double B)
 {
 	int l;
-	cells_new(1, 2, (l = size_of_map(2, SPHEROID_GENUS))+1);
+	init(1, 2, (l = size_of_map(2, SPHEROID_GENUS))+1);
 	if (mp) {
 		mp[0] = ID_MAP(2, SPHEROID_GENUS);
 		mp[7] = (CMap)A;
@@ -2508,7 +2502,7 @@ void CCells::get_spheroid(double A, double B)
 void CCells::get_ellipsoid(double A, double B, double C)
 {
 	int l;
-	cells_new(1, 2, (l = size_of_map(2, ELLIPSOID_GENUS))+1);
+	init(1, 2, (l = size_of_map(2, ELLIPSOID_GENUS))+1);
 	if (mp) {
 		mp[0] = ID_MAP(2, ELLIPSOID_GENUS);
 		mp[7] = (CMap)A;
@@ -2526,7 +2520,7 @@ void CCells::get_ball(double R)
   CMap     * mp = get_map(3, NULL_GENUS);
 
   ce->get_sphere(fabs(R)); 
-  cells_new(1, 2, 0);
+  init(1, 2, 0);
 
   bar_add((CCells *)ce);
   bar_span(mp);
@@ -2540,7 +2534,7 @@ void CCells::get_roll(double R)
   CMap     * mp = get_map(3, NULL_GENUS);
 
   ce->get_cylinder(fabs(R)); 
-  cells_new(1, 2, 0);
+  init(1, 2, 0);
 
   bar_add((CCells *)ce);
   bar_span(mp);
@@ -2550,7 +2544,7 @@ void CCells::get_roll(double R)
 //...forming geometrical cell "space of dimension N_dim";
 void CCells::get_space(int N_dim)
 {
-  cells_new(1, 2, size_of_map(N_dim = abs(N_dim) % MAX_DIM, NULL_GENUS)+1);
+  init(1, 2, size_of_map(N_dim = abs(N_dim) % MAX_DIM, NULL_GENUS)+1);
   if (mp) {
       mp[0] = ID_MAP(N_dim, NULL_GENUS);
       mp[7] = (CMap)NULL_CELL;
@@ -2562,10 +2556,10 @@ void CCells::get_space(int N_dim)
 void CCells::get_line(double * P1, double * P2, int id_cell, int id_fast)
 {
 	CCells * p1 = new CCells,
-				* p2 = new CCells;
-	CMap     * mp = get_map(1, NULL_GENUS);
-	double    X  = P2[0]-P1[0], Y = P2[1]-P1[1],
-				 Z  = P2[2]-P1[2], fi;
+			 * p2 = new CCells;
+	CMap   * mp = get_map(1, NULL_GENUS);
+	double   X  = P2[0]-P1[0], Y = P2[1]-P1[1],
+				Z  = P2[2]-P1[2], fi;
 	p1->get_point(P1);
 	p2->get_point(P2);
 
@@ -2581,19 +2575,19 @@ void CCells::get_line(double * P1, double * P2, int id_cell, int id_fast)
 //////////////////////////////////////////////
 //...directly normal or spherical coordinates;
       if (id_fast == NULL_STATE) {
-			this->mp[4] = (CMap)arg0(comp(X, Y));
-			this->mp[5] = (CMap)arg0(comp(Z, sqrt(X*X+Y*Y)));
+			CCells::mp[4] = (CMap)arg0(comp(X, Y));
+			CCells::mp[5] = (CMap)arg0(comp(Z, sqrt(X*X+Y*Y)));
 		}
 		else {
           if ((fi = sqrt(sqr(X)+sqr(Y)+sqr(Z))) > EE) {
-               this->mp[4] = X*(fi = 1./fi);
-               this->mp[5] = Y* fi;
-               this->mp[6] = Z* fi;
+               CCells::mp[4] = X*(fi = 1./fi);
+               CCells::mp[5] = Y* fi;
+               CCells::mp[6] = Z* fi;
           }
           else {
-					this->mp[4] = 0.;
-					this->mp[5] = 0.;
-					this->mp[6] = 1.;
+					CCells::mp[4] = 0.;
+					CCells::mp[5] = 0.;
+					CCells::mp[6] = 1.;
           }
       }
 	}
@@ -2605,8 +2599,8 @@ void CCells::get_line(double * P1, double * P2, int id_cell, int id_fast)
 void CCells::get_arc(double R, double f0, double f1, int id_cell)
 {
   CCells * p1 = new CCells,
-           * p2 = new CCells;
-  CMap     * mp = get_map(1, SPHERE_GENUS);
+         * p2 = new CCells;
+  CMap   * mp = get_map(1, SPHERE_GENUS);
   double  P1[3] = {(R = fabs(R))*cos(f0), R*sin(f0), 0.},
           P2[3] = { R*cos(f1), R*sin(f1), 0.};
   p1->get_point(P1);
@@ -2656,8 +2650,8 @@ void CCells::get_ellipt_arc(double A, double B, double f0, double f1, int id_cel
   if (A < EE_ker || B < EE_ker || C < 0.) return; C = sqrt(C);
 
   CCells * p1 = new CCells,
-           * p2 = new CCells;
-  CMap     * mp = get_map(1, CYL_GENUS, ELLIPT_ARC);
+         * p2 = new CCells;
+  CMap   * mp = get_map(1, CYL_GENUS, ELLIPT_ARC);
   double  P1[3] = {(R = ff/(A+C*(Co = cos(f0))))*Co+C, R*sin(f0), 0.},
           P2[3] = {(R = ff/(A+C*(Co = cos(f1))))*Co+C, R*sin(f1), 0.};
   int    k;
@@ -2683,16 +2677,16 @@ void CCells::get_ellipt_arc(double A, double B, double f0, double f1, int id_cel
 void CCells::get_sheet(double A, double B)
 {
 	double P1[3] = {-.5*A, 0., 0.}, P2[3] = {.5*A, 0., 0.},
-			P3[3] = {0., -.5*B, 0.}, P4[3] = {0., .5*B, 0.};
+			 P3[3] = {0., -.5*B, 0.}, P4[3] = {0., .5*B, 0.};
 	int    k;
 	if (A < EE_ker) get_line(P3, P4); else
 	if (B < EE_ker) get_line(P1, P2); 
 	else {
 		CCells * l1 = new CCells,
-					* l2 = new CCells,
-					* l3 = new CCells,
-					* l4 = new CCells;
-		CMap     * mp = get_map(2, NULL_GENUS, SHEET_CELL);
+				 * l2 = new CCells,
+				 * l3 = new CCells,
+				 * l4 = new CCells;
+		CMap   * mp = get_map(2, NULL_GENUS, SHEET_CELL);
 		l1->get_line(P1, P2);
 		l2->get_line(P3, P4);
 		l3->get_line(P2, P1);
@@ -2731,16 +2725,17 @@ void CCells::get_sheet_intrusion(double A, double B, double rad)
 	if (A < EE_ker) get_line(P3, P4); else
 	if (B < EE_ker) get_line(P1, P2); else {
 		CCells * l1 = new CCells,
-					* l2 = new CCells,
-					* l3 = new CCells,
-					* l4 = new CCells,
-					* cc = new CCells;
-		CMap * mp = get_map(2, NULL_GENUS, SHT_INTRUSION_CELL);
+				 * l2 = new CCells,
+				 * l3 = new CCells,
+				 * l4 = new CCells,
+				 * cc = new CCells;
+		CMap   * mp = get_map(2, NULL_GENUS, SHT_INTRUSION_CELL);
 		l1->get_line(P1, P2);
 		l2->get_line(P3, P4);
 		l3->get_line(P2, P1);
 		l4->get_line(P4, P3);
-		cc->get_circle (rad);
+		cc->get_circle (rad); if (cc->mp) cc->mp[5] = M_PI;
+
 
 ////////////////////////////////////////////
 //...setting parameters of geometrical card;
@@ -2770,12 +2765,12 @@ void CCells::get_sheet_intrusion(double A, double B, double rad)
 void CCells::get_box(double A, double B, double C)
 {
   CCells * f1 = new CCells,
-           * f2 = new CCells,
-           * f3 = new CCells,
-           * f4 = new CCells,
-           * f5 = new CCells,
-           * f6 = new CCells;
-  CMap     * mp = get_map(3, NULL_GENUS, BOX_CELL);
+         * f2 = new CCells,
+         * f3 = new CCells,
+         * f4 = new CCells,
+         * f5 = new CCells,
+         * f6 = new CCells;
+  CMap   * mp = get_map(3, NULL_GENUS, BOX_CELL);
   int     k;
   double  P1[3] = {-.5*A, 0., 0.},
           P2[3] = {0., -.5*B, 0.},
@@ -2812,12 +2807,12 @@ void CCells::get_sph_intrusion(double R, double L)
 {
 	if (fabs(R) < L || fabs(R) > M_SQRT2*L) return;
 	CCells * f1 = new CCells,
-			   * f2 = new CCells,
-			   * f3 = new CCells,
-			   * f4 = new CCells,
-			   * f5 = new CCells,
-			   * f6 = new CCells;
-	CMap * mp = get_map(2, SPHERE_GENUS, SPH_INTRUSION_CELL);
+			 * f2 = new CCells,
+			 * f3 = new CCells,
+			 * f4 = new CCells,
+			 * f5 = new CCells,
+			 * f6 = new CCells;
+	CMap   * mp = get_map(2, SPHERE_GENUS, SPH_INTRUSION_CELL);
 	int    k;
 	double P1[3] = {-L, 0., 0.},
 			 P2[3] = {0., -L, 0.},
@@ -2865,7 +2860,7 @@ void CCells::get_circle_profile(double r)
 
 //////////////////////////////
 //...стpоим объединенный блок;
-  cells_new(1, 2, 0);
+  init(1, 2, 0);
   ce = new CCells;  ce->get_arc(r, z0, z1, 1);  bar_add(ce);
   ce = new CCells;  ce->get_arc(r, z1, z2, 1);  bar_add(ce);
   ce = new CCells;  ce->get_arc(r, z2, z0, 1);  bar_add(ce);
@@ -2924,7 +2919,7 @@ void CCells::get_ugolok_cell(double A1,  double A2,   double B1, double B2, doub
 {
   int    k;
   double P[3] = {x0, y0, 0.};
-  CMap   * mp  = get_map(2, NULL_GENUS, UGOLOK_CELL);
+  CMap  * mp  = get_map(2, NULL_GENUS, UGOLOK_CELL);
 
 ////////////////////////////////////////////
 //...setting parameters of geometrical card;
@@ -2957,10 +2952,10 @@ void CCells::get_blend_cyl_segment(double beta, double R, double L, int * mm)
   double P[3] = {0., 0., L};
   int id_full = 0;
   CCells * r0 = new CCells,
-           * r1 = new CCells,
-           * c2 = new CCells,
-           * p3 = new CCells,
-           * p4 = new CCells;
+         * r1 = new CCells,
+         * c2 = new CCells,
+         * p3 = new CCells,
+         * p4 = new CCells;
   if (mm && mm[0]) r0->get_ring_segment( M_PI_2*beta, -M_PI_2*beta, 0., R);
   else             r0->get_sph_segment ( R, -M_PI_2*beta, M_PI_2*beta, M_PI_2, M_PI);
   if (mm && mm[1]) r1->get_ring_segment(-M_PI_2*beta,  M_PI_2*beta, 0., R);
@@ -2989,13 +2984,13 @@ void CCells::get_blend_cyl_segment(double beta, double R, double L, int * mm)
 void CCells::get_torus_segment(double r0, double r1, double f0, double f1, double t0, double t1)
 {
   if ((r0 = fabs(r0)) < (r1 = fabs(r1))+EE_ker) return;
-  int      k;
-  double   P[3] = {0., 0., -r1*sin(t0)};
+  int    k;
+  double P[3] = {0., 0., -r1*sin(t0)};
   CCells * c1 = new CCells,
-           * c2 = new CCells,
-           * c3 = new CCells,
-           * c4 = new CCells;
-  CMap      * mp = get_map(2, TORUS_GENUS, TORUS_SEGMENT);
+         * c2 = new CCells,
+         * c3 = new CCells,
+         * c4 = new CCells;
+  CMap   * mp = get_map(2, TORUS_GENUS, TORUS_SEGMENT);
   c1->get_arc(r0-r1*cos(t0), f1, f0);
   c3->get_arc(r0-r1*cos(t1), f0, f1);
   c2->get_arc(r1, -M_PI_2-t0, -M_PI_2-t1);
@@ -3030,14 +3025,14 @@ void CCells::get_torus_segment(double r0, double r1, double f0, double f1, doubl
 void CCells::get_ring_segment(double f0, double f1, double t0, double t1)
 {
   if (t0 < 0. || t1 < 0.) return;
-  int     k;
-  double  P1[3] = {t0, 0., 0.},
-          P2[3] = {t1, 0., 0.};
+  int    k;
+  double P1[3] = {t0, 0., 0.},
+         P2[3] = {t1, 0., 0.};
   CCells * l1 = new CCells,
-           * l2 = new CCells,
-           * c1 = new CCells,
-           * c2 = new CCells;
-  CMap      * mp = get_map(2, NULL_GENUS, RING_SEGMENT);
+         * l2 = new CCells,
+         * c1 = new CCells,
+         * c2 = new CCells;
+  CMap   * mp = get_map(2, NULL_GENUS, RING_SEGMENT);
   l1->get_line(P1, P2);
   l2->get_line(P2, P1);
   c1->get_arc(t1, f0, f1);
@@ -3068,15 +3063,15 @@ void CCells::get_ring_segment(double f0, double f1, double t0, double t1)
 void CCells::get_cone_segment(double theta, double f0, double f1, double t0, double t1)
 {
   if (theta < EE_ker || theta > M_PI-EE_ker) return;
-  int     k;
-  double  Co    = cos(theta), Si = sin(theta),
-          P1[3] = {t0*Si, 0., t0*Co},
-          P2[3] = {t1*Si, 0., t1*Co};
+  int    k;
+  double Co    = cos(theta), Si = sin(theta),
+         P1[3] = {t0*Si, 0., t0*Co},
+         P2[3] = {t1*Si, 0., t1*Co};
   CCells * l1 = new CCells,
-           * l2 = new CCells,
-           * c1 = new CCells,
-           * c2 = new CCells;
-  CMap     * mp = get_map(2, CONE_GENUS, CONE_SEGMENT);
+         * l2 = new CCells,
+         * c1 = new CCells,
+         * c2 = new CCells;
+  CMap   * mp = get_map(2, CONE_GENUS, CONE_SEGMENT);
   l1->get_line(P2, P1);
   l2->get_line(P1, P2);
   c1->get_arc(P1[0], f0, f1);
@@ -3109,14 +3104,14 @@ void CCells::get_cone_segment(double theta, double f0, double f1, double t0, dou
 //...forming cylindrical segment (R > 0 - outer normal, R < 0 - inner normal);
 void CCells::get_cyl_segment(double R, double f0, double f1, double t0, double t1)
 {
-  int     k;
-  double  P1[3] = {R = fabs(R), 0., t0},
-          P2[3] = {    fabs(R), 0., t1};
+  int    k;
+  double P1[3] = {R = fabs(R), 0., t0},
+         P2[3] = {    fabs(R), 0., t1};
   CCells * l1 = new CCells,
-           * l2 = new CCells,
-           * c1 = new CCells,
-           * c2 = new CCells;
-  CMap     * mp = get_map(2, CYL_GENUS, CYL_SEGMENT);
+         * l2 = new CCells,
+         * c1 = new CCells,
+         * c2 = new CCells;
+  CMap   * mp = get_map(2, CYL_GENUS, CYL_SEGMENT);
   l1->get_line(P2, P1);
   l2->get_line(P1, P2);
   c1->get_arc(R, f0, f1);
@@ -3150,13 +3145,13 @@ void CCells::get_cyl_segment(double R, double f0, double f1, double t0, double t
 void CCells::get_sph_segment(double R, double f0, double f1, double t0, double t1)
 {
   if (t0 < 0. || t1 < 0. || t0 > M_PI || t1 > M_PI) return;
-  int      k;
-  double   P[3] = {0., 0., (R = fabs(R))*cos(t1)};
+  int    k;
+  double P[3] = {0., 0., (R = fabs(R))*cos(t1)};
   CCells * c1 = new CCells,
-           * c2 = new CCells,
-           * c3 = new CCells,
-           * c4 = new CCells;
-  CMap     * mp = get_map(2, SPHERE_GENUS, SPH_SEGMENT);
+         * c2 = new CCells,
+         * c3 = new CCells,
+         * c4 = new CCells;
+  CMap   * mp = get_map(2, SPHERE_GENUS, SPH_SEGMENT);
   c1->get_arc(R, t0, t1);
   c2->get_arc(R*sin(t1), f0, f1);
   c3->get_arc(R, t1, t0);
@@ -3191,19 +3186,19 @@ void CCells::get_polygon_directly(double * X, double * Y, int N, int id_dbl, dou
 {
   if (! X || ! Y || N < 3) return;
   int k, l;
-  cells_new(2*(N-1)+1, 2, 0); if (graph) graph[0] = 2*(N-1);
+  init(2*(N-1)+1, 2, 0); if (graph) graph[0] = 2*(N-1);
 
 ///////////////////////////////
 //...creating polygon topology;
   for (k = N-1; k < 2*N-2; k++) { //...points;
        ce[k] = new CCells; if (! ce[k]) goto err;
-       ce[k]->cells_new(0, 2, (l = size_of_map(0, NULL_GENUS))+1);
+       ce[k]->init(0, 2, (l = size_of_map(0, NULL_GENUS))+1);
        ce[k]->mp[l] = (CMap)NULL_CELL;
        ce[k]->ce    = ce;
   }
   for (k = N-2; k >= 0; k--) { //...lines;
        ce[k] = new CCells; if (! ce[k]) goto err;
-       ce[k]->cells_new(0, 4, (l = size_of_map(1, NULL_GENUS))+1);
+       ce[k]->init(0, 4, (l = size_of_map(1, NULL_GENUS))+1);
        ce[k]->mp[l]    = (CMap)NULL_CELL;
        ce[k]->ce       = ce;
        if (ce[k]->graph) {
@@ -3232,7 +3227,7 @@ void CCells::get_polygon_directly(double * X, double * Y, int N, int id_dbl, dou
   if (id_dbl) bar_correct_double_point(eps);
   return;
 err:
-  zero_cells();
+  release();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -3241,18 +3236,18 @@ void CCells::get_arc_polygon_directly(double * X, double * Y, double * R, int * 
 {
   if (! X || ! Y || ! R || ! topo || N < 2) return;
   int k, size_map = max(size_of_map(1, NULL_GENUS), size_of_map(1, SPHERE_GENUS));
-  cells_new(2*(N-1)+1, 2, 0); if (graph) graph[0] = 2*(N-1);
+  init(2*(N-1)+1, 2, 0); if (graph) graph[0] = 2*(N-1);
 
 ///////////////////////////////
 //...creating polygon topology;
   for (k = N-1; k < 2*N-2; k++) { //...points;
        ce[k] = new CCells; if (! ce[k]) goto err;
-       ce[k]->cells_new(0, 2, size_of_map(0, NULL_GENUS)+1);
+       ce[k]->init(0, 2, size_of_map(0, NULL_GENUS)+1);
        ce[k]->ce = ce;
   }
   for (k = N-2; k >= 0; k--) { //...arcs;
        ce[k] = new CCells; if (! ce[k]) goto err;
-       ce[k]->cells_new(0, 4, size_map+1);
+       ce[k]->init(0, 4, size_map+1);
        ce[k]->ce = ce;
        if (ce[k]->graph) {
            ce[k]->graph[0] =
@@ -3288,7 +3283,7 @@ void CCells::get_arc_polygon_directly(double * X, double * Y, double * R, int * 
   if (id_dbl) bar_correct_double_point(eps);
   return;
 err:
-  zero_cells();
+  release();
 }
 
 ///////////////////////////////////////////
@@ -3297,19 +3292,19 @@ void CCells::get_line_strip_directly(double * X, double * Y, double * Z, int * g
 {
   int k, l, m, N, i;
   if (X && Y && Z && geom && (N = geom[0]-shift) >= 2) {
-      cells_new(2*N, 2, 0); if (graph) graph[0] = 2*N-1;
+      init(2*N, 2, 0); if (graph) graph[0] = 2*N-1;
 
 //////////////////////////////////
 //...creating space line topology;
       for (l = size_of_map(0, NULL_GENUS), m = 2*N-1, k = N-1; ce && k < m; k++) {
            ce[k] = new CCells; if (! ce[k]) goto err;
-           ce[k]->cells_new(0, 2, l+1);
+           ce[k]->init(0, 2, l+1);
            ce[k]->mp[l] = (CMap)NULL_CELL;
            ce[k]->ce    = ce;
       }
       for (l = size_of_map(1, NULL_GENUS), k = N-2; ce && k >= 0; k--) {
            ce[k] = new CCells; if (! ce[k]) goto err;
-           ce[k]->cells_new(0, 4, l+1);
+           ce[k]->init(0, 4, l+1);
            ce[k]->mp[l]    = (CMap)NULL_CELL;
            ce[k]->ce       = ce;
            if (ce[k]->graph) {
@@ -3340,7 +3335,7 @@ void CCells::get_line_strip_directly(double * X, double * Y, double * Z, int * g
       return;
   }
 err:
-  zero_cells();
+  release();
 }
 
 ////////////////////////////////////////////////////////
@@ -3487,7 +3482,7 @@ void CCells::get_facet_directly(double * P, int N, int id_plane, int id_fast, in
 { //...id_fast == OK_STATE - плоский элемент с нормалью и точками (без прямых линий); 
 	if (P && N >= 3) {
 		int   i, k, l, m = id_fast == OK_STATE ? N : N*2;
-		cells_new(m+1, N+2, (l = size_of_map(2, NULL_GENUS))+1+size_of_dop(FACET_CELL));
+		init(m+1, N+2, (l = size_of_map(2, NULL_GENUS))+1+size_of_dop(FACET_CELL));
 
 ////////////////////////
 //...вычисление нормали;
@@ -3570,7 +3565,7 @@ void CCells::get_facet_directly(double * P, int N, int id_plane, int id_fast, in
 		if (graph) {
 			for ( l = size_of_map(0, NULL_GENUS), k = N-1; ce && k >= 0; k--) {
 				  ce[k] = new CCells(-1); if (! ce[k]) goto err;
-				  ce[k]->cells_new(0, 2, l+1);
+				  ce[k]->init(0, 2, l+1);
 				  ce[k]->mp[l]		= (CMap)NULL_CELL;
 				  ce[k]->ce			= ce;
 				  ce[k]->graph[0] = m;
@@ -3579,7 +3574,7 @@ void CCells::get_facet_directly(double * P, int N, int id_plane, int id_fast, in
 			if (id_fast != OK_STATE)
 			for ( l = size_of_map(1, NULL_GENUS), k = N; ce && k < m; k++) {
 				  ce[k] = new CCells(-1); if (! ce[k]) goto err;
-				  ce[k]->cells_new(0, 4, l+1);
+				  ce[k]->init(0, 4, l+1);
 				  ce[k]->mp[l]    = (CMap)NULL_CELL;
 				  ce[k]->ce       = ce;
 				  ce[k]->graph[0] = m;
@@ -3612,7 +3607,7 @@ void CCells::get_facet_directly(double * P, int N, int id_plane, int id_fast, in
       return;
   }
 err:
-  zero_cells();
+  release();
 }
 
 //////////////////////////////
@@ -3954,7 +3949,7 @@ void CCells::get_nd_bar_directly(CGrid * nd, int k)
   
 /////////////////////////////////////////
 //...forming surface geometry of element;
-	cells_new (1, 2, 0);
+	init (1, 2, 0);
 	switch (nd->geom[i = nd->geom_ptr[k]]) {
 		case GL_LINE_STRIP: if (nd->geom[i+1] >= 5) { //...composite line;
 			for (l = nd->geom[i+1]-3; l >= 2; l--) {

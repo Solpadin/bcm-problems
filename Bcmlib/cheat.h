@@ -16,25 +16,24 @@
 template <typename T>
 class CHeat1DPoly : public CShape<T> {
 public:
-		Num_Shape    type() { return HT1D_POLY_SHAPE;}
 		int freedom (int m) { return(2);}
 		int size_of_param() { return(3);}
 public:
 //...initialization of multipoles;
 		void set_shape(double R0, double AA = 0., double kx = 0., double fx = 0., double p3 = 0.) {
-			CHeat1DPoly::R0 = R0;
+			this->R0 = R0;
 			this->R0_inv  	= R0 > EE ? 1./R0 : 1.;
 			int   k = -1;
-			if (++k < size_of_param()) this->param[k] = (Param)(AA*sqr(this->R0_inv));
-			if (++k < size_of_param()) this->param[k] = (Param)(kx*R0);
-			if (++k < size_of_param()) this->param[k] = (Param)(fx);
+			if (++k < size_of_param()) this->param[k] = Param(AA*sqr(this->R0_inv));
+			if (++k < size_of_param()) this->param[k] = Param(kx*this->R0);
+			if (++k < size_of_param()) this->param[k] = Param(fx);
 		}
-		void init2(int N, int M, int dim) {
-			CShape<T>::N  = N;
-			CShape<T>::M  = M;
-			CShape<T>::id_dim = dim;
-			this->NN = freedom(N)*(M+1);
-			CShape<T>::release();
+		void degree_init2(int N, int M, int dim) {
+			this->N  = N;
+			this->M  = M;
+			this->id_dim = dim;
+			this->NN = freedom(N)*(M+1); 
+			this->release();
 		}
 public:
 //...calculation of multipoles;
@@ -44,10 +43,15 @@ public:
 //...differentiation;
 		void deriv_X(T * deriv, double f = 1.);
 		void deriv_t(T * deriv, double f = 1.);
-//...constructor;
-		CHeat1DPoly () {
+public:
+		void init() {
 			delete_struct(this->param);
-			this->param = (Param *)new_struct(size_of_param()*sizeof(Param));
+			this->param = new_struct<Param>(size_of_param());
+		}
+public:
+//...constructor;
+		CHeat1DPoly() {
+			init();
 		};
 };
 
@@ -56,26 +60,25 @@ public:
 template <typename T>
 class CHeat2DPoly : public CShape<T> {
 public:
-		Num_Shape    type() { return HT2D_POLY_SHAPE;}
 		int freedom (int m) { return m*2+1; }
 		int size_of_param() { return(2);}
 public:
 //...initialization of multipoles;
 		void set_shape(double R0, double kk, double fo, double p2, double p3) {
-			CHeat2DPoly::R0 = R0;
-			this->R0_inv  	= R0 > EE ? 1./R0 : 1.;
-			int   k = -1;
+			this->R0 = R0;
+			this->R0_inv = R0 > EE ? 1./R0 : 1.;
+			int k  = -1;
 //////////////////////////////////////////////////////////////////////////////////////
-//...R0 убираем из kk*R0 для получения характерного значения J_0(kk) на границе блока;
-			if (++k < size_of_param()) this->param[k] = (Param)(kk);
-			if (++k < size_of_param()) this->param[k] = (Param)(fo*sqr(kk*this->R0_inv));
+//...this->R0 убираем из kk*this->R0 для получения характерного значения J_0(kk) на границе блока;
+			if (++k < size_of_param()) this->param[k] = Param(kk);
+			if (++k < size_of_param()) this->param[k] = Param(fo*sqr(kk*this->R0_inv));
 		}
-		void init2(int N, int M, int dim) {
-			CShape<T>::N  = N;
-			CShape<T>::M  = M;
-			CShape<T>::id_dim = dim;
+		void degree_init2(int N, int M, int dim) {
+			this->N  = N;
+			this->M  = M;
+			this->id_dim = dim;
 			this->NN = freedom(N)*(M+1);
-			CShape<T>::release();
+			this->release();
 		}
 public:
 //...initialization and calculation of multipoles;
@@ -86,10 +89,15 @@ public:
 		void deriv_X(T * deriv, double f = 1.);
 		void deriv_Y(T * deriv, double f = 1.);
 		void deriv_t(T * deriv, double f = 1.);
-//...constructor;
-		CHeat2DPoly () {
+public:
+		void init() {
 			delete_struct(this->param);
-			this->param = (Param *)new_struct(size_of_param()*sizeof(Param));
+			this->param = new_struct<Param>(size_of_param());
+		}
+public:
+//...constructor;
+		CHeat2DPoly() {
+			init();
 		};
 };
 
@@ -98,7 +106,6 @@ public:
 template <typename T>
 class CHeat3DPoly : public CHeat1DPoly<T> {
 public:
-		Num_Shape   type() { return HT3D_POLY_SHAPE;}
 		int freedom(int m) { return sqr(m+1);}
 public:
 //...initialization and calculation of multipoles;
@@ -110,25 +117,30 @@ public:
 		void deriv_Y(T * deriv, double f = 1.);
 		void deriv_Z(T * deriv, double f = 1.);
 		void deriv_t(T * deriv, double f = 1.);
-//...constructor;
-		CHeat3DPoly () {
+public:
+		void init() {
 			delete_struct(this->param);
-			this->param = (Param *)new_struct(this->size_of_param()*sizeof(Param));
+			this->param = new_struct<Param>(this->size_of_param());
+		}
+public:
+//...constructor;
+		CHeat3DPoly() {
+			init();
 		};
 };
 
 //////////////////////////////////////////////////
 //...parametrization of the polynomial multipoles;
 #define SHAPE_heat_AA               1. //...normalized temperature-transfer coefficient;
-#undef  SHAPE_heat_AA                  //...param(0);
+#undef  SHAPE_heat_AA                  //...this->param(0);
 #define SHAPE_heat_KX               0. //...normalized temperature-oscillaton coefficient on direction X;
-#undef  SHAPE_heat_KX                  //...param(1);
+#undef  SHAPE_heat_KX                  //...this->param(1);
 #define SHAPE_heat_fx               0. //...shift on direction X;
-#undef  SHAPE_heat_fx                  //...param(2);
+#undef  SHAPE_heat_fx                  //...this->param(2);
 #define SHAPE_heat_kappa				0. //...parameter of cooling rate;
-#undef  SHAPE_heat_kappa					//...param(3);
+#undef  SHAPE_heat_kappa					//...this->param(3);
 #define SHAPE_heat_fo					0. //...parameter of Fourier time;
-#undef  SHAPE_heat_fo						//...param(4);
+#undef  SHAPE_heat_fo						//...this->param(4);
 
 ///////////////////////////////////////
 //...parametrization of the multipoles;
@@ -137,7 +149,7 @@ void CHeat1DPoly<T>::parametrization(double * P, int m_dop)
 {
 	if (! P) delete_struct(this->p);
 	if (! this->p) {
-			this->p  = (T *)new_struct((this->NN_dop = freedom(this->N)*(this->M+1))*sizeof(T));
+		this->p = new_struct<T>(this->NN_dop = freedom(this->N)*(this->M+1));
 	}
 	if (P && this->p) {
 		double fo = P[6]*this->param[0]*sqr(this->R0), X = P[0]*this->R0_inv, f3 = X*sqr(this->R0)*.5;
@@ -159,7 +171,7 @@ void CHeat2DPoly<T>::parametrization(double * P, int m_dop)
 {
 	if (! P) delete_struct(this->p);
 	if (! this->p) {
-			this->p  = (T *)new_struct((this->NN_dop = freedom(this->N)*(this->M+1)+2*this->M)*sizeof(T));
+		this->p = new_struct<T>(this->NN_dop = freedom(this->N)*(this->M+1)+2*this->M);
 	}
 	if (P && this->p) {
 		complex z = comp(P[0], P[1])*this->R0_inv;
@@ -190,7 +202,7 @@ void CHeat3DPoly<T>::parametrization(double * P, int m_dop)
 {
 	if (! P) delete_struct(this->p);
 	if (! this->p) {
-			this->p  = (T *)new_struct(((this->NN_dop = freedom(this->N)*(this->M+1))+2*this->M*(this->N+1))*sizeof(T));
+		this->p = new_struct<T>((this->NN_dop = freedom(this->N)*(this->M+1))+2*this->M*(this->N+1));
 	}
 	if (P && this->p) {
 		double   Z = P[2]*this->R0_inv, f3 = Z*Z, fo = P[6]*this->param[0]*sqr(this->R0);
@@ -259,9 +271,11 @@ template <typename T>
 void CHeat1DPoly<T>::parametrization_grad(double * P, int m)
 {
 	parametrization(P, m+1);
-	if (! P) delete_struct(this->px);
-	if (! this->px) {
-		this->px = (T *)new_struct((this->NN_grad = freedom(this->N+m)*(this->M+1))*sizeof(T));
+	if (! P) {
+		delete_struct(this->px);
+	}
+	if (P && ! this->px) {
+		this->px = new_struct<T>(this->NN_grad = freedom(this->N+m)*(this->M+1));
 	}
 	if (P && this->px) {
 		memset (this->px, 0, this->NN_grad*sizeof(T));
@@ -279,9 +293,9 @@ void CHeat2DPoly<T>::parametrization_grad(double * P, int m)
 		delete_struct(this->px);
 		delete_struct(this->py);
 	}
-	if (! this->px && ! this->py) {
-		this->px = (T *)new_struct((this->NN_grad = freedom(this->N+m)*(this->M+1))*sizeof(T));
-		this->py = (T *)new_struct( this->NN_grad*sizeof(T));
+	if (P && ! this->px && ! this->py) {
+		this->px = new_struct<T>(this->NN_grad = freedom(this->N+m)*(this->M+1));
+		this->py = new_struct<T>(this->NN_grad);
 	}
 	if (P && this->px && this->py) {
 		memset (this->px, 0, this->NN_grad*sizeof(T));
@@ -302,10 +316,10 @@ void CHeat3DPoly<T>::parametrization_grad(double * P, int m)
 		delete_struct(this->py);
 		delete_struct(this->pz);
 	}
-	if (! this->px && ! this->py && ! this->pz) {
-		this->px = (T *)new_struct((this->NN_grad = freedom(this->N+m)*(this->M+1))*sizeof(T));
-		this->py = (T *)new_struct( this->NN_grad*sizeof(T));
-		this->pz = (T *)new_struct( this->NN_grad*sizeof(T));
+	if (P && ! this->px && ! this->py && ! this->pz) {
+		this->px = new_struct<T>(this->NN_grad = freedom(this->N+m)*(this->M+1));
+		this->py = new_struct<T>(this->NN_grad);
+		this->pz = new_struct<T>(this->NN_grad);
 	}
 	if (P && this->px && this->py && this->pz) {
 		memset (this->px, 0, this->NN_grad*sizeof(T));
@@ -325,9 +339,11 @@ template <typename T>
 void CHeat1DPoly<T>::parametrization_hess(double * P, int m)
 {
 	parametrization_grad(P, m+1);
-	if (! P) delete_struct(this->pxx);
-	if (! this->pxx) {
-		this->pxx = (T *)new_struct((this->NN_hess = freedom(this->N+m)*(this->M+1))*sizeof(T));
+	if (! P) {
+		delete_struct(this->pxx);
+	}
+	if (P && ! this->pxx) {
+		this->pxx = new_struct<T>(this->NN_hess = freedom(this->N+m)*(this->M+1));
 	}
 	if (P && this->pxx) {
 		memset (this->pxx, 0, this->NN_hess*sizeof(T));
@@ -348,10 +364,10 @@ void CHeat2DPoly<T>::parametrization_hess(double * P, int m)
 		delete_struct(this->pxy);
 		delete_struct(this->pyy);
 	}
-	if (! this->pxx && ! this->pxy && ! this->pyy) {
-		this->pxx = (T *)new_struct((this->NN_hess = freedom(this->N+m)*(this->M+1))*sizeof(T));
-		this->pxy = (T *)new_struct( this->NN_hess*sizeof(T));
-		this->pyy = (T *)new_struct( this->NN_hess*sizeof(T));
+	if (P && ! this->pxx && ! this->pxy && ! this->pyy) {
+		this->pxx = new_struct<T>(this->NN_hess = freedom(this->N+m)*(this->M+1));
+		this->pxy = new_struct<T>(this->NN_hess);
+		this->pyy = new_struct<T>(this->NN_hess);
 	}
 	if (P && this->pxx && this->pxy && this->pyy) {
 		memset (this->pxx, 0, this->NN_hess*sizeof(T));
@@ -381,13 +397,13 @@ void CHeat3DPoly<T>::parametrization_hess(double * P, int m)
 		delete_struct(this->pyz);
 		delete_struct(this->pzz);
 	}
-	if (! this->pxx && ! this->pxy && ! this->pyy && ! this->pxz && ! this->pyz && ! this->pzz) {
-		this->pxx = (T *)new_struct((this->NN_hess = freedom(this->N+m)*(this->M+1))*sizeof(T));
-		this->pxy = (T *)new_struct( this->NN_hess*sizeof(T));
-		this->pyy = (T *)new_struct( this->NN_hess*sizeof(T));
-		this->pxz = (T *)new_struct( this->NN_hess*sizeof(T));
-		this->pyz = (T *)new_struct( this->NN_hess*sizeof(T));
-		this->pzz = (T *)new_struct( this->NN_hess*sizeof(T));
+	if (P && ! this->pxx && ! this->pxy && ! this->pyy && ! this->pxz && ! this->pyz && ! this->pzz) {
+		this->pxx = new_struct<T>(this->NN_hess = freedom(this->N+m)*(this->M+1));
+		this->pxy = new_struct<T>(this->NN_hess);
+		this->pyy = new_struct<T>(this->NN_hess);
+		this->pxz = new_struct<T>(this->NN_hess);
+		this->pyz = new_struct<T>(this->NN_hess);
+		this->pzz = new_struct<T>(this->NN_hess);
 	}
 	if (P && this->pxx && this->pxy && this->pyy && this->pxz && this->pyz && this->pzz) {
 		memset (this->pxx, 0, this->NN_hess*sizeof(T));
@@ -611,27 +627,21 @@ protected:
 		T * pim;
 		complex * E1;
 public:
-		Num_Shape   type()  { return HT2D_STREEP_SHAPE;}
 		int freedom(int m)  { return (m+1)*2; }
 		int size_of_param() { return(5);};
 public:
 //...initialization of multipoles;
 		void set_shape(double R0, double kk = 0, double b = 0., double kap = 0, double q = 0, double fo = 0) {
-			CHeat2DStreep::R0 = R0;
+			this->R0 = R0;
 			this->R0_inv = R0 > EE ? 1./R0 : 1.;
 			int   k = -1;
 //////////////////////////////////////////////////////////////////////////////////////
-//...R0 убираем из kk*R0 для получения характерного значения exp(kk) на границе блока;
-			if (++k < size_of_param()) this->param[k] = (Param)(kk);
-			if (++k < size_of_param()) this->param[k] = (Param)(b*this->R0_inv);
-			if (++k < size_of_param()) this->param[k] = (Param)(kap);
-			if (++k < size_of_param()) this->param[k] = (Param)(q);
-			if (++k < size_of_param()) this->param[k] = (Param)(fo*sqr(kk*this->R0_inv));
-		}
-		void release() {
-			delete_struct(pim);
-			delete_struct(E1);
-			CShape<T>::release();
+//...this->R0 убираем из kk*this->R0 для получения характерного значения exp(kk) на границе блока;
+			if (++k < size_of_param()) this->param[k] = Param(kk);
+			if (++k < size_of_param()) this->param[k] = Param(b*this->R0_inv);
+			if (++k < size_of_param()) this->param[k] = Param(kap);
+			if (++k < size_of_param()) this->param[k] = Param(q);
+			if (++k < size_of_param()) this->param[k] = Param(fo*sqr(kk*this->R0_inv));
 		}
 public:
 //...initialization and calculation of multipoles;
@@ -642,27 +652,35 @@ public:
 		void deriv_X(T * deriv, double f = 1.);
 		void deriv_Y(T * deriv, double f = 1.);
 		void deriv_t(T * deriv, double f = 1.);
-//...constructor;
-		CHeat2DStreep () {
+public:
+		void init() {
 			delete_struct(this->param);
-			this->param = (Param *)new_struct(size_of_param()*sizeof(Param));
-			pim = NULL;
-			E1  = NULL;
-		};
+			this->param = new_struct<Param>(size_of_param());
+		}
+public:
+//...constructor and destructor;
+		CHeat2DStreep() {
+			pim = NULL;	E1  = NULL;
+			init();
+		}
+		virtual ~CHeat2DStreep(void) { 
+			delete_struct(pim);
+			delete_struct(E1);
+		}
 };
 
 ///////////////////////////////////////
 //...parametrization of the multipoles;
 #define SHAPE_streep_kappa          0. //...parameter of cooling rate in inclusion;
-#undef  SHAPE_streep_kappa             //...param(0);
+#undef  SHAPE_streep_kappa             //...this->param(0);
 #define SHAPE_streep_b					0. //...semi-width of inclusion;
-#undef  SHAPE_streep_b						//...param(1);
+#undef  SHAPE_streep_b						//...this->param(1);
 #define SHAPE_streep_kap            0. //...parameter of cooling rate in inclusion kap_I/kap_M;
-#undef  SHAPE_streep_kap               //...param(2);
+#undef  SHAPE_streep_kap               //...this->param(2);
 #define SHAPE_streep_q					0. //...parameter of conjunction coefficients lamb_I/lamb_M;
-#undef  SHAPE_streep_q                 //...param(3);
+#undef  SHAPE_streep_q                 //...this->param(3);
 #define SHAPE_streep_fo					0. //...parameter of Fourier time;
-#undef  SHAPE_streep_fo                //...param(4);
+#undef  SHAPE_streep_fo                //...this->param(4);
 
 
 ////////////////////////////////////////////////////
@@ -673,27 +691,21 @@ protected:
 		T * pim;
 		complex * E1;
 public:
-		Num_Shape    type() { return HT2D_CIRCLE_SHAPE;}
 		int freedom (int m) { return m*2+1; }
 		int size_of_param() { return(5);};
 public:
 //...initialization of multipoles;
 		void set_shape(double R0, double kk = 0, double rad = 0., double kap = 0, double q = 0, double fo = 0) {
-			CHeat2DCircle::R0 = R0;
+			this->R0 = R0;
 			this->R0_inv = R0 > EE ? 1./R0 : 1.;
   			int   k = -1;
 //////////////////////////////////////////////////////////////////////////////////////
-//...R0 убираем из kk*R0 для получения характерного значения J_0(kk) на границе блока;
-			if (++k < size_of_param()) this->param[k] = (Param)(kk);
-			if (++k < size_of_param()) this->param[k] = (Param)(rad*this->R0_inv);
-			if (++k < size_of_param()) this->param[k] = (Param)(kap);
-			if (++k < size_of_param()) this->param[k] = (Param)(q);
-			if (++k < size_of_param()) this->param[k] = (Param)(fo*sqr(kk*this->R0_inv));
-		}
-		void release() {
-			delete_struct(pim);
-			delete_struct(E1);
-			CShape<T>::release();
+//...this->R0 убираем из kk*this->R0 для получения характерного значения J_0(kk) на границе блока;
+			if (++k < size_of_param()) this->param[k] = Param(kk);
+			if (++k < size_of_param()) this->param[k] = Param(rad*this->R0_inv);
+			if (++k < size_of_param()) this->param[k] = Param(kap);
+			if (++k < size_of_param()) this->param[k] = Param(q);
+			if (++k < size_of_param()) this->param[k] = Param(fo*sqr(kk*this->R0_inv));
 		}
 public:
 //...initialization and calculation of multipoles;
@@ -705,27 +717,35 @@ public:
 		void deriv_X(T * deriv, double f = 1.);
 		void deriv_Y(T * deriv, double f = 1.);
 		void deriv_t(T * deriv, double f = 1.);
-//...constructor;
-		CHeat2DCircle () {
+public:
+		void init() {
 			delete_struct(this->param);
-			this->param = (Param *)new_struct(size_of_param()*sizeof(Param));
-			pim = NULL;
-			E1  = NULL;
-		};
+			this->param = new_struct<Param>(size_of_param());
+		}
+public:
+//...constructor and destructor;
+		CHeat2DCircle() {
+			pim = NULL;	E1  = NULL;
+			init();
+		}
+		virtual ~CHeat2DCircle(void) { 
+			delete_struct(pim);
+			delete_struct(E1);
+		}
 };
 
 ///////////////////////////////////////
 //...parametrization of the multipoles;
 #define SHAPE_circle_kappa          0. //...parameter of cooling rate in inclusion;
-#undef  SHAPE_circle_kappa             //...param(0);
+#undef  SHAPE_circle_kappa             //...this->param(0);
 #define SHAPE_circle_rad				0. //...radius of inclusion;
-#undef  SHAPE_circle_rad					//...param(1);
+#undef  SHAPE_circle_rad					//...this->param(1);
 #define SHAPE_circle_kap            0. //...parameter of cooling rate in inclusion;
-#undef  SHAPE_circle_kap               //...param(2);
+#undef  SHAPE_circle_kap               //...this->param(2);
 #define SHAPE_circle_q					0. //...parameter of conjunction coefficients;
-#undef  SHAPE_circle_q                 //...param(3);
+#undef  SHAPE_circle_q                 //...this->param(3);
 #define SHAPE_circle_fo					0. //...parameter of Fourier time;
-#undef  SHAPE_circle_fo                //...param(4);
+#undef  SHAPE_circle_fo                //...this->param(4);
 
 
 ////////////////////////////////////////////////////
@@ -736,27 +756,21 @@ protected:
 		T * pim;
 		complex * E1;
 public:
-		Num_Shape    type() { return HT3D_SPHERE_SHAPE;}
 		int freedom (int m) { return sqr(m+1);}
 		int size_of_param() { return(5);};
 public:
 //...initialization of multipoles;
 		void set_shape(double R0, double kk = 0, double rad = 0., double kap = 0, double q = 0, double fo = 0) {
-			CHeat3DSphere::R0 = R0;
+			this->R0 = R0;
 			this->R0_inv = R0 > EE ? 1./R0 : 1.;
 			int   k = -1;
 //////////////////////////////////////////////////////////////////////////////////////
-//...R0 убираем из kk*R0 для получения характерного значения J_0(kk) на границе блока;
-			if (++k < size_of_param()) this->param[k] = (Param)(kk);
-			if (++k < size_of_param()) this->param[k] = (Param)(rad*this->R0_inv);
-			if (++k < size_of_param()) this->param[k] = (Param)(kap);
-			if (++k < size_of_param()) this->param[k] = (Param)(q);
-			if (++k < size_of_param()) this->param[k] = (Param)(fo*sqr(kk*this->R0_inv));
-		}
-		void release() {
-			delete_struct(pim);
-			delete_struct(E1);
-			CShape<T>::release();
+//...this->R0 убираем из kk*this->R0 для получения характерного значения J_0(kk) на границе блока;
+			if (++k < size_of_param()) this->param[k] = Param(kk);
+			if (++k < size_of_param()) this->param[k] = Param(rad*this->R0_inv);
+			if (++k < size_of_param()) this->param[k] = Param(kap);
+			if (++k < size_of_param()) this->param[k] = Param(q);
+			if (++k < size_of_param()) this->param[k] = Param(fo*sqr(kk*this->R0_inv));
 		}
 public:
 //...initialization and calculation of multipoles;
@@ -769,27 +783,35 @@ public:
 		void deriv_Y(T * deriv, double f = 1.);
 		void deriv_Z(T * deriv, double f = 1.);
 		void deriv_t(T * deriv, double f = 1.);
-//...constructor;
-		CHeat3DSphere () {
+public:
+		void init() {
 			delete_struct(this->param);
-			this->param = (Param *)new_struct(size_of_param()*sizeof(Param));
-			pim = NULL;
-			E1  = NULL;
-		};
+			this->param = new_struct<Param>(size_of_param());
+		}
+public:
+//...constructor and destructor;
+		CHeat3DSphere() {
+			pim = NULL;	E1  = NULL;
+			init();
+		}
+		virtual ~CHeat3DSphere(void) { 
+			delete_struct(pim);
+			delete_struct(E1);
+		}
 };
 
 ///////////////////////////////////////
 //...parametrization of the multipoles;
 #define SHAPE_sphere_kappa          0. //...parameter of cooling rate in inclusion;
-#undef  SHAPE_sphere_kappa             //...param(0);
+#undef  SHAPE_sphere_kappa             //...this->param(0);
 #define SHAPE_sphere_rad				0. //...radius of inclusion;
-#undef  SHAPE_sphere_rad					//...param(1);
+#undef  SHAPE_sphere_rad					//...this->param(1);
 #define SHAPE_sphere_kap            0. //...parameter of cooling rate in inclusion;
-#undef  SHAPE_sphere_kap               //...param(2);
+#undef  SHAPE_sphere_kap               //...this->param(2);
 #define SHAPE_sphere_q					0. //...parameter of conjunction coefficients;
-#undef  SHAPE_sphere_q                 //...param(3);
+#undef  SHAPE_sphere_q                 //...this->param(3);
 #define SHAPE_sphere_fo					0. //...parameter of Fourier time;
-#undef  SHAPE_sphere_fo                //...param(4);
+#undef  SHAPE_sphere_fo                //...this->param(4);
 
 ///////////////////////////////////////
 //...parametrization of the multipoles;
@@ -798,83 +820,82 @@ void CHeat2DStreep<T>::parametrization(double * P, int m_dop)
 {
 	int mmm = (this->N+m_dop)/2;
 	if (! this->p) {
-			this->p	 = (T *)new_struct((this->NN_dop = freedom(this->N))*sizeof(T));
-			pim = (T *)new_struct( this->NN_dop*sizeof(T));
+		this->p = new_struct<T>(this->NN_dop = freedom(this->N));
 /////////////////////////////////////////////////////////////////////
 //...technical support (calculation of the conjunction coeffiсients);
-			delete_struct(E1); E1 = (complex *)new_struct(2*(mmm+1)*sizeof(complex));
+		delete_struct(pim); pim = new_struct<T>(this->NN_dop);
+		delete_struct(E1);  E1  = new_struct<complex>(2*(mmm+1));
+		if (this->param[0]) { //...реализация сшивочных коэффициентов в негармоническом случае;
+			double q = this->param[0]*this->param[1], C2 = cos(q), S2 = sin(q), kap_M = 1./this->param[0], sg,
+						d = this->param[2]*q, C1 = cos(d), S1 = sin(d), kap_I = 1./(this->param[0]*this->param[2]),
+						f = this->param[2]*this->param[3], g = this->param[2]*f, Q = 1./(C2*C1+f*S2*S1), S = 1./(S2*S1+f*C2*C1);
+			complex * UM = new_struct<complex>(2*(mmm+1));
+			int i, i2, m2, m;
 
-			if (this->param[0]) { //...реализация сшивочных коэффициентов в негармоническом случае;
-				double q = this->param[0]*this->param[1], C2 = cos(q), S2 = sin(q), kap_M = 1./this->param[0], sg,
-						 d = this->param[2]*q, C1 = cos(d), S1 = sin(d), kap_I = 1./(this->param[0]*this->param[2]),
-						 f = this->param[2]*this->param[3], g = this->param[2]*f, Q = 1./(C2*C1+f*S2*S1), S = 1./(S2*S1+f*C2*C1);
-				complex * UM = (complex *)new_struct(2*(mmm+1)*sizeof(complex));
-				int i, i2, m2, m;
+			UM[0]  = comp(C2, C1);
+			UM[1]  = comp(S2*kap_M, S1*kap_I);
+			kap_M *= kap_M;
+			kap_I *= kap_I;
 
-				UM[0]  = comp(C2, C1);
-				UM[1]  = comp(S2*kap_M, S1*kap_I);
-				kap_M *= kap_M;
-				kap_I *= kap_I;
-
-				for (m = 0; m < mmm; m++) {
-					UM[m*2+2] = this->param[1]*UM[m*2+1]/(m*2+2);
-					UM[m*2+3] = ((m*2+1)*UM[m*2+1]-this->param[1]*UM[m*2])/(m*2+2);
-					UM[m*2+3] = comp(real(UM[m*2+3])*kap_M, imag(UM[m*2+3])*kap_I);
-				}
+			for (m = 0; m < mmm; m++) {
+				UM[m*2+2] = this->param[1]*UM[m*2+1]/(m*2+2);
+				UM[m*2+3] = ((m*2+1)*UM[m*2+1]-this->param[1]*UM[m*2])/(m*2+2);
+				UM[m*2+3] = comp(real(UM[m*2+3])*kap_M, imag(UM[m*2+3])*kap_I);
+			}
 
 /////////////////////////////////////////////////////////////////////////////////
 //...расчет коэффициентов -- E1[m*2] (четная), E1[m*2+1] (нечетная), E1 = A + iB;
-				E1[0] = Q*comp(1., (S2*C1-f*C2*S1)*this->param[0]);
-				E1[1] = S*comp(this->param[2], (C2*S1-f*S2*C1)*kap_M*this->param[0]);
+			E1[0] = Q*comp(1., (S2*C1-f*C2*S1)*this->param[0]);
+			E1[1] = S*comp(this->param[2], (C2*S1-f*S2*C1)*kap_M*this->param[0]);
 
-				for (m2 = (m = 1)*2; m <= mmm; m++, m2 = m*2) {
-					for ( sg = -1., i2 = (i = 1)*2; i <= m; i++, i2 = i*2) {
-						E1[m2] += (sg = -sg)*comp(real(UM[i2+1])*imag(E1[m2-i2])-imag(UM[i2])*real(E1[m2-i2]),
-									kap_M*real(UM[i2])*imag(E1[m2-i2])+
-									 (g*imag(UM[i2+1])-kap_M*this->param[3]*imag(UM[i2-1]))*real(E1[m2-i2]));
+			for (m2 = (m = 1)*2; m <= mmm; m++, m2 = m*2) {
+				for ( sg = -1., i2 = (i = 1)*2; i <= m; i++, i2 = i*2) {
+					E1[m2] += (sg = -sg)*comp(real(UM[i2+1])*imag(E1[m2-i2])-imag(UM[i2])*real(E1[m2-i2]),
+								kap_M*real(UM[i2])*imag(E1[m2-i2])+
+									(g*imag(UM[i2+1])-kap_M*this->param[3]*imag(UM[i2-1]))*real(E1[m2-i2]));
 
-						E1[m2+1] += sg*comp(real(UM[i2])*imag(E1[m2-i2+1])-imag(UM[i2+1])*real(E1[m2-i2+1]),
-										(kap_M*real(UM[i2-1])-real(UM[i2+1]))*imag(E1[m2-i2+1])
-										-kap_M*this->param[3]*imag(UM[i2])*real(E1[m2-i2+1]));
-					}
-					E1[m2] += sg*comp(real(UM[m2]), kap_M*real(UM[m2-1])-real(UM[m2+1]));
-					E1[m2] = Q*comp(this->param[0]*S2*imag(E1[m2])-C2*real(E1[m2]),
-							this->param[0]*(this->param[0]*C1*imag(E1[m2])+S1*real(E1[m2])*f));
-
-					E1[m2+1] += sg*comp(real(UM[m2+1]), kap_M*real(UM[m2]));
-					E1[m2+1] = -S*comp(this->param[0]*this->param[2]*(this->param[0]*C2*imag(E1[m2+1])+S2*real(E1[m2+1])),
-											 this->param[0]*S1*imag(E1[m2+1])- C1*real(E1[m2+1])*f);
+					E1[m2+1] += sg*comp(real(UM[i2])*imag(E1[m2-i2+1])-imag(UM[i2+1])*real(E1[m2-i2+1]),
+									(kap_M*real(UM[i2-1])-real(UM[i2+1]))*imag(E1[m2-i2+1])
+									-kap_M*this->param[3]*imag(UM[i2])*real(E1[m2-i2+1]));
 				}
-				delete_struct(UM);
+				E1[m2] += sg*comp(real(UM[m2]), kap_M*real(UM[m2-1])-real(UM[m2+1]));
+				E1[m2] = Q*comp(this->param[0]*S2*imag(E1[m2])-C2*real(E1[m2]),
+						this->param[0]*(this->param[0]*C1*imag(E1[m2])+S1*real(E1[m2])*f));
+
+				E1[m2+1] += sg*comp(real(UM[m2+1]), kap_M*real(UM[m2]));
+				E1[m2+1] = -S*comp(this->param[0]*this->param[2]*(this->param[0]*C2*imag(E1[m2+1])+S2*real(E1[m2+1])),
+											this->param[0]*S1*imag(E1[m2+1])- C1*real(E1[m2+1])*f);
 			}
-			else { //...реализация сшивочных коэффициентов в гармоническом случае;
-				double f = 1./this->param[3], g = this->param[1], sg;
-				double * UM = (double *)new_struct(2*(mmm+1)*sizeof(double));
-				int i, i2, m2, m;
+			delete_struct(UM);
+		}
+		else { //...реализация сшивочных коэффициентов в гармоническом случае;
+			double f = 1./this->param[3], g = this->param[1], sg;
+			double * UM = new_struct<double>(2*(mmm+1));
+			int i, i2, m2, m;
 
-				for (UM[0] = 1., UM[1] = g, m = 0; m < mmm; m++) {
-					UM[m*2+2] = g*UM[m*2+1]/(m*2+2.);
-					UM[m*2+3] = g*UM[m*2+2]/(m*2+3.);
-				}
+			for (UM[0] = 1., UM[1] = g, m = 0; m < mmm; m++) {
+				UM[m*2+2] = g*UM[m*2+1]/(m*2+2.);
+				UM[m*2+3] = g*UM[m*2+2]/(m*2+3.);
+			}
 
 /////////////////////////////////////////////////////////////////////////////////
 //...расчет коэффициентов -- E1[m*2] (четная), E1[m*2+1] (нечетная), E1 = A + iB;
-				for (E1[0] = comp(1., 0.), E1[1] = comp(f, (f-1.)*g), m2 = (m = 1)*2; m <= mmm; m++, m2 = m*2) {
-					for ( sg = -1., i2 = (i = 1)*2; i <= m; i++, i2 = i*2) {
-						E1[m2] += (sg = -sg)*comp(UM[i2+1]*imag(E1[m2-i2])-UM[i2]*real(E1[m2-i2]),
-														  UM[i2]*imag(E1[m2-i2])-this->param[3]*UM[i2-1]*real(E1[m2-i2]));
+			for (E1[0] = comp(1., 0.), E1[1] = comp(f, (f-1.)*g), m2 = (m = 1)*2; m <= mmm; m++, m2 = m*2) {
+				for ( sg = -1., i2 = (i = 1)*2; i <= m; i++, i2 = i*2) {
+					E1[m2] += (sg = -sg)*comp(UM[i2+1]*imag(E1[m2-i2])-UM[i2]*real(E1[m2-i2]),
+														UM[i2]*imag(E1[m2-i2])-this->param[3]*UM[i2-1]*real(E1[m2-i2]));
 
-						E1[m2+1] += sg*comp(UM[i2]*imag(E1[m2-i2+1])-UM[i2+1]*real(E1[m2-i2+1]),
-											 -f*UM[i2-1]*imag(E1[m2-i2+1])+UM[i2]*real(E1[m2-i2+1]));
-					}
-					E1[m2] += sg*comp(UM[m2], UM[m2-1]);
-					E1[m2] = comp(g*imag(E1[m2])-real(E1[m2]), imag(E1[m2]));
-
-					E1[m2+1] += sg*comp(UM[m2+1],  -f*UM[m2]);
-					E1[m2+1] = comp(imag(E1[m2+1]), g*imag(E1[m2+1])+real(E1[m2+1]));
+					E1[m2+1] += sg*comp(UM[i2]*imag(E1[m2-i2+1])-UM[i2+1]*real(E1[m2-i2+1]),
+											-f*UM[i2-1]*imag(E1[m2-i2+1])+UM[i2]*real(E1[m2-i2+1]));
 				}
-				delete_struct(UM);
+				E1[m2] += sg*comp(UM[m2], UM[m2-1]);
+				E1[m2] = comp(g*imag(E1[m2])-real(E1[m2]), imag(E1[m2]));
+
+				E1[m2+1] += sg*comp(UM[m2+1],  -f*UM[m2]);
+				E1[m2+1] = comp(imag(E1[m2+1]), g*imag(E1[m2+1])+real(E1[m2+1]));
 			}
+			delete_struct(UM);
+		}
 	}
 	if (P && this->p) {
 		int i, i2, m2, m;
@@ -949,47 +970,47 @@ template <typename T>
 void CHeat2DCircle<T>::parametrization(double * P, int m_dop)
 {
 	if (! this->p) {
-			this->p	 = (T *)new_struct((this->NN_dop = freedom(this->N+m_dop))*sizeof(T));
-			pim = (T *)new_struct( this->NN_dop*sizeof(T));
+		this->p = new_struct<T>(this->NN_dop = freedom(this->N+m_dop));
 /////////////////////////////////////////////////////////////////////
 //...technical support (calculation of the conjunction coeffiсients);
-			delete_struct(E1); E1 = (complex *)new_struct((this->N+1+m_dop)*sizeof(complex));
-			double q =  -sqr(this->param[0]*this->param[1])*.25, 
-					 g = q*sqr(this->param[2]), f, d, hh, A, B, C, D, E, F;
-			int i, m;
-			for (m = 0; m <= this->N+m_dop; m++) {
-				B = (A = (f = 1.))*m; i = 1; 
-				do {
-					A += (f *= q/(i*(m+i)));
-					B +=  f *(m+2*i); ++i;
-				}
-				while (fabs(f) > EE);
-
-				F = (E = (f = 1.))*m; i = 1; 
-				do {
-					E += (f *= g/(i*(m+i)));
-					F +=  f *(m+2*i); ++i;
-				}
-				while (fabs(f) > EE);
-
-				for (D = -(C = (d = 1.))*m, hh = 0., i = 1; i < m; i++) {
-					C += (d *= q/(i*(-m+i))); 
-					D +=  d *(-m+2*i); hh  -= 1./i;
-				}
-				if (! m) C = (D = 2.)*0.; 
-				else	{
-					C += (d *= q/i)*(hh -= 1./i);
-					D +=  d *(2.+(-m+2*i)*hh); ++i;
-				}
-				do {
-					C += (d *= q/(i*(-m+i)))*(hh -= 1./(i-m)+1./i); 
-					D +=  d *(2.+(-m+2*i)*hh); ++i;
-				}
-				while (fabs(d) > EE);
-
-				if ((hh = E*D-this->param[3]*F*C) != 0.)
-				E1[m] = comp(A*D-B*C, this->param[3]*F*A-E*B)/hh;
+		delete_struct(pim); pim = new_struct<T>(this->NN_dop);
+		delete_struct(E1);  E1  = new_struct<complex>(this->N+1+m_dop);
+		double q =  -sqr(this->param[0]*this->param[1])*.25, 
+				 g = q*sqr(this->param[2]), f, d, hh, A, B, C, D, E0, F0;
+		int i, m;
+		for (m = 0; m <= this->N+m_dop; m++) {
+			B = (A = (f = 1.))*m; i = 1; 
+			do {
+				A += (f *= q/(i*(m+i)));
+				B +=  f *(m+2*i); ++i;
 			}
+			while (fabs(f) > EE);
+
+			F0 = (E0 = (f = 1.))*m; i = 1; 
+			do {
+				E0 += (f *= g/(i*(m+i)));
+				F0 +=  f *(m+2*i); ++i;
+			}
+			while (fabs(f) > EE);
+
+			for (D = -(C = (d = 1.))*m, hh = 0., i = 1; i < m; i++) {
+				C += (d *= q/(i*(-m+i))); 
+				D +=  d *(-m+2*i); hh  -= 1./i;
+			}
+			if (! m) C = (D = 2.)*0.; 
+			else	{
+				C += (d *= q/i)*(hh -= 1./i);
+				D +=  d *(2.+(-m+2*i)*hh); ++i;
+			}
+			do {
+				C += (d *= q/(i*(-m+i)))*(hh -= 1./(i-m)+1./i); 
+				D +=  d *(2.+(-m+2*i)*hh); ++i;
+			}
+			while (fabs(d) > EE);
+
+			if ((hh = E0*D-this->param[3]*F0*C) != 0.)
+			E1[m] = comp(A*D-B*C, this->param[3]*F0*A-E0*B)/hh;
+		}
 	}
 	if (P && this->p) {
 		complex z = comp(P[0], P[1])*this->R0_inv, w = conj(this->param[1]/z);
@@ -1050,39 +1071,39 @@ template <typename T>
 void CHeat3DSphere<T>::parametrization(double * P, int m_dop)
 {
 	if (! this->p) {
-			this->p	 = (T *)new_struct((this->NN_dop = freedom(this->N+m_dop))*sizeof(T));
-			pim = (T *)new_struct( this->NN_dop*sizeof(T));
+		this->p = new_struct<T>(this->NN_dop = freedom(this->N+m_dop));
 /////////////////////////////////////////////////////////////////////
 //...technical support (calculation of the conjunction coeffiсients);
-			delete_struct(E1); E1 = (complex *)new_struct((this->N+1+m_dop)*sizeof(complex));
-			double q =  -sqr(this->param[0]*this->param[1])*.25, 
-					 g = q*sqr(this->param[2]), f, d, hh, A, B, C, D, E, F;
-			int i, m;
-			for (m = 0; m <= this->N+m_dop; m++) {
-				B = (A = (f = 1.))*m; i = 1; 
-				do {
-					A += (f *= q/(i*(m+.5+i)));
-					B +=  f *(m+2*i); ++i;
-				}
-				while (fabs(f) > EE);
-
-				F = (E = (f = 1.))*m; i = 1; 
-				do {
-					E += (f *= g/(i*(m+.5+i)));
-					F +=  f *(m+2*i); ++i;
-				}
-				while (fabs(f) > EE);
-
-				D = -(C = (d = 1.))*(m+1.); i = 1;
-				do {
-					C += (d *= q/(i*(-m-.5+i))); 
-					D +=  d *(-m-1.+2*i); ++i;
-				}
-				while (i <= m || fabs(d) > EE);
-
-				if ((hh = E*D-this->param[3]*F*C) != 0.)
-				E1[m] = comp(A*D-B*C, this->param[3]*F*A-E*B)/hh;
+		delete_struct(pim); pim = new_struct<T>(this->NN_dop);
+		delete_struct(E1);  E1  = new_struct<complex>(this->N+1+m_dop);
+		double q =  -sqr(this->param[0]*this->param[1])*.25, 
+				 g = q*sqr(this->param[2]), f, d, hh, A, B, C, D, E0, F0;
+		int i, m;
+		for (m = 0; m <= this->N+m_dop; m++) {
+			B = (A = (f = 1.))*m; i = 1; 
+			do {
+				A += (f *= q/(i*(m+.5+i)));
+				B +=  f *(m+2*i); ++i;
 			}
+			while (fabs(f) > EE);
+
+			F0 = (E0 = (f = 1.))*m; i = 1; 
+			do {
+				E0 += (f *= g/(i*(m+.5+i)));
+				F0 +=  f *(m+2*i); ++i;
+			}
+			while (fabs(f) > EE);
+
+			D = -(C = (d = 1.))*(m+1.); i = 1;
+			do {
+				C += (d *= q/(i*(-m-.5+i))); 
+				D +=  d *(-m-1.+2*i); ++i;
+			}
+			while (i <= m || fabs(d) > EE);
+
+			if ((hh = E0*D-this->param[3]*F0*C) != 0.)
+			E1[m] = comp(A*D-B*C, this->param[3]*F0*A-E0*B)/hh;
+		}
 	}
 	if (P && this->p) {
 		complex z = comp(P[0], P[1])*this->R0_inv;
@@ -1154,9 +1175,13 @@ template <typename T>
 void CHeat2DStreep<T>::parametrization_grad(double * P, int m_dop)
 {
 	parametrization(P);
-	if (! this->px && ! this->py) {
-		this->px = (T *)new_struct((this->NN_grad = this->NN_dop)*sizeof(T));
-		this->py = (T *)new_struct( this->NN_grad*sizeof(T));
+	if (! P) {
+		delete_struct(this->px);
+		delete_struct(this->py);
+	}
+	if (P && ! this->px && ! this->py) {
+		this->px = new_struct<T>(this->NN_grad = this->NN_dop);
+		this->py = new_struct<T>(this->NN_grad);
 	}
 	if (P && this->px && this->py) {
 		memset (this->px, 0, this->NN_grad*sizeof(T));
@@ -1170,9 +1195,13 @@ template <typename T>
 void CHeat2DCircle<T>::parametrization_grad(double * P, int m_dop)
 {
 	parametrization(P, m_dop+1);
-	if (! this->px && ! this->py) {
-		this->px = (T *)new_struct((this->NN_grad = freedom(this->N+m_dop))*sizeof(T));
-		this->py = (T *)new_struct( this->NN_grad*sizeof(T));
+	if (! P) {
+		delete_struct(this->px);
+		delete_struct(this->py);
+	}
+	if (P && ! this->px && ! this->py) {
+		this->px = new_struct<T>(this->NN_grad = freedom(this->N+m_dop));
+		this->py = new_struct<T>(this->NN_grad);
 	}
 	if (P && this->px && this->py) {
 		memset (this->px, 0, this->NN_grad*sizeof(T));
@@ -1188,10 +1217,15 @@ template <typename T>
 void CHeat3DSphere<T>::parametrization_grad(double * P, int m_dop)
 {
 	parametrization(P, m_dop+1);
-	if (! this->px && ! this->py) {
-		this->px = (T *)new_struct((this->NN_grad = freedom(this->N+m_dop))*sizeof(T));
-		this->py = (T *)new_struct( this->NN_grad*sizeof(T));
-		this->pz = (T *)new_struct( this->NN_grad*sizeof(T));
+	if (! P) {
+		delete_struct(this->px);
+		delete_struct(this->py);
+		delete_struct(this->pz);
+	}
+	if (P && ! this->px && ! this->py && ! this->pz) {
+		this->px = new_struct<T>(this->NN_grad = freedom(this->N+m_dop));
+		this->py = new_struct<T>(this->NN_grad);
+		this->pz = new_struct<T>(this->NN_grad);
 	}
 	if (P && this->px && this->py && this->pz) {
 		memset (this->px, 0, this->NN_grad*sizeof(T));
@@ -1211,10 +1245,15 @@ template <typename T>
 void CHeat2DStreep<T>::parametrization_hess(double * P, int m_dop)
 {
 	parametrization_grad(P);
-	if (! this->pxx && ! this->pxy && ! this->pyy) {
-		this->pxx = (T *)new_struct((this->NN_hess = this->NN_grad)*sizeof(T));
-		this->pxy = (T *)new_struct( this->NN_hess*sizeof(T));
-		this->pyy = (T *)new_struct( this->NN_hess*sizeof(T));
+	if (! P) {
+		delete_struct(this->pxx);
+		delete_struct(this->pxy);
+		delete_struct(this->pyy);
+	}
+	if (P && ! this->pxx && ! this->pxy && ! this->pyy) {
+		this->pxx = new_struct<T>(this->NN_hess = this->NN_grad);
+		this->pxy = new_struct<T>(this->NN_hess);
+		this->pyy = new_struct<T>(this->NN_hess);
 	}
 	if (P && this->pxx && this->pxy && this->pyy) {
 		memset (this->pxx, 0, this->NN_hess*sizeof(T));
@@ -1234,10 +1273,15 @@ template <typename T>
 void CHeat2DCircle<T>::parametrization_hess(double * P, int m_dop)
 {
 	parametrization_grad(P, m_dop+1);
-	if (! this->pxx && ! this->pxy && ! this->pyy) {
-		this->pxx = (T *)new_struct((this->NN_hess = freedom(this->N+m_dop))*sizeof(T));
-		this->pxy = (T *)new_struct( this->NN_hess*sizeof(T));
-		this->pyy = (T *)new_struct( this->NN_hess*sizeof(T));
+	if (! P) {
+		delete_struct(this->pxx);
+		delete_struct(this->pxy);
+		delete_struct(this->pyy);
+	}
+	if (P && ! this->pxx && ! this->pxy && ! this->pyy) {
+		this->pxx = new_struct<T>(this->NN_hess = freedom(this->N+m_dop));
+		this->pxy = new_struct<T>(this->NN_hess);
+		this->pyy = new_struct<T>(this->NN_hess);
 	}
 	if (P && this->pxx && this->pxy && this->pyy) {
 		memset (this->pxx, 0, this->NN_hess*sizeof(T));
@@ -1259,13 +1303,21 @@ template <typename T>
 void CHeat3DSphere<T>::parametrization_hess(double * P, int m_dop)
 {
 	parametrization_grad(P, m_dop+1);
-	if (! this->pxx && ! this->pxy && ! this->pyy) {
-		this->pxx = (T *)new_struct((this->NN_hess = freedom(this->N+m_dop))*sizeof(T));
-		this->pxy = (T *)new_struct( this->NN_hess*sizeof(T));
-		this->pyy = (T *)new_struct( this->NN_hess*sizeof(T));
-		this->pxz = (T *)new_struct( this->NN_hess*sizeof(T));
-		this->pyz = (T *)new_struct( this->NN_hess*sizeof(T));
-		this->pzz = (T *)new_struct( this->NN_hess*sizeof(T));
+	if (! P) {
+		delete_struct(this->pxx);
+		delete_struct(this->pxy);
+		delete_struct(this->pyy);
+		delete_struct(this->pxz);
+		delete_struct(this->pyz);
+		delete_struct(this->pzz);
+	}
+	if (P && ! this->pxx && ! this->pxy && ! this->pyy) {
+		this->pxx = new_struct<T>(this->NN_hess = freedom(this->N+m_dop));
+		this->pxy = new_struct<T>(this->NN_hess);
+		this->pyy = new_struct<T>(this->NN_hess);
+		this->pxz = new_struct<T>(this->NN_hess);
+		this->pyz = new_struct<T>(this->NN_hess);
+		this->pzz = new_struct<T>(this->NN_hess);
 	}
 	if (P && this->pxx && this->pxy && this->pyy && this->pxz && this->pyz && this->pzz) {
 		memset (this->pxx, 0, this->NN_hess*sizeof(T));

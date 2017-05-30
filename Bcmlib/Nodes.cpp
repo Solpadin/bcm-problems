@@ -1,25 +1,19 @@
 #include "stdafx.h"
+#include "nodes.h"
 
-#include "cgrid_el.h"
-#include "cgrid_qg.h"
-
-//////////////////////////////////////////////////////////////////////////
-//                  ALL EXISTING TYPES OF GRID NODES                    //
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-//...global function for construction of all existing types of grid nodes;
-CGrid * CreateNodes(Num_Nodes id_NODES)
+//////////////////////////
+//...nodes identification;
+Num_Nodes grid_method(CGrid * grid) 
 {
-	switch (id_NODES) {
-     case GRID_EL_NODES: return new CGrid_el;
-     case GRID_QG_NODES: return new CGrid_QG;
-	}
-   return new CGrid;
+	if (! grid) return NULL_NODES;
+	if (typeid(* grid) == typeid(CGrid))	 return GRID_IN_NODES; else
+	if (typeid(* grid) == typeid(CGrid_el)) return GRID_EL_NODES; else
+	if (typeid(* grid) == typeid(CGrid_QG)) return GRID_QG_NODES; else return NULL_NODES;
 }
 
-/////////////////////////////////////////////////
-//           ќ––≈ ÷»я —≈“ » ƒЋя ABAQUS         //
-/////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
+//                     ќ––≈ ÷»я —≈“ » ƒЋя ABAQUS                   //
+/////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////
 //...добавление новых узлов в модель (переделать с учетом нового формата данных); <----------------!!!
 void Inp_nodes_add(char * ch_NODES, CGrid * nd, int ID_node_set, int ID_element_set)
@@ -223,7 +217,7 @@ void Inp_elements_add(char * ch_NODES, CGrid * nd, int * ID_elements, int ID_par
 //////////////////////////////////////////
 //...перераспредел€ем геометрию элементов;
 					int * geom_new = NULL;
-					if ( (geom_new = (int *)new_struct((nd->geom_ptr[N_geom]+1)*sizeof(int))) != NULL) {
+					if ( (geom_new = new_struct<int>(nd->geom_ptr[N_geom]+1)) != NULL) {
 						memcpy(geom_new, nd->geom, (nd->geom_ptr[nd->geom[0]]+1)*sizeof(int)); delete_struct(nd->geom);
 						nd->geom = geom_new;
 
@@ -260,7 +254,7 @@ void Inp_elements_add(char * ch_NODES, CGrid * nd, int * ID_elements, int ID_par
 //////////////////////////////////////////////////////////////////////////
 //...перераспредел€ем услови€ и заносим данные о дополнительном множестве;
 					int * cond_new = NULL;
-					if ( (cond_new = (int *)new_struct((nd->cond_ptr[nd->cond[0]]+1)*sizeof(int))) != NULL) {
+					if ( (cond_new = new_struct<int>(nd->cond_ptr[nd->cond[0]]+1)) != NULL) {
 						memcpy(cond_new, nd->cond, (nd->cond_ptr[nd->cond[0]-1]+1)*sizeof(int)); delete_struct(nd->cond);
 						nd->cond = cond_new;
 
@@ -412,7 +406,7 @@ unsigned long * Condit_list_nodes(char * id_NODES, unsigned long count, unsigned
 {
 	if (id_NODES &&  count < upper_limit) {
 		unsigned long ppos_cur = count, pposs, upper, upper_element, N_buf = 50, buf_incr = 20,
-						* nodes_list = (unsigned long *)new_struct((N_buf*2+1)*sizeof(unsigned long));
+						* nodes_list = new_struct<unsigned long>(N_buf*2+1);
 		const int STR_SIZE = 250;
 		int   elem, j = -1, j_elem = -1;
 		char one_line[STR_SIZE+1], * pchar;
@@ -434,7 +428,7 @@ unsigned long * Condit_list_nodes(char * id_NODES, unsigned long count, unsigned
 			PPOS_CUR(id_NODES, pchar, ppos_cur, upper, "*Nset, nset=");
 			while ((upper_element = pposs = ppos_cur) < upper) {
 				if (nodes_list[0] == N_buf) {
-					unsigned long * new_nodes_list = nodes_list; nodes_list = (unsigned long *)new_struct(((N_buf += buf_incr)*2+1)*sizeof(unsigned long));
+					unsigned long * new_nodes_list = nodes_list; nodes_list = new_struct<unsigned long>((N_buf += buf_incr)*2+1);
 					memcpy(nodes_list, new_nodes_list, (new_nodes_list[0]*2+1)*sizeof(unsigned long)); delete_struct(new_nodes_list);
 				}
 				nodes_list[nodes_list[0]*2+1] = ppos_cur;
@@ -472,7 +466,7 @@ unsigned long * Condit_list_nodes(char * id_NODES, unsigned long count, unsigned
 //...заполн€ем подмножества узлов;
 			while ((upper_element = ppos_cur) < upper) {
 				if (nodes_list[0] == N_buf) {
-					unsigned long * new_nodes_list = nodes_list; nodes_list = (unsigned long *)new_struct(((N_buf += buf_incr)*2+1)*sizeof(unsigned long));
+					unsigned long * new_nodes_list = nodes_list; nodes_list = new_struct<unsigned long>((N_buf += buf_incr)*2+1);
 					memcpy(nodes_list, new_nodes_list, (new_nodes_list[0]*2+1)*sizeof(unsigned long)); delete_struct(new_nodes_list);
 				}
 				nodes_list[nodes_list[0]*2+1] = ppos_cur;
@@ -505,7 +499,7 @@ unsigned long * Condit_list_elements(char * id_NODES, unsigned long count, unsig
 {
 	if (id_NODES &&  count < upper_limit) {
 		unsigned long ppos_cur = count, upper, upper_element, N_buf = 50, buf_incr = 20,
-						* elements_list = (unsigned long *)new_struct((N_buf*2+1)*sizeof(unsigned long));
+						* elements_list = new_struct<unsigned long>(N_buf*2+1);
 		const int STR_SIZE = 250;
 		int  elem, j = -1, j_elem = -1;
 		char one_line[STR_SIZE+1], * pchar;
@@ -521,7 +515,7 @@ unsigned long * Condit_list_elements(char * id_NODES, unsigned long count, unsig
 //...заполн€ем подмножества элементов;
 			while ((upper_element = ppos_cur) < upper) {
 				if (elements_list[0] == N_buf) {
-					unsigned long * new_elements_list = elements_list; elements_list = (unsigned long *)new_struct(((N_buf += buf_incr)*2+1)*sizeof(unsigned long));
+					unsigned long * new_elements_list = elements_list; elements_list = new_struct<unsigned long>((N_buf += buf_incr)*2+1);
 					memcpy(elements_list, new_elements_list, (new_elements_list[0]*2+1)*sizeof(unsigned long)); delete_struct(new_elements_list);
 				}
 				elements_list[elements_list[0]*2+1] = ppos_cur;
@@ -555,7 +549,7 @@ unsigned long * Part_surfaces_list(char * id_NODES, unsigned long count, unsigne
 {
 	if (id_NODES &&  count < upper_limit) {
 		unsigned long ppos_cur = count, upper, upper_element, N_buf = 50, buf_incr = 20,
-						* surfaces_list = (unsigned long *)new_struct((N_buf*3+1)*sizeof(unsigned long));
+						* surfaces_list = new_struct<unsigned long>(N_buf*3+1);
 		const int STR_SIZE = 250;
 		int  k_side, N_part = ID_element_part;
 		char one_line[STR_SIZE+1], * pchar, temp = 0;
@@ -576,7 +570,7 @@ unsigned long * Part_surfaces_list(char * id_NODES, unsigned long count, unsigne
 
 					while (ppos_cur < upper_element) {
 						if (surfaces_list[0] == N_buf) {
-							unsigned long * new_surfaces_list = surfaces_list; surfaces_list = (unsigned long *)new_struct(((N_buf += buf_incr)*3+1)*sizeof(unsigned long));
+							unsigned long * new_surfaces_list = surfaces_list; surfaces_list = new_struct<unsigned long>((N_buf += buf_incr)*3+1);
 							memcpy(surfaces_list, new_surfaces_list, (new_surfaces_list[0]*3+1)*sizeof(unsigned long)); delete_struct(new_surfaces_list);
 						}
 						surfaces_list[surfaces_list[0]*3+1] = ppos_cur;
@@ -905,7 +899,7 @@ void Convert3D_prb(char * ch_NODES, CGrid * nd, int ID_part)
 		FILE * PRB = fopen(buff, "w");
 		if (PRB) {
 			int k, l, j, j_node, j_max = 10, n_steps = 0, buf_steps = 20, buf_incr = 10, m[3];
-			double * steps = (double *)new_struct(buf_steps*sizeof(double)), sum_steps = 0., step;
+			double * steps = new_struct<double>(buf_steps), sum_steps = 0., step;
 
 //////////////////////////
 //...запись имени проекта;
@@ -935,7 +929,7 @@ void Convert3D_prb(char * ch_NODES, CGrid * nd, int ID_part)
 				ONE_LINE(id_NODES, pchar, ppos_cur, upper, one_line, STR_SIZE);
 				ONE_LINE(id_NODES, pchar, ppos_cur, upper, one_line, STR_SIZE);
 				if (n_steps == buf_steps) {
-					double * prev_steps = steps; steps = (double *)new_struct((buf_steps += buf_incr)*sizeof(double));
+					double * prev_steps = steps; steps = new_struct<double>(buf_steps += buf_incr);
 					memcpy(steps, prev_steps, n_steps*sizeof(double));
 					delete_struct(prev_steps);
 				}
