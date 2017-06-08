@@ -1787,16 +1787,16 @@ int CCells::grid_skeleton(CGrid * nd, double h, int Max_knee, int id_full, Topo 
   return(0);
 }
 
-///////////////////////////////////////////////////////////////////////////////////////
-//...проверка попадания одной точки (лежащей в плоскости фасеты) внутрь плоской фасеты;
+////////////////////////////////////////////////////////////////////////
+//...check hitting of one point (lying in facet plane) into plane facet;
 int CCells::in_plane_facet(double * P, double * pm, int N_arc, int k1, int k2)
 {
   double f, X = P[k1], Y = P[k2];
   int    k, i = 0, l = 0, m1 = 0, m3 = X < pm[k1],
             j = 0, m = 0, m2 = 0, m4 = Y < pm[k2]; swap(m1, m3); swap(m2, m4);
 
-//////////////////////////////////////////////////////////////////////////////////
-//...определяем число пересечений контура с лучом по вещественной и по мнимой оси;
+//////////////////////////////////////////////////////////////////////////////
+//...check number of contour intersections with ray on the real and imag axis;
   for (k = 1; k < N_arc; k++) {
       m3 = X < pm[3*k+k1]; swap(m1, m3);
       m4 = Y < pm[3*k+k2]; swap(m2, m4);
@@ -1823,8 +1823,8 @@ int CCells::in_plane_facet(double * P, double * pm, int N_arc, int k1, int k2)
   return((i % 2) || (j % 2) || (l % 2) || (m % 2));
 }
 
-/////////////////////////////////////////////////////////////
-//...проверка попадания проекции точки внутрь плоской фасеты;
+///////////////////////////////////////////////////////////
+//...check of hitting of point projection into plane facet;
 int CCells::in_plane_facet(double * P, double *& pm, int & N_ini, int * mm, int id_fast)
 {
   if (mp &&   ID_MAP(2, NULL_GENUS)  == mp[0] && (
@@ -1832,16 +1832,16 @@ int CCells::in_plane_facet(double * P, double *& pm, int & N_ini, int * mm, int 
      int N_arc, arc, prev = graph[N_arc = graph[1]+1], k, i, m1, m2, k1, k2, k3;
      double * pm_new, nX, nY, nZ, f, d[3], p[3];
 
-/////////////////////
-//...проверяем буфер;
+//////////////////
+//...check buffer;
      if (N_ini < N_arc) {
          if (NULL !=  (pm_new = new_struct<double>(3*N_arc))) {
              delete_struct(pm); pm = pm_new; N_ini = N_arc;
          } else return(0);
      }
 
-//////////////////////////////////////////////////////////////
-//...снимаем данные о контуpе в массив, представляющий фасету;
+//////////////////////////////////////////////////////
+//...getting contour data into array, presented facet;
      for (k = 0, i = 2; i <= N_arc; i++, prev = arc) {
 			arc = graph[i];
 			if (id_fast == OK_STATE) m1 = arc; else {
@@ -1857,8 +1857,8 @@ int CCells::in_plane_facet(double * P, double *& pm, int & N_ini, int * mm, int 
      pm[k++] = pm[1];
      pm[k++] = pm[2];
 
-///////////////////////////////////////////////////////
-//...определяем наиболее подходящую компоненту нормали;
+/////////////////////////////////////////////////////
+//...defining the most appropriate normsal component;
 	  if (id_fast == NULL_STATE) {
 		  nX = cos(mp[4])*(f = sin(mp[5]));
 		  nY = sin(mp[4])* f;
@@ -1877,8 +1877,8 @@ int CCells::in_plane_facet(double * P, double *& pm, int & N_ini, int * mm, int 
      }
      if (fabs(nX) > f) k = 0; k1 = (k+1)%3; k2 = (k+2)%3; k3 = k;
 
-/////////////////////////////////////////////////////////////////////////////////////////
-//...определяем попадание проекции точки внутрь проекции плоского многоугольного контура;
+///////////////////////////////////////////////////////////////////////////////////
+//...define hitting of point projection into projection of plane polygonal contour;
      if (fabs(f = (mp[1]-P[0])*nX+(mp[2]-P[1])*nY+(mp[3]-P[2])*nZ) < EE_ker) {
          d[0] =
          d[1] =
@@ -1890,16 +1890,16 @@ int CCells::in_plane_facet(double * P, double *& pm, int & N_ini, int * mm, int 
          d[2] = fabs(nZ) < EE_ker ? MAX_HIT : f/nZ;
      }
 
-////////////////////
-//...направление k3;
+//////////////////
+//...k3 direction;
      if (d[k3] !=  MAX_HIT) {
          ::set_point(p, P); i = in_plane_facet(p, pm, N_arc, k1, k2);
          if (d[k3] <= 0.) mm[2*k3]   += i;
          if (d[k3] >= 0.) mm[2*k3+1] += i;
      }
 
-////////////////////
-//...направление k1;
+//////////////////
+//...k1 direction;
      if (d[k1] == 0.) {
          mm[2*k1]   += i;
          mm[2*k1+1] += i;
@@ -1910,8 +1910,8 @@ int CCells::in_plane_facet(double * P, double *& pm, int & N_ini, int * mm, int 
           else             mm[2*k1+1] += k;
      }
 
-////////////////////
-//...направление k2;
+//////////////////
+//...k2 direction;
      if (d[k2] == 0.) {
          mm[2*k2]   += i;
          mm[2*k2+1] += i;
@@ -1925,8 +1925,8 @@ int CCells::in_plane_facet(double * P, double *& pm, int & N_ini, int * mm, int 
   return(1);
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////
-//...проверка попадания точки в пространственный размерный обpазец, заданный форматом фасет;
+//////////////////////////////////////////////////////////////////////////
+//...check hitting of point into space dimensional sample in facet format;
 int CCells::in_bar_facet(double X, double Y, double Z, int id_fast)
 {
   int		mm[6] = {0, 0, 0, 0, 0, 0}, k, N_ini = 6;
@@ -1944,8 +1944,8 @@ int CCells::in_bar_facet(double X, double Y, double Z, int id_fast)
   return((mm[0] % 2) || (mm[1] % 2) || (mm[2] % 2) || (mm[3] % 2) || (mm[4] % 2) || (mm[5] % 2));
 }
 
-////////////////////////////////////////////////////////
-//...проверка принадлежности точки нижней полуплоскости;
+//////////////////////////////////////////////////////
+//...check belonging of point to the lower half-plane;
 int CCells::in_half_plane(double X, double Y, double Z, int id_local, double eps)
 {
   if (mp && ID_MAP(2, NULL_GENUS) == mp[0]) {
@@ -1957,8 +1957,8 @@ int CCells::in_half_plane(double X, double Y, double Z, int id_local, double eps
   return(1);
 }
 
-///////////////////////////////////////////////////////////////
-//...проверка попадания точки внутрь (выпуклого) многогранника;
+/////////////////////////////////////////////////////////////////////
+//...check hitting of point into the internal of (convex) polyhedron;
 int CCells::in_poly_body(double X, double Y, double Z, int id_local, int * mm, double eps)
 {
   int k, m = 1;
@@ -1978,16 +1978,16 @@ int CCells::in_poly_body(double X, double Y, double Z, int id_local, int * mm, d
   return(m);
 }
 
-////////////////////////////////////////////////////
-//...проверка попадания точки внутрь плоской фасеты;
+/////////////////////////////////////////////////
+//...check hitting of point into the plane facet;
 int CCells::in_poly_facet(double X, double Y, double Z, int id_fast, double eps)
 {
 	int l = 0;
 	if (mp && ID_MAP(2, NULL_GENUS) == mp[0] && mp[size_of_map(2, NULL_GENUS)] == (CMap)FACET_CELL) {
 		double nX, nY, nZ, px, py, pz, P[3], f; 
 
-///////////////////////////////////////////////////////////////////////
-//...определяем плоскость нормали и проверяем принадлежность плоскости;
+///////////////////////////////////////////////////////////////
+//...defining plane of normal and check belonging to the plane;
 		if (id_fast == NULL_STATE) {
 			nX = cos(mp[4])*(nZ = sin(mp[5]));
 			nY = sin(mp[4])* nZ;
@@ -2000,8 +2000,8 @@ int CCells::in_poly_facet(double X, double Y, double Z, int id_fast, double eps)
 		}
 		if (fabs(f = (mp[1]-X)*nX+(mp[2]-Y)*nY+(mp[3]-Z)*nZ) < eps) l = 1;
 
-/////////////////////////////////////////
-//...пробегаем все звенья многоугольника;
+///////////////////////////////////
+//...run over all sides of polygon;
 		int N_arc, arc, prev = graph[(N_arc = graph[1])+1], m1, m2;
       for (int k = 1; l && k <= N_arc; k++, prev = arc) {
 			arc = graph[k+1];
@@ -2028,16 +2028,16 @@ int CCells::in_poly_facet(double X, double Y, double Z, int id_fast, double eps)
 	return(l);
 }
 
-//////////////////////////////////////////////////////////////
-//...проверка попадания точки внутрь кругового многоугольника;
+//////////////////////////////////////////////////////
+//...check hitting of point onto the circular polygon;
 int  CCells::in_bar(double X, double Y)
 {
 	if (! mp) {
 		complex C = comp(X, Y), z0, z1, z2;
 		double  f = 0.;
 
-////////////////////////////////////////////////////////////////
-//...определяем число полных обходов при движении вдоль границы;
+/////////////////////////////////////////////////////////////////////
+//...defining number of full bypasses when moving along the boundary;
 		for (int k = 0; k < graph[0]; k++)
 		if (ce[k]->mp[0] == ID_MAP(1, SPHERE_GENUS)) {
 			z0 = ce[k]->get_arc_center();
@@ -2058,16 +2058,16 @@ int  CCells::in_bar(double X, double Y)
   return(0);
 }
 
-////////////////////////////////////////////////////////////////////////
-//...проверка попадания точки внутрь плоской, почти произвольной ячейки;
+/////////////////////////////////////////////////////////////////
+//...check hitting of point into the plane almost arbitrary cell;
 int  CCells::in_bar_cell(double X, double Y)
 {
 	if (mp && mp[0] == ID_MAP(2, NULL_GENUS)) {
 		complex C = comp(X, Y), z0, z1, z2;
 		double  f = 0.;
 
-////////////////////////////////////////////////////////////////
-//...определяем число полных обходов при движении вдоль границы;
+/////////////////////////////////////////////////////////////////////
+//...defining number of full bypasses when moving along the boundary;
 		for (int k, i = 0; i < graph[1]; i++)
 		if (ce[k = graph[i+2]]->mp[0] == ID_MAP(1, SPHERE_GENUS)) {
 			z0 = ce[k]->get_arc_center();
@@ -2239,8 +2239,8 @@ void CCells::curve11quad_QG(CGrid * nd, int N_elem)
 	}
 }
 
-////////////////////////////////////////////////////////
-//...веса и узлы гауссовых квадратур для плоской фасеты;
+//////////////////////////////////////////////////////////////
+//...weights and nodes of Gussian quadratures for plane facet;
 void CCells::facet_QG(CGrid * nd, int N_elem, int N_max, double * pp_cond, int id_fast)
 {
 	int k, l;
@@ -2248,8 +2248,8 @@ void CCells::facet_QG(CGrid * nd, int N_elem, int N_max, double * pp_cond, int i
 		double pm[12], P[12];
 		int	 N_ini = 4;	if (N_max <= 0) N_max = 1;
 
-//////////////////////////////////////////////////////////////
-//...снимаем данные о контуpе в массив, представляющий фасету;
+///////////////////////////////////////////////////////////
+//...takes data about contour into array, presenting facet;
 		int N_arc, arc, prev = graph[(N_arc = graph[1])+1], 
 			 N_min = min(N_arc, N_ini), m1, m2, j;
 		for (j = 1; j <= N_min; j++, prev = arc) {
@@ -2316,8 +2316,8 @@ void CCells::facet_QG(CGrid * nd, int N_elem, int N_max, double * pp_cond, int i
 			pp_cond[3] = mp[k+5];
 		}
 
-////////////////////////////////////////////////////
-//...запоминаем данные и строим квадратуры на сетке;
+//////////////////////////////////////////////////////////
+//...storing data and construction quadrature on the mesh;
 		int * nd_geom = NULL;
 		double * nd_X = NULL, * nd_Y = NULL, * nd_Z = NULL;
 
@@ -2362,7 +2362,7 @@ void CCells::facet_QG(CGrid * nd, int N_elem, int N_max, double * pp_cond, int i
 				}
 			}
 		}
-		for (l = 0; l < nd->N; l++) { //...правим нормали;
+		for (l = 0; l < nd->N; l++) { //...normal adjusting;
 			nd->nX[l] = mp[4];
 			nd->nY[l] = mp[5];
 			nd->nZ[l] = mp[6];
@@ -2374,19 +2374,19 @@ void CCells::facet_QG(CGrid * nd, int N_elem, int N_max, double * pp_cond, int i
 	}
 }
 
-/////////////////////////////////////////////////////////
-//...веса и узлы гауссовых квадратур размерных элементов;
+///////////////////////////////////////////////////////////////////////
+//...weights and nodes of Gussian quadratures for dimensional elements;
 void CCells::segms_QG(CGrid * nd, int N_elem, int N_max, double * pp_cond, int id_fast) 
 {
 	if (pp_cond) pp_cond[0] = pp_cond[1] = pp_cond[2] = pp_cond[3] = 0;
-	if (2 == map_dim(mp)) {	//...некоторые усложненные квадратуры;
-		curve1_tria_QG(nd, N_elem); //...сделано;
-		curve2_tria_QG(nd, N_elem); //...сделано, но путем разбиения;
-		curve1_quad_QG(nd, N_elem); //...сделано;
-		curve11quad_QG(nd, N_elem); //...сделано путем разбиения;
-		facet_QG		  (nd, N_elem, N_max, pp_cond, id_fast); //...сделано;
+	if (2 == map_dim(mp)) {	//...some complicated quadratures;
+		curve1_tria_QG(nd, N_elem); //...ready;
+		curve2_tria_QG(nd, N_elem); //...ready, but subdivision way;
+		curve1_quad_QG(nd, N_elem); //...ready;
+		curve11quad_QG(nd, N_elem); //...ready by subdivision way;
+		facet_QG		  (nd, N_elem, N_max, pp_cond, id_fast); //...ready;
 	}
-	nd->segms_QG(mp, N_elem, N_max); //...набор квадратур для размерных сегментов;
+	nd->segms_QG(mp, N_elem, N_max); //...number quadratures for dimensional elements;
 }
 
 /*===================================================================*/
@@ -2845,21 +2845,21 @@ void CCells::get_sph_intrusion(double R, double L)
 	bar_span(mp);
 }
 
-///////////////////////////////////////////////
-//...фоpмиpование объединенного блока для кpуга;
+/////////////////////////////////////
+//...forming united block for circle;
 void CCells::get_circle_profile(double r)
 {
   if (r < EE_dop) return;
 
-////////////////////////////////////////////////////////////
-//...определяем положение образца в общей системе координат;
+//////////////////////////////////////////////////////////////
+//...defining sample position in common system of coordinates;
   complex z0 = comp(r),
           z1 = polar(r, 2.*M_PI/3.),
           z2 = conj(z1);
   CCells * ce;
 
-//////////////////////////////
-//...стpоим объединенный блок;
+///////////////////////////////
+//...construction united block;
   init(1, 2, 0);
   ce = new CCells;  ce->get_arc(r, z0, z1, 1);  bar_add(ce);
   ce = new CCells;  ce->get_arc(r, z1, z2, 1);  bar_add(ce);
@@ -3476,23 +3476,23 @@ void CCells::get_cyl_beam(CCells * f0, double fi)
 	cells_iso(NULL, 0., -fi*.5);
 }
 
-//////////////////////////////////////////////////////////
-//...прямое формирование плоской фасеты в 3D пространстве;
+///////////////////////////////////////////////////
+//...direct forming of the plane facet in 3D space;
 void CCells::get_facet_directly(double * P, int N, int id_plane, int id_fast, int id_dbl_point, double eps)
-{ //...id_fast == OK_STATE - плоский элемент с нормалью и точками (без прямых линий); 
+{ //...id_fast == OK_STATE - plane element with normal and points (without straight lines); 
 	if (P && N >= 3) {
 		int   i, k, l, m = id_fast == OK_STATE ? N : N*2;
 		init(m+1, N+2, (l = size_of_map(2, NULL_GENUS))+1+size_of_dop(FACET_CELL));
 
 ////////////////////////
-//...вычисление нормали;
+//...normal calculation;
       double p0[3], fN, fi, theta, CZ = 0., SZ = 0., CY = 0., SY = 0.,
 				ort[3] = { (P[4]-P[1])*(P[N*3-1]-P[2])-(P[5]-P[2])*(P[N*3-2]-P[1]),
 							  (P[5]-P[2])*(P[N*3-3]-P[0])-(P[3]-P[0])*(P[N*3-1]-P[2]),
 							  (P[3]-P[0])*(P[N*3-2]-P[1])-(P[4]-P[1])*(P[N*3-3]-P[0])}; 
 
-///////////////////////////////////////////////////////////////////////////////////////
-//...прямая запись нормали или углов Эйлера (сферических углов) в геометрическую карту;
+///////////////////////////////////////////////////////////////////////////////////////////
+//...direct writing of normal or Euler angles (spherical angles) into the geometrical card;
       if (id_fast == NULL_STATE) {
 			CZ = cos(fi = arg0(comp(ort[0], ort[1])));
 			SZ = sin(fi);
@@ -3521,8 +3521,8 @@ void CCells::get_facet_directly(double * P, int N, int id_plane, int id_fast, in
 			CY = ort[2];
       }
 
-/////////////////////////////
-//...проверка плоской фигуры;
+///////////////////////////
+//...check of plane figure;
 		if (id_plane == OK_STATE)
 		for (i = k = 0; k < N; k++) {
 			p0[0] = P[i++]-P[0];
@@ -3532,8 +3532,8 @@ void CCells::get_facet_directly(double * P, int N, int id_plane, int id_fast, in
 			if  (fabs(p0[2]) >= eps) goto err;
 		}
 
-/////////////////////////////////
-//...запись геометрической карты;
+//////////////////////////////
+//...writing gepmetrical card;
 		if (mp) {
 			mp[0] = ID_MAP(2, NULL_GENUS);
 			mp[1] = (CMap)P[0];
@@ -3549,7 +3549,7 @@ void CCells::get_facet_directly(double * P, int N, int id_plane, int id_fast, in
 				mp[4] = (CMap)ort[0];
 				mp[5] = (CMap)ort[1];
 				mp[6] = (CMap)ort[2];
-				for (p0[0] = p0[1] = p0[2] = 0, fN = 1./N, i = k = 0; k < N; k++) { //...центроид;
+				for (p0[0] = p0[1] = p0[2] = 0, fN = 1./N, i = k = 0; k < N; k++) { //...centroid;
 					p0[0] += P[i++]*fN;
 					p0[1] += P[i++]*fN;
 					p0[2] += P[i++]*fN;
@@ -3560,8 +3560,8 @@ void CCells::get_facet_directly(double * P, int N, int id_plane, int id_fast, in
 			}
 		}
 
-//////////////////////////////////////////////////
-//...создаем топологию пространственного полигона;
+///////////////////////////////////////
+//...greated topology of space polygon;
 		if (graph) {
 			for ( l = size_of_map(0, NULL_GENUS), k = N-1; ce && k >= 0; k--) {
 				  ce[k] = new CCells(-1); if (! ce[k]) goto err;
@@ -3586,8 +3586,8 @@ void CCells::get_facet_directly(double * P, int N, int id_plane, int id_fast, in
 			graph[1] = N;
 		}
 
-//////////////////////////////////////////////////
-//...создаем геометрию пространственного полигона;
+///////////////////////////////////////
+//...created geometry of space polygon;
       for (i = k = 0; k < N; k++) {
            ce[k]->mp[0] = ID_MAP(0, NULL_GENUS);
            ce[k]->mp[1] = P[i++];
@@ -3600,8 +3600,8 @@ void CCells::get_facet_directly(double * P, int N, int id_plane, int id_fast, in
            ce[k]->line_correct(id_fast);
       }
 
-/////////////////////////////////
-//...удаляем повторяющиеся точки;
+/////////////////////////////
+//...removed doubling points;
 		if (id_dbl_point == OK_STATE)
       for (k = N; k < m; k++) ce[k]->cell_correct_double_point(eps);
       return;
@@ -3817,33 +3817,33 @@ int CCells::SetNodeParam(double * pp, int id_property)
 	if (mp && ID_MAP(0, NULL_GENUS) == mp[0] && add_new_cell_maps(mp, BOUNDARY_NODE)) {
 		double p1, p2, p3, p4;
 		if (id_property == DEFAULT_BND) p1 = p2 = p3 = p4 = 0.; else
-		if (id_property == RIGID_BND) { //...жесткое закрепление перемещений и углов;
+		if (id_property == RIGID_BND) { //...rigid fixation of the displacement and rotation;
 			p1 = p2 = p3 = 0.;
 			p4 = MIN_HIT;
 		}
 		else
-		if (id_property == RIGID_DISPL3D_BND) { //...жесткий изгиб (закрепление перемещений и углов);
+		if (id_property == RIGID_DISPL3D_BND) { //...rigid bending (fixation displacement and rotation);
 			p1 = pp[0];
 			p2 = pp[1];
 			p3 = pp[2];
 			p4 = MIN_HIT;
 		}
 		else
-		if (id_property == DISPL3D_BND) { //...изгиб перемещением со свободным моментом;
+		if (id_property == DISPL3D_BND) { //...bending by displacement with free moment;
 			p1 = pp[0];
 			p2 = pp[1];
 			p3 = pp[2];
 			p4 = MAX_HIT;
 		}
 		else
-		if (id_property == FORCE3D_BND) { //...изгиб заданной силой cо свободным моментом;
+		if (id_property == FORCE3D_BND) { //...bending of given force with free moment;
 			p1 = pp[0];
 			p2 = pp[1];
 			p3 = pp[2];
 			p4 = 1.;
 		}
 		else
-		if (id_property == MOMENT3D_BND) { //...изгиб заданным моментом со свободной силой;
+		if (id_property == MOMENT3D_BND) { //...bending of given moment with free force;
 			p1 = pp[0];
 			p2 = pp[1];
 			p3 = pp[2];
@@ -3851,7 +3851,7 @@ int CCells::SetNodeParam(double * pp, int id_property)
 		}
 		else {
 			int  j;
-			for (j = MARKER1_BND; j < NUMS_BND; j++) { //...расстановка маркеров точек приложения внещней силы;
+			for (j = MARKER1_BND; j < NUMS_BND; j++) { //...placing of markers of points of application of external force;
 				if (id_property == j) {
 					p1 = p2 = p3 = 0.;
 					p4 = j-SPECIAL_BND+1.;
@@ -4348,7 +4348,7 @@ int CCells::set_nd_bar_condit(int k, CGrid * nd, int k1, int k2, int id_property
 				m = id_property; //...property number;
 				j = (int)(S = ce[0]->mp[size_of_map(2, NULL_GENUS)+1]); //...conjugate facet;
 				if (j >= 0) SetFacetParam(0, S, pp+6*(m-1), id_pp[2*m]);
-				else { //...устанавливаем граничное условие на разорванную связь;
+				else { //...install boundary condition on a breaked link;
 					P[0] = nd->X[m1]; P[1]  = nd->Y[m1]; P[2]  = nd->Z[m1];
 					P[3] = nd->X[m5]; P[4]  = nd->Y[m5]; P[5]  = nd->Z[m5];
 					P[6] = nd->X[m8]; P[7]  = nd->Y[m8]; P[8]  = nd->Z[m8];
@@ -4369,7 +4369,7 @@ int CCells::set_nd_bar_condit(int k, CGrid * nd, int k1, int k2, int id_property
 				m = id_property; //...property number;
 				j = (int)(S = ce[1]->mp[size_of_map(2, NULL_GENUS)+1]); //...conjugate facet;
 				if (j >= 0) SetFacetParam(1, S, pp+6*(m-1), id_pp[2*m]);
-				else { //...устанавливаем граничное условие на разорванную связь;
+				else { //...install boundary condition on a breaked link;
 					P[0] = nd->X[m2]; P[1]  = nd->Y[m2]; P[2]  = nd->Z[m2];
 					P[3] = nd->X[m3]; P[4]  = nd->Y[m3]; P[5]  = nd->Z[m3];
 					P[6] = nd->X[m7]; P[7]  = nd->Y[m7]; P[8]  = nd->Z[m7];
@@ -4390,7 +4390,7 @@ int CCells::set_nd_bar_condit(int k, CGrid * nd, int k1, int k2, int id_property
 				m = id_property; //...property number;
 				j = (int)(S = ce[2]->mp[size_of_map(2, NULL_GENUS)+1]); //...conjugate facet;
 				if (j >= 0) SetFacetParam(2, S, pp+6*(m-1), id_pp[2*m]);
-				else { //...устанавливаем граничное условие на разорванную связь;
+				else { //...install boundary condition on a breaked link;
 					P[0] = nd->X[m1]; P[1]  = nd->Y[m1]; P[2]  = nd->Z[m1];
 					P[3] = nd->X[m2]; P[4]  = nd->Y[m2]; P[5]  = nd->Z[m2];
 					P[6] = nd->X[m6]; P[7]  = nd->Y[m6]; P[8]  = nd->Z[m6];
@@ -4411,7 +4411,7 @@ int CCells::set_nd_bar_condit(int k, CGrid * nd, int k1, int k2, int id_property
 				m = id_property; //...property number;
 				j = (int)(S = ce[3]->mp[size_of_map(2, NULL_GENUS)+1]); //...conjugate facet;
 				if (j >= 0) SetFacetParam(3, S, pp+6*(m-1), id_pp[2*m]);
-				else { //...устанавливаем граничное условие на разорванную связь;
+				else { //...install boundary condition on a breaked link;
 					P[0] = nd->X[m4]; P[1]  = nd->Y[m4]; P[2]  = nd->Z[m4];
 					P[3] = nd->X[m8]; P[4]  = nd->Y[m8]; P[5]  = nd->Z[m8];
 					P[6] = nd->X[m7]; P[7]  = nd->Y[m7]; P[8]  = nd->Z[m7];
@@ -4432,7 +4432,7 @@ int CCells::set_nd_bar_condit(int k, CGrid * nd, int k1, int k2, int id_property
 				m = id_property; //...property number;
 				j = (int)(S = ce[4]->mp[size_of_map(2, NULL_GENUS)+1]); //...conjugate facet;
 				if (j >= 0) SetFacetParam(4, S, pp+6*(m-1), id_pp[2*m]);
-				else { //...устанавливаем граничное условие на разорванную связь;
+				else { //...install boundary condition on a breaked link;
 					P[0] = nd->X[m1]; P[1]  = nd->Y[m1]; P[2]  = nd->Z[m1];
 					P[3] = nd->X[m4]; P[4]  = nd->Y[m4]; P[5]  = nd->Z[m4];
 					P[6] = nd->X[m3]; P[7]  = nd->Y[m3]; P[8]  = nd->Z[m3];
@@ -4453,7 +4453,7 @@ int CCells::set_nd_bar_condit(int k, CGrid * nd, int k1, int k2, int id_property
 				m = id_property; //...property number;
 				j = (int)(S = ce[5]->mp[size_of_map(2, NULL_GENUS)+1]); //...conjugate facet;
 				if (j >= 0) SetFacetParam(5, S, pp+6*(m-1), id_pp[2*m]);
-				else { //...устанавливаем граничное условие на разорванную связь;
+				else { //...install boundary condition on a breaked link;
 					P[0] = nd->X[m5]; P[1]  = nd->Y[m5]; P[2]  = nd->Z[m5];
 					P[3] = nd->X[m6]; P[4]  = nd->Y[m6]; P[5]  = nd->Z[m6];
 					P[6] = nd->X[m7]; P[7]  = nd->Y[m7]; P[8]  = nd->Z[m7];
@@ -4482,7 +4482,7 @@ int CCells::set_nd_bar_condit(int k, CGrid * nd, int k1, int k2, int id_property
 				m = id_property; //...property number;
 				j = (int)(S = ce[0]->mp[size_of_map(2, NULL_GENUS)+1]); //...conjugate facet;
 				if (j >= 0) SetFacetParam(0, S, pp+6*(m-1), id_pp[2*m]);
-				else { //...устанавливаем граничное условие на разорванную связь;
+				else { //...install boundary condition on a breaked link;
 					P[0] = nd->X[m1]; P[1]  = nd->Y[m1]; P[2]  = nd->Z[m1];
 					P[3] = nd->X[m2]; P[4]  = nd->Y[m2]; P[5]  = nd->Z[m2];
 					P[6] = nd->X[m5]; P[7]  = nd->Y[m5]; P[8]  = nd->Z[m5];
@@ -4503,7 +4503,7 @@ int CCells::set_nd_bar_condit(int k, CGrid * nd, int k1, int k2, int id_property
 				m = id_property; //...property number;
 				j = (int)(S = ce[1]->mp[size_of_map(2, NULL_GENUS)+1]); //...conjugate facet;
 				if (j >= 0) SetFacetParam(1, S, pp+6*(m-1), id_pp[2*m]);
-				else { //...устанавливаем граничное условие на разорванную связь;
+				else { //...install boundary condition on a breaked link;
 					P[0] = nd->X[m2]; P[1]  = nd->Y[m2]; P[2]  = nd->Z[m2];
 					P[3] = nd->X[m3]; P[4]  = nd->Y[m3]; P[5]  = nd->Z[m3];
 					P[6] = nd->X[m6]; P[7]  = nd->Y[m6]; P[8]  = nd->Z[m6];
@@ -4524,7 +4524,7 @@ int CCells::set_nd_bar_condit(int k, CGrid * nd, int k1, int k2, int id_property
 				m = id_property; //...property number;
 				j = (int)(S = ce[2]->mp[size_of_map(2, NULL_GENUS)+1]); //...conjugate facet;
 				if (j >= 0) SetFacetParam(2, S, pp+6*(m-1), id_pp[2*m]);
-				else { //...устанавливаем граничное условие на разорванную связь;
+				else { //...install boundary condition on a breaked link;
 					P[0] = nd->X[m3]; P[1]  = nd->Y[m3]; P[2]  = nd->Z[m3];
 					P[3] = nd->X[m1]; P[4]  = nd->Y[m1]; P[5]  = nd->Z[m1];
 					P[6] = nd->X[m4]; P[7]  = nd->Y[m4]; P[8]  = nd->Z[m4];
@@ -4545,7 +4545,7 @@ int CCells::set_nd_bar_condit(int k, CGrid * nd, int k1, int k2, int id_property
 				m = id_property; //...property number;
 				j = (int)(S = ce[3]->mp[size_of_map(2, NULL_GENUS)+1]); //...conjugate facet;
 				if (j >= 0) SetFacetParam(3, S, pp+6*(m-1), id_pp[2*m]);
-				else { //...устанавливаем граничное условие на разорванную связь;
+				else { //...install boundary condition on a breaked link;
 					P[0] = nd->X[m1]; P[1] = nd->Y[m1]; P[2] = nd->Z[m1];
 					P[3] = nd->X[m3]; P[4] = nd->Y[m3]; P[5] = nd->Z[m3];
 					P[6] = nd->X[m2]; P[7] = nd->Y[m2]; P[8] = nd->Z[m2];
@@ -4563,7 +4563,7 @@ int CCells::set_nd_bar_condit(int k, CGrid * nd, int k1, int k2, int id_property
 				m = id_property; //...property number;
 				j = (int)(S = ce[4]->mp[size_of_map(2, NULL_GENUS)+1]); //...conjugate facet;
 				if (j >= 0) SetFacetParam(4, S, pp+6*(m-1), id_pp[2*m]);
-				else { //...устанавливаем граничное условие на разорванную связь;
+				else { //...install boundary condition on a breaked link;
 					P[0] = nd->X[m4]; P[1] = nd->Y[m4]; P[2] = nd->Z[m4];
 					P[3] = nd->X[m5]; P[4] = nd->Y[m5]; P[5] = nd->Z[m5];
 					P[6] = nd->X[m6]; P[7] = nd->Y[m6]; P[8] = nd->Z[m6];
@@ -4587,7 +4587,7 @@ int CCells::set_nd_bar_condit(int k, CGrid * nd, int k1, int k2, int id_property
 				m = id_property; //...property number;
 				j = (int)(S = ce[0]->mp[size_of_map(2, NULL_GENUS)+1]); //...conjugate facet;
 				if (j >= 0) SetFacetParam(0, S, pp+6*(m-1), id_pp[2*m]);
-				else { //...устанавливаем граничное условие на разорванную связь;
+				else { //...install boundary condition on a breaked link;
 					P[0] = nd->X[m1]; P[1] = nd->Y[m1]; P[2] = nd->Z[m1];
 					P[3] = nd->X[m3]; P[4] = nd->Y[m3]; P[5] = nd->Z[m3];
 					P[6] = nd->X[m2]; P[7] = nd->Y[m2]; P[8] = nd->Z[m2];
@@ -4605,7 +4605,7 @@ int CCells::set_nd_bar_condit(int k, CGrid * nd, int k1, int k2, int id_property
 				m = id_property; //...property number;
 				j = (int)(S = ce[1]->mp[size_of_map(2, NULL_GENUS)+1]); //...conjugate facet;
 				if (j >= 0) SetFacetParam(1, S, pp+6*(m-1), id_pp[2*m]);
-				else { //...устанавливаем граничное условие на разорванную связь;
+				else { //...install boundary condition on a breaked link;
 					P[0] = nd->X[m2]; P[1] = nd->Y[m2]; P[2] = nd->Z[m2];
 					P[3] = nd->X[m3]; P[4] = nd->Y[m3]; P[5] = nd->Z[m3];
 					P[6] = nd->X[m4]; P[7] = nd->Y[m4]; P[8] = nd->Z[m4];
@@ -4623,7 +4623,7 @@ int CCells::set_nd_bar_condit(int k, CGrid * nd, int k1, int k2, int id_property
 				m = id_property; //...property number;
 				j = (int)(S = ce[2]->mp[size_of_map(2, NULL_GENUS)+1]); //...conjugate facet;
 				if (j >= 0) SetFacetParam(2, S, pp+6*(m-1), id_pp[2*m]);
-				else { //...устанавливаем граничное условие на разорванную связь;
+				else { //...install boundary condition on a breaked link;
 					P[0] = nd->X[m3]; P[1] = nd->Y[m3]; P[2] = nd->Z[m3];
 					P[3] = nd->X[m1]; P[4] = nd->Y[m1]; P[5] = nd->Z[m1];
 					P[6] = nd->X[m4]; P[7] = nd->Y[m4]; P[8] = nd->Z[m4];
@@ -4641,7 +4641,7 @@ int CCells::set_nd_bar_condit(int k, CGrid * nd, int k1, int k2, int id_property
 				m = id_property; //...property number;
 				j = (int)(S = ce[3]->mp[size_of_map(2, NULL_GENUS)+1]); //...conjugate facet;
 				if (j >= 0) SetFacetParam(3, S, pp+6*(m-1), id_pp[2*m]);
-				else { //...устанавливаем граничное условие на разорванную связь;
+				else { //...install boundary condition on a breaked link;
 					P[0] = nd->X[m1]; P[1] = nd->Y[m1]; P[2] = nd->Z[m1];
 					P[3] = nd->X[m2]; P[4] = nd->Y[m2]; P[5] = nd->Z[m2];
 					P[6] = nd->X[m4]; P[7] = nd->Y[m4]; P[8] = nd->Z[m4];
@@ -4666,7 +4666,7 @@ int CCells::set_nd_bar_condit(int k, CGrid * nd, int k1, int k2, int id_property
 				m = id_property; //...property number;
 				j = (int)(S = ce[0]->mp[size_of_map(2, NULL_GENUS)+1]); //...conjugate facet;
 				if (j >= 0) SetFacetParam(0, S, pp+6*(m-1), id_pp[2*m]);
-				else { //...устанавливаем граничное условие на разорванную связь;
+				else { //...install boundary condition on a breaked link;
 					P[0] = nd->X[m1]; P[1] = nd->Y[m1]; P[2] = nd->Z[m1];
 					P[3] = nd->X[m2]; P[4] = nd->Y[m2]; P[5] = nd->Z[m2];
 					P[6] = nd->X[m5]; P[7] = nd->Y[m5]; P[8] = nd->Z[m5];
@@ -4684,7 +4684,7 @@ int CCells::set_nd_bar_condit(int k, CGrid * nd, int k1, int k2, int id_property
 				m = id_property; //...property number;
 				j = (int)(S = ce[1]->mp[size_of_map(2, NULL_GENUS)+1]); //...conjugate facet;
 				if (j >= 0) SetFacetParam(1, S, pp+6*(m-1), id_pp[2*m]);
-				else { //...устанавливаем граничное условие на разорванную связь;
+				else { //...install boundary condition on a breaked link;
 					P[0] = nd->X[m2]; P[1] = nd->Y[m2]; P[2] = nd->Z[m2];
 					P[3] = nd->X[m3]; P[4] = nd->Y[m3]; P[5] = nd->Z[m3];
 					P[6] = nd->X[m5]; P[7] = nd->Y[m5]; P[8] = nd->Z[m5];
@@ -4702,7 +4702,7 @@ int CCells::set_nd_bar_condit(int k, CGrid * nd, int k1, int k2, int id_property
 				m = id_property; //...property number;
 				j = (int)(S = ce[2]->mp[size_of_map(2, NULL_GENUS)+1]); //...conjugate facet;
 				if (j >= 0) SetFacetParam(2, S, pp+6*(m-1), id_pp[2*m]);
-				else { //...устанавливаем граничное условие на разорванную связь;
+				else { //...install boundary condition on a breaked link;
 					P[0] = nd->X[m3]; P[1] = nd->Y[m3]; P[2] = nd->Z[m3];
 					P[3] = nd->X[m4]; P[4] = nd->Y[m4]; P[5] = nd->Z[m4];
 					P[6] = nd->X[m5]; P[7] = nd->Y[m5]; P[8] = nd->Z[m5];
@@ -4720,7 +4720,7 @@ int CCells::set_nd_bar_condit(int k, CGrid * nd, int k1, int k2, int id_property
 				m = id_property; //...property number;
 				j = (int)(S = ce[3]->mp[size_of_map(2, NULL_GENUS)+1]); //...conjugate facet;
 				if (j >= 0) SetFacetParam(3, S, pp+6*(m-1), id_pp[2*m]);
-				else { //...устанавливаем граничное условие на разорванную связь;
+				else { //...install boundary condition on a breaked link;
 					P[0] = nd->X[m4]; P[1] = nd->Y[m4]; P[2] = nd->Z[m4];
 					P[3] = nd->X[m1]; P[4] = nd->Y[m1]; P[5] = nd->Z[m1];
 					P[6] = nd->X[m5]; P[7] = nd->Y[m5]; P[8] = nd->Z[m5];
@@ -4738,7 +4738,7 @@ int CCells::set_nd_bar_condit(int k, CGrid * nd, int k1, int k2, int id_property
 				m = id_property; //...property number;
 				j = (int)(S = ce[4]->mp[size_of_map(2, NULL_GENUS)+1]); //...conjugate facet;
 				if (j >= 0) SetFacetParam(4, S, pp+6*(m-1), id_pp[2*m]);
-				else { //...устанавливаем граничное условие на разорванную связь;
+				else { //...install boundary condition on a breaked link;
 					P[0] = nd->X[m1]; P[1] =  nd->Y[m1]; P[2] =  nd->Z[m1];
 					P[3] = nd->X[m4]; P[4] =  nd->Y[m4]; P[5] =  nd->Z[m4];
 					P[6] = nd->X[m3]; P[7] =  nd->Y[m3]; P[8] =  nd->Z[m3];

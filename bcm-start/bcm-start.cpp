@@ -53,12 +53,12 @@ extern void Read_C3D_Data_float(unsigned short num_markers, unsigned short num_a
 #define n_TEST_DRAFT_VIBRO
 #define n_HEAT2D_ANALYT_HOMOGENIZATION
 #define n_HEAT3D_ANALYT_HOMOGENIZATION
-#define n_LAME3D_ANALYT_HOMOGENIZATION
+#define LAME3D_ANALYT_HOMOGENIZATION
 #define n_HYDRO3D_ANALYT_HOMOGENIZATION
 #define n_TEST_DRAFT_HEAT2D_INTERMEDIATE_PHASE
 #define n_TEST_DRAFT_HEAT3D_INTERMEDIATE_PHASE
 #define n_TEST_DRAFT_LAME2D_INTERMEDIATE_PHASE
-#define TEST_DRAFT_LAME3D_INTERMEDIATE_PHASE
+#define n_TEST_DRAFT_LAME3D_INTERMEDIATE_PHASE
 #define n_TEST_DRAFT_HYDRO3D_INTERMEDIATE_PHASE
 #define n_TEST_DRAFT_HEAT2D_FROM_FEMAP
 #define n_TEST_DRAFT_HEAT3D_FROM_FEMAP
@@ -1761,7 +1761,7 @@ double TH[21][9] = {
 				sm->StructEllCorrect(hit, nd->X[i], nd->Y[j]);
 				nd->hit[i+j*nd->N] = hit;
 			}
-			system("del *.grd");
+			res = system("del *.grd");
 
 			sm->GetSurferFormat("bb", nd,       ERR_VALUE, 0);
 			sm->GetSurferFormat("rx", nd,     DISPL_VALUE, 0);
@@ -2221,7 +2221,7 @@ double TH[21][9] = {
 				sm->hit_beam_struct(nd, N0, NN, LL, axis = AXIS_X);
 			}
 #endif
-			system("del *.grd");
+			res = system("del *.grd");
 			sm->GetSurferFormat("bb",  nd,	 ERR_VALUE, 0, axis, id_symm ? SPECIAL_STATE : NULL_STATE);
 			sm->GetSurferFormat("pp",  nd,	 SPL_VALUE, 0, axis, id_symm ? SPECIAL_STATE : NULL_STATE);
 //			sm->GetSurferFormat("pz",  nd,  PRESS_VALUE, 0, axis, id_symm ? SPECIAL_STATE : NULL_STATE);
@@ -2471,7 +2471,7 @@ test:
 			for (j = 0; j <= 2*NY; j++) nd->add_new_point_Y(.5*j/NY*(par[3]-par[2])+par[2]);
 
 			nd->hit = new_struct<int>(nd->N*nd->N1);
-			system("del *.grd");
+			res = system("del *.grd");
 
 			sm->GetSurferFormat("rr", nd,			 HEAT_VALUE, 0);
 			sm->GetSurferFormat("pp", nd, FLUX_COMPOS_VALUE, 0);
@@ -2712,7 +2712,7 @@ test:
 				if (sqr(nd->X[i])+sqr(nd->Y[j])+sqr(nd->Z[0]) < sqr(rad))    nd->hit[i+j*nd->N] = 0; else  
 				if (sqr(nd->X[i])+sqr(nd->Y[j])+sqr(nd->Z[0]) < sqr(rad+ll)) nd->hit[i+j*nd->N] = 2; else	nd->hit[i+j*nd->N] = 1;	
 
-				system("del *.grd");
+				res = system("del *.grd");
 				sm->GetSurferFormat("rr", nd,				  HEAT_VALUE,							 0, axis);
 				sm->GetSurferFormat("pp", nd, id_bcond ? FLUX_VALUE : FLUX_COMPOS_VALUE, 0, axis);
 
@@ -2795,7 +2795,7 @@ test:
 #endif
 #ifdef LAME3D_ANALYT_HOMOGENIZATION
 {
-	const char * name_ini = "../bcm-start/var1/lame3d_initial.dat";
+	const char * name_ini = "../bcm-start/var2/lame3d_initial.dat";
 /////////////////////////
 //...данные по умолчанию;
 	double par[6], rad = 1., h_rad = 0., A = 5., B = 5., C = 5., ll = 0.5, section = 0., section_I = 0., section_II = 0.,
@@ -3049,7 +3049,7 @@ test:
 				if (sqr(nd->X[i])+sqr(nd->Y[j])+sqr(nd->Z[0]) < sqr(rad))    nd->hit[i+j*nd->N] = 0; else  
 				if (sqr(nd->X[i])+sqr(nd->Y[j])+sqr(nd->Z[0]) < sqr(rad+ll)) nd->hit[i+j*nd->N] = 2; else	nd->hit[i+j*nd->N] = 1;	
 
-				system("del *.grd");
+				res = system("del *.grd");
 				sm->GetSurferFormat("rz", nd,		DISPL_VALUE, 0, axis);
 				sm->GetSurferFormat("rx", nd,		DISPL_VALUE, 1, axis);
 				sm->GetSurferFormat("tz", nd, STRESS_Z_VALUE, 0, axis);
@@ -3385,7 +3385,7 @@ test:
 				for (j = 0; j < nd->N1; j++)
 					if (sqr(nd->X[i])+sqr(nd->Y[j])+sqr(nd->Z[0]) < sqr(rad)) nd->hit[i+j*nd->N] = -1;
 
-				//system("del *.grd");
+				//res = system("del *.grd");
 				//sm->GetSurferFormat("./bcm_results/hydro3d_homog/bb", nd,	     ERR_VALUE, 0, axis);
 				//sm->GetSurferFormat("./bcm_results/hydro3d_homog/pp", nd,	PRESSURE_VALUE, 0, axis);
 				//sm->GetSurferFormat("./bcm_results/hydro3d_homog/vv", nd, VELOCITY_VALUE, 0, axis);
@@ -3696,7 +3696,7 @@ test:
 
 				nd->hit = new_struct<int>(nd->N*nd->N1);
 
-				system("del *.grd");
+				res = system("del *.grd");
 				//sm->GetSurferFormat("bb", nd,         ERR_VALUE, 0);
 				sm->GetSurferFormat("rr", nd,        HEAT_VALUE, 0);
 				sm->GetSurferFormat("pp", nd, FLUX_COMPOS_VALUE, 0);
@@ -3872,7 +3872,7 @@ test:
 				}
 				nd->hit = new_struct<int>(nd->N*nd->N1);
 
-				system("del *.grd");
+				res = system("del *.grd");
 				//sm->GetSurferFormat("bb", nd,         ERR_VALUE, 0, axis);
 				sm->GetSurferFormat("rr", nd,        HEAT_VALUE, 0, axis);
 				sm->GetSurferFormat("pp", nd, FLUX_COMPOS_VALUE, 0, axis);
@@ -4037,7 +4037,7 @@ test:
 				nd->hit[i+j*nd->N] = hit;
 			}
 			if (! sm->solver.mode(TESTI_MODE)) 
-			system("del *.grd");
+			res = system("del *.grd");
 
 			sm->GetSurferFormat("bb", nd,       ERR_VALUE, 0);
 			sm->GetSurferFormat("rx", nd,     DISPL_VALUE, 0);
@@ -4228,7 +4228,7 @@ test:
 			if (sqr(nd->X[i])+sqr(nd->Y[j])+sqr(nd->Z[0]) < sqr(rad))    nd->hit[i+j*nd->N] = 0; else  
 			if (sqr(nd->X[i])+sqr(nd->Y[j])+sqr(nd->Z[0]) < sqr(rad+ll)) nd->hit[i+j*nd->N] = 2; else	nd->hit[i+j*nd->N] = 1;	
 		}
-		//system("del *.grd");
+		//res = system("del *.grd");
 		//sm->GetSurferFormat("var1_results/rz", nd,		DISPL_VALUE, 0, axis);
 		//sm->GetSurferFormat("var1_results/tz", nd, STRESS_Z_VALUE, 0, axis);
 
@@ -4400,7 +4400,7 @@ test:
 				if (sqr(nd->X[i])+sqr(nd->Y[j])+sqr(nd->Z[0]) < sqr(rad) /*||
 					 sqr(nd->X[i])+sqr(nd->Y[j])+sqr(nd->Z[0]) > sqr(par[0])*/) nd->hit[i+j*nd->N] = -1;
 
-			system("del *.grd");
+			res = system("del *.grd");
 			//sm->GetSurferFormat("bb", nd,		  ERR_VALUE, 0, axis);
 			sm->GetSurferFormat("pp", nd,	PRESSURE_VALUE, 0, axis);
 			sm->GetSurferFormat("vv", nd, VELOCITY_VALUE, 0, axis);
@@ -4743,7 +4743,7 @@ test:
 				axis = AXIS_X;
 			}
 #endif
-			system("del *.grd");
+			res = system("del *.grd");
 			sm->GetSurferFormat("bb", nd,	 ERR_VALUE, 0, axis);
 			sm->GetSurferFormat("rr", nd,	HEAT_VALUE, 0, axis);
 			sm->GetSurferFormat("pp", nd, FLUX_VALUE, 0, axis);
@@ -5423,7 +5423,7 @@ test:
 				sm->StructEllCorrect(hit, nd->X[i], nd->Y[j]);
 				nd->hit[i+j*nd->N] = hit;
 			}
-			system("del *.grd");
+			res = system("del *.grd");
 			sm->GetSurferFormat("bb",	 nd,					ERR_VALUE);
 			sm->GetSurferFormat("rr",	 nd,				 DISPL_VALUE);
 			sm->GetSurferFormat("tf_x", nd,			 STRESS_X_VALUE);
@@ -5722,7 +5722,7 @@ test:
 				sm->StructEllCorrect(hit, nd->X[i], nd->Y[j]);
 				nd->hit[i+j*nd->N] = hit;
 			}
-			system("del *.grd");
+			res = system("del *.grd");
 			sm->GetSurferFormat("bb",	 nd,					ERR_VALUE);
 			sm->GetSurferFormat("rr",	 nd,				 DISPL_VALUE);
 			sm->GetSurferFormat("tf_x", nd,			 STRESS_X_VALUE);
@@ -5838,7 +5838,7 @@ for (int j = 1; j <= 1; j++) {
 			else	nd->hit[i+j*nd->N] = 1;	
 		}
 
-		system("del *.grd");
+		res = system("del *.grd");
 		sm->GetSurferFormat("rr", nd,	HEAT_VALUE, 0, axis);
 		sm->GetSurferFormat("rz", nd,	HEAT_ESHE_VALUE, 0, axis);
 		sm->GetSurferFormat("tz", nd, FLUX_ESHE_VALUE, 0, axis);
@@ -5952,7 +5952,7 @@ for (int j = 1; j <= 1; j++) {
 			else	nd->hit[i+j*nd->N] = 1;	
 		}
 
-		system("del *.grd");
+		res = system("del *.grd");
 		sm->GetSurferFormat("rr", nd,	HEAT_VALUE, 0, axis);
 		sm->GetSurferFormat("rz", nd,	HEAT_ESHE_VALUE, 0, axis);
 		sm->GetSurferFormat("tz", nd, FLUX_ESHE_VALUE, 0, axis);
@@ -6049,7 +6049,7 @@ for (int j = 1; j <= 1; j++) {
 			else	nd->hit[i+j*nd->N] = 1;	
 		}
 
-		system("del *.grd");
+		res = system("del *.grd");
 		sm->GetSurferFormat("rz", nd,	DISPL_ESHE_VALUE, 0, axis);
 		sm->GetSurferFormat("tz", nd, STRESS_Z_ESHE_VALUE, 0, axis);
 
@@ -6171,7 +6171,7 @@ for (int j = 1; j <= 1; j++) {
 			else	nd->hit[i+j*nd->N] = 1;	
 		}
 
-		system("del *.grd");
+		res = system("del *.grd");
 		sm->GetSurferFormat("rz", nd,	DISPL_ESHE_VALUE, 0, axis);
 		sm->GetSurferFormat("tz", nd, STRESS_Z_ESHE_VALUE, 0, axis);
 
@@ -6285,7 +6285,7 @@ for (int j = 1; j <= 1; j++) {
 			for (j = 0; j <= 2*NY; j++) nd->add_new_point_Y(.5*j/NY*(par[3]-par[2])+par[2]);
 
 			nd->hit = new_struct<int>(nd->N*nd->N1);
-			system("del *.grd");
+			res = system("del *.grd");
 
 			sm->GetSurferFormat("rr", nd,			 HEAT_VALUE, 0);
 			sm->GetSurferFormat("pp", nd, FLUX_COMPOS_VALUE, 0);
@@ -6459,7 +6459,7 @@ for (int j = 1; j <= 1; j++) {
 					sm->Poly_struc_in2D (hit, nd->X[i], nd->Y[j]);
 					nd->hit[i+j*nd->N] = hit;
 				}
-				system("del *.grd");
+				res = system("del *.grd");
 
 				sm->GetSurferFormat("bb", nd,         ERR_VALUE, 0);
 				sm->GetSurferFormat("rr", nd,        HEAT_VALUE, 0);
@@ -6606,7 +6606,7 @@ for (int j = 1; j <= 1; j++) {
 					sm->Poly_struc_in2D (hit, nd->X[i], nd->Y[j]);
 					nd->hit[i+j*nd->N] = hit;
 				}
-				system("del *.grd");
+				res = system("del *.grd");
 
 				sm->GetSurferFormat("bb", nd,         ERR_VALUE, 0);
 				sm->GetSurferFormat("rr", nd,        HEAT_VALUE, 0);
@@ -6824,7 +6824,7 @@ for (int j = 1; j <= 1; j++) {
 				}
 #endif
 				if (! sm->solver.mode(TESTI_MODE)) 
-				system("del *.grd");
+				res = system("del *.grd");
 				//sm->GetSurferFormat("bb", nd,			  ERR_VALUE, 0, axis);
 				sm->GetSurferFormat("rr", nd,			 HEAT_VALUE, 0, axis);
 				sm->GetSurferFormat("pp", nd, FLUX_COMPOS_VALUE, 0, axis);
@@ -7028,7 +7028,7 @@ for (int j = 1; j <= 1; j++) {
 				axis = AXIS_X;
 			}
 #endif
-			system("del *.grd");
+			res = system("del *.grd");
 			//sm->GetSurferFormat("bb", nd,	     ERR_VALUE, 0, axis);
 			sm->GetSurferFormat("rr", nd,    DISPL_VALUE, 0, axis);
 			sm->GetSurferFormat("tz", nd, STRESS_Z_VALUE, 0, axis);
@@ -9122,7 +9122,7 @@ int N_spinel = 2;
 			if (sqr(nd->X[i])+sqr(nd->Y[j])+sqr(nd->Z[0]) < sqr(rad1)) nd->hit[i+j*nd->N] = 2; else 
 			/*if (sqr(nd->X[i])+sqr(nd->Y[j])+sqr(nd->Z[0]) < sqr(rad2)) nd->hit[i+j*nd->N] = 3; else*/ nd->hit[i+j*nd->N] = 1;	
 		}
-		system("del *.grd");
+		res = system("del *.grd");
 		//sm->GetSurferFormat("bb",  nd,	   ERR_VALUE, 0, axis);
 		
 		sm->GetSurferFormat("rz0", nd,	 DISPL_VALUE, 0, axis);
@@ -9339,7 +9339,7 @@ int N_spinel = 2;
 			if (sqr(nd->X[i])+sqr(nd->Y[j]) < sqr(rad1)) nd->hit[i+j*nd->N] = /*2*/-1; else 
 			if (sqr(nd->X[i])+sqr(nd->Y[j]) < sqr(rad2)) nd->hit[i+j*nd->N] = /*3*/-1; else nd->hit[i+j*nd->N] = 1;	
 		}
-		system("del *.grd");
+		res = system("del *.grd");
 		//sm->GetSurferFormat("bb",  nd,	   ERR_VALUE, 0, axis);
 
 		sm->GetSurferFormat("rx", nd,	 DISPL_GRAD_VALUE, 1, axis);
@@ -10503,7 +10503,7 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992, 1., 0.01, 1.5, 1.86};
 					sm->StructEllCorrect(hit, nd->X[i], nd->Y[j]);
 					nd->hit[i+j*nd->N] = hit;
 				}
-				system("del *.grd");
+				res = system("del *.grd");
 				sm->GetSurferFormat("bb",	 nd,					ERR_VALUE);
 				sm->GetSurferFormat("rr",	 nd,				 DISPL_VALUE);
 				sm->GetSurferFormat("tf_x", nd,			 STRESS_X_VALUE);
@@ -10678,7 +10678,7 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992, 1., 0.01, 1.5, 1.86};
 
 			nd->hit = new_struct<int>(nd->N*nd->N1);
 
-			system("del *.grd");
+			res = system("del *.grd");
 			sm->GetSurferFormat("rr", nd,        HEAT_VALUE, 0);
 			sm->GetSurferFormat("pp", nd, FLUX_COMPOS_VALUE, 0);
 
@@ -10792,7 +10792,7 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992, 1., 0.01, 1.5, 1.86};
 
 			nd->hit = new_struct<int>(nd->N*nd->N1);
 
-			system("del *.grd");
+			res = system("del *.grd");
 			dr[n]->GetSurferFormat("rr", nd,        HEAT_VALUE, 0);
 			dr[n]->GetSurferFormat("pp", nd, FLUX_COMPOS_VALUE, 0);
 
@@ -10981,7 +10981,7 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992, 1., 0.01, 1.5, 1.86};
 
 			nd->hit = new_struct<int>(nd->N*nd->N1);
 
-			system("del *.grd");
+			res = system("del *.grd");
 			sm->GetSurferFormat("rr", nd, HEAT_ANALYT_VALUE, 0);
 			sm->GetSurferFormat("pp", nd, FLUX_ANALYT_VALUE, 0);
 
@@ -11089,7 +11089,7 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992, 1., 0.01, 1.5, 1.86};
 
 			nd->hit = new_struct<int>(nd->N*nd->N1);
 
-			system("del *.grd");
+			res = system("del *.grd");
 			dr[n]->GetSurferFormat("rr", nd,        HEAT_VALUE, 0);
 			dr[n]->GetSurferFormat("pp", nd, FLUX_COMPOS_VALUE, 0);
 
