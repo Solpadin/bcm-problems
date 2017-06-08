@@ -12,10 +12,10 @@ Num_Nodes grid_method(CGrid * grid)
 }
 
 /////////////////////////////////////////////////////////////////////
-//                     ќ––≈ ÷»я —≈“ » ƒЋя ABAQUS                   //
+//                    MESH CORRECTION FOR ABAQUS                   //
 /////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////
-//...добавление новых узлов в модель (переделать с учетом нового формата данных); <----------------!!!
+//////////////////////////////////////////////////////////////////////////////////
+//...addition new nodes in the model (need to do it with account new data format); <----------------!!!
 void Inp_nodes_add(char * ch_NODES, CGrid * nd, int ID_node_set, int ID_element_set)
 {
 	const int STR_SIZE = 250;
@@ -30,8 +30,8 @@ void Inp_nodes_add(char * ch_NODES, CGrid * nd, int ID_node_set, int ID_element_
 		if (INP) {
 			int i, j, k, l, m = 0, NN = nd->N, elem;
 
-/////////////////////////////////////////
-//...отмечаем узлы с заданными услови€ми;
+///////////////////////////////////////
+//...mark nnodes with given conditions;
 			if (nd->hit && nd->cond && nd->cond_ptr && ID_node_set < 0) {
 				for (k = 0; k < nd->cond[0]; k++)
 				if (nd->cond[l = nd->cond_ptr[k]] == (int)GL_NODES && nd->cond[l+2] == ID_node_set) {
@@ -47,28 +47,28 @@ void Inp_nodes_add(char * ch_NODES, CGrid * nd, int ID_node_set, int ID_element_
 				}
 			}	
 		
-////////////////////////////////////////
-//...запись дополнительных узлов модели;
+////////////////////////////////////
+//...writing additional model nodes;
 			FILE * INP_ADD = fopen("INP_ADD", "w");
 			if (INP_ADD) {
-				for (k = NN; k < nd->N; k++) //...дополнительные узлы;
+				for (k = NN; k < nd->N; k++) //...additional nodes;
 				fprintf(INP_ADD, "%7i, %12g, %12g, %12g\n", nd->hit[k], nd->X[k], nd->Y[k], nd->Z[k]);
 				fclose (INP_ADD);
 			}
 
 ///////////////////////////////
-//...коррекци€ элеметов модели;
+//...correction model elements;
 			if (nd->cond && nd->cond_ptr && ID_element_set < 0) {
 
-////////////////////////////////////////////
-//...ищем коррекируемое множество элементов;
+//////////////////////////////////////////
+//...search for corrected set of elements;
 				for (k = 0; ! m && k < nd->cond[0]; k++)
 				if (nd->cond[l = nd->cond_ptr[k]] == (int)GL_ELEMENTS && nd->cond[l+2] == ID_element_set) m = 1;
 				else
 				if (nd->cond[l] == (int)GL_ELEMENTS_GENERATE && nd->cond[l+2] == ID_element_set) m = 1;
 
-////////////////////////////////////////////////
-//...ищем корректируемые узлы в элеметах модели;
+///////////////////////////////////////////////
+//...search correcting nodes in model elements;
 				if (nd->geom && nd->geom_ptr && m)
 				for (k = NN; k < nd->N; k++) { //...дополнительные узлы;
 					for (j = nd->cond[l+1]; j > 1; j--) if (nd->cond[l+1+j] < nd->geom[0]) //...корректируемые элементы; 

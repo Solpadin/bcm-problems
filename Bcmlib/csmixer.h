@@ -1043,8 +1043,8 @@ void CShapeMixer<T>::admittance(int k, T * dd, T * pp, T adm_dd, T adm_pp)
 	}
 }
 
-/////////////////////////////////////////////////
-//...тестовая печать потенциалов для мультиполей;
+////////////////////////////////////////////////////
+//...test printing of the potentials for multipoles;
 template <typename T>
 void CShapeMixer<T>::TestShape(FILE * TST, int i, int j, double eps, int i_dop)
 {
@@ -1076,8 +1076,8 @@ void CShapeMixer<T>::TestShape(FILE * TST, int i, int j, double eps, int i_dop)
   fprintf(TST, "\n");
 }
 
-////////////////////////////////
-//...строковые варианты функции;
+/////////////////////////////////////
+//...string variants of the function;
 template <typename T>
 void CShapeMixer<T>::TestShape(char * ch_POTEN, int i, int j, double eps, int i_dop)
 {
@@ -1101,8 +1101,8 @@ void CShapeMixer<T>::TestShape(const char * ch_POTEN, int i, int j, double eps, 
 	fclose	(TST);
 }
 
-////////////////////////////////////////////////////////
-//...тестовая визуализация мультиполей в формате Surfer;
+//////////////////////////////////////////////////////////////////
+//...test visualization of the multipoles in Golden Surfer format;
 template <typename T>
 void CShapeMixer<T>::GetSurferFormat(FILE * SURF, FILE * SURF1, double * par, int id_axis)
 {
@@ -1161,8 +1161,8 @@ void CShapeMixer<T>::GetSurferFormat(FILE * SURF, FILE * SURF1, double * par, in
 				out_F[0] = potential(p_cpy, 0);
 			}
 
-/////////////////////////////////////////////////////////////////////////
-//deriv_N();//...тестирование сшивки производных;
+//////////////////////////////////////////
+//deriv_N();//...testing derivatives skew;
 //out_F[1] = -potential(deriv, 0); if (! inverse()) out_F[1] *= get_param(3);
 /////////////////////////////////////////////////////////////////////////
 //			parametrization_hess(pp);
@@ -1186,8 +1186,8 @@ void CShapeMixer<T>::GetSurferFormat(FILE * SURF, FILE * SURF1, double * par, in
       }
       delete_struct(out_F);
 
-//////////////////////////////////////////////////////////////
-//...перезапись максимального и минимального значения функции;
+/////////////////////////////////////////////////////////
+//...rewriting of the maximal and minimal function value;
       res = fseek(SURF, sizeof(char)*4+sizeof(short int)*2+sizeof(double)*4, SEEK_SET);
       res = fwrite(& min1F, sizeof(double), 1, SURF);
       res = fwrite(& max1F, sizeof(double), 1, SURF);
@@ -1200,8 +1200,8 @@ void CShapeMixer<T>::GetSurferFormat(FILE * SURF, FILE * SURF1, double * par, in
 	}
 }
 
-////////////////////////////////
-//...строковые варианты функции;
+/////////////////////////////////////
+//...string variants of the function;
 template <typename T>
 void CShapeMixer<T>::GetSurferFormat(char * SURF_FILE, double * par, int id_axis)
 {

@@ -1722,7 +1722,7 @@ void CAcou3D::block_descrap(char * OUT_FILE)
 			block_bnd->add_buffer(block_bnd->N);
 		}
 	}
-	sprintf(msg, "");
+	sprintf(msg, " ");
 	Message(msg); fprintf(OUT, "%s\n", msg);
 	if (OUT) fclose(OUT);
 

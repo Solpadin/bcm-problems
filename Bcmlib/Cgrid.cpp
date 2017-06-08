@@ -416,7 +416,7 @@ void CGrid::grid_tria_3D_refine(int N_elem, double * P, double * pp, int id_bloc
 ////////////////////////////////////////
 //...auxilliary function for grid nodes;
 void CGrid::grid_quad_3D_refine(int N_elem1, int N_elem2, double * P, double * pp, int id_block)
-{//...обычный порядок следования точек контура
+{//...ordinary sequence of the following contour points
   double d, px1, px2, px3, py1, py2, py3, pz1, pz2, pz3, pnt[6];
   int    i, j, k, l, m, shift = N, * new_geom;
 //////////////////
@@ -591,20 +591,20 @@ void CGrid::grid_lattice(CGrid * nd, double * par, double eps)
 		}	par[6] /= (par[1]-par[0])*(par[3]-par[2])*(par[5]-par[4]);
 			par[7] /= (par[1]-par[0])*(par[3]-par[2])*(par[5]-par[4]); par[7] -= par[6];
 
-///////////////////////////////////////////
-//...располагаем решетку между включениями;
+//////////////////////////////////////////
+//...place lattice between the inclusions;
 		for (j = 1; j < N;  j++) X[j-1] = (X[j-1]+X[j])/2.;
 		for (j = 1; j < N1; j++) Y[j-1] = (Y[j-1]+Y[j])/2.;
 		for (j = 1; j < N2; j++) Z[j-1] = (Z[j-1]+Z[j])/2.;
 
-/////////////////////////////
-//...добавляем общие границы;
+//////////////////////////////
+//...adding common boundaries;
 		add_new_lattice_X(par[0]); X[N-1]  = par[1];
 		add_new_lattice_Y(par[2]); Y[N1-1] = par[3];
 		add_new_lattice_Z(par[4]); Z[N2-1] = par[5];
 
-////////////////////////////////////////////////////
-//...определяем номера блоков, содержащих включения;
+//////////////////////////////////////////////////
+//...defining block numbers consisting inclusions;
 		if (nd->hit)
 		for (k = 0; k < nd->N;  k++) {
 			mX = mY = mZ = 0;
@@ -618,8 +618,8 @@ void CGrid::grid_lattice(CGrid * nd, double * par, double eps)
 /////////////////////////////////////////////////////////
 //           OPERATIONS WITH NODES TOPOLOGY            //
 /////////////////////////////////////////////////////////
-//////////////////////////////////////////////
-//...структура поверхностных элементов блоков;
+////////////////////////////////////////////
+//...structure of the surfaceblock elements;
 int CGrid::stru_install(int k, int mm_facet[6][5]) 
 {
 	int mm[8], m = 0, i, j;
@@ -663,8 +663,8 @@ int CGrid::stru_install(int k, int mm_facet[6][5])
 	return(m);
 }
 
-///////////////////////////////////////////////////////////////////////////////////
-//...вспомогательная функция, определяющая число подряд идущих связей внутри блока;
+/////////////////////////////////////////////////////////////////////////////
+//...auxilliary function for number of successively following links in block;
 int CGrid::link_number(Topo * link, int id_arc)
 {
   int k = 0, m = id_arc;
@@ -679,8 +679,8 @@ int CGrid::link_number(Topo * link, int id_arc)
   return(k);
 }
 
-/////////////////////////////////////////////////////////
-//...указатель на положение элемента в массиве топологии;
+//////////////////////////////////////////
+//...pointer to element in topology graph;
 int CGrid::geom_element(int k)
 {
   int i = 0, l;
@@ -691,8 +691,8 @@ int CGrid::geom_element(int k)
   return(i);
 }
 
-/////////////////////////////////////////
-//...пузырьковое упорядочивание индексов;
+////////////////////////////
+//...bubble sort of indexes;
 void CGrid::quick_sort(int first, int last, int * index)
 {
    int i = first, j = last, median = index[(first+last)/2];
@@ -754,8 +754,8 @@ int CGrid::converts_nas(char * id_NODES, unsigned long & count, unsigned long up
 		int  m1, m2, m3, m4, m5, m6, m7, m8, j, m, l, l0, N_geom, part = id_long ? 16 : 8;
 		char one_line[STR_SIZE+1], * pchar, temp = '\0';
 
-////////////////////////////////////////
-//...инициализируем геометрию элементов;
+///////////////////////////////////////
+//...initializing geometry of elements;
 		release(); N_geom = 0;
 		while (ppos_cur < upper_limit) {
 			if ((pchar = strstr(id_NODES+ppos_cur, "\xA")) != NULL)
@@ -766,8 +766,8 @@ int CGrid::converts_nas(char * id_NODES, unsigned long & count, unsigned long up
 			one_line[min((unsigned long)STR_SIZE, count-ppos_cur)] = '\x0';
 			ppos_cur = count;
 
-///////////////////////////////////////
-//...,просчитываем геометрию элементов;
+/////////////////////////////////////
+//...computing the elements geometry;
 			if (! ::strncmp(one_line, "CBEAM",  5) || 
 				 ! ::strncmp(one_line, "CROD",   4)) l0 = 2; else
 			if (! ::strncmp(one_line, "CTRIA3", 6)) l0 = 3;	else
@@ -791,13 +791,13 @@ int CGrid::converts_nas(char * id_NODES, unsigned long & count, unsigned long up
 			if (! ::strncmp(one_line, "CPYRAMID", 8)) l0 = 5; else l0 = -5;
 			l0 += 5;
 
-///////////////////////////////////////////////
-//...добавляем указатель на вхождение элемента;
+////////////////////////////////////////
+//...adding pointer to element entering;
 			geom_ptr_add(l0-2, N_geom);
 		}
 
-/////////////////////////////////////////////////////////////////////
-//...заполнякм массив геометрии элементов, отделяем по одной строчке;
+////////////////////////////////////////////////////////////////////
+//...filling array of element geometry, separating string by string;
 		ppos_cur = count_beg;
 		if ((geom = new_struct<int>(geom_ptr[N_geom]+1)) != NULL)
 		while (ppos_cur < upper_limit) {
@@ -810,15 +810,15 @@ int CGrid::converts_nas(char * id_NODES, unsigned long & count, unsigned long up
 			one_line[min((unsigned long)STR_SIZE, count-ppos_cur)] = '\x0';
 			ppos_cur = count;
 
-/////////////////////////////////////
-//...,зачитывание геометрии элемента;
+//////////////////////////////
+//...reading element geometry;
 			if (! ::strncmp(one_line, "CBEAM", 5)) {
 				swap(temp, one_line[part*2]); m  = atoi(one_line+part);   swap(temp, one_line[part*2]); 
 				swap(temp, one_line[part*3]); j  = atoi(one_line+part*2); swap(temp, one_line[part*3]); 
 				swap(temp, one_line[part*4]); m1 = atoi(one_line+part*3); swap(temp, one_line[part*4]); 
 				swap(temp, one_line[part*5]); m2 = atoi(one_line+part*4); swap(temp, one_line[part*5]); 
-/////////////////////////////////////////////////////
-//...заносим индексы в топологию (внешняя нумерация);
+//////////////////////////////////////////////////////////
+//...putting indexes in topology (by external numeration);
 				l = geom_ptr[geom[0]++];
 				geom[l]   = GL_LINE_STRIP;
 				geom[l+1] = 5;
@@ -834,8 +834,8 @@ int CGrid::converts_nas(char * id_NODES, unsigned long & count, unsigned long up
 				swap(temp, one_line[part*3]); j  = atoi(one_line+part*2); swap(temp, one_line[part*3]); 
 				swap(temp, one_line[part*4]); m1 = atoi(one_line+part*3); swap(temp, one_line[part*4]); 
 				swap(temp, one_line[part*5]); m2 = atoi(one_line+part*4); swap(temp, one_line[part*5]); 
-/////////////////////////////////////////////////////
-//...заносим индексы в топологию (внешняя нумерация);
+//////////////////////////////////////////////////////////
+//...putting indexes in topology (by external numeration);
 				l = geom_ptr[geom[0]++];
 				geom[l]   = GL_LINE_STRIP;
 				geom[l+1] = 5;
@@ -852,8 +852,8 @@ int CGrid::converts_nas(char * id_NODES, unsigned long & count, unsigned long up
 				swap(temp, one_line[part*4]); m1 = atoi(one_line+part*3); swap(temp, one_line[part*4]); 
 				swap(temp, one_line[part*5]); m2 = atoi(one_line+part*4); swap(temp, one_line[part*5]); 
 				swap(temp, one_line[part*6]); m3 = atoi(one_line+part*5); swap(temp, one_line[part*6]); 
-/////////////////////////////////////////////////////
-//...заносим индексы в топологию (внешняя нумерация);
+//////////////////////////////////////////////////////////
+//...putting indexes in topology (by external numeration);
 				l = geom_ptr[geom[0]++];
 				geom[l]   = GL_TRIANGLES;
 				geom[l+1] = 6;
@@ -876,8 +876,8 @@ int CGrid::converts_nas(char * id_NODES, unsigned long & count, unsigned long up
 				if (m2 == m1) { m1 = m2; m2 = m3; m3 = m4;  m4 = -1;} else
 				if (m3 == m2) { swap(m1, m3); swap(m2, m4); m4 = -1;} else
 				if (m4 == m3) { m3 = m2; m2 = m1; m1 = m4;  m4 = -1;}
-/////////////////////////////////////////////////////
-//...заносим индексы в топологию (внешняя нумерация);
+//////////////////////////////////////////////////////////
+//...putting indexes in topology (by external numeration);
 				l = geom_ptr[geom[0]++];
 				geom[l]   = m4 >= 0 ? GL_QUADS : (m3 > 0 ? GL_TRIANGLES : GL_LINE_STRIP);
 				geom[l+1] = m4 >= 0 ? 7 : (m3 > 0 ? 6 : 5);
@@ -898,8 +898,8 @@ int CGrid::converts_nas(char * id_NODES, unsigned long & count, unsigned long up
 				swap(temp, one_line[part*5]); m2 = atoi(one_line+part*4); swap(temp, one_line[part*5]); 
 				swap(temp, one_line[part*6]); m3 = atoi(one_line+part*5); swap(temp, one_line[part*6]); 
 				swap(temp, one_line[part*7]); m4 = atoi(one_line+part*6); swap(temp, one_line[part*7]); 
-/////////////////////////////////////////////////////
-//...заносим индексы в топологию (внешняя нумерация);
+//////////////////////////////////////////////////////////
+//...putting indexes in topology (by external numeration);
 				l = geom_ptr[geom[0]++];
 				geom[l]   = GL_TETRA;
 				geom[l+1] = 7;
@@ -933,8 +933,8 @@ int CGrid::converts_nas(char * id_NODES, unsigned long & count, unsigned long up
 					swap(temp, one_line[part*2]); m7 = atoi(one_line+part);	 swap(temp, one_line[part*2]); 
 					swap(temp, one_line[part*3]); m8 = atoi(one_line+part*2); swap(temp, one_line[part*3]); 
 				}
-/////////////////////////////////////////////////////
-//...заносим индексы в топологию (внешняя нумерация);
+//////////////////////////////////////////////////////////
+//...putting indexes in topology (by external numeration);
 				l = geom_ptr[geom[0]++];
 				geom[l]   = GL_BOXS;
 				geom[l+1] = 11;
@@ -960,8 +960,8 @@ int CGrid::converts_nas(char * id_NODES, unsigned long & count, unsigned long up
 				swap(temp, one_line[part*7]); m4 = atoi(one_line+part*6); swap(temp, one_line[part*7]); 
 				swap(temp, one_line[part*8]); m5 = atoi(one_line+part*7); swap(temp, one_line[part*8]); 
 				swap(temp, one_line[part*9]); m6 = atoi(one_line+part*8); swap(temp, one_line[part*9]); 
-/////////////////////////////////////////////////////
-//...заносим индексы в топологию (внешняя нумерация);
+//////////////////////////////////////////////////////////
+//...putting indexes in topology (by external numeration);
 				l = geom_ptr[geom[0]++];
 				geom[l]   = GL_PENTA;
 				geom[l+1] = 9;
@@ -984,8 +984,8 @@ int CGrid::converts_nas(char * id_NODES, unsigned long & count, unsigned long up
 				swap(temp, one_line[part*6]); m3 = atoi(one_line+part*5); swap(temp, one_line[part*6]); 
 				swap(temp, one_line[part*7]); m4 = atoi(one_line+part*6); swap(temp, one_line[part*7]); 
 				swap(temp, one_line[part*8]); m5 = atoi(one_line+part*7); swap(temp, one_line[part*8]); 
-/////////////////////////////////////////////////////
-//...заносим индексы в топологию (внешняя нумерация);
+//////////////////////////////////////////////////////////
+//...putting indexes in topology (by external numeration);
 				l = geom_ptr[geom[0]++];
 				geom[l]   = GL_PYRAMID;
 				geom[l+1] = 8;
@@ -1033,8 +1033,8 @@ int CGrid::condit_nas(char * id_NODES, unsigned long & count, unsigned long uppe
 		int  m1, m2, j, m, l, l0, N_cond, part = id_long ? 16 : 8;
 		char one_line[STR_SIZE+1], * pchar, temp = '\0';
 
-////////////////////////////////////////
-//...инициализируем геометрию элементов;
+///////////////////////////////////
+//...initializing element geometry;
 		N_cond = 0;
 		while (ppos_cur < upper_limit) {
 			if ((pchar = strstr(id_NODES+ppos_cur, "\xA")) != NULL)
@@ -1045,18 +1045,18 @@ int CGrid::condit_nas(char * id_NODES, unsigned long & count, unsigned long uppe
 			one_line[min((unsigned long)STR_SIZE, count-ppos_cur)] = '\x0';
 			ppos_cur = count;
 
-////////////////////////////////////
-//...,просчитываем шраичные условия;
+///////////////////////////////////
+//...computing boundary conditions;
 			if (! ::strncmp(one_line, "SPCD",   4)) l0 = 4; else
 			if (! ::strncmp(one_line, "PLOAD4", 6)) l0 = 6; else l0 = 0;
 
-///////////////////////////////////////////////
-//...добавляем указатель на вхождение элемента;
+////////////////////////////////////////////
+//...adding pointer to the element enetring;
 			cond_ptr_add(l0-2, N_cond);
 		}
 
-///////////////////////////////////////////////////////////////////
-//...заполнякм массив граничных условий, отделяем по одной строчке;
+////////////////////////////////////////////////////////////////////////
+//...filling array of boundary conditions, sepaprately string by string;
 		ppos_cur = count_beg;
 		if ((cond = new_struct<int>(cond_ptr[N_cond]+1)) != NULL)
 		while (ppos_cur < upper_limit) {
@@ -1069,13 +1069,13 @@ int CGrid::condit_nas(char * id_NODES, unsigned long & count, unsigned long uppe
 			one_line[min((unsigned long)STR_SIZE, count-ppos_cur)] = '\x0';
 			ppos_cur = count;
 
-////////////////////////////////////
-//...,зачитывание граничных условий;
+/////////////////////////////////
+//...reading boundary conditions;
 		  if (! ::strncmp(one_line, "SPCD", 4)) {
 				swap(temp, one_line[part*2]); m  = atoi(one_line+part);   swap(temp, one_line[part*2]); 
 				swap(temp, one_line[part*3]); m1 = atoi(one_line+part*2); swap(temp, one_line[part*3]); 
-/////////////////////////////////////////////////////
-//...заносим индексы в топологию (внешняя нумерация);
+//////////////////////////////////////////////////////////
+//...putting indexes in topology (by external numeration);
 				l = cond_ptr[cond[0]++];
 				cond[l]   = GL_SPDC;
 				cond[l+1] = 2;
@@ -1088,8 +1088,8 @@ int CGrid::condit_nas(char * id_NODES, unsigned long & count, unsigned long uppe
 				swap(temp, one_line[part*3]); j  = atoi(one_line+part*2); swap(temp, one_line[part*3]); 
 				swap(temp, one_line[part*8]); m1 = atoi(one_line+part*7); swap(temp, one_line[part*8]); 
 				swap(temp, one_line[part*9]); m2 = atoi(one_line+part*8); swap(temp, one_line[part*9]); 
-/////////////////////////////////////////////////////
-//...заносим индексы в топологию (внешняя нумерация);
+//////////////////////////////////////////////////////////
+//...putting indexes in topology (by external numeration);
 				l = cond_ptr[cond[0]++];
 				cond[l]   = GL_PLOAD4;
 				cond[l+1] = 4;
@@ -1135,11 +1135,11 @@ int CGrid::nodes_nas(char * id_NODES, unsigned long & count, unsigned long upper
 		double X, Y, Z;
 
 ///////////////////////////////////////////
-//...зачитываем координаты узлов элементов;
+//...reading nodes coordinates of elements;
 		while (ppos_cur < upper_limit) {
 
 ///////////////////////////
-//...,отделяем одну строку;
+//...separating one string;
 			if ((pchar = strstr(id_NODES+ppos_cur, "\xA")) != NULL)
 			count = (unsigned long)(pchar-id_NODES)+1; else
 			count = upper_limit;
@@ -1148,23 +1148,23 @@ int CGrid::nodes_nas(char * id_NODES, unsigned long & count, unsigned long upper
 			one_line[min((unsigned long)STR_SIZE, count-ppos_cur)] = '\x0';
 			ppos_cur = count;
 
-////////////////////////////////////////
-//...,зачитываем координаты одного узла;
+/////////////////////////////////////
+//...reading coordinates of one node;
 			if (! ::strncmp(one_line, "GRID", 4)) {
 				swap(temp, one_line[part*2]); k = atoi(one_line+part);			 swap(temp, one_line[part*2]); 
 				swap(temp, one_line[part*4]); X = user_strtod(one_line+part*3); swap(temp, one_line[part*4]); 
 				swap(temp, one_line[part*5]); Y = user_strtod(one_line+part*4); swap(temp, one_line[part*5]); 
 				swap(temp, one_line[part*6]); Z = user_strtod(one_line+part*5); swap(temp, one_line[part*6]); 
 
-///////////////////////////////////////////////////////////////////////////
-//...заносим координаты узла и его номер во внутреннее представление узлов;
+///////////////////////////////////////////////////////////////////////////////////////
+//...putting node coordinates and its number into the internal representation of nodes;
 				if (add_new_point (X, Y, Z)) hit[N-1] = k;
 				else return(0);
 			}
 		}
 
-///////////////////////////////////////////////////////////////////////////
-//...переводим индексы узлов (в граничных условиях) во внуреннюю нумерацию;
+////////////////////////////////////////////////////////////////////////////////
+//...transforming node indexes (in boundary conditions) into internal numbering;
 		if (id_status == OK_STATE && hit && N) {
 			int * h_mask = NULL, N_h_mask, N_i_mask, l, j;
 
@@ -1191,8 +1191,8 @@ int CGrid::nodes_nas(char * id_NODES, unsigned long & count, unsigned long upper
 			delete_struct(h_mask);
 		}
 
-////////////////////////////////////////////////////////////////////////////////
-//...переводим индексы элементов (в граничных условиях) во внутреннюю нумерацию;
+///////////////////////////////////////////////////////////////////////////////////
+//...transforming element indexes (in boundary conditions) into internal numbering;
 		if (id_status == OK_STATE && cond && cond_ptr) {
 			int * b_mask = NULL, N_b_mask, N_l_mask, l, j;
 
@@ -1250,40 +1250,40 @@ int CGrid::converts_inp(char * id_NODES, unsigned long & count, unsigned long up
 		int  m[21], j, j_max = 19, l, l0, N_geom, elem, N_part, default_phase = -1;;
 		char one_line[STR_SIZE+1], part_name[STR_SIZE+1], * pchar, * ppos;
 
-////////////////////////////////////////
-//...инициализируем геометрию элементов;
+//////////////////////////////////////
+//...initializing of element geometry;
 		release(); N_geom = 0;
 
-/////////////////////////////////////
-//...просматриваем все разделы *Part;
+//////////////////////////////////
+//...reading all parts with *Part;
 		PPOS_CUR(id_NODES, pchar, ppos_cur, upper_limit, "*Part, name="); count_beg = ppos_cur;
 		while ((upper = ppos_cur) < upper_limit) {
 			PPOS_CUR(id_NODES, pchar, upper,	upper_limit, "*End Part"); upper -= sizeof("*End Part");
 
-////////////////////////////////////////////////////////////////////
-//...зачитываем имя раздела *Part и определяем тип первого элемента;
+///////////////////////////////////////////////////////////////////////
+//...reading name of part *Part and defining type of the first element;
 			ONE_LINE(id_NODES, pchar, ppos_cur, upper, part_name, STR_SIZE);
 			if ((pchar = strstr(part_name, ",")) != NULL) pchar[0] = 0;
 			PPOS_CUR(id_NODES, pchar, ppos_cur, upper, "*Element, type=");
 
-//////////////////////////////////////////////////////////
-//...зачитываем топологию всех элементов из первого *Part;
+///////////////////////////////////////////////////////////
+//...reading topology of all elements from the first *Part;
 			while ((upper_element = ppos_cur) < upper) {
 				PPOS_CUR(id_NODES, pchar, upper_element, upper, "*"); upper_element -= (upper_element < upper ? 1 : 0);
 
-///////////////////////////////////////
-//...,просчитываем геометрию элементов;
+////////////////////////////////
+//...computing element geometry;
 				l0 = element_type(elem, id_NODES+ppos_cur);
 				ONE_LINE(id_NODES, pchar, ppos_cur, upper_element, one_line, STR_SIZE);
 
-/////////////////////////////////////////////////
-//...просматриваем все элементы данной топологии;
+/////////////////////////////////////////////
+//...look over all elements of this topology;
 				if (l0 >= 3)
 				while (ppos_cur < upper_element) {
 					ONE_LINE(id_NODES, pchar, ppos_cur, upper_element, one_line, STR_SIZE);
 
-///////////////////////////////////////////////
-//...добавляем указатель на вхождение элемента;
+////////////////////////////////////////////
+//...adding pointer to the element enetring;
 					geom_ptr_add(l0-2, N_geom);
 				}
 				PPOS_CUR(id_NODES, pchar, ppos_cur, upper, "*Element, type=");
@@ -1291,8 +1291,8 @@ int CGrid::converts_inp(char * id_NODES, unsigned long & count, unsigned long up
 			PPOS_CUR(id_NODES, pchar, ppos_cur, upper_limit, "*Part, name=");
 		}
 
-///////////////////////////////////////////////////////////////////////////////////////////////
-//...заполняем массив геометрии элементов, отделяем по одной строчке, смотрим группы элементов;
+/////////////////////////////////////////////////////////////////////////////////////////////
+//...filling array of element geometry, separating string by string, look for element groups;
 		N_part = 0;
 		if ((ppos_cur = count_beg) < upper_limit && geom_ptr && (geom = new_struct<int>(geom_ptr[N_geom])) != NULL)
 			while ((upper = ppos_cur)  < upper_limit) {                                   
@@ -1308,22 +1308,22 @@ int CGrid::converts_inp(char * id_NODES, unsigned long & count, unsigned long up
 				l0 = element_type(elem, id_NODES+ppos_cur);				
 				ONE_LINE(id_NODES, pchar, ppos_cur, upper_element, one_line, STR_SIZE);
 
-/////////////////////////////////////////////////
-//...просматриваем все элементы данной топологии;
+///////////////////////////////////////////
+//...look for all element of this topology;
 				if (l0 >= 3)
 				while (ppos_cur < upper_element) {
 					ONE_LINE(id_NODES, pchar, ppos_cur, upper_element, one_line, STR_SIZE);
 
-////////////////////////////////////
-//...зачитывание геометрии элемента;
+//////////////////////////////
+//...reading element geometry;
 					m[0] = atoi(one_line);
 					for (ppos = strstr(one_line, ","), j = 5; ppos && j < l0; ppos = j == j_max ? one_line : strstr(ppos+1, ","),  j++) {
 						m[j-4] = atoi(ppos+1);
 						if (j == j_max) ONE_LINE(id_NODES, pchar, ppos_cur, upper_element, one_line, STR_SIZE);
 					}
 
-/////////////////////////////////////////////////////
-//...заносим индексы в топологию (внешняя нумерация);
+////////////////////////////////////////////////////////////
+//...including indexes in topology (by external numeration);
 					l = geom_ptr[geom[0]++];
 					geom[l]   = elem;
 					geom[l+1] = l0-2;
@@ -1371,56 +1371,56 @@ int CGrid::condit_inp(char * id_NODES, unsigned long & count, unsigned long uppe
 		int  elem, j_node = -1, j_elem = -1, j, k, l, l0, N_cond, k0, N_part;
 		char one_line[STR_SIZE+1], part_name[STR_SIZE+1], * pchar, * ppos, temp = '\0';
 
-////////////////////////////////////////
-//...инициализируем геометрию элементов;
+///////////////////////////////////
+//...initializing element geometry;
 		unsigned long N_buf = 50, buf_incr = 20, current_list, 
 						* elements_list = new_struct<unsigned long>(N_buf*2+1);
 		N_cond = 0;
 
-/////////////////////////////////////
-//...просматриваем все разделы *Part;
+///////////////////////////////////
+//...look for all parts with *Part;
 		ppos_cur = count;
 		PPOS_CUR(id_NODES, pchar, ppos_cur, upper_limit, "*Part, name="); count_beg = ppos_cur;
 		while ((upper = ppos_cur) < upper_limit) {
 			PPOS_CUR(id_NODES, pchar, upper,	upper_limit, "*End Part"); upper -= sizeof("*End Part");
 
-//////////////////////////////////////////////////////////////////////
-//...зачитываем имя раздела *Part и определяем первое множество узлов;
+//////////////////////////////////////////////////////////////////////////////
+//...reading name of the first part *Part and defining first set of the nodes;
 			ONE_LINE(id_NODES, pchar, ppos_cur, upper, part_name, STR_SIZE);
 			if ((pchar = strstr(part_name, ",")) != NULL) pchar[0] = 0; count_part = ppos_cur;
 			PPOS_CUR(id_NODES, pchar, ppos_cur, upper, "*Nset, nset=");
 
-/////////////////////////////////////
-//...просчитываем подмножества узлов;
+///////////////////////////////////
+//...computing subset of the nodes;
 			while ((upper_element = ppos_cur) < upper) {
 				PPOS_CUR(id_NODES, pchar, upper_element, upper, "*"); upper_element -= (upper_element < upper ? 1 : 0);
 				ONE_LINE(id_NODES, pchar, ppos_cur, upper_element, one_line, STR_SIZE);
 
-//////////////////////////
-//...,определяем тип узла;
+///////////////////////////////
+//...defining type of the node;
 				if (strstr(one_line, "internal")) elem = ERR_STATE; 
 				if (strstr(one_line, "generate")) elem = GL_NODES_GENERATE; else elem = GL_NODES;
 				l0 = 0;
 
-////////////////////////////////////////////////////
-//...просматриваем все множество узлов данного типа;
+/////////////////////////////////////////////////
+//...look for hole set of the nodes by this type;
 				if (elem == GL_NODES || elem == GL_NODES_GENERATE) {
 					while (ppos_cur < upper_element) {
 						ONE_LINE(id_NODES, pchar, ppos_cur, upper_element, one_line, STR_SIZE);
-////////////////////////
-//...,просчитываем узлы;
+/////////////////////
+//...computing nodes;
 						ppos = one_line; l0++; 
 						while ((ppos = strstr(ppos+1, ",")) != NULL && (k0 = atoi(ppos+1)) > 0) l0++;
 					}
-///////////////////////////////////////////////
-//...добавляем указатель на вхождение элемента;
+///////////////////////////////////////////
+//...adding pointer to the elemnt enetring;
 					cond_ptr_add(l0+1, N_cond);
 				}
 				PPOS_CUR(id_NODES, pchar, ppos_cur, upper, "*Nset, nset=");
 			}
 
-/////////////////////////////////////////
-//...просчитываем подмножества элементов;
+/////////////////////////////////////
+//...computing of subset of elements;
 			ppos_cur = count_part;
 			PPOS_CUR(id_NODES, pchar, ppos_cur, upper, "*Elset, elset=");
 
@@ -1428,24 +1428,24 @@ int CGrid::condit_inp(char * id_NODES, unsigned long & count, unsigned long uppe
 				PPOS_CUR(id_NODES, pchar, upper_element, upper, "*"); upper_element -= (upper_element < upper ? 1 : 0);
 				ONE_LINE(id_NODES, pchar, ppos_cur, upper_element, one_line, STR_SIZE);
 
-//////////////////////////////
-//...,определяем тип элемента;
+///////////////////////////////
+//...defining type of elements;
 				if (strstr(one_line, "internal")) elem = ERR_STATE; 
 				if (strstr(one_line, "generate")) elem = GL_ELEMENTS_GENERATE; else elem = GL_ELEMENTS; 
 				l0 = 0;
 
-///////////////////////////////////////////////////////
-//...просматриваем все множество элементов данного типа;
+////////////////////////////////////////////////
+//...look for hole set of elements of this type;
 				if (elem == GL_ELEMENTS || elem == GL_ELEMENTS_GENERATE) {
 					while (ppos_cur < upper_element) {
 						ONE_LINE(id_NODES, pchar, ppos_cur, upper_element, one_line, STR_SIZE);
-////////////////////////////////////
-//...просчитываем граничные условия;
+//////////////////////////////////////
+//...computing of boundary conditions;
 						ppos = one_line; l0++;
 						while ((ppos = strstr(ppos+1, ",")) != NULL && (k0 = atoi(ppos+1)) > 0) l0++;
 					}
-///////////////////////////////////////////////
-//...добавляем указатель на вхождение элемента;
+////////////////////////////////////////////
+//...adding pointer to the element entering;
 					cond_ptr_add(l0+1, N_cond);
 				}
 				PPOS_CUR(id_NODES, pchar, ppos_cur, upper, "*Elset, elset=");
@@ -1453,33 +1453,33 @@ int CGrid::condit_inp(char * id_NODES, unsigned long & count, unsigned long uppe
 			PPOS_CUR(id_NODES, pchar, ppos_cur, upper_limit, "*Part, name=");
 		}
 
-/////////////////////////////////////////////////////
-//...заполняем массивы из множеств узлов и элементов;
+/////////////////////////////////////////////////
+//...filling arrays of set of nodes and elements;
 		ppos_cur = count;
 		if (cond_ptr && (cond = new_struct<int>(cond_ptr[N_cond])) != NULL && geom && geom_ptr && hit) {
                                                                 
 ///////////////////////////////////////////////
-//...готовим печать информации о подмножествах;
+//...prepare printing of nformation aboun sets;
 			FILE * TST = NULL;
 			if (id_status == OK_STATE) {
 				TST = fopen("LayersCondit.sta", "w");
 				fprintf(TST, "Layers condition, N_loading_sets = %d: \n", N_cond);
 			}
 
-/////////////////////////////////////
-//...просматриваем все разделы *Part;
+//////////////////////////////
+//...look for all parts *Part;
 			ppos_cur = count_beg; N_part = 0;
 			while ((upper = ppos_cur) < upper_limit) {
 				PPOS_CUR(id_NODES, pchar, upper,	upper_limit, "*End Part"); upper -= sizeof("*End Part");
 				N_part++;
-////////////////////////////////////
-//...ищем первое подмножество узлов;
+/////////////////////////////////////////////
+//...look for the first subset of the nodeds;
 				ONE_LINE(id_NODES, pchar, ppos_cur, upper, part_name, STR_SIZE);
 				if ((pchar = strstr(part_name, ",")) != NULL) pchar[0] = 0; count_part = ppos_cur;
 				PPOS_CUR(id_NODES, pchar, ppos_cur, upper, "*Nset, nset=");
 
-/////////////////////////////////////////
-//...готовим таблицу перенумераций узлов;
+////////////////////////////////////////
+//...prepare table of nodes runumbering;
 				int * node_pernum = NULL, node_max = 0, node_min = 0, k_beg, k_end;
 				for (k_end = k_beg = 0; k_beg < N; k_beg++) {
 					if (! k_beg || hit[k_beg] < hit[k_beg-1]) k_end++; 
@@ -1498,20 +1498,20 @@ int CGrid::condit_inp(char * id_NODES, unsigned long & count, unsigned long uppe
 					for (k = k_beg; k < k_end; k++) node_pernum[hit[k]-node_min] = k;
 				}
 
-//////////////////////////////////
-//...заполняем подмножества узлов;
+//////////////////////////
+//...filling node subsets;
 				if (node_pernum)
 				while ((upper_element = ppos_cur) < upper) {
 					PPOS_CUR(id_NODES, pchar, upper_element, upper, "*"); upper_element -= (upper_element < upper ? 1 : 0);
 					ONE_LINE(id_NODES, pchar, ppos_cur, upper_element, one_line, STR_SIZE);
 
-//////////////////////////
-//...,определяем тип узла;
+///////////////////////////////
+//...defining type of the node;
 					if (strstr(one_line, "internal")) elem = ERR_STATE; 
 					if (strstr(one_line, "generate")) elem = GL_NODES_GENERATE; else elem = GL_NODES;
 
-/////////////////////////////////////////////////////////////////////
-//...просматриваем все узлы данного типа и заполняем множествоа узлов;
+///////////////////////////////////////////////////////////////
+//...look for all nodes of this type and filling sets of nodes;
 					if (elem == GL_NODES || elem == GL_NODES_GENERATE) {
 						if (TST) {
 							if ((pchar = strstr(one_line, ",")) != NULL) pchar[0] = '\x0';
@@ -1526,7 +1526,7 @@ int CGrid::condit_inp(char * id_NODES, unsigned long & count, unsigned long uppe
 							ONE_LINE(id_NODES, pchar, ppos_cur, upper_element, one_line, STR_SIZE);
 
 ////////////////////////////////////////////////////////////////////////////////////////////
-//...зачитывание номеров узлов из строки (внутренняя нумерация через таблицу перенумераций);
+//...reading numbers of nodes from the string (internal numbering by the renumbering table);
 							cond[l++] = node_pernum[atoi(ppos = one_line)-node_min];
 							cond[l0]++;
 
@@ -1541,8 +1541,8 @@ int CGrid::condit_inp(char * id_NODES, unsigned long & count, unsigned long uppe
 				}
 				delete_struct(node_pernum);
 
-/////////////////////////////////////////////
-//...готовим таблицу перенумераций элементов;
+///////////////////////////////////////////
+//...prepare renumbering table of elements;
 				int * elem_pernum = NULL, elem_max = 0, elem_min = 0;
 				for (k_beg = 0; k_beg < geom[0]; k_beg++) 
 					if (N_part+geom[geom_ptr[k_beg]+2] == 0) break;
@@ -1557,8 +1557,8 @@ int CGrid::condit_inp(char * id_NODES, unsigned long & count, unsigned long uppe
 						if (N_part+geom[geom_ptr[k]+2] == 0) elem_pernum[-geom[geom_ptr[k]+3]-elem_min] = k;
 				}
 
-//////////////////////////////////////
-//...заполняем подмножества элементов;
+//////////////////////////////
+//...filling elements subsets;
 				ppos_cur = count_part; current_list = elements_list[0]; 
 				PPOS_CUR(id_NODES, pchar, ppos_cur, upper, "*Elset, elset=");
 
@@ -1573,13 +1573,13 @@ int CGrid::condit_inp(char * id_NODES, unsigned long & count, unsigned long uppe
 					PPOS_CUR(id_NODES, pchar, upper_element, upper, "*"); upper_element -= (upper_element < upper ? 1 : 0);
 					ONE_LINE(id_NODES, pchar, ppos_cur, upper_element, one_line, STR_SIZE);
 
-/////////////////////////////
-//...определяем тип элемента;
+///////////////////////////////
+//...defining type of elements;
 					if (strstr(one_line, "internal")) elem = ERR_STATE; 
 					if (strstr(one_line, "generate")) elem = GL_ELEMENTS_GENERATE; else elem = GL_ELEMENTS; 
 
-/////////////////////////////////////////////////////////////////////////
-//...просматриваем все элементы данного типа и заполняем множества узлов;
+//////////////////////////////////////////////////////////////////
+//...look for the elements of this type and filling sets of nodes;
 					if (elem == GL_ELEMENTS || elem == GL_ELEMENTS_GENERATE) {
 						if ((pchar = strstr(one_line, ", generate")) != NULL || (pchar = strstr(one_line, "\xD")) != NULL || (pchar = strstr(one_line, "\xA")) != NULL) {
 							swap(pchar[0], temp);
@@ -1596,8 +1596,8 @@ int CGrid::condit_inp(char * id_NODES, unsigned long & count, unsigned long uppe
 						while (ppos_cur < upper_element) {
 							ONE_LINE(id_NODES, pchar, ppos_cur, upper_element, one_line, STR_SIZE);
 
-////////////////////////////////////////////////////////////////////////////////////////////////
-//...зачитывание номеров элементов из строки (внутренняя нумерация через таблицу перенумераций);
+///////////////////////////////////////////////////////////////////////////////////////
+//...reading element number from string (internal numeration by the renumbering table);
 							cond[l++] = elem_pernum[atoi(ppos = one_line)-elem_min];
 							cond[l0]++;
 
@@ -1612,8 +1612,8 @@ int CGrid::condit_inp(char * id_NODES, unsigned long & count, unsigned long uppe
 				}
 				delete_struct(elem_pernum);
 
-//////////////////////////////////////////////////////////
-//...заносим данные об условиях *Solid Section в элементы;
+//////////////////////////////////////////////////////////////////////////
+//...putting information about conditions of *Solid Section into elements;
 				ppos_cur = count_part;
 				PPOS_CUR(id_NODES, pchar, ppos_cur, upper, "*Solid Section, elset=");
 
@@ -1621,8 +1621,8 @@ int CGrid::condit_inp(char * id_NODES, unsigned long & count, unsigned long uppe
 					PPOS_CUR(id_NODES, pchar, upper_element, upper, "*"); upper_element -= (upper_element < upper ? 1 : 0);
 					ONE_LINE(id_NODES, pchar, ppos_cur, upper_element, one_line, STR_SIZE);
 
-//////////////////////////////////////////////////////////////
-//...ищем имя условия и заносим данные об условиях в элементы;
+////////////////////////////////////////////////////////////////////////
+//...search name of condition and putting conditions data into elements;
 					if ( (pchar = strstr(one_line, ", material")) != NULL) {
 						pchar[0] = temp; count_length = strlen(one_line);
 						
@@ -1647,8 +1647,8 @@ int CGrid::condit_inp(char * id_NODES, unsigned long & count, unsigned long uppe
 					PPOS_CUR(id_NODES, pchar, ppos_cur, upper, "*Solid Section, elset=");
 				}
 
-//////////////////////////////////////////////////////////
-//...заносим данные об условиях *Shell Section в элементы;
+//////////////////////////////////////////////////////////////////////////
+//...putting information about conditions of *Shell Section into elements;
 				ppos_cur = count_part;
 				PPOS_CUR(id_NODES, pchar, ppos_cur, upper, "*Shell Section, elset=");
 
@@ -1656,8 +1656,8 @@ int CGrid::condit_inp(char * id_NODES, unsigned long & count, unsigned long uppe
 					PPOS_CUR(id_NODES, pchar, upper_element, upper, "*"); upper_element -= (upper_element < upper ? 1 : 0);
 					ONE_LINE(id_NODES, pchar, ppos_cur, upper_element, one_line, STR_SIZE);
 					
-//////////////////////////////////////////////////////////////
-//...ищем имя условия и заносим данные об условиях в элементы;
+////////////////////////////////////////////////////////////////////////
+//...search name of condition and putting conditions data into elements;
 					if ( (pchar = strstr(one_line, ", material")) != NULL) {
 						pchar[0] = temp; count_length = strlen(one_line);
 						
@@ -1683,8 +1683,8 @@ int CGrid::condit_inp(char * id_NODES, unsigned long & count, unsigned long uppe
 					PPOS_CUR(id_NODES, pchar, ppos_cur, upper, "*Shell Section, elset=");
 				}
 
-/////////////////////////////////////////////////////////
-//...заносим данные об условиях *Beam Section в элементы;
+/////////////////////////////////////////////////////////////////////////
+//...putting information about conditions of *Beam Section into elements;
 				ppos_cur = count_part;
 				PPOS_CUR(id_NODES, pchar, ppos_cur, upper, "*Beam Section, elset=");
 
@@ -1692,8 +1692,8 @@ int CGrid::condit_inp(char * id_NODES, unsigned long & count, unsigned long uppe
 					PPOS_CUR(id_NODES, pchar, upper_element, upper, "*"); upper_element -= (upper_element < upper ? 1 : 0);
 					ONE_LINE(id_NODES, pchar, ppos_cur, upper_element, one_line, STR_SIZE);
 					
-//////////////////////////////////////////////////////////////
-//...ищем имя условия и заносим данные об условиях в элементы;
+////////////////////////////////////////////////////////////////////////
+//...search name of condition and putting conditions data into elements;
 					if ( (pchar = strstr(one_line, ", material")) != NULL) {
 						pchar[0] = temp; count_length = strlen(one_line);
 						
@@ -1758,24 +1758,24 @@ int CGrid::nodes_inp(char * id_NODES, unsigned long & count, unsigned long upper
 		double X, Y, Z;
 		int  k, l, j, l0, N_part = 0, nodes_part;
 		
-/////////////////////////////////////
-//...просматриваем все разделы *Part;
+//////////////////////////////
+//...look for all parts *Part;
 		PPOS_CUR(id_NODES, pchar, ppos_cur, upper_limit, "*Part, name=");
 		while ((upper = ppos_cur) < upper_limit) {
 			PPOS_CUR(id_NODES, pchar, upper,	upper_limit, "*End Part"); upper -= sizeof("*End Part");
 			PPOS_CUR(id_NODES, pchar, ppos_cur, upper, "*Node");
 			N_part++; nodes_part = N; 
 
-///////////////////////////////////////////
-//...зачитываем координаты узлов элементов;
+//////////////////////////////////////////
+//...reading coordinates of nodes element;
 			if ((upper_element = ppos_cur) < upper) {
 				PPOS_CUR(id_NODES, pchar, upper_element, upper, "*"); upper_element -= (upper_element < upper ? 1 : 0);
 				ONE_LINE(id_NODES, pchar, ppos_cur, upper_element, one_line, STR_SIZE);
 
 				while (ppos_cur < upper_element) {
 					ONE_LINE(id_NODES, pchar, ppos_cur, upper_element, one_line, STR_SIZE);
-/////////////////////////////
-//...,координаты одного узла;
+/////////////////////////////////
+//...coordinates of the one node;
 					k = atoi(one_line); X = Y = Z = 0.;
 					if ((ppos = strstr(one_line, ",")) != NULL) {
 						X = user_strtod(ppos+1);
@@ -1786,15 +1786,15 @@ int CGrid::nodes_inp(char * id_NODES, unsigned long & count, unsigned long upper
 							}
 						}
 					}
-///////////////////////////////////////////////////
-//...сохраняем координаты узла и его внешний номер;
+/////////////////////////////////////////////////////
+//...saving node coordinates and its external number;
 					if (add_new_point(X, Y, Z)) hit[N-1] = k;
 					else return(0);
 				}
 			}
 
-/////////////////////////////////////////
-//...готовим таблицу перенумераций узлов;
+////////////////////////////////////////
+//...prepare renumbering table of nodes;
 			int * node_pernum = NULL, node_max = 0, node_min = 0;
 			node_max = hit[nodes_part]; node_min = node_max; 
 			for (k = nodes_part; k < N; k++) {
@@ -1804,8 +1804,8 @@ int CGrid::nodes_inp(char * id_NODES, unsigned long & count, unsigned long upper
 			node_pernum = new_struct<int>(node_max-node_min+1); 
 			for (k = nodes_part; k < N; k++) node_pernum[hit[k]-node_min] = k;
 
-////////////////////////////////////////////////////////
-//...переводим узлы в элементах во внутреннюю нумерацию;
+/////////////////////////////////////////////////////////////////
+//...transformation of element nodes into the internal numbering;
 			if (geom && geom_ptr) {
 				for (k = 0; k < geom[0]; k++) 
 					if (geom[(l = geom_ptr[k])+2]+N_part == 0) {
@@ -1857,13 +1857,13 @@ int CGrid::stru_in(char * id_STRU, unsigned long & count, unsigned long upper_li
 		double X, Y, Z, pp[2];
 		int  k = 0, M;
 
-////////////////////////////////
-//...зачитываем число включений;
+/////////////////////////////////
+//...reading numer of inclusions;
 		ONE_LINE(id_STRU, pchar, ppos_cur, upper_limit, one_line, STR_SIZE);
 		M = atoi(one_line);
 
-////////////////////////////////
-//...зачитываем границы области;
+///////////////////////////////
+//...reading domain boundaries;
 		ONE_LINE(id_STRU, pchar, ppos_cur, upper_limit, one_line, STR_SIZE);
 		par[0] = MAX_HIT; par[1] = MIN_HIT;
 		par[0] = user_strtod(one_line);
@@ -1883,8 +1883,8 @@ int CGrid::stru_in(char * id_STRU, unsigned long & count, unsigned long upper_li
 			par[5] = user_strtod(ppos+1);
 		}
 
-//////////////////////////////////////////////////////////
-//...зачитываем координаты центров включений и их радиусы;
+////////////////////////////////////////////////////////////////////
+//...reading coordinates of inclusions centers and inclusions radii;
 		release(); add_params(2);
 		while ((upper = ppos_cur) < upper_limit && k++ < M) {
 				ONE_LINE(id_STRU, pchar, ppos_cur, upper_limit, one_line, STR_SIZE);
@@ -1902,8 +1902,8 @@ int CGrid::stru_in(char * id_STRU, unsigned long & count, unsigned long upper_li
 						}
 					}
 				}
-//////////////////////////////////////////////////////////////
-//...сохраняем координаты центров и радиусы с межфазным слоем;
+///////////////////////////////////////////////////////////////////
+//...saving coordinates of cenetrs and radii with interphase layer;
 				if (add_new_point(X, Y, Z, 0., 0., 1., pp)) hit[N-1] = k;
 				else return(0);
 		}
@@ -2126,8 +2126,8 @@ void CGrid::grid_out(FILE * GR, double fi, double theta, double fX, int m_axis, 
 	}
 }
 
-////////////////////////////////
-//...строковые варианты функции;
+//////////////////////////////////////
+//...string variants of the functions;
 void CGrid::grid_out(char * GR_FILE, double fi, double theta, double fX, int m_axis, int shift, int m_contour, int element)
 {
 	if (! GR_FILE) return;
@@ -2179,8 +2179,8 @@ void CGrid::TestGrid(FILE * GR, double mtb, double fi, double theta, double fX, 
 	}
 }
 
-////////////////////////////////
-//...строковые варианты функции;
+//////////////////////////////////////
+//...string variants of the functions;
 void CGrid::TestGrid(char * GR_FILE, double mtb, double fi, double theta, double fX, int m_axis, int id_normal)
 {
 	if (! GR_FILE) return;

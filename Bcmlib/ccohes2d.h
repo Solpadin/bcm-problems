@@ -98,6 +98,9 @@ public:
 		double TakeEshelby_volm_two (double ff);
 		double TakeEshelby_shear	 (double ff, double ff_l,  double eps = EE, int max_iter = 100);
 		double TakeEshelby_shear_two(double ff, double & det, double eps = EE, int max_iter = 100);
+//...четырехфазная модель с градиентным включением и слоем;
+		double TakeEshelbyGradInclu_volm (double ff, double ff_l);
+		double TakeEshelbyGradInclu_shear(double ff, double ff_l,  double eps = EE, int max_iter = 100);
 //...трехфазная модель с градиентной матрицей и классическим включением;
 		double TakeGradMatrix_k0(double ff);
 		double TakeGradMatrix_k1(double ff);
@@ -114,10 +117,11 @@ public:
 		double TakeGradLayer_G2(double ff, double ff_l);
 		double TakeGradLayer_G2_simple(double ff, double ff_l);
 //...аналитические модели с установкой блоков;
-		void TakeEshelbyModel		  (double ff, double ff_l, double fK = 0.5, double fG = 0.5);
-		void TakeEshelbyModel_two	  (double ff, double fK = 0.5, double fG = 0.5);
-		void TakeEshelbyGradModel	  (double ff, double ff_l, double fK = 0.5, double fG = 0.5);
-		void TakeEshelbyGradModel_two(double ff, double fK = 0.5, double fG = 0.5);
+		void TakeEshelbyModel		   (double ff, double ff_l, double fK = 0.5, double fG = 0.5);
+		void TakeEshelbyModel_two	   (double ff, double fK = 0.5, double fG = 0.5);
+		void TakeEshelbyGradModel	   (double ff, double ff_l, double fK = 0.5, double fG = 0.5);
+		void TakeEshelbyGradModel_two (double ff, double fK = 0.5, double fG = 0.5);
+		void TakeEshelbyGradIncluModel(double ff, double ff_l, double fK = 0.5, double fG = 0.5);
 //...конечная трещина;
 		double TakeCrack_two(double X, double Y, double kappa, double * AA, double * BB, double * AD, double * BD, int max_iter = 100);
 };

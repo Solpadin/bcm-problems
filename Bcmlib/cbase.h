@@ -18,6 +18,8 @@ enum Num_Value { //...result values identification;
 									  LINK_VALUE,
 									 DISPL_VALUE,
 									 DILAT_VALUE,
+							  DILAT_GRAD_VALUE,
+						  DILAT_CLASSIC_VALUE,
 									 CROSS_VALUE,
 									 FRACT_VALUE,
 									 TESTI_VALUE,
@@ -151,7 +153,7 @@ public:
 			delete_struct(param);
 		}
 public:
-static int NUM_MPLS, NUM_QUAD, NUM_TIME, NUM_ADHES, NUM_VIBRO, NUM_GEOMT, NUM_PHASE, MAX_PHASE, BOX_LINK_PERIOD;
+static int NUM_MPLS, NUM_QUAD, NUM_TIME, NUM_LOCAL, NUM_ADHES, NUM_VIBRO, NUM_GEOMT, NUM_PHASE, MAX_PHASE, BOX_LINK_PERIOD;
 ////////////////////////////////////////
 //...filling block structure parameters;
 		virtual void set_fasa_hmg(double CC){}
@@ -176,6 +178,7 @@ static int NUM_MPLS, NUM_QUAD, NUM_TIME, NUM_ADHES, NUM_VIBRO, NUM_GEOMT, NUM_PH
 		virtual void set_lattice (double lattice)  {set_param(NUM_TIME, lattice);}
 		virtual void set_normaliz(double normaliz) {set_param(NUM_MPLS+1,		normaliz);}
 		virtual void set_lagrange(double lagrange) {set_param(size_of_param()-1, lagrange);}
+		virtual void set_local	 (double local)	 {set_param(NUM_LOCAL, local);}
 ////////////////////////////
 //...extracting sample data;
 		virtual double get_Young(int num_phase){ return(0.);}
@@ -242,6 +245,7 @@ public:
 		virtual void TakeEshelbyModel_two(double ff, double fK = 0.5, double fG = 0.5){};
 		virtual void TakeEshelbyGradModel	 (double ff, double ff_l, double fK = 0.5, double fG = 0.5){};
 		virtual void TakeEshelbyGradModel_two(double ff, double fK = 0.5, double fG = 0.5){};
+		virtual void TakeEshelbyGradIncluModel(double ff, double ff_l, double fK = 0.5, double fG = 0.5){};
 //...recomputing of the temperature pole accordance to stabilization scheme;
 		virtual void TakeStabStep(double * Temp, int NN, double alpha){};
 		virtual void TakeStabStep_layer(double * Temp, int N_SC, int N_CU, int N_cells, double alpha){};

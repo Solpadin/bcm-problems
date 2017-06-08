@@ -60,11 +60,12 @@ extern void Read_C3D_Data_float(unsigned short num_markers, unsigned short num_a
 #define n_TEST_DRAFT_LAME2D_INTERMEDIATE_PHASE
 #define n_TEST_DRAFT_LAME3D_INTERMEDIATE_PHASE
 #define n_TEST_DRAFT_HYDRO3D_INTERMEDIATE_PHASE
-#define TEST_DRAFT_HEAT2D_FROM_FEMAP
+#define n_TEST_DRAFT_HEAT2D_FROM_FEMAP
 #define n_TEST_DRAFT_HEAT3D_FROM_FEMAP
 #define n_TEST_DRAFT_LAME2D_FROM_FEMAP
 #define n_TEST_DRAFT_LAME3D_FROM_FEMAP
 #define n_TEST_DRAFT_COHES2D_FROM_FEMAP
+#define TEST_DRAFT_POROSITY2D_FROM_FEMAP
 //----------------------------------------------------------------------------------------
 double CIdent(char * name_ini, double R, double A, double * energy, double l1, double l2, double G1, double G2, double nju1, double nju2, 
 										 double Ad = 0, double Bd = 0, int N0 = 5, int id_layer = NULL_STATE, int id_direct = NULL_STATE, int id_visual = NULL_STATE);
@@ -131,8 +132,8 @@ double rigid_approx(double t, double E1_max, double E2_max, double E_min, double
 #define n_DRAFT_LAME_ESHELBY_COMPARISON_DIAGRAM
 #define n_TEST_DRAFT_LAME_ESHELBY_INTERMEDIATE_PHASE
 #define n_TEST_DRAFT_LAME_ESHELBY_INTERMEDIATE_PHASE_sph
-#define nn_TEST_DRAFT_LAME_ESHELBY_INTERMEDIATE_PHASE_cyl
-#define nn_TEST_DRAFT_LAME_ESHELBY_SIMPLE_INVESTIGATION_cyl
+#define n_TEST_DRAFT_LAME_ESHELBY_INTERMEDIATE_PHASE_cyl
+#define n_TEST_DRAFT_LAME_ESHELBY_SIMPLE_INVESTIGATION_cyl
 #define n_TEST_DRAFT_LAME_ESHELBY_INTERMEDIATE_PHASE_layer
 #define n_TEST_DRAFT_LAME_ESHELBY
 #define n_LAME3D_LAYERED_ESHELBY_HOMOGENIZATION
@@ -145,7 +146,7 @@ void TakeEshelbyModel(double cI, double cL, double EI, double EL, double EM, dou
 #define n_ESHELBY_2D_CALCULATIONS
 #define n_VISCO_2D_CALCULATIONS
 #define n_ESHELBY_2D_MODEL
-#define nn_ESHELBY_2D_MODEL_CALCULATIONS
+#define n_ESHELBY_2D_MODEL_CALCULATIONS
 #define n_ESHELBY_2D_GRAD_INTERMEDIATE_LAYER
 //----------------------------------------------------------------------------------------
 double Grin_tensor(int i, int k, double X, double Y, double Z,   double mu, double nju, double s = 0.);
@@ -201,7 +202,7 @@ int main(int argc, char* argv[])
 #ifdef ___IGROUPS_NGROUPS___
 	if (igroup == 0) {
 #endif
-	time_t start = time(NULL), sec;
+	time_t start = time(NULL); long long int sec;
 	char buf[2000]; int res, yes = 1;
 
 #ifdef MUNI_APPROXIMATION
@@ -1475,14 +1476,14 @@ double TH[21][9] = {
 //////////////////////////
 //...model initialization;
 	CDraft<double> * sm = CreateDraftR(LAME2D_DRAFT);
-	sm->set_mpls(PackInts(2, 2)); //...multipoles degree;
-	sm->set_quad(PackInts(8, 8)); //...quadrature degree;
+	sm->set_mpls(PackInts(13, 9)); //...multipoles degree;
+	sm->set_quad(PackInts(16, 8)); //...quadrature degree;
 	sm->set_normaliz(0.92);			//...normaliztion factor;
 	sm->set_lagrange(1e4);			//...Lagrange coeffitient; 
 	sm->change_solv(PERIODIC_SOLVING);
-	sm->solver.change_state(EXTERN_STATE);
+	sm->solver.change_state(/*EXTERN_STATE*/);
 	sm->solver.set_mode(REGUL_BOUNDARY/*PRINT_MODE*//*FULLY_MODE*/);
-	yes = 0;
+	//yes = 0;
 
 ////////////////////////
 //...problem parameters;
@@ -1490,7 +1491,7 @@ double TH[21][9] = {
 	//		 K2 = 30.,	 //...corrund (inclusion);
 	//		 K3 = 3.;	 //...interphase layer;
 	//sm->set_fasa_hmg(K1, K2, K3);
-	double nj1 = 0.33, //...polymer matrixа; 
+	double nj1 = 0.33, //...polymer matrix; 
 			 nj2 = 0.20, //...graphite inclusion; 
 			 nj3 = 0.30, //...interphase layer; 
 			 E1  = 18.,  //...GPa;
@@ -1594,8 +1595,9 @@ double TH[21][9] = {
 	{
 //////////////////
 //..visualization;
-		res = system("mkdir ./bcm_results/test3_results");
-		//res = system("del *.grd");
+		//res = system("mkdir ./bcm_results");
+		//res = system("mkdir ./bcm_results/test3_results");
+		res = system("del *.grd");
 		int id_visual = 1;
 		if (id_visual) {
 			CGrid * nd = CreateNodes();
@@ -1617,10 +1619,13 @@ double TH[21][9] = {
 			}
 			//sm->GetSurferFormat("./bcm_results/test3_results/rr", nd,        HEAT_VALUE, 0);
 			//sm->GetSurferFormat("./bcm_results/test3_results/pp", nd, FLUX_COMPOS_VALUE, 0);
-			sm->GetSurferFormat("./bcm_results/test3_results/bb", nd,       ERR_VALUE, 0);
-			sm->GetSurferFormat("./bcm_results/test3_results/rx", nd,     DISPL_VALUE, 0);
-			sm->GetSurferFormat("./bcm_results/test3_results/tx", nd,  STRESS_X_VALUE, 0);
+			//sm->GetSurferFormat("./bcm_results/test3_results/bb", nd,       ERR_VALUE, 0);
+			//sm->GetSurferFormat("./bcm_results/test3_results/rx", nd,     DISPL_VALUE, 0);
+			//sm->GetSurferFormat("./bcm_results/test3_results/tx", nd,  STRESS_X_VALUE, 0);
 
+			sm->GetSurferFormat("bb", nd,       ERR_VALUE, 0);
+			sm->GetSurferFormat("rx", nd,     DISPL_VALUE, 0);
+			sm->GetSurferFormat("tx", nd,  STRESS_X_VALUE, 0);
 			delete nd;
 		}
 	}
@@ -1638,37 +1643,37 @@ double TH[21][9] = {
 
 ////////////////////////
 //...problem parameters;
-	double E1 = 6.0,	//...ледяная матрица(GPa); 
-			 E2 = 50.,	//...минеральная частица (песок, GPa); 
-			 nju1 = 0.3,//...матрица;
-			 nju2 = 0.3,//...включение; 
+	double E1 = 6.0,	//...ice matrix(GPa); 
+			 E2 = 50.,	//...mineral partical (sand, GPa); 
+			 nju1 = 0.3,//...matrix;
+			 nju2 = 0.3,//...inclusion; 
 			 G1   = E1/(1.+nju1)*.5,
 			 G2   = E2/(1.+nju2)*.5,
 			 K1   = E1/(3.-6.*nju1),
 			 K2   = E2/(3.-6.*nju2),
-			 AA   = E1*0.0, //...нормальный  адгезионный модуль (GPa);
-			 BB   = G1*0.0, //...касательный адгезионный модуль (GPa);
-			 d0   = 0.,   //...доля адгезионной комплексности;
-			 l1   = 0.06, //...касательный масштабный параметр;
-			 l2   = 0.06, //...дополнительный масштабный параметр;
-			 d1   = 0.0,  //...доля потерь (комплексность) в матрице;
-			 d2   = 0.;   //...доля потерь (комплексность) во включении;
+			 AA   = E1*0.0, //...normal adhesion modulus (GPa);
+			 BB   = G1*0.0, //...tangemtial adhesion modulus (GPa);
+			 d0   = 0.,   //...quota of imaginary part of complex adhesion;
+			 l1   = 0.06, //...tangential scale parameter;
+			 l2   = 0.06, //...additional scale parameter;
+			 d1   = 0.0,  //...loss quota (complexity) in matrix;
+			 d2   = 0.;   //...loss quota (complexity) in inclusion;
 
 //////////////////////////
-//...инициализация модели;
+//...model initialization;
 	CDraft<complex> * sm = CreateDraftC(VISCO2D_GRAD_DRAFT);
 	sm->set_fasa_hmg(K1, K2, G1, G2, l1, l2, d1, d2, AA, BB, d0);
-	sm->set_mpls(PackInts(1, 1)); //...степень мультиполей;
-	sm->set_quad(PackInts(4, 2)); //...степень квадратуры;
-	sm->set_normaliz(0.92);			  //...нормирующий множитель;
-	sm->set_lagrange(1e4);			  //...коэффициент Лагранжа; 
+	sm->set_mpls(PackInts(1, 1)); //...multipoles degree;
+	sm->set_quad(PackInts(4, 2)); //...quadratures degree;
+	sm->set_normaliz(0.92);			//...normalization factor;
+	sm->set_lagrange(1e4);			//...Lagrange coefficient; 
 	sm->change_solv(E_PERIODIC_SOLVING);
 	sm->solver.change_state(/*EXTERN_STATE*/);
 	sm->solver.set_mode(/*REGULARIZATION*//*PRINT_MODE*//*FULLY_MODE*/);
 	yes = 0;
 
-///////////////////////////////////////////////////////
-//...чтение модели и граничных условий из файла данных;
+//////////////////////////////////////////////////////////
+//...reading model and boundary conditions from data file;
 	double X0, Y0, ell_X = 0., ell_Y = 0., rot_Z = 0.;
 	int  id_reading = 0;
 	if (sm) {
@@ -1709,8 +1714,8 @@ double TH[21][9] = {
 		Message("Finish!");
 	}
 
-////////////////////
-//...решение задачи;
+/////////////////////
+//...problem solving;
 	if (sm->computing_kernel(MAPPING_COMPUT) != OK_STATE) {
 		Message("Error in sample computing...");
 		delete sm;
@@ -1786,22 +1791,22 @@ double TH[21][9] = {
 	int i, j, k, m, num; 
 
 //////////////////////////
-//...инициализация модели;
+//...model initialization;
 #define real_T dd_real
 	CDraft<real_T> * sm = CreateDraftD(HYDRO3D_DRAFT, 8);		
-	sm->set_mpls(PackInts(3, 3)); //...степень мультиполей;
-	sm->set_quad(PackInts(4, 4)); //...степень квадратуры;
-	sm->set_normaliz(1.*L*sqrt(3.)/(.5*rad));	//...нормирующий множитель;
-	sm->set_geometry(rad);			//...радиус сферического включения; 
-	sm->set_lagrange(1e5);			//...коэффициент Лагранжа; 
-	sm->set_fasa_hmg(k0);			//...коэффициент Бринкмана; 
+	sm->set_mpls(PackInts(3, 3)); //...multipoles degree;
+	sm->set_quad(PackInts(4, 4)); //...quadratures degree;
+	sm->set_normaliz(1.*L*sqrt(3.)/(.5*rad));	//...normalization factor;
+	sm->set_geometry(rad);			//...radius of spherical inclusion; 
+	sm->set_lagrange(1e5);			//...Lagrange coefficien; 
+	sm->set_fasa_hmg(k0);			//...Bbrinkman coefficien; 
 	sm->change_solv(PERIODIC_SOLVING);
 	sm->solver.change_state(/*EXTERN_STATE*/);
 	sm->solver.set_mode(/*PRINT_MODE*/);
 	yes = 0;
 
-//////////////////////////////////////////////////////////////////////////////////////////
-//...чтение модели и граничных условий из файла данных или задание геометрии аналитически;
+///////////////////////////////////////////////////////////////////////////////////////////
+//...reading model and boundary conditions from data file or specify geometry analytically;
 	int id_analyt = 1;
 	if (sm && ! id_analyt) {
 		Message(" ");
@@ -1818,7 +1823,7 @@ double TH[21][9] = {
 		Message("Finish!");
 	}
 	else 
-	if (id_analyt) {//...задание геометрии аналитически;
+	if (id_analyt) {//...specify geometry analytically;
 		if (rad < 0.5)
 		sm->GetSphBoxStruct(2.*L, 2.*L, 2.*L, rad, layer, OK_STATE); else
 		sm->GetPenetrateSphere(rad, L); 
@@ -1829,8 +1834,8 @@ double TH[21][9] = {
 		par[1] =  L; par[3] =  L; par[5] =  L;
 	}
 
-//////////////////////////////////////////////////
-//...устанавливаем граничные поверхности в модели;
+////////////////////////////////////////////
+//...install boundary surfaces in the model;
 	if (! id_analyt && 0) {
 		double eps = 1e-6;
 		sm->BlockActivate();
@@ -1861,8 +1866,8 @@ double TH[21][9] = {
 		}
 	}
 
-////////////////////////////////////////////////////////////////////////////////////
-//...задание граничных значений в модели (периодичность забивает граничные значения);
+/////////////////////////////////////////////////////////////////////////////////
+//...specify boundary values in the model (periodicity dominate boundary values);
 	int id_action = 0;
 	if (id_action) {
 		double po[6] = { 0., 0., 0., 0., 0., 0.};
@@ -1889,8 +1894,8 @@ double TH[21][9] = {
 		goto err;
 	}
 
-////////////////////////////////////////////////////////////////
-//..вычисляем осредненные характеристики (тензор проницаемости);
+//////////////////////////////////////////////////////////////
+//..calculating averaged characteristics (permability tensor);
 		double nn, nn_cyl, nn_l, ff_vol, AX = 1., AY = 1., AZ = 1.;
 		real_T K[4]; memset(K, 0, 4*sizeof(real_T));
 		sm->GetRigidy(K, -1,  BASIC_COMPUT); 	
@@ -1965,8 +1970,8 @@ double TH[21][9] = {
 				axis = AXIS_X;
 			}
 #endif
-//////////////////////////////////////
-//...коррекция сферического включения;
+///////////////////////////////////////
+//...correcting of spherical inclusion;
 			for (i = 0; i < nd->N;  i++)
 			for (j = 0; j < nd->N1; j++) {
 				if (sqr(nd->X[i])+sqr(nd->Y[j])+sqr(nd->Z[0]) < sqr(rad)) nd->hit[i+j*nd->N] = -1; else
@@ -2003,8 +2008,8 @@ double TH[21][9] = {
 			}
 			axis = AXIS_Z;
 
-////////////////////////////////////////////////
-//...повторная коррекция сферического включения;
+///////////////////////////////////////////////
+//...repeted correction of apherical inclusion;
 			for (i = 0; i < nd->N;  i++)
 			for (j = 0; j < nd->N1; j++) {
 				if (sqr(nd->X[i])+sqr(nd->Y[j])+sqr(nd->Z[0]) < sqr(rad)) nd->hit[i+j*nd->N] = -1; else
@@ -5088,11 +5093,149 @@ test:
 				axis = AXIS_X;
 			}
 #endif
-			system("del *.grd");
+			res = system("del *.grd");
 			sm->GetSurferFormat("bb", nd,	     ERR_VALUE, 0, axis);
 			sm->GetSurferFormat("rr", nd,    DISPL_VALUE, 0, axis);
 			sm->GetSurferFormat("tz", nd, STRESS_Z_VALUE, 0, axis);
 			
+			delete nd;
+		}
+	}
+	delete sm;
+}
+#endif
+#ifdef TEST_DRAFT_POROSITY2D_FROM_FEMAP
+{
+	//const char * name = "../Exe/Models_inp/Box2D_porosity/Box2D_sph202.inp";//(окружность r = 0.3)
+	//const char * name = "../Exe/Models_inp/Box2D_porosity/Box2d_sph_sph690.inp";//(две окружности r = 0.15, d = 0.2)
+	//const char * name = "../Exe/Models_inp/Box2D_porosity/Box2D_cut_sph303.inp";//(две окружности и вырез до границы)
+	const char * name = "../Exe/Models_inp/Box2D_porosity/Box2D_cut166.inp";//(вырез посередине)
+	double radi = 0.3, X0 = 1., Y0 = 0.5;
+	int i, j, l;
+
+//////////////////////////
+//...model initialization;
+	CDraft<double> * sm = CreateDraftR(POROSITY2D_DRAFT, 7);
+	sm->set_mpls(PackInts(17, 15)); //...multipoles degree;
+	sm->set_quad(PackInts(8, 4)); //...N_elem, N_max -- parameters of quadrature;
+	sm->set_normaliz(0.92);			//...normalization coefficient;
+	sm->set_local(0.);				//...using gradient displacements;
+	sm->set_lagrange(1e6);			//...Lagrange coefficient; 
+	sm->change_solv(ENERGY_SOLVING);
+	sm->solver.change_state(/*EXTERN_STATE*/);
+	sm->solver.set_mode(/*PRINT_MODE*//*FULLY_MODE*/);
+	yes = 0;
+
+///////////////////////////
+//...parameters of problem;
+	double nju = 0.39, //...matrix parameters; 
+			 G1  = 3.41/(1.+nju)*.5,  //...matrix parameters;
+//	double nju = 0.3,			//...Poisson coefficient; 
+//			 G1  = 1.0,			//...shear modulus;
+			 fract = 100.0,	//...parameters of porosity;
+			 alpha = 0.3,
+			 gamma = 1.0;
+	sm->set_fasa_hmg(nju, G1, fract, alpha, gamma);
+
+///////////////////////////////////////////////////////
+//...чтение модели и граничных условий из файла данных;
+	if (sm) {
+      sprintf(buf, "Loading model from file '%s'", name);
+      Message(" ");
+      Message(buf);
+      Message("Reading data file ...");
+
+		sm->stru.nodes_in(name);
+		sm->LinkUniStruct();
+		sm->SetBUniStruct(POLY_BLOCK);
+
+		Message("Finish!");
+	}
+	if (radi != 0. && 0) {
+		CCells * ce = new(CCells);
+		ce->init(1, 2, (l = size_of_map(1, SPHERE_GENUS))+1);
+		ce->mp[0] = (CMap)ID_MAP(1, SPHERE_GENUS);
+		ce->mp[1] = X0;
+		ce->mp[2] = Y0;
+		ce->mp[7] = radi;
+		ce->mp[l] = (CMap)NULL_CELL;
+		sm->bar = new(CCells);
+		sm->bar->bar_add(ce);
+	}
+
+///////////////////////////
+//...solving of the probem;
+	if (sm->computing_kernel(MAPPING_COMPUT) != OK_STATE) {
+		Message("Error in sample counting...");
+		delete sm;
+		goto err;
+	}
+#ifdef ___MPI_INIT___
+	if (sm->solver.id_change == EXTERN_STATE) {
+		CSlvParam params;
+		params.ordtype = 1;
+		params.tau1 = 1.0e-2;
+		params.tau2 = 1.0e-3;
+		params.theta = 0.10e0;
+		params.niter = 100;
+		params.eps = 1.0e-7;
+
+		params.memory = 5.0e0;
+		params.msglev = 3;
+
+		char strbuff[256];
+		sprintf (strbuff,"%s%i%s","BsSolver_",comm_mpi.GetMyid(),".dat");
+
+		std::ofstream fout (strbuff);
+
+		params.ittype = 2;
+		params.sttype = 1;
+		params.collap = 4;
+
+		sm->shapes_init(NO_STATE); 
+		BMM_solver pBMM = {& sm->solver, sm, MAPPING_COUNTING};
+//		AbstractSolver		(& pBMM, 
+		AbstractParSolver (& pBMM, 
+								(void *)&comm_mpi,
+								fout, params,
+								Number_of_Blocks, Blocks_Partitioning, 
+								Blocks_Sparsity, Blocks_Row, 
+								Right_Handside, Initial_Guess, Store_Solution);
+		sm->shapes_init(OK_STATE); 
+	}
+#endif	
+
+//////////////////
+//..visualization;
+#ifdef ___MPI_INIT___
+	if (comm_mpi.GetMyid() == 0) 
+#endif
+	{
+		int id_visual = 1;
+		if (id_visual) {//..visualization;
+			CGrid * nd = CreateNodes();
+			sm->BlockActivate(NULL_STATE);
+
+			double par[6];	sm->SetGeomBounding(par);
+
+			int NX = 100, NY = 100;
+			for (i = 0; i <= 2*NX; i++) nd->add_new_point_X(.5*i/NX*(par[1]-par[0]));
+			for (j = 0; j <= 2*NY; j++) nd->add_new_point_Y(.5*j/NY*(par[3]-par[2]));
+
+			nd->hit = new_struct<int>(nd->N*nd->N1);
+
+			for (i = 0; i < nd->N;  i++)
+			for (j = 0; j < nd->N1; j++) {
+				int hit = -1;
+				sm->Poly_struc_in2D (hit, nd->X[i], nd->Y[j]);
+				nd->hit[i+j*nd->N] = hit;
+			}
+			res = system("del *.grd");
+			sm->GetSurferFormat("bb", nd,			ERR_VALUE);
+			sm->GetSurferFormat("rr", nd,		 DISPL_VALUE);
+			sm->GetSurferFormat("hh", nd,		 FRACT_VALUE);
+			sm->GetSurferFormat("pp", nd, PUREFRACT_VALUE);
+
 			delete nd;
 		}
 	}
@@ -7492,16 +7635,16 @@ test:
    Message(buf);
 
 	unsigned long count, upper_limit;
-	char        * id_DATA = read_struct_ascii("lame3d_initial.dat");
+	char        * id_DATA = read_struct_ascii("heat3d_initial.dat");
 	if         (! id_DATA) {
 		sprintf(buf, "Data not found..");
 		Message(" ");
 		Message(buf);
-		sprintf(buf, "Creating data file \"lame3d_initial.dat\"...");
+		sprintf(buf, "Creating data file \"heat3d_initial.dat\"...");
 		Message(buf);
 		Message(" ");
 
-		FILE  * TST = fopen("lame3d_initial.dat", "w");
+		FILE  * TST = fopen("heat3d_initial.dat", "w");
 		fprintf(TST, "N = %i\nN_elem = %i\nN_max = %i\nlagrange = %g\n\n", N0, N_elem, N_max, lagrange);
 		fprintf(TST, "id_visual = %i\nNX = %i\nNY = %i\naxis = %i  axis_I = %i  axis_II = %i\nsection = %g  section_I = %g  section_II = %g\n\n", 
 			id_visual, NX, NY, axis, axis_I, axis_II, section, section_I, section_II);
@@ -7578,8 +7721,8 @@ test:
 	if (user_Count(id_DATA, count, count, '=') && 
 		 user_Read (buf, id_DATA, count, upper_limit)) M_max_add = atoi(buf);
 
-///////////////////////////////////////
-//...creating model from initiual data;
+//////////////////////////////////////
+//...creating model from initial data;
 test:
 	CDraft<double> * sm = CreateDraftR(HEAT3D_DRAFT, 8);
 	sm->set_fasa_hmg(pp[0] = cc_rad/(2.*M), pp[1] = (ll_rad+1.)*cc_rad/(2.*M), K1, K2, K3);//...parameters of problem;
@@ -7590,23 +7733,23 @@ test:
 	sm->change_solv (lagrange ? E_PERIODIC_SOLVING : PERIODIC_SOLVING);
 	sm->solver.change_state(EXTERN_STATE);
 	sm->solver.set_mode(REGUL_BOUNDARY/* | REDUCED_PRINT | PRINT_MODE | FULLY_MODE*//* | TESTI_GRAM*//* | MASKS_MODE*//* | ACCUMULATION*/);
-	yes = 0;
+	//yes = 0;
 
-////////////////////
-//...печатаем шапку;
+/////////////////////
+//...printing header;
 	res = system("mkdir ./bcm_results");
 	res = system("mkdir ./bcm_results/heat3d_homog");
 	FILE * TST = fopen("./bcm_results/heat3d_homog/heat3d_homog.dat", "a");
 	if (TST) fprintf(TST, "c0,              c1,            kk,         kH,          kk_low,      kk_max,      (N = %i, K_matrix = %g, K_inclu = %g, K_layer = %g))\n", N0, K1, K2, K3);
 	if (TST)	fclose (TST);
 
-//////////////////////////////////
-//...цикл по параметру аггрегации;
+////////////////////////////////////////
+//...cycle on the aggregation parameter;
 	for (k = 0; k <= M_max_add; k++) {
 		M_add = k;
 
-////////////////////////////////////////////////////////////////////////////
-//...генерим структуру вкллючений (и переустанавливаем геометрию включений);
+///////////////////////////////////////////////////////////////////////////////
+//...generation structure of inclusions (and reinstall geometry of inclusions);
 		CGrid * nd_stru = CreateNodes(); nd_stru->add_params(2);
 		par[0] = 0.; par[1] = A;
 		par[2] = 0.; par[3] = B;
@@ -7616,16 +7759,16 @@ test:
 		for (int mX = 1; mX < 2*(M+2*M_add); mX += 2)
 			if (nd_stru->add_new_point(mX/(2.*(M+2*M_add)), mY/(2.*(M+2*M_add)), mZ/(2.*(M+2*M_add)), 0., 0., 1., pp)) nd_stru->hit[nd_stru->N-1] = nd_stru->N;
 
-//////////////////////////////////////////////
-//...построение решетки для системы включений;
+////////////////////////////////////////////////
+//...construction lattice for inclusions system;
 		CGrid * lt = CreateNodes();
 				  lt->grid_lattice(nd_stru, par);
 		if (! k) {
 			c0 = par[6]; c1 = par[7];
 		}
 
-/////////////////////////////////////////////////
-//...задание модели и граничных условий функцией;
+/////////////////////////////////////////////////////////////////
+//...specification model and boundary conditions by the function;
 		if (sm) {
 			sm->GetLatticeBox3DStruct(lt->X, lt->Y, lt->Z, lt->N, lt->N1, lt->N2, CLAYER_BLOCK);
 			sm->SetBUniStruct (POLY_BLOCK, ERR_GENUS);
@@ -7728,8 +7871,8 @@ test:
 				sprintf(buf, "./bcm_results/heat3d_homog/rr(%i)", k);	sm->GetSurferFormat(buf, nd, HEAT_VALUE, 0, axis);
 				sprintf(buf, "./bcm_results/heat3d_homog/pp(%i)", k);	sm->GetSurferFormat(buf, nd, FLUX_COMPOS_VALUE, 0, axis);
 
-	///////////////////////////////////////////
-	//...дополнительные сечения I (если нужно);
+	////////////////////////////////////////
+	//...additional sections I (if needded);
 				if (id_visual > 1) { 
 					nd->release();
 					if (axis_I == AXIS_Z) {
@@ -7759,8 +7902,8 @@ test:
 					sprintf(buf, "./bcm_results/heat3d_homog/rr(%i)_I", k);	sm->GetSurferFormat(buf, nd, HEAT_VALUE, 0, axis_I);
 					sprintf(buf, "./bcm_results/heat3d_homog/pp(%i)_I", k);	sm->GetSurferFormat(buf, nd, FLUX_COMPOS_VALUE, 0, axis_I);
 
-	////////////////////////////////////////////
-	//...дополнительные сечения II (если нужно);
+	//////////////////////////////////////////
+	//...additional sections  II (if needded);
 					if (id_visual > 2) { 
 						nd->release();
 						if (axis_II == AXIS_Z) {
@@ -9124,7 +9267,8 @@ int N_spinel = 2;
 	//sm->set_fasa_hmg(nju1, nju2, G1, G2, (l1 ? G1*(1.-nju1)/(sqr(l1)*(.5-nju1)) : 0.), (l2 ? G2/sqr(l2) : 0.));
 	sm->set_fasa_hmg(nju1, nju2, nju3, G1, G2, G3, (l1 ? G1/sqr(l1) : 0.), (l2 ? G2/sqr(l2) : 0.), (l3 ? G3*(1.-nju3)/(sqr(l3)*(.5-nju3)) : 0.));
 	//sm->TakeEshelbyModel/*_two(ff)*/(ff, ff_l); /*rad1 = rad2; ff_l = 0.;*/
-	sm->TakeEshelbyGradModel/*_two(ff)*/(ff, ff_l); /*rad1 = rad2; ff_l = 0.;*/
+	//sm->TakeEshelbyGradModel/*_two(ff)*/(ff, ff_l); /*rad1 = rad2; ff_l = 0.;*/
+	sm->TakeEshelbyGradIncluModel(ff, ff_l);
 
 ////////////////////////////////////////////////////
 //...результат вычисления эффективных характеристик;
@@ -9137,7 +9281,7 @@ int N_spinel = 2;
 	int id_visual = 1, i, j;
 	if (id_visual) {
 		CGrid * nd = CreateNodes();
-		int NX = 200, NY = 200, axis = AXIS_CYL;
+		int NX = 200, NY = 200, axis = AXIS_Z;
 
 		double AA = 4.*rad2;
 		par[0] = -AA*.5; par[2] = -AA*.5; par[4] = -AA*.5;
@@ -9180,16 +9324,16 @@ int N_spinel = 2;
 		}
 		else {
 			if (sqr(nd->X[i])+sqr(nd->Y[j]) < sqr(rad0)) nd->hit[i+j*nd->N] = 0; else  
-			if (sqr(nd->X[i])+sqr(nd->Y[j]) < sqr(rad1)) nd->hit[i+j*nd->N] = 2; else 
-			if (sqr(nd->X[i])+sqr(nd->Y[j]) < sqr(rad2)) nd->hit[i+j*nd->N] = 3; else nd->hit[i+j*nd->N] = 1;	
+			if (sqr(nd->X[i])+sqr(nd->Y[j]) < sqr(rad1)) nd->hit[i+j*nd->N] = /*2*/-1; else 
+			if (sqr(nd->X[i])+sqr(nd->Y[j]) < sqr(rad2)) nd->hit[i+j*nd->N] = /*3*/-1; else nd->hit[i+j*nd->N] = 1;	
 		}
 		system("del *.grd");
 		//sm->GetSurferFormat("bb",  nd,	   ERR_VALUE, 0, axis);
 
-		//sm->GetSurferFormat("rx", nd,	 DISPL_GRAD_VALUE, 0, axis);
-		//sm->GetSurferFormat("tx", nd, STRESS_X_GRAD_VALUE, 0, axis);
+		sm->GetSurferFormat("rx", nd,	 DISPL_GRAD_VALUE, 1, axis);
+		sm->GetSurferFormat("tx", nd, STRESS_X_GRAD_VALUE, 1, axis);
 
-		sm->GetSurferFormat("nn", nd, NORMAL_R_GRAD_VALUE, 0, axis);
+		sm->GetSurferFormat("nn", nd, NORMAL_R_GRAD_VALUE, 1, axis);
 		//sm->GetSurferFormat("nx", nd, NORMAL_X_GRAD_VALUE, 0, axis);
 		//sm->GetSurferFormat("tx_classic", nd, STRESS_X_CLASSIC_VALUE, 0, axis);
 
@@ -9198,6 +9342,7 @@ int N_spinel = 2;
 	delete sm;
 }
 #endif
+#define ___INCLUSION___
 #ifdef ESHELBY_2D_MODEL_CALCULATIONS
 {
 //////////////////////////////////////////////////////////////////////
@@ -9214,7 +9359,9 @@ int N_spinel = 2;
 			 E3 = 428.2,   //...поперечный модуль Юнга слоя вискерсов (GPa);
 			 G3 = E3*.5/(1+nju3), //...модуль сдвига промежуточного слоя (GPa);
 			 l0 = 0.8,		//...относительная ширина промежуточного слоя;
-			 l3 = 0.2,		//...относительная величина масштабного параметра;
+			 l1 = 0.03,		//...относительная величина масштабного параметра в матрице;
+			 l2 = 0.03,		//...относительная величина масштабного параметра во включении;
+			 l3 = 0.2,		//...относительная величина масштабного параметра в слое;
 			 f0 = 0.4217,  //...средняя концентрация вискерсов;
 			 ff = 0.2, ff_l = l0*(2.+l0)*ff, rad0 = 1., rad1 = 1./sqrt(ff/(ff+ff_l)), rad2 = 1./sqrt(ff), par[6];
 	yes = 0;
@@ -9222,8 +9369,10 @@ int N_spinel = 2;
 //////////////////////////
 //...model initialization;
 	CBase * sm = CreateDraftR(COHES2D_DRAFT, 8);
-	sm->set_fasa_hmg(nju1, nju2, nju3, G1, G2, G3, 0., 0., (l3 ? G3*(1.-nju3)/(sqr(l3)*(.5-nju3)) : 0.));
-	sm->TakeEshelbyGradModel(ff, ff_l);
+	sm->set_fasa_hmg(nju1, nju2, nju3, G1, G2, G3, (l1 ? G1*(1.-nju1)/(sqr(l1)*(.5-nju1)) : 0.), (l2 ? G2*(1.-nju2)/(sqr(l2)*(.5-nju2)) : 0.), (l3 ? G3*(1.-nju3)/(sqr(l3)*(.5-nju3)) : 0.));
+	//sm->TakeEshelbyModel(ff, ff_l);
+	//sm->TakeEshelbyGradModel(ff, ff_l);
+	sm->TakeEshelbyGradIncluModel(ff, ff_l/*, 1., 0.*/);
 
 ////////////////////////////////////////////////////
 //...результат вычисления эффективных характеристик;
@@ -9236,14 +9385,18 @@ int N_spinel = 2;
 	int id_visual = 1, i, j;
 	if (id_visual) {
 		CGrid * nd = CreateNodes();
-		int NX = 100, NY = 100, axis = AXIS_CYL;
+		int NX = 100, NY = 100, axis = AXIS_CYL/*AXIS_Z*/;
 
 		double AA = 4.*rad2;
 		par[0] = -AA*.5; par[2] = -AA*.5; par[4] = -AA*.5;
 		par[1] =  AA*.5; par[3] =  AA*.5; par[5] =  AA*.5;
 
 		if (axis == AXIS_CYL) {
+#ifndef ___INCLUSION___
 			for (i = 1; i <= 2*NX; i++) nd->add_new_point_X(.5*i/NX*rad0);
+#else
+			for (i = 0; i <= 2*NX; i++) nd->add_new_point_X(.5*i/NX*(rad1-rad0)+rad0);
+#endif
 			for (j = 0; j <= 2*NY; j++) nd->add_new_point_Y(.5*j/NY*M_PI*2.);
 
 			nd->add_new_point_Z(0.);
@@ -9273,27 +9426,38 @@ int N_spinel = 2;
 		for (i = 0; i < nd->N;  i++)
 		for (j = 0; j < nd->N1; j++)
 		if (axis == AXIS_CYL) {
+#ifndef ___INCLUSION___
 			if (sqr(nd->X[i]) < sqr(rad0)) nd->hit[i+j*nd->N] = 0; else  
 			if (sqr(nd->X[i]) < sqr(rad1)) nd->hit[i+j*nd->N] = 0; else 
-			if (sqr(nd->X[i]) < sqr(rad2)) nd->hit[i+j*nd->N] = 0; else nd->hit[i+j*nd->N] = 2;	
+			if (sqr(nd->X[i]) < sqr(rad2)) nd->hit[i+j*nd->N] = 0; else nd->hit[i+j*nd->N] = 0;	
+#else
+			if (sqr(nd->X[i]) < sqr(rad0)) nd->hit[i+j*nd->N] = 2; else  
+			if (sqr(nd->X[i]) < sqr(rad1)) nd->hit[i+j*nd->N] = 2; else 
+			if (sqr(nd->X[i]) < sqr(rad2)) nd->hit[i+j*nd->N] = 2; else nd->hit[i+j*nd->N] = 2;	
+#endif
 		}
 		else {
 			if (sqr(nd->X[i])+sqr(nd->Y[j]) < sqr(rad0)) nd->hit[i+j*nd->N] = 0; else  
 			if (sqr(nd->X[i])+sqr(nd->Y[j]) < sqr(rad1)) nd->hit[i+j*nd->N] = 2; else 
 			if (sqr(nd->X[i])+sqr(nd->Y[j]) < sqr(rad2)) nd->hit[i+j*nd->N] = 3; else nd->hit[i+j*nd->N] = 1;	
 		}
-		system("del *.grd");
+		int res = system("del *.grd");
 		//sm->GetSurferFormat("bb",  nd,	   ERR_VALUE, 0, axis);
 		
 		//sm->GetSurferFormat("rr", nd,	   DISPL_GRAD_VALUE, 2, axis);
 		//sm->GetSurferFormat("uu", nd,	DISPL_CLASSIC_VALUE, 2, axis);
-	
-		//sm->GetDataFormat("rd", nd,	   NORMAL_R_GRAD_VALUE, 2, axis);
-		//sm->GetDataFormat("ud", nd,	NORMAL_R_CLASSIC_VALUE, 2, axis);
-	
-		sm->GetDataFormat("rd_inclu", nd,	   NORMAL_R_GRAD_VALUE, 2, axis);
-		sm->GetDataFormat("ud_inclu", nd,	NORMAL_R_CLASSIC_VALUE, 2, axis);
-
+		//sm->GetSurferFormat("nn", nd,	NORMAL_R_GRAD_VALUE, 2, axis);
+#ifndef ___INCLUSION___
+		sm->GetDataFormat("rd_inclu_02", nd,	   NORMAL_R_GRAD_VALUE, 2, axis);
+		sm->GetDataFormat("ud_inclu_02", nd,	NORMAL_R_CLASSIC_VALUE, 2, axis);
+		sm->GetDataFormat("divr_inclu_02", nd,	   DILAT_GRAD_VALUE, 2, axis);
+		sm->GetDataFormat("divu_inclu_02", nd,	DILAT_CLASSIC_VALUE, 2, axis);
+#else
+		sm->GetDataFormat("rd_02", nd,	   NORMAL_R_GRAD_VALUE, 2, axis);
+		sm->GetDataFormat("ud_02", nd,	NORMAL_R_CLASSIC_VALUE, 2, axis);
+		sm->GetDataFormat("divr_02", nd,	   DILAT_GRAD_VALUE, 2, axis);
+		sm->GetDataFormat("divu_02", nd,	DILAT_CLASSIC_VALUE, 2, axis);
+#endif
 		delete nd;
 	}
 	delete sm;
@@ -9407,41 +9571,34 @@ int N_spinel = 2;
 {
 /////////////////////////
 //...данные для расчетов;
-	double nju = 0.3,	EE = 1.2, GG = EE*.5/(1.+nju), s = 0.02, AA = 0., BB = 50., hh, X, Y, Z, 
-			 GrinX, GrinY, GrinZ, GrinX0, GrinY0, GrinZ0, RX, RY, RZ, RX0, RY0, RZ0, 
-			 SX, SY, SZ, SX0, SY0, SZ0;
+	double nju = 0.3,	EE = 1.2, GG = EE*.5/(1.+nju), s = 0.1, AA = -1., BB = 1., hh, X, Y, Z, 
+			 GrinX, GrinY, GrinZ, RX, RY, RZ, SX, SY, SZ;
 	int j, NN = 300;
 	yes = 0;
 
 ///////////////////////////////  
 //...цикл по параметрам задачи;
-	FILE * TST = fopen("Boussinesq_s02.dat", "w");
+	FILE * TST = fopen("Boussinesq_s01_z0.dat", "w");
 	for (hh = (BB-AA)/NN, j = 0; j <= NN; j += 1) {
 		//X = AA+j*hh; Y = 0.; Z = 0.;
 		//X = 0.; Y = 0.; Z = AA+j*hh;
-		//GrinX0 = Grin_tensor(3, 1, X, Y, Z, GG, nju, 0.);
 		//GrinX  = Grin_tensor(3, 1, X, Y, Z, GG, nju, s );
-		//GrinY0 = Grin_tensor(3, 2, X, Y, Z, GG, nju, 0.);
 		//GrinY  = Grin_tensor(3, 2, X, Y, Z, GG, nju, s );
-		//GrinZ0 = Grin_tensor(3, 3, X, Y, Z, GG, nju, 0.);
 		//GrinZ  = Grin_tensor(3, 3, X, Y, Z, GG, nju, s );
-		//fprintf(TST, " Z = %g, GrinX0 = %g, GrinX = %g, GrinY0 = %g, GrinY = %g, GrinZ0 = %g, GrinZ = %g\n", 
-		//	Z, GrinX0, GrinX, GrinY0, GrinY, GrinZ0, GrinZ);
+		//fprintf(TST, " Z = %g, GrinX = %g, GrinY = %g, GrinZ = %g\n", Z, GrinX, GrinY, GrinZ);
 
 		//X = 0.; Y = AA+j*hh;
 		////X = AA+j*hh; Y = 0.;
-		//Flaman_displ(X, Y, RX0, RY0, GG, nju, 0.);
 		//Flaman_displ(X, Y, RX,  RY,  GG, nju, s );
-		//fprintf(TST, " Y = %g, RX0 = %g, RX = %g, RY0 = %g, RY = %g\n", Y, -RX0, -RX, RY0, RY);
+		//fprintf(TST, " Y = %g, RX = %g, RY = %g\n", Y, -RX, RY);
 
-		X = AA+j*hh; Y = 0.; Z = 0.1;
-		Boussiskew_displ(X, Y, Z, RX0, RY0, RZ0, GG, nju, 0.);
-		Boussiskew_displ(X, Y, Z, RX,  RY,  RZ,  GG, nju, s );
-		Boussiskew_sigma(X, Y, Z, SX0, SY0, SZ0, 0.);
-		Boussiskew_sigma(X, Y, Z, SX,  SY,  SZ,  s );
+		X = AA+j*hh; Y = 0.; Z = 0./*01*/;
+		Boussinesq_displ(X, Y, Z, RX,  RY,  RZ,  GG, nju, s );
+		Boussinesq_sigma(X, Y, Z, SX,  SY,  SZ,  s );
 
-		fprintf(TST, " X = %g, Y = %g, Z = %g, RX0 = %g, RX = %g, RY0 = %g, RY = %g, RZ0 = %g, RZ = %g, SX0 = %g, SX = %g, SY0 = %g, SY = %g, SZ0 = %g, SZ = %g\n", 
-			X, Y, Z, RX0, RX, RY0, RY, RZ0, RZ, SX0, SX, SY0, SY, SZ0, SZ);
+		fprintf(TST, " X = %g, RX = %g, RY = %g, RZ = %g, SX = %g, SY = %g, SZ = %g\n", X, RX, RY, RZ, SX, SY, SZ);
+
+		//Boussinesq_displ(0.00001, Y, Z, RX,  RY,  RZ,  GG, nju, s );
 	}
 	fclose(TST);
 }
@@ -11070,7 +11227,7 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992, 1., 0.01, 1.5, 1.86};
 }
 #endif
 err:
-	printf("\nFull time: %I64d sec\n", sec = time(NULL)-start);
+	printf("\nFull time: %lli sec\n", sec = (long long int)(time(NULL)-start));
 	if (yes) {
 		printf("\nTEST >> Is the work finished? (Y/N) : "); if (yes) res = scanf("%s", buf);
 	}

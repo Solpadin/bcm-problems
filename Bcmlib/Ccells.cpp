@@ -105,8 +105,8 @@ void CCells::cells_in(char * ch_CELLS)
 	delete_struct(id_CELLS);
 }
 
-/////////////////////////////////////////////////////////////////////
-//...удаление из памяти внутренней структуры пространственной ячейки;
+/////////////////////////////////////////////////////////
+//...removing from memory internal structure of the cell;
 void CCells::release()
 {
 	for (int l, m = graph ? graph[0] : -1, k = 0; k <= m; k++)
@@ -123,8 +123,8 @@ void CCells::release()
 	delete_struct(ce);
 }
 
-//////////////////////////////////
-//...размерность поверхности тела;
+////////////////////////////
+//...body surface dimention;
 int CCells::bar_dim()
 {
 	int dim = ERR_DIM, k;
@@ -134,8 +134,8 @@ int CCells::bar_dim()
 	return dim;
 }
 
-/////////////////////////////////////////////////////////////////////////
-//...вспомогательная функция, определяющая число элементов границы блока;
+//////////////////////////////////////////////////////////////////
+//...auxilliary function for number of boundary elements of block;
 int CCells::arcs_number()
 {
   int      id_arc = -1, dim = bar_dim();
@@ -143,8 +143,8 @@ int CCells::arcs_number()
   return(  id_arc);
 }
 
-/////////////////////////////////////////////////////////////////////////////////
-//...вспомогательная функция, определяющая ближайший граничный элемент;
+////////////////////////////////////////////////////////////////////////////
+//...auxilliary function for determinantion of the nearest boundary element;
 int CCells::arcs_number(int id_arc)
 {
 	int dim = bar_dim();
@@ -152,16 +152,16 @@ int CCells::arcs_number(int id_arc)
 	return(  id_arc == graph[0] ? -1 : id_arc);
 }
 
-/////////////////////////////////////////////////////////////////////////////////
-//...вспомогательная функция, определяющая ближайшую окружность внутри геометрии;
+////////////////////////////////////////////////////////////////////////
+//...auxilliary function for determination nearest circle into geometry;
 int CCells::circ_number(int id_arc)
 {
 	while (++id_arc  < graph[0] && ID_MAP(1, SPHERE_GENUS) != ce[id_arc]->mp[0]);
 	return(  id_arc == graph[0] ? -1 : id_arc);
 }
 
-////////////////////////////////////////////////////////////////////////
-//...относительное перемещение и поворот ячейки (рекурсивная процедура);
+/////////////////////////////////////////////////////////////////
+//...displacement and rotation of the cell (recurrent procedure);
 void CCells::cells_iso(double * P, double &CZ, double &SZ, double &CY, double &SY, double &CX, double &SX)
 {
 	map_iso(mp, P, CZ, SZ, CY, SY, CX, SX);
@@ -169,8 +169,8 @@ void CCells::cells_iso(double * P, double &CZ, double &SZ, double &CY, double &S
 		ce[graph[k]]->cells_iso(P, CZ, SZ, CY, SY, CX, SX);
 }
 
-////////////////////////////////////////////////
-//...относительное перемещение и поворот ячейки;
+///////////////////////////////////////////
+//...displacement and rotation of the cell;
 void CCells::cells_iso(double * P, double fi, double theta, double fX)
 {
 	if (mp) {
@@ -181,8 +181,8 @@ void CCells::cells_iso(double * P, double fi, double theta, double fX)
 	}
 }
 
-/////////////////////////////////////////////////////
-//...относительное перемещение и поворот поверхности;
+//////////////////////////////////////////////
+//...displacement and rotation of the surface;
 void CCells::bar_iso(double * P, double fi, double theta, double fX)
 {
 	double CZ = cos(fi), SZ = sin(fi), CY = cos(theta), SY = sin(theta),
@@ -192,7 +192,7 @@ void CCells::bar_iso(double * P, double fi, double theta, double fX)
 }
 
 ////////////////////////////////////////////////////
-//...идентификация элемента в списках связей ячейки;
+//...identification elemnt into the cell link lists;
 int CCells::topo_id(Topo some_element, Topo exc_element)
 {
 	if (! mp) return(0);
@@ -217,8 +217,8 @@ int CCells::common_id(CCells * ext_ce)
   return id*k;
 }
 
-//////////////////////////////////////////////////////////////////////////////
-//...упорядочивание элементов общего списка поверхности и всех списков связей;
+/////////////////////////////////////////////////////////////////////
+//...ordering elements of the surface common list and all link lists;
 void CCells::bar_ord()
 {
 	if (! mp)
@@ -227,8 +227,8 @@ void CCells::bar_ord()
 				if (dim == ce[k]->cells_dim()) bar_mutat(k, j++);
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-//...упорядочивание элементов общего списка ячейки (не включенной в список) и всех списков связей;
+/////////////////////////////////////////////////////////////////////////////////////////////
+//...ordering elements of the cell common list (not included in list) and all the link lists;
 void CCells::cells_ord()
 {
 	if (mp) {
@@ -237,22 +237,22 @@ void CCells::cells_ord()
 			for (k = j-1; k >= 0; k--)
 				if (dim == ce[k]->cells_dim()) cells_mutat(k, --j);
 
-////////////////////////////////////////////////
-//...зеркально отражаем элементы границы ячейки;
+/////////////////////////////////////////////////////
+//...mirror reflection of the boundary cell elements;
 		m = 0; while (ce[m]->cells_dim() < cells_dim()-1) m++;
 		for (k = 0; k < (graph[0]-m)/2; k++) cells_mutat(m+k, graph[0]-1-k);
 	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-//...упорядочивание элементов размерности 0 в общем списке ячейки размерности 2;
+//...ordering elements of 0 dimension in the commonlist of the 2 dimension cell;
 void CCells::cells_ord0(int id_ord)
 {
 	int  k, l, j = 0, arc, prev;
 	if (id_ord) cells_ord();
 	if (cells_dim() == 2) {
 		prev = graph[graph[1]+1];
-		for (l = 0; l < graph[1]; l++, prev = arc) //...цикл по всем элементам границы ячейки;
+		for (l = 0; l < graph[1]; l++, prev = arc) //...all cell boundary elements cycle;
 			if (ce[arc = graph[l+2]]->graph[1] == 2) {
 			if (! ce[prev]->topo_id(k = ce[arc]->graph[2])) k = ce[arc]->graph[3];
 			cells_mutat(k, j++);
@@ -260,8 +260,8 @@ void CCells::cells_ord0(int id_ord)
 	}
 }
 
-///////////////////////////////////////////////////
-//...зеркальное отражение элементов границы ячейки;
+//////////////////////////////////////////////
+//...mirror reflection cell boundary elements;
 void CCells::bar_invers()
 {
 	int dim, k, m;
@@ -275,21 +275,21 @@ void CCells::bar_invers()
 	}
 }
 
-////////////////////////////////////////////
-//...изменение ориентации одномерной ячейки;
+/////////////////////////////////////////////////////////////
+//...change orientation of the one-dimensional cell elements;
 void CCells::cells_invers1()
 {
 	if (1 == cells_dim()) {
 		int N = graph[1], k;
 
-////////////////////////////////////////////////
-//...зеркально отражаем элементы границы ячейки;
+//////////////////////////////////////////////
+//...mirror reflection cell boundary elements;
 		for (k = 0; k < N/2; k++) swap(graph[k+2], graph[graph[1]+1-k]);
 
 /////////////////////////////////////////////
-//...преобразуем геометрическую карту ячейки;
+//...transformation geometrical map of cell;
 		if (mp[0] == ID_MAP(1, SPHERE_GENUS) ||
-			 mp[0] == ID_MAP(1,   NULL_GENUS)) { //...пpеобpазование оставляет ось X на месте;
+			 mp[0] == ID_MAP(1,   NULL_GENUS)) { //...transformation leaves X axis on the place;
 			 mp[6]  = M_PI - mp[6];
 			 mp[5] += M_PI;
 		}
@@ -297,20 +297,20 @@ void CCells::cells_invers1()
 }
 
 ///////////////////////////////////////////
-//...изменение ориентации двумерной ячейки;
+//...change two-dimential cell orientation;
 void CCells::cells_invers2()
 {
 	if (2 == cells_dim()) {
 		int N = graph[1], k;
 
-//////////////////////////////////////////////////////////////////////
-//...зеркально отражаем и циклически сдвигаем элементы границы ячейки;
+/////////////////////////////////////////////////////////////////////////
+//...mirror reflecting and cyclic shifting of the cell boundary elements;
 		for (k = 0; k < N/2; k++) swap(graph[k+2], graph[N+1-k]);
-		//for (k = 0; k < N-1; k++) swap(graph[(k*(N-1))%N+2], graph[((k+1)*(N-1))%N+2]);//...зачем сдвигать элементы на одну позицию???
+		//for (k = 0; k < N-1; k++) swap(graph[(k*(N-1))%N+2], graph[((k+1)*(N-1))%N+2]);//...why shifting elements to one position???
 
-/////////////////////////////////////////////
-//...преобразуем геометрическую карту ячейки;
-		if (mp[0] == ID_MAP(2, NULL_GENUS)) { //...пpеобpазование оставляет ось X на месте;
+//////////////////////////////////////////////
+//...mirror reflection cell boundary elements;
+		if (mp[0] == ID_MAP(2, NULL_GENUS)) { //...transformation leaves X axis on the place;
 			 mp[6]  = M_PI - mp[6];
 			 mp[5] += M_PI;
 		}
@@ -318,14 +318,14 @@ void CCells::cells_invers2()
 		if (mp[0] == ID_MAP(2, SPHERE_GENUS) ||
 			 mp[0] == ID_MAP(2,    CYL_GENUS) ||
 			 mp[0] == ID_MAP(2,   CONE_GENUS) ||
-			 mp[0] == ID_MAP(2,  TORUS_GENUS)) { //...изменяем знак параметра, отвечающего за нормаль;
+			 mp[0] == ID_MAP(2,  TORUS_GENUS)) { //...change of parameter, responding to the normal;
 			 mp[7]  = -mp[7];
 		}
 	}
 }
 
-//////////////////////////////////////////////////////
-//...изменение ориентации общей геометрической ячейки;
+///////////////////////////////////////////////////////
+//...change orientation of the common geometrical cell;
 void CCells::cells_invers(int id_sub_element)
 {
 	if (mp) {
@@ -338,42 +338,42 @@ void CCells::cells_invers(int id_sub_element)
 	}
 }
 
-////////////////////////////////////////////////////////
-//...циклическая сдвижка элементов границы общей ячейки;
+///////////////////////////////////////////////////////
+//...cyclic shift of the common cell boundary elements;
 void CCells::cells_cyclic_shift(int m)
 {
 	int k, l, p, N = graph[1];
 
 //////////////////////////////////////////
-//...нормируем модуль циклической сдвижки;
+//...normalization module of cyclic shift;
 	while ((m %= N) <= -1) m += N;
 	while ( m       >=  N) m -= N;
 
-/////////////////////////////////////////////////
-//...циклически сдвигаем элементы границы ячейки;
+////////////////////////////////////////////
+//...cyclic shifting cell boundary elements;
 	for (l = 0;                    m && l < abs(m); l++)
 	for (k = 0, p = max(N/abs(m)-1, 1); k < p;      k++) 
 		swap(graph[(k*(N-m)+l)%N+2], graph[((k+1)*(N-m)+l)%N+2]);
 }
 
-//////////////////////////////////////////
-//...коррекция связей в списках топологии;
+////////////////////////////////////////
+//...topology correction in link lists;
 void CCells::topo_correct(int N, int N_new, int id_list)
 {
 	int k, i;
-	if (id_list || ! mp) { //...корректируем или устанавливаем номер по общему списку;
+	if (id_list || ! mp) { //...correcting or installing number following common list;
 		for (k = graph[0]; k >= 0; k--) if (ce[k])
 		for (i = ce[k]->graph[1]+1; i > 1; i--)
 			if (N == -1 && N_new  == -1 && ce[k]->graph[i] < 0) ++(ce[k]->graph[i]) *= -1; else
 			if (N ==  ce[k]->graph[i]) ce[k]->graph[i] = N_new;
 	}
 	else 
-	if (N == -1 && N_new == -1) { //...корректируем номер (для ячейки) по структуре
+	if (N == -1 && N_new == -1) { //...correcting number (for cell) following structure;
 		for (i = 0; i < graph[1]; i++)
 			if (graph[i+2] < 0) ++(graph[i+2]) *= -1; 
 			else ce[graph[i+2]]->topo_correct(N, N_new);
 	}
-	else //...устанавливаем номер (для ячейки) по структуре;
+	else //...installing number (for cell) following structure;
 	for (i = 0; i < graph[1]; i++)
 	if (graph[i+2] >= 0) {
 		if (graph[i+2] == N) graph[i+2] = N_new; 
@@ -381,26 +381,26 @@ void CCells::topo_correct(int N, int N_new, int id_list)
 	}
 }
 
-/////////////////////////////////////////////////////////////////
-//...идентификация ячейки (для реверсированных ячеек -- id = -1);
+//////////////////////////////////////////////////////////
+//...cell identification (for reversing cells -- id = -1);
 int CCells::cells_id(CCells * ext_ce, int id_num_correct)
-{//...правило: ячейка с отрицательной границей в пределах структуры -- идентифицирована,
- //...с отрицательной границей вне структуры -- не идентифицирована;
+{//...rule: cell with negative boundary into structure -- identified,
+ //...with negative boundary out of structure -- not identified;
 	if (! ext_ce)				  return(1);
 	if (! ext_ce->mp || ! mp) return(0);
 
-/////////////////////////////
-//...проверка границы ячейки;
+/////////////////////////
+//...check cell boundary;
 	int id = graph[1] == ext_ce->graph[1], i, k, l, m_ce;
 	for (k = graph[1]+1; id && k > 1; k--) if (ext_ce->graph[k] <= -graph[0]-1) id = 0;
   
-//////////////////////////////////////////
-//...проверка геометрической карты ячейки;  
+/////////////////////////////////
+//...check cell geometrical card;  
 	if (id)
       id *= map_id(mp, ext_ce->mp);
 
-/////////////////////////////////////////////////////////////////////////
-//...сравнение элементов границы ячейки и маркировка совпавших элементов;
+//////////////////////////////////////////////////////////////////////
+//...comparison cell boundary elements and marking coinsided elements;
 	if (id) {
 		for (l = ext_ce->graph[1]+1; id && l > 1; l--) {
 			for (k = graph[1]+1; k > 1; k--) if (graph[k] >= 0)
@@ -408,7 +408,7 @@ int CCells::cells_id(CCells * ext_ce, int id_num_correct)
 					  m_ce >= 0 && (i = ce[graph[k]]->cells_id(ext_ce->ce[m_ce])) != 0) break;
 
 			id *= abs(i);
-			if (k > 1) { //...маркируем границу и отмечаем в ячейке совпавшие элементы;
+			if (k > 1) { //...marking boundary and sign in the cell coinsided elements;
 				graph[k] = -graph[k]-1;
 				if (id_num_correct && m_ce >= 0) { 
 					ext_ce->ce[ext_ce->graph[0]]->topo_correct(m_ce, graph[k], NULL_STATE);
@@ -417,18 +417,18 @@ int CCells::cells_id(CCells * ext_ce, int id_num_correct)
 			}
 		}
 
-//////////////////////////////////////////
-//... восстановление отмеченных элементов;
+////////////////////////////////
+//...recovering marked elements;
 		for (k = graph[1]+1; k > 1; k--) 
 			if (graph[k] < 0)	graph[k] = -graph[k]-1;
 	}
 	return id;
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//...определение номера ячейки внутри структуры (с отрицательным знаком для противоположно ориентированных);
+///////////////////////////////////////////////////////////////////////////////////////////////
+//...definition cell number into structure (with negative sign for oppositely orientied cells);
 int CCells::cells_in_struct(CCells * ext_ce, int id_num_correct)
-{//...правило: нулевая ячейка -- идентифицируется автоматически;
+{//...rule: zero cell -- identified automatically;
 	if (! ext_ce)		return(1);
 	if (! ext_ce->mp) return(0);
 
@@ -448,8 +448,8 @@ int CCells::cells_in_struct(CCells * ext_ce, int id_num_correct)
 	return N;
 }
 
-////////////////////////////////////////////////////////////////
-//...вспомогательная функция -- удаление элементов подструктуры;
+///////////////////////////////////////////////////////////
+//...auxilliary function -- removing substructure elements;
 void CCells::delete_cells_in_struct()
 {
 	for ( int k = 0; k < graph[1]; k++) if (graph[k+2] >= 0 && ce[graph[k+2]]) {
@@ -467,14 +467,14 @@ void CCells::delete_cells_in_struct()
 	}
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////
-//...идентификация элементов подструктуры, внесение новых элементов в список и удаление повторяющихся;
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//...identification substructure elements, introucing new elements into the list and removing doublicated elements;
 void CCells::search_cells_in_struct(CCells * ext_ce, int & i, int id_cell, CCells **& dop_ce, int & N_buf, int & buf_size, int buf_delta)
 {
 	int k, m, l, m_ce;
 	for ( k = 0; k < graph[1]; k++) if ((m_ce = graph[k+2]) >= 0 && ce[m_ce]) {
 			m = id_cell != NULL_STATE  ? ext_ce->cells_in_struct(ce[m_ce], OK_STATE) : 0;
-			if (! m) { //...запоминаем новый номер в структуре поверхности;
+			if (! m) { //...storing new number in the surfer structure;
 				if (buf_size == N_buf) {
 					CCells ** new_ce = new_struct<CCells *>(buf_size += buf_delta);
 					memcpy	(new_ce, dop_ce, N_buf*sizeof(CCells *));	delete_struct(dop_ce); dop_ce = new_ce;
@@ -482,7 +482,7 @@ void CCells::search_cells_in_struct(CCells * ext_ce, int & i, int id_cell, CCell
 				ce[m_ce]->search_cells_in_struct(ext_ce, i, id_cell, dop_ce, N_buf, buf_size, buf_delta);
 				ce[graph[0]]->topo_correct(m_ce, -(++i), NULL_STATE); dop_ce[N_buf++] = ce[m_ce];
 			}
-			else if (ce[m_ce]) { //...удаляем повторяющиеся структуры;
+			else if (ce[m_ce]) { //...removing doublicated structures;
 				l = ce[m_ce]->pm ? ce[m_ce]->graph[1] : 0;
 				delete_struct(ce[m_ce]->mp);
 
@@ -499,8 +499,8 @@ void CCells::search_cells_in_struct(CCells * ext_ce, int & i, int id_cell, CCell
 	}
 }
 
-/////////////////////////////////////////////////////////////////////////
-//...вспомогательная функция -- построение списка элементов подструктуры;
+///////////////////////////////////////////////////////////////////
+//...auxilliary function -- construction substructure element list;
 void CCells::search_cells_element(int *& id, int & N_buf, int & buf_size, int buf_delta)
 {
 	if (graph)
@@ -519,20 +519,20 @@ void CCells::search_cells_element(int *& id, int & N_buf, int & buf_size, int bu
 //...cells including in the surface structure (return number of included cell);
 int CCells::bar_add(CCells * ext_ce, int id_cell, int buf_delta)
 {
-///////////////////////////////////////////////////
-//...начальные проверки и инициализация параметров;
+/////////////////////////////////////////////////
+//...initial checks and parameter initialization;
 	if (! ext_ce) return(1);
 	if (! ext_ce->mp || mp) return(0);
 
 	int  i = graph[0], k, l, m, N, N_buf = 0, buf_size = 0;
 	CCells ** dop_ce = new_struct<CCells *>(buf_size += buf_delta);
 
-///////////////////////////////////////////////////////////////////
-//...идентификация геометрической ячейки в целом и коррекция связей;
+////////////////////////////////////////////////////////////////////
+//...identification geometrical cell as a hole and links correction;
 	m = id_cell != NULL_STATE ? cells_in_struct(ext_ce, OK_STATE) : 0;
 
-////////////////////////////////////////////////////
-//...запоминаем новый номер в структуре поверхности;
+//////////////////////////////////////////////
+//...remember new number in surface structure;
 	if (! m) {
 		dop_ce[N_buf++] = ext_ce; N = ++i;
 		ext_ce->search_cells_in_struct(this, i, id_cell, dop_ce, N_buf, buf_size, buf_delta);
@@ -540,7 +540,7 @@ int CCells::bar_add(CCells * ext_ce, int id_cell, int buf_delta)
 	}
 
 ////////////////////////////////////
-//...удаляем повторяющуюся структур;
+//...removing dublicated structures;
 	else {
 		N = m; l = ext_ce->pm ? ext_ce->graph[1] : 0;
 		delete_struct(ext_ce->mp);
@@ -555,8 +555,8 @@ int CCells::bar_add(CCells * ext_ce, int id_cell, int buf_delta)
 		delete_cells (ext_ce, NULL_STATE);
 	}
 
-/////////////////////////////////////////////
-//...формирование нового общего списка ячеек;
+///////////////////////////////////////
+//...formong new common listr of cells;
 	if (i > graph[0]) {
 		CCells ** new_ce = new_struct<CCells *>(i+1);
 		for (k = 0; k < graph[0]; k++) {
@@ -570,8 +570,8 @@ int CCells::bar_add(CCells * ext_ce, int id_cell, int buf_delta)
 	}
 	install_struct();	
 
-//////////////////////////
-//...выходим из программы;
+////////////////////
+//...program return;
 	delete_struct(dop_ce);
 	return abs(N);
 }
@@ -602,8 +602,8 @@ void CCells::trim_add(CCells *& trim, int id_mp)
 	}
 }
 
-/////////////////////////////////////////////////////
-//...натягивание на повеpхность геометpической каpты;
+//////////////////////////////////////////////
+//...spanning geometrical card on the surface;
 int CCells::bar_span(CMap *& ext_mp)
 {
 	if (! ext_mp || mp) return(1);
@@ -611,26 +611,26 @@ int CCells::bar_span(CMap *& ext_mp)
 	int  k, j = 1, m = map_dim(ext_mp);
 	if ((k = bar_dim()) != m-1 && k != ERR_DIM) j = 0;
 
-///////////////////////////////////////////////////////////////////////////////////////////
-//...просматриваем все элементы размерности на единицу меньше и заносим их в список связей;
+/////////////////////////////////////////////////////////////////////////////////
+//...looking for all elements one less dimention and included its into link list;
 	for (k = 0; j && k < graph[0]; k++)
 		if (ce[k]->cells_dim() == m-1 && ! topo_insert(graph, k)) j = 0;
 
-////////////////////////////////////////////////////////////////////////////////////
-//...подключаем геометpическую каpту, упорядочиваем элементы и выходим из пpогpаммы;
+////////////////////////////////////////////////////////////////////////
+//...plugging in geometrical card, ordering elements and program return;
 	mp = ext_mp; ext_mp = NULL; cells_ord();
 	return(j);
 }
 
-//////////////////////////////////////////////////////////////
-//...копирование ячейки по номеру (в том числе и всей ячейки);
+///////////////////////////////////////////////
+//...copy cell on number (also cell as a hole);
 CCells * CCells::bar_cpy(int N, int id_origine, int buf_delta)
 {
 	if (--N >= 0 && N <= graph[0] && ce[N]->mp) {
 		int * id, i, k, N_buf = 0, buf_size = 0;
 
-////////////////////////////////////////////////////////////////////////
-//...формируем головной элемент копируемой ячейки и список подэлементов;
+/////////////////////////////////////////////////////////////////////
+//..forming heading element of the copy element and subelements list;
 		CCells * cpy_ce = new CCells(-1); if (! cpy_ce) return(NULL);
 		cpy_ce->graph	 = graph_cpy(N);
 		cpy_ce->mp		 = map_cpy(N);
@@ -639,8 +639,8 @@ CCells * CCells::bar_cpy(int N, int id_origine, int buf_delta)
 		id = new_struct<int>(buf_size += buf_delta);
 		ce[N]->search_cells_element(id, N_buf, buf_size, buf_delta);
 
-/////////////////////////////////////////////////////////////////////
-//...отмечаем и вычеркиваем повторяющиеся элементы (с помощью маски);
+//////////////////////////////////////////////////////////////////
+//...marked and removed doubling elements (with the help of mask);
 		int min_id = id[0], max_id = id[0];
 		for (k = 1; k < N_buf; k++)
 		if (id[k] < min_id) min_id = id[k]; else
@@ -661,8 +661,8 @@ CCells * CCells::bar_cpy(int N, int id_origine, int buf_delta)
 		}
 		delete_struct(mask);
 
-///////////////////////////////////////////////
-//...заполняем данные общего списока элементов;
+/////////////////////////////////////////////
+//...filling data of the common element list;
 		cpy_ce->ce = new_struct<CCells *>(N_buf+1);
 		for (i = 0; i < N_buf; i++) {
 			cpy_ce->ce[i] = new CCells(-1);
@@ -675,16 +675,16 @@ CCells * CCells::bar_cpy(int N, int id_origine, int buf_delta)
 		cpy_ce->ce[N_buf] = cpy_ce; 
 		cpy_ce->graph[0]  = N_buf;
 
-////////////////////////////////////
-//...перенумеровываем списки связей;
+////////////////////////////
+//...renumbering link lists;
 		for (i = 0; i < N_buf; i++) cpy_ce->topo_correct(id[i], -(i+1));
 		cpy_ce->topo_correct();
 		cpy_ce->cells_ord();
 		
 		if (id_origine) cpy_ce->cells_to_origine();
 
-//////////////////////////
-//...выходим из программы;
+////////////////////
+//...program return;
 		delete_struct(id); return(cpy_ce);
 	}
 	return(NULL);
@@ -700,7 +700,7 @@ CCells * CCells::bar_sub(int N, int id_origine, int buf_delta)
 }
 
 //////////////////////////////////////
-//...копирование всей структуры ячеек;
+//...copy hole strucuture of elements;
 CCells * CCells::bar_cpy()
 {
 	CCells * bar_N = new CCells(-1);
@@ -712,21 +712,21 @@ CCells * CCells::bar_cpy()
 	bar_N->bar_ord();	return bar_N;
 }
 
-/////////////////////////////////////////////
-//...удаление ячейки из описания поверхности;
+////////////////////////////////////////////////
+//...deleting cell from the surface description;
 void CCells::bar_exc(int N)
 {
 	if (N-- > graph[0] || N < 0 || mp) return;
 	int i, j, k, l; 
 
-///////////////////////////////////////////////////////////////////
-//...просматриваем общий список ячеек и удаляем не нужные элементы;
+////////////////////////////////////////////////////////////////
+//...look for common cell list and deleting not needed elements;
 	for (k = 0; k < graph[0]; k++) if (ce[N]->topo_id(k)) {
 		for (j = i = 0; ! j && i < graph[0]; i++)
 		if ( i != N) j = ce[i]->topo_id(k, N);
 
-////////////////////////////////////////////////////////////////////////
-//...удаляем элемент, который не входит во все ячейки, кроме bar->ce[N];
+////////////////////////////////////////////////////////////////////////////
+//...deleting elemnt, which not entered into all cells, excluded bar->ce[N];
       if (! j && k != N) {
 			l = ce[k]->pm && ce[k]->graph ? ce[k]->graph[1] : 0;
 			delete_struct(ce[k]->mp); 
@@ -738,16 +738,16 @@ void CCells::bar_exc(int N)
          delete_struct(ce[k]->graph);
          delete_cells (ce[k], NULL_STATE);
 
-///////////////////////////////////////////////////////////
-//...изменяем нумерацию и удаляем элемент из общего списка;
+//////////////////////////////////////////////////////////
+//...change numbering and delete element from common list;
          for (i = k; i < graph[0];	 i++) ce[i] = ce[i+1]; graph[0] -= 1;
          for (i = 0; i < graph[0];	 i++) topo_exc (ce[i]->graph, k);
 			for (i = k; i < graph[0]+1; i++) topo_correct(i+1, i);
 		}
 	}
 
-///////////////////////////
-//...удаляем элемент ce[N];
+//////////////////////////
+//...delete element ce[N];
 	l = ce[N]->pm && ce[N]->graph ? ce[N]->graph[1] : 0;
 	delete_struct(ce[N]->mp); 
 
@@ -758,19 +758,19 @@ void CCells::bar_exc(int N)
 	delete_struct(ce[N]->graph);
 	delete_cells (ce[N], NULL_STATE);
 
-/////////////////////////////////////////////////////////////////
-//...изменяем нумерацию и удаляем элемент ce[N] из общего списка;
+////////////////////////////////////////////////////////////////////
+//...change numbering and delete element ce[N] from the common list;
 	for (i = N; i < graph[0];	 i++) ce[i] = ce[i+1]; graph[0] -= 1;
 	for (i = 0; i < graph[0];	 i++) topo_exc (ce[i]->graph, N);
 	for (i = N; i < graph[0]+1; i++) topo_correct(i+1, i);
  
-///////////////////////////////////////////////////
-//...устанавливаем структуру, выходим из программы;
+//////////////////////////////////////////
+//...install structure and program return;
 	install_struct();
 }
 
-//////////////////////////////////////////////////////////////////
-//...устанавливаем размерность общей структуры для всех элементов;
+////////////////////////////////////////////////////////////////
+//...install dimension of the common structure for all elements;
 void CCells::install_struct()
 {
 	if (! mp)
@@ -809,8 +809,8 @@ void CCells::bar_generate(double eps)
 	}
 }
 
-///////////////////////////////////////////////////////////////////
-//...исключение точек с двойной нумерацией из описания поверхности;
+////////////////////////////////////////////////////////////////////////////
+//...excluding points with doubling numeration from the surface description;
 void CCells::bar_correct_double_point(double eps)
 {
 	for (int k = graph[0]-1, l, m; k >= 0; k--)
@@ -822,8 +822,8 @@ void CCells::bar_correct_double_point(double eps)
 		}
 }
 
-/////////////////////////////////////////////////////////////////
-//...исключение точек с двойной нумерацией из описания 1D ячейки;
+//////////////////////////////////////////////////////////////////////////////
+//...excluding points with doubling numbering from the description of 1D cell;
 void CCells::cell_correct_double_point(double eps)
 {
 	int l, m;
@@ -845,10 +845,10 @@ void CCells::cell_correct_double_point(double eps)
 }
 
 /*=================================================================*/
-/*                  ИДЕНТИФИКАЦИЯ ЭЛЕМЕНТОВ                        */
+/*                  ELEMENTS IDENTIFICATION                        */
 /*=================================================================*/
-/////////////////////////////////////////////////////////////////
-//...идентификация геометрической ячейки "плоский прямоугольник";
+//////////////////////////////////////////////////////////
+//...identification of geometrical cell "plane rectangle";
 int CCells::id_sheet()
 {
 	int m1, m2, m3, m4, m;
@@ -861,8 +861,8 @@ int CCells::id_sheet()
       double A = ce[m1]->cells_length(),
              B = ce[m2]->cells_length(), ort1[9], ort2[9], ort3[9];
 
-///////////////////////////////////////////////////////
-//...проверяем параллельность и ортогональность сторон;
+//////////////////////////////////////////////////
+//...check parallelizm and orthogonality of sides;
 		ce[m1]->line_correct();	map_normalizat(ce[m1]->mp, NULL, ort1);
 		ce[m3]->line_correct();	map_normalizat(ce[m3]->mp, NULL, ort2);
 		if (fabs(fabs(ort1[0]*ort2[0]+ort1[1]*ort2[1]+ort1[2]*ort2[2])-1.) >= EE_ker) return(0);
@@ -872,8 +872,8 @@ int CCells::id_sheet()
 		if (fabs(ort1[0]*ort2[0]+ort1[1]*ort2[1]+ort1[2]*ort2[2]) >= EE_ker ||
 	       fabs(fabs(ort3[0]*ort2[0]+ort3[1]*ort2[1]+ort3[2]*ort2[2])-1.) >= EE_ker) return(0);
 
-///////////////////////////////////////////////////////////
-//...добавляем параметры (и копируем геометрическую карту);
+///////////////////////////////////////////////////
+//...adding parameters (and copy geometrical card);
 		CMap * map = new_struct<CMap>((m = size_of_map(2, NULL_GENUS))+1);
 		if ( ! map || ! add_new_maps(mp, m+1, 2)) {
 			delete[] map; return(0);
@@ -883,8 +883,8 @@ int CCells::id_sheet()
 		mp[++m] = (CMap)A;
 		mp[++m] = (CMap)B;
 
-//////////////////////////////////////////////
-//...корректируем локальную систему координат;
+////////////////////////////////////////
+//...converting local coordinate system;
 		if (ce[m4]->topo_id(ce[m1]->graph[3])) {
 			ort1[0] = -ort1[0];
 			ort1[1] = -ort1[1];
@@ -911,13 +911,13 @@ int CCells::id_sheet()
 	return(1);
 }
 
-///////////////////////////////////////
-//...идентификация кольцевого сегмента;
+//////////////////////////////////////////
+//...identification circular ring segment;
 int CCells::id_ring_segment()
 {
 	int m1, m2, m3, m4, k1, k2, m;
 	if (mp   && mp[0]    == ID_MAP(2, NULL_GENUS) &&
-      graph && graph[1] == 4 && ( //...четыре ортогональных дуги;
+      graph && graph[1] == 4 && ( //...four orthogonal arcs;
       ce[m1  = graph[2]]->graph[1] == 2 && ce[m1]->mp[0] == ID_MAP(1,   NULL_GENUS) &&
       ce[m2  = graph[3]]->graph[1] == 2 && ce[m2]->mp[0] == ID_MAP(1, SPHERE_GENUS) &&
       ce[m3  = graph[4]]->graph[1] == 2 && ce[m3]->mp[0] == ID_MAP(1,   NULL_GENUS) &&
@@ -927,14 +927,14 @@ int CCells::id_ring_segment()
       ce[m3  = graph[3]]->graph[1] == 2 && ce[m3]->mp[0] == ID_MAP(1,   NULL_GENUS) &&
       ce[m4  = graph[4]]->graph[1] == 2 && ce[m4]->mp[0] == ID_MAP(1, SPHERE_GENUS))) {
 
-//////////////////////////////////////////////
-//...проверяем параллельность дуг окружностей;
+////////////////////////////////////////
+//...check parallelizm of circular arcs;
 		if (fabs(ce[m2]->mp[1]-ce[m4]->mp[1]) >= EE_ker ||
 	       fabs(ce[m2]->mp[2]-ce[m4]->mp[2]) >= EE_ker ||
 	       fabs(ce[m2]->mp[3]-ce[m4]->mp[3]) >= EE_ker) return(0);
 
-////////////////////////////
-//...проверяем длины прямых;
+//////////////////////////////////
+//...check legth of straight line;
 		k1 = get_num(ce[m1]->graph, 0);
 		k2 = get_num(ce[m1]->graph, 1);
 		if (fabs(abs_point(ce[k1]->mp+1, ce[k2]->mp+1)-
@@ -945,8 +945,8 @@ int CCells::id_ring_segment()
 		if (fabs(abs_point(ce[k1]->mp+1, ce[k2]->mp+1)-
 			 fabs(fabs(ce[m2]->mp[7])-fabs(ce[m4]->mp[7]))) >= EE_ker) return(0);
 
-////////////////////////////////////////////////////////////////////
-//...добавляем параметры и корректируем локальную систему координат;
+//////////////////////////////////////////////////////////////
+//...adding parameters and correcting local coordinate system;
 		if (fabs(ce[m2]->mp[7]) < fabs(ce[m4]->mp[7])) swap(m2, m4);
 		if (add_new_maps(mp, (m = size_of_map(2, NULL_GENUS))+1, size_of_dop(RING_SEGMENT))) {
 			mp[  m] = (CMap)RING_SEGMENT;
@@ -958,7 +958,7 @@ int CCells::id_ring_segment()
 		set_point(mp+4, ce[m2]->mp+4);
 	}
 	if (mp   && mp[0]    == ID_MAP(2, NULL_GENUS) &&
-      graph && graph[1] == 3 && ( //...две прямые и ортогональная дуга;
+      graph && graph[1] == 3 && ( //...two straight lines and opthogonal arc;
       ce[m1  = graph[2]]->graph[1] == 2 && ce[m1]->mp[0] == ID_MAP(1,   NULL_GENUS) &&
       ce[m2  = graph[3]]->graph[1] == 2 && ce[m2]->mp[0] == ID_MAP(1, SPHERE_GENUS) &&
       ce[m3  = graph[4]]->graph[1] == 2 && ce[m3]->mp[0] == ID_MAP(1,   NULL_GENUS) ||
@@ -970,14 +970,14 @@ int CCells::id_ring_segment()
       ce[m3  = graph[2]]->graph[1] == 2 && ce[m3]->mp[0] == ID_MAP(1,   NULL_GENUS))) {
 		if ((m4 = ce[m1]->common_id(ce[m3])) != 0) m4 = ce[m1]->graph[m4]; else return(1);
 
-///////////////////////////////////////////////
-//...проверяем ортогональность дуги окружности;
+//////////////////////////////////////////
+//...check orthogonality of circular arcs;
 		if (fabs(ce[m2]->mp[1]-ce[m4]->mp[1]) >= EE_ker ||
 	       fabs(ce[m2]->mp[2]-ce[m4]->mp[2]) >= EE_ker ||
 	       fabs(ce[m2]->mp[3]-ce[m4]->mp[3]) >= EE_ker) return(0);
 
-////////////////////////////////////////////////////////////////////
-//...добавляем параметры и корректируем локальную систему координат;
+//////////////////////////////////////////////////////////////
+//...adding parameters and correcting local coordinate system;
 		if (add_new_maps(mp, (m = size_of_map(2, NULL_GENUS))+1, size_of_dop(RING_SEGMENT))) {
 			mp[  m] = (CMap)RING_SEGMENT;
 			mp[++m] = (CMap)fabs(ce[m2]->mp[8]*2.);
@@ -988,7 +988,7 @@ int CCells::id_ring_segment()
 		set_point(mp+4, ce[m2]->mp+4);
 	}
 	if (mp   && mp[0]    == ID_MAP(2, NULL_GENUS) &&
-      graph && graph[1] == 3 && ( //...две совпадающих дуги и прямая;
+      graph && graph[1] == 3 && ( //...two coincided arcs and straight line;
       ce[m1  = graph[2]]->graph[1] == 2 && ce[m1]->mp[0] == ID_MAP(1,   NULL_GENUS) &&
       ce[m2  = graph[3]]->graph[1] == 2 && ce[m2]->mp[0] == ID_MAP(1, SPHERE_GENUS) &&
       ce[m3  = graph[4]]->graph[1] == 2 && ce[m3]->mp[0] == ID_MAP(1, SPHERE_GENUS) ||
@@ -999,18 +999,18 @@ int CCells::id_ring_segment()
       ce[m2  = graph[4]]->graph[1] == 2 && ce[m2]->mp[0] == ID_MAP(1, SPHERE_GENUS) &&
       ce[m3  = graph[2]]->graph[1] == 2 && ce[m3]->mp[0] == ID_MAP(1, SPHERE_GENUS))) {
 
-//////////////////////////////////////////
-//...проверяем совпадение дуг окружностей;
+////////////////////////////////////////
+//...check coincidence of circular arcs;
 		if (! map_id(ce[m2]->mp, ce[m3]->mp)) return(0);
 
-////////////////////////////
-//...проверяем длины прямых;
+////////////////////////////////////
+//...check length of straight lines;
 		k1 = get_num(ce[m1]->graph, 0);
 		k2 = get_num(ce[m1]->graph, 1);
 		if (fabs(abs_point(ce[k1]->mp+1, ce[k2]->mp+1)-fabs(ce[m2]->mp[7]*2.)) >= EE_ker) return(0);
 
-////////////////////////////////////////////////////////////////////
-//...добавляем параметры и корректируем локальную систему координат;
+//////////////////////////////////////////////////////////////
+//...adding parameters and correcting local coordinate system;
 		if (fabs(ce[m2]->mp[7]) < fabs(ce[m4]->mp[7])) swap(m2, m4);
 		if (add_new_maps(mp, (m = size_of_map(2, NULL_GENUS))+1, size_of_dop(RING_SEGMENT))) {
 			mp[  m] = (CMap)RING_SEGMENT;
@@ -1028,8 +1028,8 @@ int CCells::id_ring_segment()
 	return(1);
 }
 
-///////////////////////////////////////////////////////////
-//...идентификация прямоугольного цилиндрического сегмента;
+////////////////////////////////////////////////////
+//...identification rectangular cylindrical segment;
 int CCells::id_cyl_segment()
 {
 	int m1, m2, m3, m4, k, m;
@@ -1037,7 +1037,7 @@ int CCells::id_cyl_segment()
 	if (graph[1] == 0 && add_new_maps(mp, (m = size_of_map(2, CYL_GENUS))+1, size_of_dop(CYL_SEGMENT))) { //...добавляем параметры;
 		mp[  m] = (CMap)CYL_SEGMENT;
 		mp[++m] = (CMap)M_PI*2.;
-		mp[++m] = (CMap)fabs(mp[7])*2.;//...задаем длину, равную радиусу;
+		mp[++m] = (CMap)fabs(mp[7])*2.;//...give length, equated to radius;
 	}
 	else
 	if (graph[1] == 4 && (
@@ -1051,8 +1051,8 @@ int CCells::id_cyl_segment()
       ce[m4  = graph[4]]->graph[1] == 2 && ce[m4]->mp[0] == ID_MAP(1, SPHERE_GENUS))) {
       double A = ce[m1]->cells_length(), ort1[9], ort2[9], P[3], f;
 
-///////////////////////////////////////////////////////////
-//...добавляем параметры (и копируем геометрическую карту);
+///////////////////////////////////////////////////
+//...adding parameters (and copy geometrical card);
 		CMap * map = new_struct<CMap>((m = size_of_map(2, CYL_GENUS))+1);
 		if (! map || ! add_new_maps(mp, m+1, size_of_dop(CYL_SEGMENT))) {
 			delete[] map; return(0);
@@ -1062,8 +1062,8 @@ int CCells::id_cyl_segment()
 		mp[++m] = (CMap)ce[m2]->mp[8]*2.;
 		mp[++m] = (CMap)A;
 
-//////////////////////////////////////////////
-//...корректируем локальную систему координат;
+////////////////////////////////////////
+//...correcting local coordinate system;
 		map_normalizat(ce[m1]->mp, NULL, ort1);
 		map_normalizat(ce[m2]->mp, NULL, ort2); map[1] = map[2] = map[3] = 0.;
 
@@ -1093,13 +1093,13 @@ int CCells::id_cyl_segment()
   return(1);
 }
 
-////////////////////////////////////////////////////////
-//...идентификация прямоугольного сферического сегмента;
+//////////////////////////////////////////////////
+//...identification rectangular spherical segment;
 int CCells::id_sph_segment()
 {
 	int /*m1, m2, m3, m4, k, */m;
 	if (mp && mp[0] == ID_MAP(2, SPHERE_GENUS) && graph)
-	if (graph[1] == 0 && add_new_maps(mp, (m = size_of_map(2, SPHERE_GENUS))+1, size_of_dop(SPH_SEGMENT))) { //...добавляем параметры;
+	if (graph[1] == 0 && add_new_maps(mp, (m = size_of_map(2, SPHERE_GENUS))+1, size_of_dop(SPH_SEGMENT))) { //...adding parameters;
 		mp[  m] = (CMap)SPH_SEGMENT;
 		mp[++m] = (CMap)M_PI*2.;
 		mp[++m] = (CMap)0.;
@@ -1118,8 +1118,8 @@ int CCells::id_sph_segment()
       ce[m4  = graph[4]]->graph[1] == 2 && ce[m4]->mp[0] == ID_MAP(1, SPHERE_GENUS))) {
       double A = ce[m1]->cells_length(), ort1[9], ort2[9], P[3], f;
 
-///////////////////////////////////////////////////////////
-//...добавляем параметры (и копируем геометрическую карту);
+///////////////////////////////////////////////////
+//...adding parameters (and copy geometrical card);
 		CMap * map = new_struct<CMap>((m = size_of_map(2, CYL_GENUS))+1);
 		if (! map || ! add_new_maps(mp, m+1, size_of_dop(SPH_SEGMENT))) {
 			delete[] map; return(0);
@@ -1129,8 +1129,8 @@ int CCells::id_sph_segment()
 		mp[++m] = (CMap)ce[m2]->mp[8]*2.;
 		mp[++m] = (CMap)A;
 
-//////////////////////////////////////////////
-//...корректируем локальную систему координат;
+////////////////////////////////////////
+//...correcting local coordinate system;
 		map_normalizat(ce[m1]->mp, NULL, ort1);
 		map_normalizat(ce[m2]->mp, NULL, ort2); map[1] = map[2] = map[3] = 0.;
 
@@ -1161,13 +1161,13 @@ int CCells::id_sph_segment()
 	return(1);
 }
 
-/////////////////////////////////////////////////////
-//...частичная идентификация сфероидального сегмента;
+////////////////////////////////////////////////////
+//...partition identification of spheroidal segment;
 int CCells::id_spr_segment()
 {
 	int /*m1, m2, m3, m4, k,*/ m;
 	if (mp && mp[0] == ID_MAP(2, SPHEROID_GENUS) && graph)
-	if (graph[1] == 0 && add_new_maps(mp, (m = size_of_map(2, SPHEROID_GENUS))+1, size_of_dop(SPR_SEGMENT))) { //...добавляем параметры;
+	if (graph[1] == 0 && add_new_maps(mp, (m = size_of_map(2, SPHEROID_GENUS))+1, size_of_dop(SPR_SEGMENT))) { //...adding parameters;
 
 		mp[  m] = (CMap)SPR_SEGMENT;
 		mp[++m] = (CMap)M_PI*2.;
@@ -1177,17 +1177,17 @@ int CCells::id_spr_segment()
 	return(1);
 }
 
-//////////////////////////////////////////////////
-//...идентификация прямоугольного сегмента конуса;
+/////////////////////////////////////////////
+//...identification rectangular cone segment;
 int CCells::id_cone_segment()
 {
 	int /*m1, m2, m3, m4, k, */m;
 	if (mp && mp[0] == ID_MAP(2, CONE_GENUS) && graph)
-	if (graph[1] == 0 && add_new_maps(mp, (m = size_of_map(2, CONE_GENUS))+1, size_of_dop(CONE_SEGMENT))) { //...добавляем параметры;
+	if (graph[1] == 0 && add_new_maps(mp, (m = size_of_map(2, CONE_GENUS))+1, size_of_dop(CONE_SEGMENT))) { //...adding parameters;
 		mp[  m] = (CMap)CONE_SEGMENT;
 		mp[++m] = (CMap)M_PI*2.;
 		mp[++m] = (CMap)0.;
-		mp[++m] = (CMap)1.;//...задаем длину, равную единице;
+		mp[++m] = (CMap)1.;//...giving length, equated to one;
 	}
 #ifdef ___CONSTRUCTION___
 	else
@@ -1202,8 +1202,8 @@ int CCells::id_cone_segment()
       ce[m4  = graph[4]]->graph[1] == 2 && ce[m4]->mp[0] == ID_MAP(1, SPHERE_GENUS))) {
       double A = ce[m1]->cells_length(), ort1[9], ort2[9], P[3], f;
 
-///////////////////////////////////////////////////////////
-//...добавляем параметры (и копируем геометрическую карту);
+///////////////////////////////////////////////////
+//...adding parameters (and copy geometrical card);
 		CMap * map = new_struct<CMap>((m = size_of_map(2, CYL_GENUS))+1);
 		if (! map || ! add_new_maps(mp, m+1, size_of_dop(CONE_SEGMENT))) {
 			delete[] map; return(0);
@@ -1213,8 +1213,8 @@ int CCells::id_cone_segment()
 		mp[++m] = (CMap)ce[m2]->mp[8]*2.;
 		mp[++m] = (CMap)A;
 
-//////////////////////////////////////////////
-//...корректируем локальную систему координат;
+////////////////////////////////////////
+//...correcting local coordinate system;
 		map_normalizat(ce[m1]->mp, NULL, ort1);
 		map_normalizat(ce[m2]->mp, NULL, ort2); map[1] = map[2] = map[3] = 0.;
 
@@ -1245,8 +1245,8 @@ int CCells::id_cone_segment()
 	return(1);
 }
 
-////////////////////////////////////////////////
-//...идентификация прямоугольного сегмента тора;
+//////////////////////////////////////////////
+//...identification rectangular cone segement;
 int CCells::id_torus_segment()
 {
 	int /*m1, m2, m3, m4, k, */m;
@@ -1260,15 +1260,15 @@ int CCells::id_torus_segment()
   return(1);
 }
 
-/////////////////////////////////////////////////////////////////
-//...идентификация пространственной ячейки, ограниченной уголком;
+//////////////////////////////////////////////////////////
+//...identification space cell, bounded by L-type contour;
 int CCells::id_ugolok_cell()
 {
   return(1);
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
-//...идентификация пространственной ячейки, ограниченной треугольником с одной дугой;
+////////////////////////////////////////////////////////////////////
+//...identification of space cell, bounded by triangle with one arc;
 int CCells::id_curve1_tria()
 {
 	int m1, m2, m3, m;
@@ -1284,8 +1284,8 @@ int CCells::id_curve1_tria()
       ce[m2  = graph[2]]->graph[1] == 2 && ce[m2]->mp[0] == ID_MAP(1,   NULL_GENUS) &&
       ce[m3  = graph[3]]->graph[1] == 2 && ce[m3]->mp[0] != ID_MAP(1,   NULL_GENUS))) {
 
-/////////////////////////
-//...добавляем параметры;
+///////////////////////
+//...adding parameters;
 		if (mp[m  = size_of_map(2, NULL_GENUS)] == (CMap)FACET_CELL) 
 			 mp[m] = (CMap)CURVE1_TRIA_CELL; else
 		if (add_new_maps(mp, m+1, size_of_dop(CURVE1_TRIA_CELL)))
@@ -1294,8 +1294,8 @@ int CCells::id_curve1_tria()
 	return(1);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////
-//...идентификация пространственной ячейки, ограниченной треугольником с двумя дугами;
+//////////////////////////////////////////////////////////////////
+//...identification space cell, bounded by triangle with two arcs;
 int CCells::id_curve2_tria()
 {
 	int m1, m2, m3, m;
@@ -1311,8 +1311,8 @@ int CCells::id_curve2_tria()
       ce[m2  = graph[2]]->graph[1] == 2 && ce[m2]->mp[0] != ID_MAP(1,   NULL_GENUS) &&
       ce[m3  = graph[3]]->graph[1] == 2 && ce[m3]->mp[0] != ID_MAP(1,   NULL_GENUS))) {
 
-/////////////////////////
-//...добавляем параметры;
+///////////////////////
+//...adding parameters;
 		if (mp[m  = size_of_map(2, NULL_GENUS)] == (CMap)FACET_CELL) 
 			 mp[m] = (CMap)CURVE2_TRIA_CELL; else
 		if (add_new_maps(mp, m+1, size_of_dop(CURVE2_TRIA_CELL)))
@@ -1321,8 +1321,8 @@ int CCells::id_curve2_tria()
 	return(1);
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////
-//...идентификация пространственной ячейки, ограниченной четырехугольником с одной дугой;
+//////////////////////////////////////////////////////////////////////
+//...identification of space cell, bounded by quadrangle with one arc;
 int CCells::id_curve1_quad()
 {
 	int m1, m2, m3, m4, m;
@@ -1345,8 +1345,8 @@ int CCells::id_curve1_quad()
       ce[m3  = graph[3]]->graph[1] == 2 && ce[m3]->mp[0] == ID_MAP(1,   NULL_GENUS) &&
       ce[m4  = graph[4]]->graph[1] == 2 && ce[m4]->mp[0] != ID_MAP(1,   NULL_GENUS))) {
 
-/////////////////////////
-//...добавляем параметры;
+///////////////////////
+//...adding parameters;
 		if (mp[m  = size_of_map(2, NULL_GENUS)] == (CMap)FACET_CELL) 
 			 mp[m] = (CMap)CURVE1_QUAD_CELL; else
 		if (add_new_maps(mp, m+1, size_of_dop(CURVE1_TRIA_CELL)))
@@ -1355,8 +1355,8 @@ int CCells::id_curve1_quad()
 	return(1);
 }
 
-///////////////////////////////////////////////////////////////////
-//...идентификация четырехугольника с двумя противолежащими дугами;
+/////////////////////////////////////////////////////////
+//...identification of quadrangle with two opposite arcs;
 int CCells::id_curve2_quad()
 {
 	int m1, m2, m3, m4, m;
@@ -1379,8 +1379,8 @@ int CCells::id_curve2_quad()
       ce[m3  = graph[3]]->graph[1] == 2 && ce[m3]->mp[0] == ID_MAP(1,   NULL_GENUS) &&
       ce[m4  = graph[4]]->graph[1] == 2 && ce[m4]->mp[0] != ID_MAP(1,   NULL_GENUS))) {
 
-/////////////////////////
-//...добавляем параметры;
+///////////////////////
+//...adding parameters;
 		if (mp[m  = size_of_map(2, NULL_GENUS)] == (CMap)FACET_CELL) 
 			 mp[m] = (CMap)CURVE2_QUAD_CELL; else
 		if (add_new_maps(mp, m+1, size_of_dop(CURVE1_TRIA_CELL)))
@@ -1389,8 +1389,8 @@ int CCells::id_curve2_quad()
 	return(1);
 }
 
-/////////////////////////////////////////////////////////////
-//...идентификация четырехугольника с двумя соседними дугами;
+//////////////////////////////////////////////////////////
+//...identification quadrangle with two neighbouring arcs;
 int CCells::id_curve11quad()
 {
 	int m1, m2, m3, m4, m;
@@ -1413,8 +1413,8 @@ int CCells::id_curve11quad()
       ce[m3  = graph[3]]->graph[1] == 2 && ce[m3]->mp[0] != ID_MAP(1,   NULL_GENUS) &&
       ce[m4  = graph[4]]->graph[1] == 2 && ce[m4]->mp[0] != ID_MAP(1,   NULL_GENUS))) {
 
-/////////////////////////
-//...добавляем параметры;
+///////////////////////
+//...adding parameters;
 		if (mp[m  = size_of_map(2, NULL_GENUS)] == (CMap)FACET_CELL) 
 			 mp[m] = (CMap)CURVE11QUAD_CELL; else
 		if (add_new_maps(mp, m+1, size_of_dop(CURVE1_TRIA_CELL)))
@@ -1423,8 +1423,8 @@ int CCells::id_curve11quad()
 	return(1);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-//...идентификация пространственной ячейки, ограниченной четырехугольником с тремя дугами;
+/////////////////////////////////////////////////////////////////////
+//...identification space cell? bounded of qudrangle with three arcs;
 int CCells::id_curve3_quad()
 {
 	int m1, m2, m3, m4, m;
@@ -1447,8 +1447,8 @@ int CCells::id_curve3_quad()
       ce[m3  = graph[3]]->graph[1] == 2 && ce[m3]->mp[0] != ID_MAP(1,   NULL_GENUS) &&
       ce[m4  = graph[4]]->graph[1] == 2 && ce[m4]->mp[0] != ID_MAP(1,   NULL_GENUS))) {
 
-/////////////////////////
-//...добавляем параметры;
+///////////////////////
+//...adding parameters;
 		if (mp[m  = size_of_map(2, NULL_GENUS)] == (CMap)FACET_CELL) 
 			 mp[m] = (CMap)CURVE3_QUAD_CELL; else
 		if (add_new_maps(mp, m+1, size_of_dop(CURVE1_TRIA_CELL)))
@@ -1457,8 +1457,8 @@ int CCells::id_curve3_quad()
 	return(1);
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////
-//...идентификация пространственной ячейки, ограниченной полностью кривым четырехугольником;
+///////////////////////////////////////////////////////////////////////////
+//...identification of space cell, bounded by completetly curve quadrangle;
 int CCells::id_curve4_quad()
 {
 	int m1, m2, m3, m4, m;
@@ -1469,8 +1469,8 @@ int CCells::id_curve4_quad()
       ce[m3  = graph[4]]->graph[1] == 2 && ce[m3]->mp[0] != ID_MAP(1,   NULL_GENUS) &&
       ce[m4  = graph[5]]->graph[1] == 2 && ce[m4]->mp[0] != ID_MAP(1,   NULL_GENUS))) {
 
-/////////////////////////
-//...добавляем параметры;
+///////////////////////
+//...adding parameters;
 		if (mp[m  = size_of_map(2, NULL_GENUS)] == (CMap)FACET_CELL) 
 			 mp[m] = (CMap)CURVE4_QUAD_CELL; else
 		if (add_new_maps(mp, m+1, size_of_dop(CURVE1_TRIA_CELL)))
@@ -1479,37 +1479,37 @@ int CCells::id_curve4_quad()
 	return(1);
 }
 
-///////////////////////////////////
-//...идентификация размерных ячеек;
+/////////////////////////////////////////
+//...identification of dimensional cells;
 int CCells::segms_id()
 {
   int k, m;
   if (2 == (k = cells_dim())) {
      if (mp[m = size_of_map(k, map_genus(mp))] == (CMap)NULL_CELL/* || 
 		   mp[m] == (CMap)FACET_CELL || mp[m] == (CMap)SPH_SEGMENT*/) {
-         if (! id_sheet         () || //...определяется;
-             ! id_ring_segment  () || //...определяется;
-             ! id_cyl_segment   () || //...определяется;
-             ! id_sph_segment   () || //...определяется частично;
-             ! id_spr_segment   () || //...определяется частично;
-             ! id_cone_segment  () || //...определяется частично;
-             ! id_torus_segment () || //...не определяется;
-             ! id_ugolok_cell   () || //...не определяется;
-             ! id_curve1_tria   () || //...определяется;
-             ! id_curve2_tria   () || //...определяется;
-             ! id_curve1_quad   () || //...определяется;
-             ! id_curve2_quad   () || //...определяется;
-             ! id_curve11quad   () || //...определяется;
-             ! id_curve3_quad   () || //...определяется;
-             ! id_curve4_quad   ()    //...определяется;
+         if (! id_sheet         () || //...defined;
+             ! id_ring_segment  () || //...defined;
+             ! id_cyl_segment   () || //...defined;
+             ! id_sph_segment   () || //...partly defined;
+             ! id_spr_segment   () || //...partly defined;
+             ! id_cone_segment  () || //...partly defined;
+             ! id_torus_segment () || //...not defined;
+             ! id_ugolok_cell   () || //...not defined;
+             ! id_curve1_tria   () || //...defined;
+             ! id_curve2_tria   () || //...defined;
+             ! id_curve1_quad   () || //...defined;
+             ! id_curve2_quad   () || //...defined;
+             ! id_curve11quad   () || //...defined;
+             ! id_curve3_quad   () || //...defined;
+             ! id_curve4_quad   ()    //...defined;
 				) return(0);
      }
   }
   return(1);
 }
 
-///////////////////////////////////////////////////
-//...идентификация размерных ячеек для поверхности;
+//////////////////////////////////////////////////
+//...identification dimensional cells for surface;
 int CCells::segms_bar()
 {
   if (! mp) {
@@ -1534,14 +1534,14 @@ int CCells::grid_line(CGrid * nd, double h, int Max_N, int hit)
 		if (! nd->geom) nd->init_geom();
 		if (Max_N <= 0) Max_N = 1;
 
-///////////////////////////////////////
-//...определяем количество узлов сетки;
+///////////////////////////////////
+//...defining number of mesh nodes;
 		if ((f = sqrt(fx*fx+fy*fy+fz*fz)) < EE_ker) f = 0.;
 		N0 = h > 0. ? 2+(int)ceil(f/h) : 1+abs(Max_N);
 		if (f == 0.) return(1);
 
-///////////////////////////////////////////////////////////////////////
-//...распределяем массивы точек для всего контура и описание геометрии;
+/////////////////////////////////////////////////////////////////////////////////////////
+//...distrubution memory for set of points for gole contour and for geometry description;
 		X0  = new_struct<double>(N0);
 		Y0  = new_struct<double>(N0);
 		Z0  = new_struct<double>(N0);
@@ -1556,8 +1556,8 @@ int CCells::grid_line(CGrid * nd, double h, int Max_N, int hit)
 			delete_struct(gm); return(0);
 		}
 
-///////////////////////////////////////////////////////
-//...инициализиpуем узлы сетки и касательную на прямой;
+/////////////////////////////////////////////////////////////////
+//...initializing mesh nodes and tangential on the straight line;
 
 /*		double ort[3] = {0., 1., 0.};
 		point_iso(ort, NULL, mp[4], mp[5], mp[6]);*/
@@ -1574,7 +1574,7 @@ int CCells::grid_line(CGrid * nd, double h, int Max_N, int hit)
 		}
 
 ///////////////////////////////////////////////////////////
-//...добавляем построенные элементы сетки к общему формату;
+//...adding constructed mesh elements to the common format;
 		if (nd->grid_add (X0, Y0, Z0, nX0, nY0, nZ0, N0, gm, hit)) return(1);
 		else {
 			delete_struct(X0); delete_struct(nX0);
@@ -1602,15 +1602,15 @@ int CCells::grid_circ(CGrid * nd, double h, int Max_N, int hit)
 		if (! nd->geom) nd->init_geom();
 		if (Max_N <= 0) Max_N = 1;
 
-///////////////////////////////////////
-//...определяем количество узлов сетки;
+///////////////////////////////////
+//...defining number of mesh nodes;
 		if ((f = fabs(R*fi)) < EE_ker) f = 0.;
 		N0 = h > 0. ? 2+(int)ceil(f/h) : 1+abs(Max_N);
 		if (f == 0.) return(1);
 		f = fabs(mp[8]);
 
-///////////////////////////////////////////////////////////////////////
-//...распределяем массивы точек для всего контура и описание геометрии;
+/////////////////////////////////////////////////////////////////////////////////////////
+//...distrubution memory for set of points for gole contour and for geometry description;
 		X0  = new_struct<double>(N0);
 		Y0  = new_struct<double>(N0);
 		Z0  = new_struct<double>(N0);
@@ -1625,11 +1625,11 @@ int CCells::grid_circ(CGrid * nd, double h, int Max_N, int hit)
 			delete_struct(gm); return(0);
 		}
 
-////////////////////////////////////////////////////////////////
-//...инициализиpуем узлы сетки и касательную на дуге окружности;
+//////////////////////////////////////////////////////////////
+//...initializing mesh nodes and tangential on the circle arc;
 		X0[0] =  R*(nY0[0] =  cos(f)); nY0[N0-1] = nY0[0];
 		//Y0[0] = -R*(nX0[0] = sin(f)); nX0[N0-1] = -nX0[0]; fi /= N0-1;
-		Y0[0] = -R*(nX0[0] = -sin(f)); nX0[N0-1] = nX0[0]; fi /= N0-1; //...исправлено 07.01.2017!!!
+		Y0[0] = -R*(nX0[0] = -sin(f)); nX0[N0-1] = nX0[0]; fi /= N0-1; //...updated 07.01.2017!!!
 
 		gm[0]  = 1;  gm[1] = GL_LINE_STRIP;
 		gm[2]  = N0; gm[3] = l; gm[2+N0] = N0-1+l;
@@ -1639,7 +1639,7 @@ int CCells::grid_circ(CGrid * nd, double h, int Max_N, int hit)
 		}
 
 ///////////////////////////////////////////////////////////
-//...добавляем построенные элементы сетки к общему формату;
+//...adding constructed mesh elements to the common format;
 		if (! nd->grid_add (X0, Y0, Z0, nX0, nY0, nZ0, N0, gm, hit)) {
 			delete_struct(X0); delete_struct(nX0);
 			delete_struct(Y0); delete_struct(nY0);
@@ -1647,8 +1647,8 @@ int CCells::grid_circ(CGrid * nd, double h, int Max_N, int hit)
 			delete_struct(gm); nd->release(); return(0);
 		}
 
-/////////////////////////////////////////////////////////////////////////
-//...коррекция начальной и конечной точки, чтобы не терять значащих цифр;
+////////////////////////////////////////////////////////////////////////////////////
+//...correction beginning and ending point, in order not to leave significant digit;
 		int id_correct = 0;//...работает  с ошибками!!!
 		if (id_correct && 0 <= m1 && 0 <= m2) { 
 			P[0] = nd->X[l]; P[1] = nd->Y[l];
@@ -1659,16 +1659,16 @@ int CCells::grid_circ(CGrid * nd, double h, int Max_N, int hit)
 			nd->Z[l] = ce[m1]->mp[3]; nd->Z[nd->N-1] = ce[m2]->mp[3];
 		}
 
-///////////////////////////////////////////////////////////////
-//...pазвоpачиваем сетку в пpостpанстве и выходим из программы;
+//////////////////////////////////////////////////////
+//...rotate mesh in the space and return from program;
 		nd->grid_iso(l, nd->N, mp+1, CZ, SZ, CY, SY, CX, SX);
 		return(1);
 	}
 	return(0);
 }
 
-//////////////////////////////////////////////////////////////////////////////////
-//...вспомогательная функция, стpоящая геометpическую сетку на эллиптической дуге;
+///////////////////////////////////////////////////////////////////////////
+//...auxilliary function, constructed geometrical mesh on the elliptic arc;
 int CCells::grid_ellipt(CGrid * nd, double h, int Max_N, int hit)
 {
   int k;
@@ -1685,20 +1685,20 @@ int CCells::grid_ellipt(CGrid * nd, double h, int Max_N, int hit)
      if (! nd->geom) nd->init_geom();
      if (Max_N <= 0) Max_N = 1;
 
-////////////////////////////////////////
-//...извлекаем дополнительные параметры;
+////////////////////////////////////
+//...pull out additional parameters;
      f0 = mp[++k];
      f1 = mp[++k];
 
-///////////////////////////////////////
-//...определяем количество узлов сетки;
+///////////////////////////////////
+//...defining number of mesh nodes;
      if ((f = fabs(.5*(A+B)*(fi = f1-f0))) < EE_ker) f = 0.;
      N0 = h > 0. ? 2+(int)ceil(f/h) : 1+abs(Max_N);
      if (f == 0.) return(1);
      f = f0;
 
-///////////////////////////////////////////////////////////////////////
-//...распределяем массивы точек для всего контура и описание геометрии;
+/////////////////////////////////////////////////////////////////////////////////////////
+//...distrubution memory for set of points for gole contour and for geometry description;
 		X0  = new_struct<double>(N0);
 		Y0  = new_struct<double>(N0);
 		Z0  = new_struct<double>(N0);
@@ -1714,7 +1714,7 @@ int CCells::grid_ellipt(CGrid * nd, double h, int Max_N, int hit)
 		}
 
 ////////////////////////////////////////////////////////////////
-//...инициализиpуем узлы сетки и касательную на дуге окружности;
+//...initializing mesh nodes and tangential on the elliptic arc;
      X0[0] = (R = ff/(A+C*(nY0[0] = cos(f))))*nY0[0]+C; nY0[0] += ee; fi /= N0-1;
      Y0[0] = -R*(nX0[0] = -sin(f)); nX0[0] *= (R = 1./sqrt(nX0[0]*nX0[0]+nY0[0]*nY0[0])); nY0[0] *= R;
 
@@ -1726,7 +1726,7 @@ int CCells::grid_ellipt(CGrid * nd, double h, int Max_N, int hit)
      }
 
 ///////////////////////////////////////////////////////////
-//...добавляем построенные элементы сетки к общему формату;
+//...adding constructed mesh elements to the common format;
      if (! nd->grid_add (X0, Y0, Z0, nX0, nY0, nZ0, N0, gm, hit)) {
          delete_struct(X0); delete_struct(nX0);
          delete_struct(Y0); delete_struct(nY0);
@@ -1734,8 +1734,8 @@ int CCells::grid_ellipt(CGrid * nd, double h, int Max_N, int hit)
          delete_struct(gm); nd->release(); return(0);
      }
 
-/////////////////////////////////////////////////////////////////////////
-//...коррекция начальной и конечной точки, чтобы не терять значащих цифр;
+////////////////////////////////////////////////////////////////////////////////////
+//...correction beginning and ending point, in order not to leave significant digit;
 		int id_correct = 0;
 		if (id_correct && 0 <= m1 && 0 <= m2) {  
 			P[0] = nd->X[l]; P[1] = nd->Y[l];
@@ -1746,8 +1746,8 @@ int CCells::grid_ellipt(CGrid * nd, double h, int Max_N, int hit)
 			nd->Z[l] = ce[m1]->mp[3]; nd->Z[nd->N-1] = ce[m2]->mp[3];
 		}
 
-///////////////////////////////////////////////////////////////
-//...pазвоpачиваем сетку в пpостpанстве и выходим из программы;
+//////////////////////////////////////////////////////
+//...rotate mesh in the space and return from program;
 		nd->grid_iso(l, nd->N, mp+1, CZ, SZ, CY, SY, CX, SX);
 		return(1);
   }

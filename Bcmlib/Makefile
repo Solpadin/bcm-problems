@@ -16,7 +16,7 @@ LIBOBJS = \
 	./Nodes.$o ./Cgrid.$o ./Cgrid_el.$o ./Cgrid_qg.$o ./Ccells.$o \
 	./Shapes.$o ./Cacou.$o ./Cmapi.$o ./Cwave.$o \
 	./Drafts.$o ./Ccohes2d.$o ./Ccohes3d.$o ./Cmindl2d.$o ./Cmindl3d.$o ./Clame2d.$o ./Clame3d.$o ./Cvisco2d.$o ./Cvisco2d_grad.$o\
-#	./Cacou3d.cpp.$o \
+	./Cacou3d.$o ./Cporosity2d.$o \
 #	./CProfile.$o \
 #	./CPro_bars.$o \
 #	./CPro_bpr.$o \

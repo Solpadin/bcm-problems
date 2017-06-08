@@ -1,8 +1,8 @@
 #include "stdafx.h"
 #include "cgrid.h"
 
-////////////////////////////////
-//...несколько уровней точности;
+////////////////////////////
+//...several acuracy levels;
 double EE_fine= 1e-21; //...fine accuracy;
 double EE     = 1e-15; //...refine accuracy;
 double EE_ker = 1e-10; //...accuracy of geometrical kernel operations;
@@ -11,15 +11,15 @@ double EE_usl = 1e-5;  //...middle accuracy for geometrical checkings;
 double EE_fuz = 1e-3;  //...accuracy for chain closing;
 double EE_res = 2e-3;  //...for logarithmic brand under resonance;
 
-////////////////////////////////////////////////////////////////
-//...общие блоки (дл€ таймировани€ процесса и  передачи данных);
+///////////////////////////////////////////////////////////
+//...common blocks (for process titming and data transfer);
 clock_t inter_time[MAX_TIME];
 int         i_parm[MAX_CMBL];
 double      d_parm[MAX_CMBL];
 complex     c_parm[MAX_CMBL];
 
-//////////////////////////////
-//...pаспутывание комментаpи€;
+///////////////////////
+//...comment clarified;
 char user_Filtr(char * FILE, unsigned long & k, unsigned long upper_limit, Num_State id_toupper)
 {
 	if (k >= upper_limit || ! FILE) return('\xFF');
@@ -73,8 +73,8 @@ int user_Count(char * FILE, unsigned long k, unsigned long & upper_limit, char p
 	upper_limit = k; return(1);
 }
 
-////////////////////////////////////////////
-//...определение длины файла входных данных;
+////////////////////////////////////////
+//...defining length of input data file;
 unsigned long length_ascii(FILE * TXT)
 {
 	unsigned long length = 0;
@@ -96,8 +96,8 @@ unsigned long length_ascii(const char * cfg_name)
 	return(length_ascii(TXT));
 }
 
-/////////////////////////////////////
-//...считывание файла входных данных;
+/////////////////////////////
+//...reading input data file;
 void read_struct_ascii(FILE * device, char * ascii, unsigned long length)
 {
 	if (device) {
@@ -126,8 +126,8 @@ char * read_struct_ascii(const char * cfg_name)
 	return(ascii);
 }
 
-////////////////////////////////////////////////////
-//...проверка наличи€ файла входных данных на диске;
+///////////////////////////////////////////////////////
+//...check of existance of input data file on the disk;
 int exist_ascii(FILE * device)
 {
 	int m = device != 0;
@@ -145,8 +145,8 @@ int exist_ascii(const char * cfg_name)
 	return(exist_ascii(device));
 }
 
-/////////////////////////////////////////////
-//...линейна€ аппроксимаци€ табличных данных;
+////////////////////////////////////////
+//...linear approximation of table data;
 double table_approx(double arg, double table[][2], int N_table, int decrease_flag)
 {
 	double value = 0.; int i;
@@ -164,8 +164,8 @@ double table_approx(double arg, double table[][2], int N_table, int decrease_fla
 	return value;
 }
 
-/////////////////////////////////////////////////////////////////////////////////
-//...увеличение размера описании геометрии массива элементов (рабоча€ программа);
+//////////////////////////////////////////////////////////////////////////////////
+//...increasing length of geometry description of element array (working program);
 int geom_pad(int *& geom, int k, int N_pad)
 {
 	int i = 0, m, l;
@@ -185,8 +185,8 @@ int geom_pad(int *& geom, int k, int N_pad)
 	return(i);
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////
-//...увеличение размера описании геометрии массива элементов по имеющимс€ данным о расположении раздела;
+//////////////////////////////////////////////////////////////////////////////////////////
+//...increasing length of geometry descriprion of element array by a position information;
 void geom_pad1(int *& geom, int N_pad, int i, int & m)
 {
 	int * new_geom = new_struct<int>(m+N_pad);
@@ -201,8 +201,8 @@ void geom_pad1(int *& geom, int N_pad, int i, int & m)
 	return;
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////
-//...увеличение размера геометрии массива элементов без дополнительного распределени€ пам€ти;
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+//...increasing length of geometry descriprion of element array without addition distribution of memory;
 void geom_pad2(int *& geom, int N_pad, int i, int & m, int Ng_buf)
 {
 	memmove(geom+i+2+N_pad, geom+i+2, (Ng_buf-i-2)*sizeof(int));
@@ -212,7 +212,7 @@ void geom_pad2(int *& geom, int N_pad, int i, int & m, int Ng_buf)
 }
 
 /////////////////////////////////////////////////////////////////////////////////
-//...сокращение размера описании геометрии массива элементов (рабоча€ программа);
+//...reduction length of geometry descriprion of element array (working program);
 int geom_unpad(int *& geom, int k, int N_pad)
 {
 	int i = 0, m, l;
@@ -232,21 +232,21 @@ int geom_unpad(int *& geom, int k, int N_pad)
 	return(i);
 }
 
-//////////////////////////////////////////////////////////////////////////////////
-//...добавление нового элемента в геометрию массива элементов (рабоча€ программа);
+///////////////////////////////////////////////////////////////////////
+//...adding new element in geometry of element array (working program);
 int geom_insert(int *& geom, int k, int new_element, int start)
 {
 	int i = 0, m, l, j;
 	if (geom && geom[0] > 0 && k < geom[0] && k >= 0) {
       for (i = 1, l = 0; l < k; l++) i += geom[++i]+1;
 
-////////////////////////////////////////////
-//...провер€ем наличие элемента в геометрии;
+///////////////////////////////////////////
+//...check of existing element in geometry;
       j = geom[i+1]+1;
       while (start < j && new_element != geom[i+j]) j--;
 
-//////////////////////////////////////////
-//...вставл€ем элемент в начало геометрии;
+////////////////////////////////////////////////////
+//...inserting element in the beginning of geometry;
 		if (j == start) {
          for (m = i; l < geom[0]; l++) m += geom[++m]+1;
 
@@ -264,17 +264,17 @@ int geom_insert(int *& geom, int k, int new_element, int start)
 	return(i);
 }
 
-///////////////////////////////////////////////////////////////////////////
-//...добавление нового элемента по имеющимс€ данным о расположении раздела;
+//////////////////////////////////////////////////
+//...adding new element by a position information;
 void geom_insert1(int *& geom, int new_element, int start, int i, int & m)
 {
-////////////////////////////////////////////
-//...провер€ем наличие элемента в геометрии;
+///////////////////////////////////////////
+//...check of existing element in geometry;
 	int   j = geom[i+1]+1;
 	while (start < j && new_element != geom[i+j]) j--;
 
-/////////////////////////////////////////
-//...вставл€ем элемент в начало геометрии;
+////////////////////////////////////////////////////
+//...inserting element in the beginning of geometry;
 	if (j == start) {
       int * new_geom = new_struct<int>(m+1);
       if (! new_geom) return;
@@ -290,17 +290,17 @@ void geom_insert1(int *& geom, int new_element, int start, int i, int & m)
 	return;
 }
 
-/////////////////////////////////////////////////////////
-//...добавление нового элемента без распределени€ пам€ти;
+////////////////////////////////////////////////////
+//...adding new element without memory distribution;
 void geom_insert2(int *& geom, int new_element, int start, int i, int & m, int N_geom)
 {
-////////////////////////////////////////////
-//...провер€ем наличие элемента в геометрии;
+///////////////////////////////////////////
+//...check of existing element in geometry;
 	int   j = geom[i+1]+1;
 	while (start < j && new_element != geom[i+j]) j--;
 
-/////////////////////////////////////////
-//...вставл€ем элемент в начало геометрии;
+////////////////////////////////////////////////////
+//...inserting element in the beginning of geometry;
 	if (j == start) {
       memmove(geom+i+2+start, geom+i+1+start, (N_geom-i-1-start)*sizeof(int));
 
@@ -311,16 +311,16 @@ void geom_insert2(int *& geom, int new_element, int start, int i, int & m, int N
 	return;
 }
 
-//////////////////////////////////////////////////////////////////////////////
-//...идентификаци€ элемента в геометрии массива элементов (рабоча€ программа);
+///////////////////////////////////////////////////////////////////////////////
+//...identification element in the geometry of element array (working program);
 int geom_indent(int *& geom, int k, int new_element, int start)
 {
 	int i, l, j;
 	if (geom && geom[0] > 0 && k < geom[0] && k >= 0) {
 		for (i = 1, l = 0; l < k; l++) i += geom[++i]+1;
 
-////////////////////////////////////////////
-//...провер€ем наличие элемента в геометрии;
+///////////////////////////////////////////
+//...check of existing element in geometry;
       j = geom[i+1]+1;
       while (start < j && new_element != geom[i+j]) j--;
 
@@ -329,8 +329,8 @@ int geom_indent(int *& geom, int k, int new_element, int start)
 	return(0);
 }
 
-///////////////////////////////////////////////////////////////
-//...добавление нового раздела в геометрию (рабоча€ программа);
+//////////////////////////////////////////////////////////////
+//...adding new subdivision in the geometry (working program);
 int geom_add(int *& geom, int k, int type, int N)
 {
 	int i = 0, m, l;
@@ -354,8 +354,8 @@ int geom_add(int *& geom, int k, int type, int N)
 	return(i);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////
-//...добавление нового раздела в геометрию по имеющимс€ данным о расположении раздела;
+//////////////////////////////////////////////////////////////////////
+//...adding new subdivision in the geometry by a position information;
 void geom_add1(int *& geom, int type, int N, int i, int & m)
 {
 	int * new_geom = new_struct<int>(m+2+N);
@@ -372,8 +372,8 @@ void geom_add1(int *& geom, int type, int N, int i, int & m)
 	return;
 }
 
-////////////////////////////////////////////////////////////////////////////////////
-//...добавление нового раздела в геометрию без дополнительного распределени€ пам€ти;
+///////////////////////////////////////////////////////////////////////
+//...adding new subdivision in the geometry without memry distribution;
 void geom_add2(int *& geom, int type, int N, int i, int & m)
 {
 	memmove(geom+i+2+N, geom+i, (m-i)*sizeof(int));
@@ -385,8 +385,8 @@ void geom_add2(int *& geom, int type, int N, int i, int & m)
 	return;
 }
 
-/////////////////////////////////////////////////////////
-//...исключение раздела из геометрии (рабоча€ программа);
+///////////////////////////////////////////////////////////
+//...excluding subdivision from geometry (working program);
 int geom_exl(int *& geom, int k)
 {
 	int i = 0, m, l;
@@ -406,8 +406,8 @@ int geom_exl(int *& geom, int k)
 	return(i);
 }
 
-//////////////////////////////////////////////////////////////////
-//...добавление элемента в описание топологии (рабоча€ программа);
+/////////////////////////////////////////////////////////////////
+//...inserting element in topology description (working program);
 int graph_insert(int *& graph, int start, int element)
 {
 	if (graph &&  graph[1] > 0 && start <= graph[1]+1 && start > 0) {
@@ -424,11 +424,11 @@ int graph_insert(int *& graph, int start, int element)
 	}
 	return(0);
 }
-/*============================================================*/
-/*      »ƒ≈Ќ“»‘» ј÷»я ЁЋ≈ћ≈Ќ“ќ¬ ¬ “ќѕќЋќ√»„≈— ќћ ‘ќ–ћј“≈      */
-/*============================================================*/
-///////////////////////////////////////////////////////////////////////////////////////
-//...идентификаци€ четырехугольной грани в пространственных элементах геометрии €чейки;
+/*========================================================*/
+/*      EKEMENT IDENTIFICATION IN TOPOLOGICAL FORMAT      */
+/*========================================================*/
+//////////////////////////////////////////////////////////////////////////
+//...identification qudrilateral facet in space elements of cell geometry;
 int geom_link_id4(int m1, int m2, int m3, int m4, int i, int * geom, int id_pos)
 {
 	int l;
@@ -446,8 +446,8 @@ int geom_link_id4(int m1, int m2, int m3, int m4, int i, int * geom, int id_pos)
 	return(0);
 }
 
-///////////////////////////////////////////////////////////////////////////////////
-//...идентификаци€ треугольной грани в пространственных элементах геометрии €чейки;
+//////////////////////////////////////////////////////////////////////
+//...identification triangle facet in space elements of cell geometry;
 int geom_link_id3(int m1, int m2, int m3, int i, int * geom, int id_pos)
 {
 	int l;
@@ -464,8 +464,8 @@ int geom_link_id3(int m1, int m2, int m3, int i, int * geom, int id_pos)
 	return(0);
 }
 
-///////////////////////////////////////////////////////////////////////
-//...идентификаци€ точки в пространственных элементах геометрии €чейки;
+/////////////////////////////////////////////////////////////
+//...point identification in space elements of cell geometry;
 int geom_link_id1(int m1, int i, int * geom, int id_pos)
 {
 	int l;
@@ -481,8 +481,8 @@ int geom_link_id1(int m1, int i, int * geom, int id_pos)
 	return(0);
 }
 
-////////////////////////////////////////////////////////////////////////////////////
-//...идентификаци€ четырехугольной грани в поверхностных элементах геометрии €чейки;
+////////////////////////////////////////////////////////////////////////////
+//...identification qudrilateral facet in surface elements of cell geometry;
 int geom_link_id4s(int m1, int m2, int m3, int m4, int i, int * geom, int id_pos)
 {
 	int l;
@@ -498,8 +498,8 @@ int geom_link_id4s(int m1, int m2, int m3, int m4, int i, int * geom, int id_pos
 	return(0);
 }
 
-////////////////////////////////////////////////////////////////////////////////
-//...идентификаци€ треугольной грани в поверхностных элементах геометрии €чейки;
+////////////////////////////////////////////////////////////////////////
+//...identification triangle facet in surface elements of cell geometry;
 int geom_link_id3s(int m1, int m2, int m3, int i, int * geom, int id_pos)
 {
 	int l;
@@ -514,8 +514,8 @@ int geom_link_id3s(int m1, int m2, int m3, int i, int * geom, int id_pos)
 	return(0);
 }
 
-////////////////////////////////////////////////////////////////////
-//...идентификаци€ линии в поверхностных элементах геометрии €чейки;
+//////////////////////////////////////////////////////////////
+//...line identification in surface elements of cell geometry;
 int geom_link_id2s(int m1, int m2, int i, int * geom, int id_pos)
 {
 	int l;
@@ -531,7 +531,7 @@ int geom_link_id2s(int m1, int m2, int i, int * geom, int id_pos)
 }
 
 ///////////////////////////////////////////////////////////////
-//...идентификаци€ точки в линейных элементах геометрии €чейки;
+//...point identification in linnear elements of cell geometry;
 int geom_link_id1s(int m1, int i, int * geom, int id_pos)
 {
 	int l;
@@ -545,7 +545,7 @@ int geom_link_id1s(int m1, int i, int * geom, int id_pos)
 }
 
 /////////////////////////////////////////////////
-//...идентификаци€ точек в четырехугольной грани;
+//...point identification in quadrilateral facet;
 int geom_link_id4(int m1, int m2, int m3, int m4, int k1, int k2)
 {
 	int  l, mm[] = {m1, m2, m3, m4};
@@ -554,8 +554,8 @@ int geom_link_id4(int m1, int m2, int m3, int m4, int k1, int k2)
 	return(1);
 }
 
-/////////////////////////////////////////////
-//...идентификаци€ точек в треугольной грани;
+////////////////////////////////////////////
+//...point identification in triangle facet;
 int geom_link_id3(int m1, int m2, int m3, int k1, int k2)
 {
 	int  l, mm[] = {m1, m2, m3};
@@ -564,8 +564,8 @@ int geom_link_id3(int m1, int m2, int m3, int k1, int k2)
 	return(1);
 }
 
-/////////////////////////////////////////////
-//...идентификаци€ точки в треугольной грани;
+////////////////////////////////////////////
+//...point identification in triangle facet;
 int geom_link_id3(int m1, int m2, int m3, int k1)
 {
 	int  l, mm[] = {m1, m2, m3};
@@ -573,8 +573,8 @@ int geom_link_id3(int m1, int m2, int m3, int k1)
 	return(1);
 }
 
-/////////////////////////////////
-//...идентификаци€ точки в линии;
+//////////////////////////////////
+//...point identification in line;
 int geom_link_id2(int m1, int m2, int k1)
 {
 	int  l, mm[] = {m1, m2};
@@ -582,8 +582,8 @@ int geom_link_id2(int m1, int m2, int k1)
 	return(1);
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////
-//...pешение общей системы линейных уpавнений и обpащение матpицы методом √аусса-∆оpдана;
+//////////////////////////////////////////////////////////////////////////////////////////////////
+//...solution of linear system pf algebraiq equations and matrix inversion by Gauss-Jordan method;
 int GaussJ(double ** A, double * B, int N, double & det)
 {
   double f; det = 1.;
@@ -593,12 +593,12 @@ int GaussJ(double ** A, double * B, int N, double & det)
 			* ll = new_struct<int>(N+1);
   if (! ii || ! kk || ! ll || ! A) goto err;
 
-//////////////////////
-//...обpащаем матpицу;
+/////////////////////////
+//...inversing of matrix;
   for (i = 1; i <= N; i++) {
        f = 0.;
-////////////////////////////////////////////////
-//...ищем местоположение максимального элемента;
+////////////////////////////////////////
+//...search position of maximal element;
        for (k = 1; k <= N; k++)
         if (ii[k] != 1) for (l = 1; l <= N; l++) {
             if (ii[l] == 0) {
@@ -611,15 +611,15 @@ int GaussJ(double ** A, double * B, int N, double & det)
             }
         } ++(ii[l0]);
 
-///////////////////////////////////////////////////////////////////////////
-//...мен€ем местами строчки, чтобы максимальный элемент попал на диагональ;
+////////////////////////////////////////////////////////////
+//...string change for diagonal position of maximal element;
        if (k0 != l0) {
            for (l = 1; l <= N; l++) swap(A[k0-1][l-1], A[l0-1][l-1]);
            if  (B) swap(B[k0-1], B[l0-1]); det = -det;
        }
 
-////////////////////////////////////////////////////////////////////////////////
-//...запоминаем местоположение максимального элемента и ноpмиpуем им всю стpоку;
+////////////////////////////////////////////////////////////////
+//...story position of maximal element and string normalization;
        kk[i] = k0; ll[i] = l0;
        if (A[l0-1][l0-1] == 0.) {
            goto err;
@@ -627,29 +627,29 @@ int GaussJ(double ** A, double * B, int N, double & det)
        f = 1./A[l0-1][l0-1]; det *= A[l0-1][l0-1]; A[l0-1][l0-1] = 1.;
        for (l = 1; l <= N; l++) A[l0-1][l-1] *= f; if (B) B[l0-1] *= f;
 
-/////////////////////////////////////////////////////////////////////////////////
-//...ноpмиpуем все оставшиес€ стpочки, использу€ стpоку с максимальным элементом;
+////////////////////////////////////////////////////////////////////
+//...ormalization of leaving strings by string with maximal element;
        for (k = 1; k <= N; k++) if (k != l0) {
             f = A[k-1][l0-1]; A[k-1][l0-1] = 0.;
             for (l = 1; l <= N; l++) A[k-1][l-1] -= A[l0-1][l-1]*f; if (B) B[k-1] -= B[l0-1]*f;
        }
   }
 
-////////////////////////////////////////////
-//...pасставл€ем столбцы обpащенной матpицы;
+/////////////////////////////////////////////
+//...positioning columns of inversing matrix;
   for (l = N; l >= 1; l--) if (kk[l] != ll[l])
   for (k = 1; k <= N; k++) swap(A[k-1][kk[l]-1], A[k-1][ll[l]-1]);
 
-///////////////////////////////////////////////
-//...освобождаем пам€ть и выходим из пpогpаммы;
+///////////////////////////////////////
+//...memory release and program return;
   delete_struct(ll); delete_struct(kk); delete_struct(ii); return(1);
 err:
   delete_struct(ll); delete_struct(kk); delete_struct(ii); return(0);
 }
 
-/*=====================================================================*/
-/*                   јЋ√ќ–»“ћџ ќѕ–≈ƒ≈Ћ≈Ќ»я —ќ—≈ƒ≈…                     */
-/*=====================================================================*/
+/*=======================================================================*/
+/*                  NEIGHBOURING DEFINING ALGORITHMS                     */
+/*=======================================================================*/
 //========================================================================
 // Compare two integer values
 int compint_utils (const void *arg1, const void *arg2) { // Compare two integer values
@@ -1019,9 +1019,9 @@ ExitElem:;
 
 };
 
-/*=====================================================================*/
-/*                     јЋ√ќ–»“ћџ ѕ≈–≈Ќ”ћ≈–ј÷»»                         */
-/*=====================================================================*/
+/*====================================================================*/
+/*                     RENUMBERING ALGORITHMS                         */
+/*====================================================================*/
 ////////////////////////////////////////////////////////////////////
 //...generates the connected level structure rooted at a given node;
 void rootls_utils(int root, int * xadj, int * iadj, int * mask, int & nlvl, int * xls, int * ls, int n)
@@ -1229,10 +1229,10 @@ void subrcm_utils(int * xadj, int * iadj, int * mask, int nsubg, int * subg, int
    }
 }
 
-//////////////////////////////////////////////////////////////
-//...алгоритм вычислени€ с.з. и с.ф. общей матрицы QR-методом;
+/////////////////////////////////////////////////////////////////
+//...QR algorithm for calculation eigenvalues and eigenfunctions;
 int HQRfunction(double ** A, double * H_re, double * H_im, int dim_N, int Max_iter)
-{//...индексы в циклах были смещены в оригинале на единицу (фортрановский стандрат)!!!
+{//...indexes in cycles was shifted in original on oe position (fortran stadard)!!!
   if (! A || ! H_re || ! H_im) return(0);
 
   int    i, j, ip, iq, it = 0, l, k, m, last = 0, nn, mmin, sorting = 1;
@@ -1397,8 +1397,8 @@ int HQRfunction(double ** A, double * H_re, double * H_im, int dim_N, int Max_it
          while (l < nn-1);
   }
 
-///////////////////////////////////////////////////////////////////////////
-//...упор€дочиваем найденные собственные значени€ в пор€дке возрастани€ Re;
+/////////////////////////////////////////////////////////////////
+//...ordering of calculating eigenvalues by increasin of Re part;
   for (iq = 1; sorting && iq < dim_N; iq++) {
        for (d = abs(comp(H_re[(ip = iq)-1], H_im[(ip = iq)-1])), j = iq+1; j <= dim_N; j++) if (abs(comp(H_re[j-1], H_im[j-1])) <= d) d = abs(comp(H_re[(ip = j)-1], H_im[(ip = j)-1]));
        if (ip != iq) {

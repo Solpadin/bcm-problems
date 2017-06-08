@@ -16,6 +16,7 @@
 #include "chydro3d.h"
 #include "cvisco2d.h"
 #include "cvisco2d_grad.h"
+#include "cporosity2d.h"
 
 ///////////////////////////////////////////////////////////////////////
 //              ALL EXISTING TYPES OF DRAFT PROBLEMS                 //
@@ -40,6 +41,7 @@ CDraft<T> * CreateDraft(Num_Draft id_DRAFT = NULL_DRAFT, int id_dop = 8)
       case		 MINDL3D_DRAFT: if (typeid(T) == typeid(double))  return (CDraft<T> *)(new CMindl3D(id_dop));
       case		 VISCO2D_DRAFT: if (typeid(T) == typeid(complex)) return (CDraft<T> *)(new CVisco2D(id_dop));
       case VISCO2D_GRAD_DRAFT: if (typeid(T) == typeid(complex)) return (CDraft<T> *)(new CVisco2D_grad(id_dop));
+      case	 POROSITY2D_DRAFT: if (typeid(T) == typeid(double))  return (CDraft<T> *)(new CPorosity2D(id_dop));
 	}
    return NULL;
 }

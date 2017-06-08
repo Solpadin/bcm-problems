@@ -12,7 +12,7 @@ int CCohes2D::MAX_PHASE = 3;
 int CCohes2D::NUM_HESS  = 8;
 int CCohes2D::regul = 1;
 #define __NORMAL_DERIV_FIRST0__
-#define n__NORMAL_DERIV_SECOND__
+#define __nNORMAL_DERIV_SECOND__
 
 //////////////////////////////////
 //...initialization of the blocks;
@@ -1639,6 +1639,38 @@ void CCohes2D::GetFuncAllValues(double X, double Y, double Z, double * F, int i,
 				F[1] = B[i].shape->potential(solver.hh[i][0][m+1], id_variant);
 				B[i].shape->norm_common2D(F);
 			}  break;
+			case DILAT_CLASSIC_VALUE: {
+				P[3] = 1.; P[4] = P[5] = 0.;
+				B[i].shape->norm_local(P+3);
+//////////////////////////////////////////
+//...classic derivatives of displacements;
+				B[i].shape->parametrization_hess(P, 1);
+
+				jump2_classic_x (P, i, 0); 
+				jump2_classic_y (P, i, 1); 
+
+/////////////////////////////////////////////////
+//...calculation classic derivatives (ux and uy);
+				F[0] = B[i].shape->potential(solver.hh[i][0][m],   id_variant);
+				F[1] = B[i].shape->potential(solver.hh[i][0][m+1], id_variant);
+
+////////////////////////////////////
+//...Y-derivatives of displacements;
+				B[i].shape->norm_common(P+3);
+				P[4] = 1.; P[3] = P[5] = 0.;
+				B[i].shape->norm_local(P+3);
+//////////////////////////////////////////
+//...classic derivatives of displacements;
+				B[i].shape->parametrization_hess(P, 1);
+
+				jump2_classic_x (P, i, 2); 
+				jump2_classic_y (P, i, 3); 
+
+/////////////////////////////////////////////////
+//...calculation classic derivatives (ux and uy);
+				F[0] += B[i].shape->potential(solver.hh[i][0][m+3], id_variant);
+				F[1] += B[i].shape->potential(solver.hh[i][0][m+2], id_variant);
+			}  break;
 			case NORMAL_Y_CLASSIC_VALUE: {
 				P[4] = 1.; P[3] = P[5] = 0.;
 				B[i].shape->norm_local(P+3);
@@ -1998,6 +2030,40 @@ void CCohes2D::GetFuncAllValues(double X, double Y, double Z, double * F, int i,
 				F[0] = B[i].shape->potential(solver.hh[i][0][m],   id_variant);
 				F[1] = B[i].shape->potential(solver.hh[i][0][m+1], id_variant);
 				B[i].shape->norm_common2D(F);
+			}  break;
+			case DILAT_GRAD_VALUE: {
+				P[3] = 1.; P[4] = P[5] = 0.;
+				B[i].shape->norm_local(P+3);
+/////////////////////////////////////////
+//...common derivatives of displacements;
+				B[i].shape->parametrization_hess(P, 1);
+
+				hessian_deriv_N(1, P, i); hessian_deriv_N(4, P, i);
+				jump2_common_x (P, i, 0); 
+				jump2_common_y (P, i, 1); 
+
+////////////////////////////////////////////////////
+//...calculation common stress tensor (txx and txy);
+				F[0] = B[i].shape->potential(solver.hh[i][0][m],   id_variant);
+				F[1] = B[i].shape->potential(solver.hh[i][0][m+1], id_variant);
+
+/////////////////////////////////////////
+//...Y-derivatives of displacements;
+				B[i].shape->norm_common(P+3);
+				P[4] = 1.; P[3] = P[5] = 0.;
+				B[i].shape->norm_local(P+3);
+/////////////////////////////////////////
+//...common derivatives of displacements;
+				B[i].shape->parametrization_hess(P, 1);
+
+				hessian_deriv_N(1, P, i); hessian_deriv_N(4, P, i);
+				jump2_common_x (P, i, 2); 
+				jump2_common_y (P, i, 3); 
+
+////////////////////////////////////////////////////
+//...calculation common stress tensor (txx and txy);
+				F[0] += B[i].shape->potential(solver.hh[i][0][m+3],   id_variant);
+				F[1] += B[i].shape->potential(solver.hh[i][0][m+2], id_variant);
 			}  break;
 			case DILAT_VALUE: {//...divergency of displacements;
 				double G = (.5-get_param(NUM_SHEAR+1+shift))/((1.-get_param(NUM_SHEAR+1+shift))*get_param(NUM_SHEAR+shift));
@@ -2434,16 +2500,16 @@ void scale_irreg(double R, double kappa, double hh[3], double eps = 1e-14, int k
 //...четырехфазная модель для цилиндрического включения (прямой алгоритм);
 double CCohes2D::TakeEshelby_volm(double ff, double ff_l)
 {
-	double mu_I = get_param(NUM_SHEAR+NUM_SHIFT), nu_I = get_param(NUM_SHEAR+1+NUM_SHIFT), C_I = get_param(NUM_SHEAR-1+NUM_SHIFT),
-			 mu_M = get_param(NUM_SHEAR), nu_M = get_param(NUM_SHEAR+1), C_M = get_param(NUM_SHEAR-1),
-			 mu_L = get_param(NUM_SHEAR+NUM_SHIFT*2), nu_L = get_param(NUM_SHEAR+1+NUM_SHIFT*2), C_L = get_param(NUM_SHEAR-1+NUM_SHIFT*2),
-			 K_I  = mu_I/(1.-2.*nu_I), K_M = mu_M/(1.-2.*nu_M), K_L = mu_L/(1.-2.*nu_L), c0 = ff+ff_l, c1 = ff/c0, DD,
-			 ku_I = (1.-nu_I)/(.5-nu_I)*mu_I, ku_M = (1.-nu_M)/(.5-nu_M)*mu_M, ku_L = (1.-nu_L)/(.5-nu_L)*mu_L, AA = get_param(NUM_ADHES);
+	double mu_I = get_param(NUM_SHEAR + NUM_SHIFT), nu_I = get_param(NUM_SHEAR + 1 + NUM_SHIFT), C_I = get_param(NUM_SHEAR - 1 + NUM_SHIFT),
+		mu_M = get_param(NUM_SHEAR), nu_M = get_param(NUM_SHEAR + 1), C_M = get_param(NUM_SHEAR - 1),
+		mu_L = get_param(NUM_SHEAR + NUM_SHIFT * 2), nu_L = get_param(NUM_SHEAR + 1 + NUM_SHIFT * 2), C_L = get_param(NUM_SHEAR - 1 + NUM_SHIFT * 2),
+		K_I = mu_I / (1. - 2.*nu_I), K_M = mu_M / (1. - 2.*nu_M), K_L = mu_L / (1. - 2.*nu_L), c0 = ff + ff_l, c1 = ff / c0, DD,
+		ku_I = (1. - nu_I) / (.5 - nu_I)*mu_I, ku_M = (1. - nu_M) / (.5 - nu_M)*mu_M, ku_L = (1. - nu_L) / (.5 - nu_L)*mu_L, AA = get_param(NUM_ADHES);
 	if (C_I == 0. || C_M == 0. || C_L == 0.) { //...классическая четырехфазная модель;
-		DD = ((K_I-K_M)-(1.-c1)*(K_I-K_L)*(1.+(K_M-K_L)/ku_L))/(1.+(1.-c1)*(K_I-K_L)/ku_L);
-		return (K_M+c0*DD/(1.+(1.-c0)*DD/ku_M));
+		DD = ((K_I - K_M) - (1. - c1)*(K_I - K_L)*(1. + (K_M - K_L) / ku_L)) / (1. + (1. - c1)*(K_I - K_L) / ku_L);
+		return (K_M + c0*DD / (1. + (1. - c0)*DD / ku_M));
 	}
-	double kk_I = sqrt(C_I/ku_I), kk_M = sqrt(C_M/ku_M), kk_L = sqrt(C_L/ku_L), RR1 = 1./sqrt(c1), RR2 = 1./sqrt(ff), hh[3];
+	double kk_I = sqrt(C_I / ku_I), kk_M = sqrt(C_M / ku_M), kk_L = sqrt(C_L / ku_L), RR1 = 1. / sqrt(c1), RR2 = 1. / sqrt(ff), hh[3];
 	scale_regul(1., kk_I, hh);
 	double HH1 = hh[1], HH2 = hh[2];
 	scale_regul(1., kk_L, hh);
@@ -2462,55 +2528,131 @@ double CCohes2D::TakeEshelby_volm(double ff, double ff_l)
 		{ 1.,		  -HH1, -1., -1.,		  HHL1,		 JJL1, 0., 0., 0., 0., 0., 0. }, //...равенство функций на границе включения;
 		{ 0.,			HH2,  0., -2.,		 -HHL2,		-JJL2, 0., 0., 0., 0., 0., 0. }, //...равенство нормальных производных на границе включения;
 		{ 0., -ku_I*HH1,  0.,  0., ku_L*HHL1, ku_L*JJL1, 0., 0., 0., 0., 0., 0. }, //...равенство моментов на границе включения;
-		{ K_I+mu_L, (mu_I-mu_L+ku_I*.5)*HH1, -ku_L, 0., -ku_L*.5*HHL1, -ku_L*.5*JJL1, 0., 0., 0., 0., 0., 0.}, //...поверхностные силы;
+		{ K_I + mu_L, (mu_I - mu_L + ku_I*.5)*HH1, -ku_L, 0., -ku_L*.5*HHL1, -ku_L*.5*JJL1, 0., 0., 0., 0., 0., 0. }, //...поверхностные силы;
 		{ 0.,	0., 1.,     c1, -HHM1, -JJM1, -1., -1.,  HHK1,  JJK1, 0., 0. }, //...равенство функций на границе слоя;
 		{ 0.,	0., 0.,  2.*c1,  HHM2,  JJM2,  0., -2., -HHK2, -JJK2, 0., 0. }, //...равенство нормальных производных на границе слоя;
-		{ 0., 0., AA, -AA*c1, -ku_L*HHM1-AA*(HHM1+HHM2), -ku_L*JJM1-AA*(JJM1+JJM2), 0., 0., ku_M*HHK1, ku_M*JJK1, 0., 0. }, //...равенство моментов на границе слоя;
-		{ 0., 0., K_L, -mu_L*c1, (mu_L+ku_L*.5)*HHM1, (mu_L+ku_L*.5)*JJM1, -K_M, mu_M, -(mu_M+ku_M*.5)*HHK1, -(mu_M+ku_M*.5)*JJK1, 0., 0. }, //...поверхностные силы;
+		{ 0., 0., AA, -AA*c1, -ku_L*HHM1 - AA*(HHM1 + HHM2), -ku_L*JJM1 - AA*(JJM1 + JJM2), 0., 0., ku_M*HHK1, ku_M*JJK1, 0., 0. }, //...равенство моментов на границе слоя;
+		{ 0., 0., K_L, -mu_L*c1, (mu_L + ku_L*.5)*HHM1, (mu_L + ku_L*.5)*JJM1, -K_M, mu_M, -(mu_M + ku_M*.5)*HHK1, -(mu_M + ku_M*.5)*JJK1, 0., 0. }, //...поверхностные силы;
 		{ 0., 0., 0., 0., 0., 0., 1., c0, -HHP1, -JJP1, 0., 1. }, //...перемещения на границе эффективной области;
 #ifdef __NORMAL_DERIV_SECOND__
-//		{ 0., 0., 0., 0., 0., 0., 1.,   -c0, -HHP1-HHP2, -JJP1-JJP2, 0., 0. }, 
-		{ 0., 0., 0., 0., 0., 0., 0., 2.*c0,  HHP2, JJP2, 0., 1. }, //...равенство нулю нормальной производной на границе матрицы;
+																					 //		{ 0., 0., 0., 0., 0., 0., 1.,   -c0, -HHP1-HHP2, -JJP1-JJP2, 0., 0. }, 
+	{ 0., 0., 0., 0., 0., 0., 0., 2.*c0,  HHP2, JJP2, 0., 1. }, //...равенство нулю нормальной производной на границе матрицы;
 #else
-		{ 0., 0., 0., 0., 0., 0., 0., 0.,  HHP1,  JJP1, 0., 0. }, //...равенство нулю когезионного поля на границе матрицы;
+	{ 0., 0., 0., 0., 0., 0., 0., 0.,  HHP1,  JJP1, 0., 0. }, //...равенство нулю когезионного поля на границе матрицы;
 #endif
-//		{ 0., 0., 0., 0., 0., 0., K_M, -mu_M*c0, (mu_M+ku_M*.5)*HHP1, (mu_M+ku_M*.5)*JJP1, -1., 0.},
-		{ 0., 0., 0., 0., 0., 0., ku_M,  0., ku_M*.5*HHP1, ku_M*.5*JJP1, -1., mu_M }, //...эффективный модуль;
+																				 //		{ 0., 0., 0., 0., 0., 0., K_M, -mu_M*c0, (mu_M+ku_M*.5)*HHP1, (mu_M+ku_M*.5)*JJP1, -1., 0.},
+	{ 0., 0., 0., 0., 0., 0., ku_M,  0., ku_M*.5*HHP1, ku_M*.5*JJP1, -1., mu_M }, //...эффективный модуль;
+	};
+
+	////////////////////////////////////////////////////////////////////////////////////////////
+	//...решаем систему линейных уравнений  A0, A0*, A1, A1^, A1*, A1*^, A2, A2^, A2*, A2*^, KH;
+	int dim_N = 11, ii[11] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, i, k, l, k0, l0;
+	for (i = 0; i < dim_N; i++) {
+		double f = 0.;
+		///////////////////////////////////////
+		//...look for position maximal element;
+		for (k = 0; k < dim_N; k++)
+			if (ii[k] != 1)
+				for (l = 0; l < dim_N; l++)
+					if (!ii[l]) {
+						if (fabs(matr[k][l]) >= f) f = fabs(matr[k0 = k][l0 = l]);
+					}
+					else if (ii[l] > 1) return(0.);
+					++(ii[l0]);
+					///////////////////////////////////////////////////////////
+					//...swapping row for diagonal position of maximal element;
+					if (k0 != l0)
+						for (l = 0; l <= dim_N; l++) {
+							f = matr[k0][l]; matr[k0][l] = matr[l0][l]; matr[l0][l] = f;
+						}
+					if (matr[l0][l0] == 0.) return(0.);
+					////////////////////////////////
+					//...diagonal row normalization;
+					double finv = 1. / matr[l0][l0]; matr[l0][l0] = 1.;
+					for (l = 0; l <= dim_N; l++) matr[l0][l] *= finv;
+					/////////////////////////////////
+					//...elimination all outher rows;
+					for (k = 0; k < dim_N; k++)
+						if (k != l0) {
+							finv = matr[k][l0]; matr[k][l0] = 0.;
+							for (l = 0; l <= dim_N; l++) matr[k][l] -= matr[l0][l] * finv;
+						}
+	}
+	for (l = 0; l < dim_N; l++) KK[l] = matr[l][dim_N];
+	return (matr[dim_N - 1][dim_N]);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//...четырехфазная модель для градиентного цилиндрического включения, слоя и обычной матрицы (прямой алгоритм);
+double CCohes2D::TakeEshelbyGradInclu_volm(double ff, double ff_l)
+{
+	double mu_I = get_param(NUM_SHEAR+NUM_SHIFT), nu_I = get_param(NUM_SHEAR+1+NUM_SHIFT), C_I = get_param(NUM_SHEAR-1+NUM_SHIFT),
+		mu_M = get_param(NUM_SHEAR), nu_M = get_param(NUM_SHEAR+1),
+		mu_L = get_param(NUM_SHEAR+NUM_SHIFT*2), nu_L = get_param(NUM_SHEAR+1+NUM_SHIFT*2), C_L = get_param(NUM_SHEAR-1 + NUM_SHIFT * 2),
+		K_I = mu_I/(1.-2.*nu_I), K_M = mu_M/(1.-2.*nu_M), K_L = mu_L/(1.-2.*nu_L), c0 = ff+ff_l, c1 = ff/c0, DD,
+		ku_I = (1.-nu_I) / (.5-nu_I)*mu_I, ku_M = (1.-nu_M)/(.5-nu_M)*mu_M, ku_L = (1.-nu_L)/(.5-nu_L)*mu_L, AA = get_param(NUM_ADHES);
+	if (C_I == 0. || C_L == 0.) { //...классическая четырехфазная модель;
+		DD = ((K_I-K_M)-(1.-c1)*(K_I-K_L)*(1.+(K_M-K_L)/ku_L))/(1.+(1.-c1)*(K_I-K_L)/ku_L);
+		return (K_M+c0*DD/(1.+(1.-c0)*DD/ku_M));
+	}
+	double kk_I = sqrt(C_I/ku_I), kk_L = sqrt(C_L/ku_L), RR1 = 1./sqrt(c1), RR2 = 1./sqrt(ff), hh[3];
+	scale_regul(1., kk_I, hh);
+	double HH1 = hh[1], HH2 = hh[2];
+	scale_regul(1., kk_L, hh);
+	double HHL1 = hh[1], HHL2 = hh[2];
+	scale_irreg(1., kk_L, hh);
+	double JJL1 = hh[1], JJL2 = hh[2], HHM1, JJM1, HHM2, JJM2;
+	scale_regul(RR1, kk_L, hh); HHM1 = hh[1]; HHM2 = hh[2];
+	scale_irreg(RR1, kk_L, hh); JJM1 = hh[1]; JJM2 = hh[2];
+	double matr[9][10] = {
+		{ 1.,		  -HH1, -1., -1.,		  HHL1,		 JJL1, 0., 0., 0., 0. }, //...равенство функций на границе включения;
+		{ 0.,			HH2,  0., -2.,		 -HHL2,		-JJL2, 0., 0., 0., 0. }, //...равенство нормальных производных на границе включения;
+		{ 0., -ku_I*HH1,  0.,  0., ku_L*HHL1, ku_L*JJL1, 0., 0., 0., 0. }, //...равенство моментов на границе включения;
+		{ K_I + mu_L, (mu_I - mu_L + ku_I*.5)*HH1, -ku_L, 0., -ku_L*.5*HHL1, -ku_L*.5*JJL1, 0., 0., 0., 0. }, //...поверхностные силы;
+		{ 0.,	0., 1.,     c1, -HHM1, -JJM1, -1., -1., 0., 0. }, //...равенство функций на границе слоя;
+#ifdef __NORMAL_DERIV_SECOND__
+		{ 0.,	0., 0., 2.*c1,  HHM2,  JJM2, -1., -1., 0., 0. },  //...равенство нулю нормальных производных на границе слоя;
+#else
+		{ 0.,	0., 0.,    0.,  HHM1,  JJM1,  0.,  0., 0., 0. },  //...равенство нулю когезионного поля на границе слоя;
+#endif
+		{ 0., 0., ku_L, 0., ku_L*.5*HHM1, ku_L*.5*JJM1, -K_M-mu_L, mu_M-mu_L, 0., 0. }, //...поверхностные силы на границе слоя;
+		{ 0., 0., 0., 0., 0., 0., 1., c0, 0., 1. },		  //...перемещения на границе эффективной области;
+		{ 0., 0., 0., 0., 0., 0., ku_M,  0., -1., mu_M }, //...эффективный модуль;
 	};
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 //...решаем систему линейных уравнений  A0, A0*, A1, A1^, A1*, A1*^, A2, A2^, A2*, A2*^, KH;
-	int dim_N = 11, ii[11] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, i, k, l, k0, l0;
+	int dim_N = 9, ii[9] = { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, i, k, l, k0, l0;
 	for (i = 0; i < dim_N; i++) {
 		double f = 0.;
 ///////////////////////////////////////
 //...look for position maximal element;
 		for (k = 0; k < dim_N; k++)
-			if (ii[k] != 1) 
-				for (l = 0; l < dim_N; l++) 
-					if (! ii[l]) {
-						if (fabs(matr[k][l]) >= f) f = fabs(matr[k0 = k][l0 = l]); 
+			if (ii[k] != 1)
+				for (l = 0; l < dim_N; l++)
+					if (!ii[l]) {
+						if (fabs(matr[k][l]) >= f) f = fabs(matr[k0 = k][l0 = l]);
 					}
 					else if (ii[l] > 1) return(0.);
-		++(ii[l0]);
+					++(ii[l0]);
 ///////////////////////////////////////////////////////////
 //...swapping row for diagonal position of maximal element;
-		if (k0 != l0) 
-			for (l = 0; l <= dim_N; l++) {
-				f = matr[k0][l]; matr[k0][l] = matr[l0][l]; matr[l0][l] = f; 
-			}
-		if (matr[l0][l0] == 0.) return(0.);
+					if (k0 != l0)
+						for (l = 0; l <= dim_N; l++) {
+							f = matr[k0][l]; matr[k0][l] = matr[l0][l]; matr[l0][l] = f;
+						}
+					if (matr[l0][l0] == 0.) return(0.);
 ////////////////////////////////
 //...diagonal row normalization;
-		double finv = 1./matr[l0][l0]; matr[l0][l0] = 1.;
-		for (l = 0; l <= dim_N; l++) matr[l0][l] *= finv;
+					double finv = 1. / matr[l0][l0]; matr[l0][l0] = 1.;
+					for (l = 0; l <= dim_N; l++) matr[l0][l] *= finv;
 /////////////////////////////////
 //...elimination all outher rows;
-		for (k = 0; k < dim_N; k++)
-			if ( k != l0) {
-				finv = matr[k][l0]; matr[k][l0] = 0.;
-				for (l = 0; l <= dim_N; l++) matr[k][l] -= matr[l0][l]*finv;
-			}
+					for (k = 0; k < dim_N; k++)
+						if (k != l0) {
+							finv = matr[k][l0]; matr[k][l0] = 0.;
+							for (l = 0; l <= dim_N; l++) matr[k][l] -= matr[l0][l] * finv;
+						}
 	}
 	for (l = 0; l < dim_N; l++) KK[l] = matr[l][dim_N];
 	return (matr[dim_N-1][dim_N]);
@@ -2682,6 +2824,119 @@ double CCohes2D::TakeEshelby_shear(double ff, double ff_l, double eps, int max_i
 //...итерационный алгоритм вычисления модуля сдвига в поперечном направлении;
 	double optim, sgn0, sgn1, nu_H, mu_H, mu_H0, mu_H1/*, KH = TakeEshelby_volm_two(ff)*/,
 		** matrix = NULL; set_matrix(matrix, 22, 23); int * ii = new_struct<int>(22), k_iter = 0, k, l, m = 22;
+
+/////////////////////////////////////////////
+//...цикл по определению сдвиговой жесткости;
+	mu_H1 = mu_I*ff+mu_M*(1.-ff); mu_H1 *= 10.;
+	nu_H = /*0.5*(1.-mu_H1/KH)*/0.3;
+	for (k = 0; k < m; k++)
+		for (l = 0; l < m+1; l++) matrix[k][l] = matr[k][l];
+	optim = take_system_cyl(matrix, ii, m, mu_H1, nu_H);
+	if (optim > 0.) sgn1 = 1.; else sgn1 = -1.;
+
+	mu_H0 = mu_H1;
+	do {
+		mu_H0 /= 2.; k_iter++;
+		nu_H = /*0.5*(1.-mu_H0/KH)*/0.3;
+		for (k = 0; k < m; k++)
+			for (l = 0; l < m+1; l++) matrix[k][l] = matr[k][l];
+		optim = take_system_cyl(matrix, ii, m, mu_H0, nu_H);
+	} while (optim*sgn1 > 0. && k_iter < max_iter);
+	if (optim > 0.) sgn0 = 1.; else sgn0 = -1.; k_iter = 0;
+
+	do {
+		mu_H = (mu_H0+mu_H1)*.5; k_iter++;
+		nu_H = /*0.5*(1.-mu_H/KH)*/0.3;
+		for (k = 0; k < m; k++)
+			for (l = 0; l < m+1; l++)	matrix[k][l] = matr[k][l];
+		optim = take_system_cyl(matrix, ii, m, mu_H, nu_H);
+		if (optim*sgn0 > 0.) mu_H0 = mu_H; else
+			if (optim*sgn0 < 0.) mu_H1 = mu_H; else mu_H0 = mu_H1 = mu_H;
+	} while (fabs(mu_H1-mu_H0) > eps && k_iter < max_iter);
+	mu_H = (mu_H0+mu_H1)*.5;
+
+	//////////////////////////////////
+	//...вычисляем эффективные модули;
+	if (sgn0*sgn1 > 0. || fabs(optim) > 1e-6) mu_H = -mu_H;
+	for (l = 0; l < m; l++) GG[l] = matrix[l][m];
+	delete_struct(matrix); delete_struct(ii);
+
+	for (optim = -1., l = 0; l < m; l++) optim += GG[l]*matr[m-4][l];
+	for (optim = -1., l = 0; l < m; l++) optim += GG[l]*matr[m-3][l];
+
+	return(mu_H);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//...четырехфазная модель для градиентного цилиндрического включения, слоя и обычной матрицы (итерационный алгоритм);
+double CCohes2D::TakeEshelbyGradInclu_shear(double ff, double ff_l, double eps, int max_iter)
+{
+	double mu_I = get_param(NUM_SHEAR+NUM_SHIFT), nu_I = get_param(NUM_SHEAR+1+NUM_SHIFT), C_I = get_param(NUM_SHEAR-1+NUM_SHIFT),
+			 mu_M = get_param(NUM_SHEAR), nu_M = get_param(NUM_SHEAR+1),
+			 mu_L = get_param(NUM_SHEAR+NUM_SHIFT*2), nu_L = get_param(NUM_SHEAR+1+NUM_SHIFT*2), C_L = get_param(NUM_SHEAR-1+NUM_SHIFT*2),
+			 K_I  = mu_I/(1.-2.*nu_I), K_M = mu_M/(1.-2.*nu_M), K_L = mu_L/(1.-2.*nu_L), c0 = ff+ff_l, c1 = ff/c0,
+			 ku_I = (1.-nu_I)/(.5-nu_I)*mu_I, kk_I = sqrt(C_I/ku_I), kp_I = sqrt(C_I/mu_I), AA = get_param(NUM_ADHES), 
+			 ku_M = (1.-nu_M)/(.5-nu_M)*mu_M, BB = get_param(NUM_ADHES+1), 
+			 ku_L = (1.-nu_L)/(.5-nu_L)*mu_L, kk_L = sqrt(C_L/ku_L), kp_L = sqrt(C_L/mu_L), RR1 = 1./sqrt(c1), RR2 = 1./sqrt(ff), hh[3];
+	scale_regul(1., kk_I, hh);
+	double HH1 = hh[1], HH2 = hh[2];
+	scale_regul(1., kk_L, hh);
+	double HHL1 = hh[1], HHL2 = hh[2];
+	scale_irreg(1., kk_L, hh);
+	double JJL1 = hh[1], JJL2 = hh[2], HHM1, JJM1, HHM2, JJM2;
+	scale_regul(RR1, kk_L, hh); HHM1 = hh[1]; HHM2 = hh[2];
+	scale_irreg(RR1, kk_L, hh); JJM1 = hh[1]; JJM2 = hh[2];
+/////////////////////////////////////////////////////////////////////////
+//...дополнительные масштабные функции для сдвигового масштабного модуля;
+	scale_regul(1., kp_I, hh);
+	double HP1 = hh[1], HP2 = hh[2];
+	scale_regul(1., kp_L, hh);
+	double HPL1 = hh[1], HPL2 = hh[2];
+	scale_irreg(1., kp_L, hh);
+	double JPL1 = hh[1], JPL2 = hh[2], HPM1, JPM1, HPM2, JPM2;
+	scale_regul(RR1, kp_L, hh); HPM1 = hh[1]; HPM2 = hh[2];
+	scale_irreg(RR1, kp_L, hh); JPM1 = hh[1]; JPM2 = hh[2];
+
+////////////////////////////////////////////////////////////////////////////
+//...заполняем матрицу для определения модуля сдвига в поперечной плоскости;
+	double matr[18][19] ={
+//...равенство функций на границе включения;
+		{ 1., -4.*nu_I, -HH1/ku_I+2.*HH2/C_I, -2.*HP2/C_I, -1., 4.*nu_L, nu_L-1., -2., HHL1/ku_L-2.*HHL2/C_L, 2.*HPL2/C_L, JJL1/ku_L-2.*JJL2/C_L, 2.*JPL2/C_L, 0., 0., 0., 0., 0., 0., 0. },
+		{ 1., -2.*(3.-2.*nu_I), -2.*HH2/C_I, -HP1/mu_I+2.*HP2/C_I, -1., 2.*(3.-2.*nu_L), nu_L-.5, 2., 2.*HHL2/C_L, HPL1/mu_L-2.*HPL2/C_L, 2.*JJL2/C_L, JPL1/mu_L-2.*JPL2/C_L, 0., 0., 0., 0., 0., 0., 0. },
+//...поверхностные силы на границе включения;
+		{ mu_I, 0., (mu_I/ku_I+.5)*HH1-(4.*mu_I+ku_I)*HH2/C_I, -HP1+(4.*mu_I+ku_I)*HP2/C_I, -mu_L, 0., mu_L, 6.*mu_L, -(mu_L/ku_L+.5)*HHL1+(4.*mu_L+ku_L)*HHL2/C_L, HPL1-(4.*mu_L+ku_L)*HPL2/C_L, -(mu_L/ku_L+.5)*JJL1+(4.*mu_L+ku_L)*JJL2/C_L, JPL1-(4.*mu_L+ku_L)*JPL2/C_L, 0., 0., 0., 0., 0., 0., 0. },
+		{ mu_I, -6.*mu_I, (1.-2.*mu_I/ku_I)*HH1+(7.*mu_I-2.*ku_I)*HH2/C_I, 1.5*HP1-(7.*mu_I-2.*ku_I)*HP2/C_I, -mu_L, 6.*mu_L, -mu_L*.5, -6.*mu_L, -(1.-2.*mu_L/ku_L)*HHL1-(7.*mu_L-2.*ku_L)*HHL2/C_L, -1.5*HPL1+(7.*mu_L-2.*ku_L)*HPL2/C_L, -(1.-2.*mu_L/ku_L)*JJL1-(7.*mu_L-2.*ku_L)*JJL2/C_L, -1.5*JPL1+(7.*mu_L-2.*ku_L)*JPL2/C_L, 0., 0., 0., 0., 0., 0., 0. },
+//...равенство моментов на границе включения;
+		{ 0., 0., -ku_I*(HH1/ku_I-2.*HH2/C_I), -2.*ku_I*HP2/C_I, 0., 0., 0., 0., ku_L*(HHL1/ku_L-2.*HHL2/C_L), 2.*ku_L*HPL2/C_L, ku_L*(JJL1/ku_L-2.*JJL2/C_L), 2.*ku_L*JPL2/C_L, 0., 0., 0., 0., 0., 0., 0. },
+		{ 0., 0., -2.*mu_I*HH2/C_I, -mu_I*(HP1/mu_I-2.*HP2/C_I), 0., 0., 0., 0., 2.*mu_L*HHL2/C_L, mu_L*(HPL1/mu_L-2.*HPL2/C_L), 2.*mu_L*JJL2/C_L, mu_L*(JPL1/mu_L-2.*JPL2/C_L), 0., 0., 0., 0., 0., 0., 0. },
+//...равенство нормальных производных на границе включения;
+		{ 1., -12.*nu_I, (HH1-(1.+6.*ku_I/C_I)*HH2)/ku_I, -2.*HP1/mu_I+6.*HP2/C_I, -1., 12.*nu_L, 1.-nu_L, 6., -(HHL1-(1.+6.*ku_L/C_L)*HHL2)/ku_L, 2.*HPL1/mu_L-6.*HPL2/C_L, -(JJL1-(1.+6.*ku_L/C_L)*JJL2)/ku_L, 2.*JPL1/mu_L-6.*JPL2/C_L, 0., 0., 0., 0., 0., 0., 0. },
+		{ 1., -6.*(3.-2.*nu_I), -2.*HH1/ku_I+6.*HH2/C_I, (HP1-(1.+6.*mu_I/C_I)*HP2)/mu_I, -1., 6.*(3.-2.*nu_L), .5-nu_L, -6., 2.*HHL1/ku_L-6.*HHL2/C_L, -(HPL1-(1.+6.*mu_L/C_L)*HPL2)/mu_L, 2.*JJL1/ku_L-6.*JJL2/C_L, -(JPL1-(1.+6.*mu_L/C_L)*JPL2)/mu_L, 0., 0., 0., 0., 0., 0., 0. },
+//...равенство функций на границе слоя;
+		{ 0., 0., 0., 0., 1., -4.*nu_L/c1, (1.-nu_L)*c1, 2.*sqr(c1), -HHM1/ku_L+2.*c1*HHM2/C_L, -2.*c1*HPM2/C_L, -JJM1/ku_L+2.*c1*JJM2/C_L, -2.*c1*JPM2/C_L, -1., 4.*nu_M, nu_M-1., -2., 0., 0., 0. },
+		{ 0., 0., 0., 0., 1., -2.*(3.-2.*nu_L)/c1, (.5-nu_L)*c1, -2.*sqr(c1), -2.*c1*HHM2/C_L, -HPM1/mu_L+2.*c1*HPM2/C_L, -2.*c1*JJM2/C_L, -JPM1/mu_L+2.*c1*JPM2/C_L, -1., 2.*(3.-2.*nu_M), nu_M-.5, 2., 0., 0., 0. },
+//...поверхностные силы на границе слоя;
+		{ 0., 0., 0., 0., mu_L, 0., -mu_L*c1, -6.*mu_L*sqr(c1), (mu_L/ku_L+.5)*HHM1-(4.*mu_L+ku_L)*c1*HHM2/C_L, -HPM1+(4.*mu_L+ku_L)*c1*HPM2/C_L, (mu_L/ku_L+.5)*JJM1-(4.*mu_L+ku_L)*c1*JJM2/C_L, -JPM1+(4.*mu_L+ku_L)*c1*JPM2/C_L, -mu_M, 0., mu_M, 6.*mu_M, 0., 0., 0. },
+		{ 0., 0., 0., 0., mu_L, -6.*mu_L/c1, mu_L*.5*c1, 6.*mu_L*sqr(c1), (1.-2.*mu_L/ku_L)*HHM1+(7.*mu_L-2.*ku_L)*c1*HHM2/C_L, 1.5*HPM1-(7.*mu_L-2.*ku_L)*c1*HPM2/C_L, (1.-2.*mu_L/ku_L)*JJM1+(7.*mu_L-2.*ku_L)*c1*JJM2/C_L, 1.5*JPM1-(7.*mu_L-2.*ku_L)*c1*JPM2/C_L, -mu_M, 6.*mu_M, -mu_M*.5, -6.*mu_M, 0., 0., 0. },
+#ifdef __NORMAL_DERIV_SECOND__ //...равенство нулю нормальных производных на границе слоя;
+		{ 0., 0., 0., 0., 1., -12.*nu_L/c1, (nu_L-1.)*c1, -6.*sqr(c1), (HHM1-(1.+6.*c1*ku_L/C_L)*HHM2)/ku_L, -2.*HPM1/mu_L+6.*c1*HPM2/C_L, (JJM1-(1.+6.*c1*ku_L/C_L)*JJM2)/ku_L, -2.*JPM1/mu_L+6.*c1*JPM2/C_L, 0., 0., 0., 0., 0., 0., 0. },
+		{ 0., 0., 0., 0., 1., -6.*(3.-2.*nu_L)/c1, (nu_L-.5)*c1, 6.*sqr(c1), -2.*HHM1/ku_L+6.*c1*HHM2/C_L, (HPM1-(1.+6.*c1*mu_L/C_L)*HPM2)/mu_L, -2.*JJM1/ku_L+6.*c1*JJM2/C_L, (JPM1-(1.+6.*c1*mu_L/C_L)*JPM2)/mu_L, 0., 0., 0., 0., 0., 0., 0. },
+#else //...равенство нулю когезионного поля на границе слоя;
+		{ 0., 0., 0., 0., 0., 0., 0., 0., HHM1/ku_L-2.*c1*HHM2/C_L, 2.*c1*HPM2/C_L, JJM1/ku_L-2.*c1*JJM2/C_L, 2.*c1*JPM2/C_L, 0., 0., 0., 0., 0., 0., 0. },
+		{ 0., 0., 0., 0., 0., 0., 0., 0., 2.*c1*HHM2/C_L, HPM1/mu_L-2.*c1*HPM2/C_L, 2.*c1*JJM2/C_L, JPM1/mu_L-2.*c1*JPM2/C_L, 0., 0., 0., 0., 0., 0., 0. },
+#endif
+//...перемещения на границе эффективной области;
+		{ 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., -4.*nu_M/c0, (1.-nu_M)*c0, 2.*sqr(c0), -2., -1. , 1. },
+		{ 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., -2.*(3.-2.*nu_M)/c0, (.5-nu_M)*c0, -2.*sqr(c0), 2., -1. , 1. },
+//...поверхностные силы на границе эффективной области;
+		{ 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., mu_M, 0., -mu_M*c0, -6.*mu_M*sqr(c0), 6., 1., 1. },
+		{ 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., mu_M, -6.*mu_M*c0, mu_M*.5*c0, 6.*mu_M*sqr(c0), -6., -0.5, 1. },
+	};
+
+/////////////////////////////////////////////////////////////////////////////
+//...итерационный алгоритм вычисления модуля сдвига в поперечном направлении;
+	double optim, sgn0, sgn1, nu_H, mu_H, mu_H0, mu_H1/*, KH = TakeEshelby_volm_two(ff)*/,
+		** matrix = NULL; set_matrix(matrix, 18, 19); int * ii = new_struct<int>(18), k_iter = 0, k, l, m = 18;
 
 /////////////////////////////////////////////
 //...цикл по определению сдвиговой жесткости;
@@ -3242,8 +3497,8 @@ double CCohes2D::TakeGradLayer_G1(double ff, double ff_l, double eps, int max_it
 		{ 0., 0., 1., -12.*nu_L/c1, (nu_L-1.)*c1, -6.*sqr(c1), (HHM1-(1.+6.*c1*ku_L/C_L)*HHM2)/ku_L, -2.*HPM1/mu_L+6.*c1*HPM2/C_L, (JJM1-(1.+6.*c1*ku_L/C_L)*JJM2)/ku_L, -2.*JPM1/mu_L+6.*c1*JPM2/C_L, 0., 0., 0., 0., 0., 0., 0. },
 		{ 0., 0., 1., -6.*(3.-2.*nu_L)/c1, (nu_L-.5)*c1, 6.*sqr(c1), -2.*HHM1/ku_L+6.*c1*HHM2/C_L, (HPM1-(1.+6.*c1*mu_L/C_L)*HPM2)/mu_L, -2.*JJM1/ku_L+6.*c1*JJM2/C_L, (JPM1-(1.+6.*c1*mu_L/C_L)*JPM2)/mu_L, 0., 0., 0., 0., 0., 0., 0. },
 #else //...равенство нулю когезионного поля на границе слоя;
-		{ 0., 0., 0., 0., 0., 0., HHM1/ku_L-2.*c1*HHM2/C_L, 2.*c1*HPM2/C_L, JJM1/ku_L-2.*c1*JJM2/C_L, 2.*c1*JPM2/C_L, 0., 0., 0., 0., 0. },
-		{ 0., 0., 0., 0., 0., 0., 2.*c1*HHM2/C_L, HPM1/mu_L-2.*c1*HPM2/C_L, 2.*c1*JJM2/C_L, JPM1/mu_L-2.*c1*JPM2/C_L, 0., 0., 0., 0., 0. },
+		{ 0., 0., 0., 0., 0., 0., HHM1/ku_L-2.*c1*HHM2/C_L, 2.*c1*HPM2/C_L, JJM1/ku_L-2.*c1*JJM2/C_L, 2.*c1*JPM2/C_L, 0., 0., 0., 0., 0., 0., 0. },
+		{ 0., 0., 0., 0., 0., 0., 2.*c1*HHM2/C_L, HPM1/mu_L-2.*c1*HPM2/C_L, 2.*c1*JJM2/C_L, JPM1/mu_L-2.*c1*JPM2/C_L, 0., 0., 0., 0., 0., 0., 0. },
 #endif
 //...перемещения на границе эффективной области;
 		{ 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., -4.*nu_M/c0, (1.-nu_M)*c0, 2.*sqr(c0), -2., -1. , 1. },
@@ -3723,10 +3978,18 @@ void CCohes2D::TakeEshelbyModel(double ff, double ff_l, double fK, double fG)
 	B[3].shape->A[2][8] = B[3].shape->A[1][8]*fG+B[3].shape->A[0][8]*fK;
 	B[3].shape->A[2][6] = B[3].shape->A[1][6]*fG;
 	B[3].shape->A[2][12] = B[3].shape->A[1][12]*fG;
-	B[3].shape->A[2][16] = B[3].shape->A[1][16]*fG+B[3].shape->A[0][16]*fK;
-	B[3].shape->A[2][22] = B[3].shape->A[1][22]*fG+B[3].shape->A[0][22]*fK;
-	B[3].shape->A[2][20] = B[3].shape->A[1][20]*fG;
-	B[3].shape->A[2][26] = B[3].shape->A[1][26]*fG;
+	B[3].shape->A[2][16] = B[3].shape->A[1][16]*fG;
+	B[3].shape->A[2][22] = B[3].shape->A[1][22]*fG;
+	B[3].shape->A[2][30] = B[3].shape->A[1][16]*fG+B[3].shape->A[0][16]*fK;
+	B[3].shape->A[2][36] = B[3].shape->A[1][22]*fG+B[3].shape->A[0][22]*fK;
+	B[3].shape->A[2][44] = B[3].shape->A[1][44]*fG+B[3].shape->A[0][44]*fK;
+	B[3].shape->A[2][50] = B[3].shape->A[1][50]*fG+B[3].shape->A[0][50]*fK;
+	B[3].shape->A[2][48] = B[3].shape->A[1][48]*fG;
+	B[3].shape->A[2][54] = B[3].shape->A[1][54]*fG;
+	B[3].shape->A[2][58] = B[3].shape->A[1][58]*fG;
+	B[3].shape->A[2][64] = B[3].shape->A[1][64]*fG;
+	B[3].shape->A[2][72] = B[3].shape->A[1][72]*fG+B[3].shape->A[0][72]*fK;
+	B[3].shape->A[2][78] = B[3].shape->A[1][78]*fG+B[3].shape->A[0][78]*fK;
 
 	return;
 }
@@ -4195,6 +4458,175 @@ void CCohes2D::TakeEshelbyGradModel_two(double ff, double fK, double fG)
 	B[2].shape->A[2][64] = B[2].shape->A[1][64]*fG;
 	B[2].shape->A[2][72] = B[2].shape->A[1][72]*fG+B[2].shape->A[0][72]*fK;
 	B[2].shape->A[2][78] = B[2].shape->A[1][78]*fG+B[2].shape->A[0][78]*fK;
+
+	return;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+//...четырехфазная модель Эщелби для цилиндрических включений с градиентным включением и матрицей;
+void CCohes2D::TakeEshelbyGradIncluModel(double ff, double ff_l, double fK, double fG)
+{
+	double KH = TakeEshelbyGradInclu_volm(ff, ff_l), GH = TakeEshelbyGradInclu_shear(ff, ff_l), 
+			 EH = fabs(GH)*(3*KH-fabs(GH))/KH, nuH = (KH-GH)/(2.*KH), kuH = (1.-nuH)/(.5-nuH)*GH,
+			mu_M = get_param(NUM_SHEAR), nu_M = get_param(NUM_SHEAR+1), kuM = (1.-nu_M)/(.5-nu_M)*mu_M, K_M = mu_M/(1.-2.*nu_M),
+			mu_I = get_param(NUM_SHEAR+NUM_SHIFT), nu_I = get_param(NUM_SHEAR+1+NUM_SHIFT), C_I = get_param(NUM_SHEAR-1+NUM_SHIFT), kuI = (1.-nu_I)/(.5-nu_I)*mu_I, K_I = mu_I/(1.-2.*nu_I),
+			mu_L = get_param(NUM_SHEAR+NUM_SHIFT*2), nu_L = get_param(NUM_SHEAR+1+NUM_SHIFT*2), C_L = get_param(NUM_SHEAR-1+NUM_SHIFT*2), kuL = (1.-nu_L)/(.5-nu_L)*mu_L, K_L = mu_L/(1.-2.*nu_L);
+	fK *= kuH;
+	fG *= GH;
+
+////////////////////////////////////////////////////
+//...образуем образец из четырех сферических блоков;
+	double rad0 = 1., rad1 = 1./sqrt(ff/(ff+ff_l)), rad2 = 1./sqrt(ff), AA = 4.*rad2;
+	GetCircleQuadStruct2(AA, AA, rad0, rad1-rad0, rad2-rad1);
+	B[0].type = GRAD_POLY_BLOCK;
+	B[2].type = GRAD_ZOOM_BLOCK;
+
+////////////////////////////////////
+//...устанавливаем параметры задачи;
+	set_mpls(PackInts(3, 3)); //...multipoles degree;
+	set_quad(PackInts(4, 2)); //...quadrature degree;
+	set_normaliz(1.);			  //...normalization coeffitient;
+	set_lagrange(1.);			  //...Lagrange corfficient for LSM;
+	if (size_of_param() > NUM_SHEAR+3+NUM_SHIFT*3) {
+		param[NUM_SHEAR-1+NUM_SHIFT*3] = param[NUM_SHEAR-1];
+		param[NUM_SHEAR+NUM_SHIFT*3] = param[NUM_SHEAR];
+		param[NUM_SHEAR+1+NUM_SHIFT*3] = param[NUM_SHEAR+1];
+		param[NUM_SHEAR+2+NUM_SHIFT*3] = param[NUM_SHEAR+2];
+		param[NUM_SHEAR+3+NUM_SHIFT*3] = param[NUM_SHEAR+3];
+		param[NUM_SHEAR-1] = 0.;
+		param[NUM_SHEAR] = GH;
+		param[NUM_SHEAR+1] = nuH;
+		param[NUM_SHEAR+2] = 0.;
+		param[NUM_SHEAR+3] = 0.;
+	}
+
+//////////////////////////////////
+//...определяем блочную структуру;
+	solver.set_blocks(N, 3); //<==== number of saved potentials !!!
+	solver.n += 12;//<==== number of additional auxilliary arrays!!!
+	for (int k = 0; k < solver.N;  k++)
+		  solver.set_links(k, B[k].link);
+
+	shapes_init(INITIAL_STATE);
+	shapes_init(NULL_STATE);
+	LinkPhase2D(MAX_PHASE);
+
+	for (int k = 0; k < solver.N;  k++)
+	solver.set_dimension(k, freedom_block(k));
+   solver.struct_init();
+
+/////////////////////////////////////////////////////////////////////////////////////////
+//...заносим коэффициенты в представление Папковича-Нейбера, плоское всестороннее сжатие;
+	B[0].shape->set_R(1.);
+	B[0].shape->set_shape(1, 1., get_param(NUM_SHEAR+3+(-B[0].link[NUM_PHASE]-1)*NUM_SHIFT));
+	B[0].shape->set_shape(2, 1., get_param(NUM_SHEAR+2+(-B[0].link[NUM_PHASE]-1)*NUM_SHIFT));
+	B[0].shape->A[0][2] = KK[0]*kuI/kuH;
+	B[0].shape->A[0][8] = KK[0]*kuI/kuH;
+	B[0].shape->A[0][30] = KK[1]*.5*C_I/kuH;
+	B[0].shape->A[0][36] = KK[1]*.5*C_I/kuH;
+	B[1].shape->set_R(1.);
+	B[1].shape->A[0][2] = 1.;
+	B[1].shape->A[0][8] = 1.;
+	B[2].shape->set_R(1.);
+	B[2].shape->set_shape(1, 1., get_param(NUM_SHEAR+3+(-B[2].link[NUM_PHASE]-1)*NUM_SHIFT));
+	B[2].shape->set_shape(2, 1., get_param(NUM_SHEAR+2+(-B[2].link[NUM_PHASE]-1)*NUM_SHIFT));
+	B[2].shape->set_shape(4, 1., get_param(NUM_SHEAR+3+(-B[2].link[NUM_PHASE]-1)*NUM_SHIFT));
+	B[2].shape->set_shape(5, 1., get_param(NUM_SHEAR+2+(-B[2].link[NUM_PHASE]-1)*NUM_SHIFT));
+	B[2].shape->A[0][2] = KK[2]*kuL/kuH;
+	B[2].shape->A[0][8] = KK[2]*kuL/kuH;
+	B[2].shape->A[0][30] = KK[4]*.5*C_L/kuH;
+	B[2].shape->A[0][36] = KK[4]*.5*C_L/kuH;
+	B[2].shape->A[0][44] = KK[3]*mu_L/kuH;
+	B[2].shape->A[0][50] = KK[3]*mu_L/kuH;
+	B[2].shape->A[0][72] = KK[5]*.5*C_L/kuH;
+	B[2].shape->A[0][78] = KK[5]*.5*C_L/kuH;
+	B[3].shape->set_R(1.);
+	B[3].shape->A[0][2] = KK[6]*kuM/kuH;
+	B[3].shape->A[0][8] = KK[6]*kuM/kuH;
+	B[3].shape->A[0][16] = KK[7]*mu_M/kuH*(1.+ff_l/ff);
+	B[3].shape->A[0][22] = KK[7]*mu_M/kuH*(1.+ff_l/ff);
+
+/////////////////////////////////
+////...деформация чистого сдвига;
+	B[0].shape->A[1][2] = GG[0]*kuI/kuH;
+	B[0].shape->A[1][8] = -GG[0]*kuI/kuH;
+	B[0].shape->A[1][6] = 4.*GG[1]*mu_I*(1.-nu_I)/kuH;
+	B[0].shape->A[1][12] = 4.*GG[1]*mu_I*(1.-nu_I)/kuH;
+	B[0].shape->A[1][16] = GG[3]*.5*C_I/(mu_I*kuH);
+	B[0].shape->A[1][22] = -GG[3]*.5*C_I/(mu_I*kuH);
+	B[0].shape->A[1][30] = GG[2]*.5*C_I/(kuI*kuH);
+	B[0].shape->A[1][36] = -GG[2]*.5*C_I/(kuI*kuH);
+	B[1].shape->A[1][2] = 1.;
+	B[1].shape->A[1][8] = -1.;
+	B[1].shape->A[1][16] = GG[17]*(.5-nuH)/ff;
+	B[1].shape->A[1][22] = -GG[17]*(.5-nuH)/ff;
+	B[1].shape->A[1][20] = 2.*GG[16]*(.5-nuH)/(1.5-nuH)/sqr(ff);
+	B[1].shape->A[1][26] = 2.*GG[16]*(.5-nuH)/(1.5-nuH)/sqr(ff);
+	B[2].shape->A[1][2] = GG[4]*kuL/kuH;
+	B[2].shape->A[1][8] = -GG[4]*kuL/kuH;
+	B[2].shape->A[1][6] = 4.*GG[5]*mu_L*(1.-nu_L)/kuH;
+	B[2].shape->A[1][12] = 4.*GG[5]*mu_L*(1.-nu_L)/kuH;
+	B[2].shape->A[1][16] = GG[9]*.5*C_L/(mu_L*kuH);
+	B[2].shape->A[1][22] = -GG[9]*.5*C_L/(mu_L*kuH);
+	B[2].shape->A[1][30] = GG[8]*.5*C_L/(kuL*kuH);
+	B[2].shape->A[1][36] = -GG[8]*.5*C_L/(kuL*kuH);
+	B[2].shape->A[1][44] = GG[6]*mu_L*(1.-nu_L)/kuH;
+	B[2].shape->A[1][50] = -GG[6]*mu_L*(1.-nu_L)/kuH;
+	B[2].shape->A[1][48] = 4.*GG[7]*mu_L*(1.-nu_L)/((3.-2.*nu_L)*kuH);
+	B[2].shape->A[1][54] = 4.*GG[7]*mu_L*(1.-nu_L)/((3.-2.*nu_L)*kuH);
+	B[2].shape->A[1][58] = GG[11]*.5*C_L/(mu_L*kuH);
+	B[2].shape->A[1][64] = -GG[11]*.5*C_L/(mu_L*kuH);
+	B[2].shape->A[1][72] = GG[10]*.5*C_L/(kuL*kuH);
+	B[2].shape->A[1][78] = -GG[10]*.5*C_L/(kuL*kuH);
+	B[3].shape->A[1][2] = GG[12]*kuM/kuH;
+	B[3].shape->A[1][8] = -GG[12]*kuM/kuH;
+	B[3].shape->A[1][6] = 4.*GG[13]*mu_M*(1.-nu_M)/(kuH*(1.+ff_l/ff));
+	B[3].shape->A[1][12] = 4.*GG[13]*mu_M*(1.-nu_M)/(kuH*(1.+ff_l/ff));
+	B[3].shape->A[1][16] = GG[14]*mu_M*(1.-nu_M)/kuH*(1.+ff_l/ff);
+	B[3].shape->A[1][22] = -GG[14]*mu_M*(1.-nu_M)/kuH*(1.+ff_l/ff);
+	B[3].shape->A[1][20] = 4.*GG[15]*mu_M*(1.-nu_M)/((3.-2.*nu_M)*kuH)*sqr(1.+ff_l/ff);
+	B[3].shape->A[1][26] = 4.*GG[15]*mu_M*(1.-nu_M)/((3.-2.*nu_M)*kuH)*sqr(1.+ff_l/ff);
+
+//////////////////////////////////
+////...комбинированная деформация;
+	B[0].shape->A[2][2] = B[0].shape->A[1][2]*fG+B[0].shape->A[0][2]*fK;
+	B[0].shape->A[2][8] = B[0].shape->A[1][8]*fG+B[0].shape->A[0][8]*fK;
+	B[0].shape->A[2][6] = B[0].shape->A[1][6]*fG;
+	B[0].shape->A[2][12] = B[0].shape->A[1][12]*fG;
+	B[0].shape->A[2][16] = B[0].shape->A[1][16]*fG;
+	B[0].shape->A[2][22] = B[0].shape->A[1][22]*fG;
+	B[0].shape->A[2][30] = B[0].shape->A[1][30]*fG+B[0].shape->A[0][30]*fK;
+	B[0].shape->A[2][36] = B[0].shape->A[1][36]*fG+B[0].shape->A[0][36]*fK;
+	B[1].shape->A[2][2] = B[1].shape->A[1][2]*fG+B[1].shape->A[0][2]*fK;
+	B[1].shape->A[2][8] = B[1].shape->A[1][8]*fG+B[1].shape->A[0][8]*fK;
+	B[1].shape->A[2][16] = B[1].shape->A[1][16]*fG;
+	B[1].shape->A[2][22] = B[1].shape->A[1][22]*fG;
+	B[1].shape->A[2][20] = B[1].shape->A[1][20]*fG;
+	B[1].shape->A[2][26] = B[1].shape->A[1][26]*fG;
+	B[2].shape->A[2][2] = B[2].shape->A[1][2]*fG+B[2].shape->A[0][2]*fK;
+	B[2].shape->A[2][8] = B[2].shape->A[1][8]*fG+B[2].shape->A[0][8]*fK;
+	B[2].shape->A[2][6] = B[2].shape->A[1][6]*fG;
+	B[2].shape->A[2][12] = B[2].shape->A[1][12]*fG;
+	B[2].shape->A[2][16] = B[2].shape->A[1][16]*fG;
+	B[2].shape->A[2][22] = B[2].shape->A[1][22]*fG;
+	B[2].shape->A[2][30] = B[2].shape->A[1][30]*fG+B[2].shape->A[0][30]*fK;
+	B[2].shape->A[2][36] = B[2].shape->A[1][36]*fG+B[2].shape->A[0][36]*fK;
+	B[2].shape->A[2][44] = B[2].shape->A[1][44]*fG+B[2].shape->A[0][44]*fK;
+	B[2].shape->A[2][50] = B[2].shape->A[1][50]*fG+B[2].shape->A[0][50]*fK;
+	B[2].shape->A[2][48] = B[2].shape->A[1][48]*fG;
+	B[2].shape->A[2][54] = B[2].shape->A[1][54]*fG;
+	B[2].shape->A[2][58] = B[2].shape->A[1][58]*fG;
+	B[2].shape->A[2][64] = B[2].shape->A[1][64]*fG;
+	B[2].shape->A[2][72] = B[2].shape->A[1][72]*fG+B[2].shape->A[0][72]*fK;
+	B[2].shape->A[2][78] = B[2].shape->A[1][78]*fG+B[2].shape->A[0][78]*fK;
+	B[3].shape->A[2][2] = B[3].shape->A[1][2]*fG+B[3].shape->A[0][2]*fK;
+	B[3].shape->A[2][8] = B[3].shape->A[1][8]*fG+B[3].shape->A[0][8]*fK;
+	B[3].shape->A[2][6] = B[3].shape->A[1][6]*fG;
+	B[3].shape->A[2][12] = B[3].shape->A[1][12]*fG;
+	B[3].shape->A[2][16] = B[3].shape->A[1][16]*fG+B[3].shape->A[0][16]*fK;
+	B[3].shape->A[2][22] = B[3].shape->A[1][22]*fG+B[3].shape->A[0][22]*fK;
+	B[3].shape->A[2][20] = B[3].shape->A[1][20]*fG;
+	B[3].shape->A[2][26] = B[3].shape->A[1][26]*fG;
 
 	return;
 }

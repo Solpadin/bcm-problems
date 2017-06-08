@@ -4,6 +4,7 @@
 int CBase::NUM_MPLS  = 0;
 int CBase::NUM_QUAD  = 2;
 int CBase::NUM_TIME  = 4;
+int CBase::NUM_LOCAL = 3;
 int CBase::NUM_ADHES = 4;
 int CBase::NUM_VIBRO = 4;
 int CBase::NUM_GEOMT = 4;
@@ -68,7 +69,8 @@ Num_Draft draft_method(CBase * draft)
 	if (typeid(* draft) == typeid(CMindl2D))		 return MINDL2D_DRAFT; else
 	if (typeid(* draft) == typeid(CMindl3D))		 return MINDL3D_DRAFT; else
 	if (typeid(* draft) == typeid(CVisco2D))		 return VISCO2D_DRAFT; else
-	if (typeid(* draft) == typeid(CVisco2D_grad)) return VISCO2D_GRAD_DRAFT; else return NULL_DRAFT;
+	if (typeid(* draft) == typeid(CVisco2D_grad)) return VISCO2D_GRAD_DRAFT; else 
+	if (typeid(* draft) == typeid(CPorosity2D))	 return	 POROSITY2D_DRAFT; else return NULL_DRAFT;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -386,8 +388,8 @@ double TakeSphere_shear(double c0, double nju1, double nju2, double E1, double E
 	return(GH);
 }
 
-////////////////////////////////////////////////////////////////////////////////
-//...реализация градиентной модели с опцией вычисления напряжений и перемещений;
+/////////////////////////////////////////////////////////////////////////////////////
+//...realization gradient model with option of displacement and stresses calculation;
 void TakeEshelbyModel(double cI, double cL, double EI, double EL, double EM, double nI, double nL, double nM, double lI, double lL, double lM,
 	double & EH, double & GH, double & nH, double rad, double fi, double displ[2], double sigma[3], double fK, double fG)
 {
@@ -412,27 +414,27 @@ void TakeEshelbyModel(double cI, double cL, double EI, double EL, double EM, dou
 	delete sm;
 }
 
-////////////////////////////////////////////////////////
-//            АППРОКСИМАЦИЯ МЕЖФАЗНОГО СЛОЯ           //
-////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//...функция аппроксимации межфазного слоя ll = 1./sqrt(C0+sqr(t)*(C1+t*(C2+...+t*CN)...), coef[N+1], data[2*N+2];
+/////////////////////////////////////////////////////////
+//            INTERPHASE LAYER APPROXIMATION           //
+/////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+//...function of approximation with ll = 1./sqrt(C0+sqr(t)*(C1+t*(C2+...+t*CN)...), coef[N+1], data[2*N+2];
 int strata_approx(int N, double * data, double * coef)
 {
 	int  * ii = new_struct<int>(N+1), i, k, l, k0, l0;
 	double f, ** matrix = 0; set_matrix(matrix, N+1, N+1);
 
 /////////////////////////////////////////////////
-//...переносим заданные значения межфазного слоя;
+//...transferring given data of interphase layer;
 	for (i = 0; i <= N; i++) coef[i] = 1./sqr(data[2*i+1]); 
 
-/////////////////////////////////////////////////////////////////
-//...заполняем систему линейных уравнений с матрицей Вандермонда;
+/////////////////////////////////////////////////////////////////////////
+//...filling system of linear algebraiq equations with Wandermode matrix;
 	for (i = 0; i <= N; i++)
 	for (f = 1., k = 0; k <= N; k++, f *= data[2*i], f *= (k == 1 ? data[2*i] : 1.)) matrix[i][k] = f; 
 
-/////////////////////////////////////////////////////////////////////////////////////////////
-//...определяем коэффициенты путем решения системы линейных уравнений с матрицей Вандермонда;
+////////////////////////////////////////////////////////////////////////////////////////
+//...defining coefficients by solving system of linear equation wwith Wandermode matrix;
 	for (i = 0; i <= N; i++) {
 		for (f = 0., k = 0; k <= N; k++) //...look for position maximal element;
 			if (ii[k] != 1) 
@@ -467,8 +469,8 @@ int strata_approx(int N, double * data, double * coef)
 	return(1);
 }
 
-////////////////////////////////////////////////////////////
-//...аппроксимации радиуса агломерации разложением Лагранжа;
+////////////////////////////////////////////////////////////////
+//...approximation of aglomeration radius by Lagrange expansion;
 double strata_aglom(double t, int N, double * coef)
 {
 	double sum = 0;
@@ -476,14 +478,14 @@ double strata_aglom(double t, int N, double * coef)
 	return 1./sqrt(sum = coef[0]+sqr(t)*sum);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//...функция аппроксимации межфазного слоя наименьшими квадратами ll = 1./sqrt(ll0**(-2)+B*(t**2-t0**2)), data[2*N+2];
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//...approximation of intarphase layer by least square method ll = 1./sqrt(ll0**(-2)+B*(t**2-t0**2)), data[2*N+2];
 double strata_approx(int N, double * data, double ll0)
 {
 	double sum = 0., fnorm = 0.;
 
-///////////////////////////////////////////////
-//...определяем скалярное произведение и норму;
+/////////////////////////////////////
+//...defining scalar produc and norm;
 	for (int i = N; i <= N; i++) {
 		sum += (sqr(data[2*i])-sqr(data[0]))*(1./sqr(data[2*i+1])-1./sqr(ll0));
 		fnorm += sqr(sqr(data[2*i])-sqr(data[0]));
@@ -491,22 +493,22 @@ double strata_approx(int N, double * data, double ll0)
 	return(sum = sum/fnorm);
 }
 
-////////////////////////////////////////////////////////////////////////
-//...аппроксимации радиуса агломерации разложением наименьших квадратов;
+/////////////////////////////////////////////////////////////////
+//...approximation of aglomeration radius by least square method;
 double strata_aglom(double t, double t0, double B, double ll0)
 {
 	return 1./sqrt(1./sqr(ll0)+B*(sqr(t)-sqr(t0)));
 }
 
-///////////////////////////////////////////////////
-//...аппроксимации радиуса агломерации экспонентой;
+/////////////////////////////////////////////////////////
+//...approximatiob of aglomeration radius by exponential;
 double aglom_approx(double t, double alpha, double r_max, double r_min, double t_min)
 {
 	return max(r_min, r_max-(r_max-r_min)*exp(-alpha*(t-t_min)));
 }
 
-///////////////////////////////////////////////////
-//...аппроксимации радиуса агломерации экспонентой;
+/////////////////////////////////////////////////////////
+//...approximatiob of aglomeration radius by exponential;
 double rigid_approx(double t, double E1_max, double E2_max, double E_min, double t_min, double E1, double E2, double E3, double t1, double t2, double t3)
 {
 	double a1 = -log((E1_max-E1)/(E1_max-E_min)), b1 = -log((E1_max-E2)/(E1_max-E_min)), c1 = -log((E2_max-E3)/(E2_max-E_min)),
@@ -531,17 +533,17 @@ double rigid_approx(double t, double E1_max, double E2_max, double E_min, double
 							  E2_max-(E2_max-E_min)*exp(-sqr(t/t_min-1.)*(beta+beta2*sqr(t/t_min-1.))));
 }
 
-//////////////////////////////////////////////////////////////
-//...аппроксимации радиуса агломерации экспонентой и степенью;
+/////////////////////////////////////////////////////////////////////////////
+//...approximatiob of aglomeration radius by exponential and power functions;
 double rigid_approx(double t, double E1_max, double E2_max, double E_min, double alpha, double beta, double t_min)
 {
 	return (t < t_min ? E1_max-(E1_max-E_min)*exp(-alpha*sqr(t/t_min-1.)) : E2_max-(E2_max-E_min)*exp(-beta*sqr(t/t_min-1.)));
 	//return (t < t_min ? (61.138+27.877*(t/t_min-1.))*sqr(t/t_min-1.)+60. : E2_max-(E2_max-E_min)*exp(-beta*sqr(t/t_min-1.)));
 }
 
-////////////////////////////////////////////////////////////////
-//            АППРОКСИМАЦИЯ ЭЛАСТОМЕРНЫХ МАТЕРИАЛОВ           //
-////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////
+//            APPROXIMATION OF ELASTOMERIC MATERIALS           //
+/////////////////////////////////////////////////////////////////
 void approx_all(double & E1, double & E2, double E3, double & delta, double muni[][2], int N_muni, Num_Approx approx = EXPONENT_APPROX)
 {
 	double A1 = 0., A2 = 0., A3 = 0., h1 = 0., h2 = 0., sigma = 0., F1, F2;
@@ -551,8 +553,8 @@ void approx_all(double & E1, double & E2, double E3, double & delta, double muni
 		double invariant = sqrt(sqr(lambda)+2./lambda-3.), jacobian = lambda-1./sqr(lambda), eps = lambda-1.;
 		if (eps < 0.0001) jacobian = sqrt(3.)*(1.-eps*.5*(1.-eps*(1.-(31./27.)*eps)));
 		else jacobian /= invariant;  
-////////////////////////////////////////////////
-//...накапливаем норму и скалярные произведения;
+/////////////////////////////////////////
+//...acuumulates norm and scala products;
 		sigma += sqr(muni[i][1]);
 		F1 = invariant;
 		F2 = sqr(F1);
@@ -576,8 +578,8 @@ void approx_all(double & E1, double & E2, double E3, double & delta, double muni
 	delta = sqrt(1.-(h1*E1+h2*E2)/sigma);
 }
 
-/////////////////////////////////////////////
-//...реализация прогиба градиентной мембраны;
+////////////////////////////////////////////////////
+//...realization of deflection of gradient mambrane;
 double w0_membrane(double R, double eps, int k_limit) 
 {
 	int k = 0;
@@ -594,11 +596,11 @@ double w0_membrane(double R, double eps, int k_limit)
 	return(w0);
 }
 
-////////////////////////////////////////////////////////////////////////////////
-//            ФУНДАМЕНТАЛЬНЫЕ РЕШЕНИЯ В ГРАДЕНТНОЙ ТЕОРИИ УПРУГОСТИ           //
-////////////////////////////////////////////////////////////////////////////////
-//////////////////
-//...тензор Грина;
+///////////////////////////////////////////////////////////////////////
+//            FUNDAMENTAL SOLUTIONS IN GRADIENT ELASTICITY           //
+///////////////////////////////////////////////////////////////////////
+/////////////////////////////
+//...generalized Grin tensor;
 double Grin_tensor(int i, int k, double X, double Y, double Z, double mu, double nju, double s)
 {
 	double r = sqrt(sqr(X)+sqr(Y)+sqr(Z)), h0 = s ? exp(-r/s) : 0., d = 16.*M_PI*mu*(1.-nju),	P[3] = {X, Y, Z}, Grin = 0.;
@@ -622,8 +624,8 @@ double Grin_tensor(int i, int k, double X, double Y, double Z, double mu, double
 	return(Grin /= d);
 }
 
-////////////////////
-//...задача Фламана;
+/////////////////////////////
+//...gradient Flaman problem;
 void Flaman_displ(double X, double Y, double & RX, double & RY, double mu, double nju, double s)
 {
 	double r = sqrt(sqr(X)+sqr(Y)), h0 = r ? log(r) : 0., fi = arg2(Y, X), d = 2.*M_PI*mu, K0 = 0., K2 = 0.;
@@ -655,18 +657,22 @@ void Flaman_displ(double X, double Y, double & RX, double & RY, double mu, doubl
 	RY /= d;
 }
 
-///////////////////////
-//...задача Буссинеска;
+//////////////////////////////////
+//...gradient Bussinesque problem;
 void Boussinesq_displ(double X, double Y, double Z, double & RX, double & RY, double & RZ, double mu, double nju, double s = 0.)
 {
 	double r = sqrt(sqr(X)+sqr(Y)+sqr(Z)), h0 = r ? 1./r : 0., h1 = r+Z ? 1./(r+Z) : 0., d = 4.*M_PI*mu, 
 			d3 = (1.-2.*nju)*h1, d4 = Z*sqr(h0), d5 = sqr(Z*h0), d1 = (d3-d4)*h0, d2 = (2.*(1.-nju)+d5)*h0;
 	if (s) {
-		d1 -= (2.*d4*(1.+s*h0)+d3)*(h1 = h0*exp(-r/s));
-		d2 += (2.*d5*(1.+s*h0*3.)-(3.-2.*nju)-s*h0)*h1;
+		d1 -= (2.*d4*(1.+3.*s*h0)+d3)*(h1 = h0*exp(-r/s));
+		d2 += (2.*d5*(1.+3.*s*h0)-(3.-2.*nju)-2.*s*h0)*h1;
+		//if (r/s < 0.01) {
+		//	d1 = d3/s;
+		//	d2 = (7.-6.*nju)/(3.*s);
+		//}
 	}
-	RX = (d1 /= d)*X;
-	RY =  d1*Y;
+	RX = -(d1 /= d)*X;
+	RY = -d1*Y;
 	RZ = (d2 /= d);
 }
 
@@ -684,7 +690,7 @@ void Boussinesq_sigma(double X, double Y, double Z, double & SX, double & SY, do
 }
 
 //////////////////////////////////////////////
-//...косая задача Буссинеска (не сделано !!!);
+//...skew Bussinesque problem (not ready !!!);
 void Boussiskew_displ(double X, double Y, double Z, double & RX, double & RY, double & RZ, double mu, double nju, double s)
 {
 	double r = sqrt(sqr(X)+sqr(Y)+sqr(Z)), h0 = r ? 1./r : 0., h1 = r+Z ? 1./(r+Z) : 0., d = 4.*M_PI*mu, 
