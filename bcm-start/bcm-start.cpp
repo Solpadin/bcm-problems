@@ -58,14 +58,14 @@ extern void Read_C3D_Data_float(unsigned short num_markers, unsigned short num_a
 #define n_TEST_DRAFT_HEAT2D_INTERMEDIATE_PHASE
 #define n_TEST_DRAFT_HEAT3D_INTERMEDIATE_PHASE
 #define n_TEST_DRAFT_LAME2D_INTERMEDIATE_PHASE
-#define n_TEST_DRAFT_LAME3D_INTERMEDIATE_PHASE
+#define TEST_DRAFT_LAME3D_INTERMEDIATE_PHASE
 #define n_TEST_DRAFT_HYDRO3D_INTERMEDIATE_PHASE
 #define n_TEST_DRAFT_HEAT2D_FROM_FEMAP
 #define n_TEST_DRAFT_HEAT3D_FROM_FEMAP
 #define n_TEST_DRAFT_LAME2D_FROM_FEMAP
 #define n_TEST_DRAFT_LAME3D_FROM_FEMAP
 #define n_TEST_DRAFT_COHES2D_FROM_FEMAP
-#define TEST_DRAFT_POROSITY2D_FROM_FEMAP
+#define n_TEST_DRAFT_POROSITY2D_FROM_FEMAP
 //----------------------------------------------------------------------------------------
 double CIdent(char * name_ini, double R, double A, double * energy, double l1, double l2, double G1, double G2, double nju1, double nju2, 
 										 double Ad = 0, double Bd = 0, int N0 = 5, int id_layer = NULL_STATE, int id_direct = NULL_STATE, int id_visual = NULL_STATE);
@@ -1634,12 +1634,12 @@ double TH[21][9] = {
 #endif
 #ifdef TEST_DRAFT_VISCO
 {
-	//char * name_ini = "./Models_inp/Box2D_sph/sph_009_84.inp";
-	//char * name_ini = "./Models_inp/Box2D_sph/sph_009_172.inp";
-	//char * name_ini = "./Models_inp/Box2D_sph/sph_009_184.inp";
-	char * name_ini = "./Models_inp/Box2D_sph/sph_009_496.inp";
+	//char * name_ini = "../Exe/Models_inp/Box2D_sph/sph_009_84.inp";
+	//char * name_ini = "../Exe/Models_inp/Box2D_sph/sph_009_172.inp";
+	//char * name_ini = "../Exe/Models_inp/Box2D_sph/sph_009_184.inp";
+	char * name_ini = "../Exe/Models_inp/Box2D_sph/sph_009_496.inp";
 
-	//char * name_ini = "./Box2d_homog/sph_025_16.nas";
+	//char * name_ini = "../Exe/Box2d_homog/sph_025_16.nas";
 
 ////////////////////////
 //...problem parameters;
@@ -1775,17 +1775,17 @@ double TH[21][9] = {
 #endif
 #ifdef TEST_DRAFT_HYDRO
 {
-	//const char * name = "./Parametric/Unit3d_008.nas";
-	//const char * name = "./Models_inp/Box3D_sph/Box3D_sph112.inp";
+	//const char * name = "../Exe/Parametric/Unit3d_008.nas";
+	//const char * name = "../Exe/Models_inp/Box3D_sph/Box3D_sph112.inp";
 
-	//const char * name = "./Models_nas/Bench/hydro/bench_02_450.nas";
-	//const char * name = "./Models_nas/Bench/hydro/zet_02_600.nas";
+	//const char * name = "../Exe/Models_nas/Bench/hydro/bench_02_450.nas";
+	//const char * name = "../Exe/Models_nas/Bench/hydro/zet_02_600.nas";
 	
-	//const char * name = "./Seepage/Flow_R30_octa_M44.inp";
-	const char * name = "./Seepage/Flow_R30_full_M288.inp";
-	//const char * name = "./Seepage/Flow_R30_full_M432.inp";
-	//const char * name = "./Seepage/Filtr_R65_full_M96.inp";
-	//const char * name = "./Seepage/Filtr_R65_full_M432.inp";
+	//const char * name = "../Exe/Seepage/Flow_R30_octa_M44.inp";
+	const char * name = "../Exe/Seepage/Flow_R30_full_M288.inp";
+	//const char * name = "../Exe/Seepage/Flow_R30_full_M432.inp";
+	//const char * name = "../Exe/Seepage/Filtr_R65_full_M96.inp";
+	//const char * name = "../Exe/Seepage/Filtr_R65_full_M432.inp";
 
 	double par[6], k0 = 3., L = 0.5, rad = 0.3, layer = 0.0, eps_in = 1e-2;
 	int i, j, k, m, num; 
@@ -2037,26 +2037,26 @@ double TH[21][9] = {
 #endif
 #ifdef TEST_DRAFT_VIBRO
 {
-//	char * name = "Models_nas/Cylinder/cyl_cyl_40.nas";
-//	char * name = "Models_nas/Acoustic/ono_box_56.nas";
-//	char * name = "Models_nas/Acoustic/ono_box_140.nas";
-//	char * name = "Models_nas/Acoustic/ono_box_172.nas";
-//	char * name = "Models_nas/Acoustic/ono_box_320.nas";
-//	char * name = "Models_nas/Acoustic/ono_box_412.nas";
+//	char * name = "../Exe/Models_nas/Cylinder/cyl_cyl_40.nas";
+//	char * name = "../Exe/Models_nas/Acoustic/ono_box_56.nas";
+//	char * name = "../Exe/Models_nas/Acoustic/ono_box_140.nas";
+//	char * name = "../Exe/Models_nas/Acoustic/ono_box_172.nas";
+//	char * name = "../Exe/Models_nas/Acoustic/ono_box_320.nas";
+//	char * name = "../Exe/Models_nas/Acoustic/ono_box_412.nas";
 
-//	char * name = "Models_nas/Acoustic/ono_half_14.nas";
-//	char * name = "Models_nas/Acoustic/ono_half_35.nas";
-//	char * name = "Models_nas/Acoustic/ono_half_43.nas";
-//	char * name = "Models_nas/Acoustic/ono_half_80.nas";
-	char * name = "Models_nas/Acoustic/ono_half_103.nas";
-//	char * name = "Models_nas/Acoustic/ono_half_243.nas";
-//	char * name = "Models_nas/Acoustic/ono_half_349.nas";
+//	char * name = "../Exe/Models_nas/Acoustic/ono_half_14.nas";
+//	char * name = "../Exe/Models_nas/Acoustic/ono_half_35.nas";
+//	char * name = "../Exe/Models_nas/Acoustic/ono_half_43.nas";
+//	char * name = "../Exe/Models_nas/Acoustic/ono_half_80.nas";
+	char * name = "../Exe/Models_nas/Acoustic/ono_half_103.nas";
+//	char * name = "../Exe/Models_nas/Acoustic/ono_half_243.nas";
+//	char * name = "../Exe/Models_nas/Acoustic/ono_half_349.nas";
 
-//	char * name = "Models_nas/Acoustic/ono0half_4.nas";
-//	char * name = "Models_nas/Acoustic/ono0half_16.nas";
-//	char * name = "Models_nas/Acoustic/ono0half_20.nas";
-//	char * name = "Models_nas/Acoustic/ono0half_42.nas";
-//	char * name = "Models_nas/Acoustic/ono0half_120.nas";
+//	char * name = "../Exe/Models_nas/Acoustic/ono0half_4.nas";
+//	char * name = "../Exe/Models_nas/Acoustic/ono0half_16.nas";
+//	char * name = "../Exe/Models_nas/Acoustic/ono0half_20.nas";
+//	char * name = "../Exe/Models_nas/Acoustic/ono0half_42.nas";
+//	char * name = "../Exe/Models_nas/Acoustic/ono0half_120.nas";
 
 	int  i, j, k, l, N0, NN[] = {3, 1, 1, 1}, id_phase = OK_STATE;
 	double  par[6], LL[] = {1.2, 1.3, 2.5};//...//...указываются возрастающие значения точек;
@@ -2298,6 +2298,9 @@ double TH[21][9] = {
 #endif
 #ifdef HEAT2D_ANALYT_HOMOGENIZATION
 {
+	const char * name_ini = "../bcm-start/var2/heat2d_initial.dat";
+/////////////////////////
+//...данные по умолчанию;
 	int	 id_visual = 0,  NX = 100, NY = 100, N0 = 11, N_elem = 16, N_max = 4, i, j, axis = AXIS_Y;
 	double A = 1., B = 1., R1 = 0.3/2, R2 = 0.4/2, K1 = 20., K2 = 0.01, K3 = 1., C = 1., alpha = 0.;
 
@@ -2308,16 +2311,16 @@ double TH[21][9] = {
    Message(buf);
 
 	unsigned long count, upper_limit;
-	char        * id_DATA = read_struct_ascii("heat2d_initial.dat");
+	char        * id_DATA = read_struct_ascii(name_ini);
 	if         (! id_DATA) {
 		sprintf(buf, "Data not found..");
 		Message(" ");
 		Message(buf);
-		sprintf(buf, "Creating data file \"heat2d_initial.dat\"...");
+		sprintf(buf, "Creating data file \"%s\"...", name_ini);
 		Message(buf);
 		Message(" ");
 
-		FILE  * TST = fopen("heat2d_initial.dat", "w");
+		FILE  * TST = fopen(name_ini, "w");
 		fprintf(TST, "N = %i\nN_elem = %i\nN_max = %i\n\n", N0, N_elem, N_max);
 		fprintf(TST, "id_visual = %i\nNX = %i\nNY = %i\naxis = %i\nalpha = %g\n\n", id_visual, NX, NY, axis, alpha);
 		fprintf(TST, "A = %g\nB = %g\nC = %g\nR1 = %g\nR2 = %g\nK1 = %g\nK2 = %g\nK3 = %g\n", A, B, C, R1, R2, K1, K2, K3);
@@ -2482,6 +2485,9 @@ test:
 #endif
 #ifdef HEAT3D_ANALYT_HOMOGENIZATION
 {
+	const char * name_ini = "../bcm-start/var2/heat3d_initial.dat";
+/////////////////////////
+//...данные по умолчанию;
 	double par[6], rad = 0.3, h_rad = 0., A = 1., B = 1., C = 1.,  ll = 0.1, section = 0., section_I = 0., section_II = 0., 
 		 K1 = 20., K2 = 0.01, K3 = 1.;
 	int id_visual = 0, N_rad = 1, NX = 100, NY = 100, N0 = 15, N_elem = 8, N_max = 4, id_bcond = 0, id_solver = 0, id_type = 0, 
@@ -2494,16 +2500,16 @@ test:
    Message(buf);
 
 	unsigned long count, upper_limit;
-	char        * id_DATA = read_struct_ascii("heat3d_initial.dat");
+	char        * id_DATA = read_struct_ascii(name_ini);
 	if         (! id_DATA) {
 		sprintf(buf, "Data not found..");
 		Message(" ");
 		Message(buf);
-		sprintf(buf, "Creating data file \"heat3d_initial.dat\"...");
+		sprintf(buf, "Creating data file \"%s\"...", name_ini);
 		Message(buf);
 		Message(" ");
 
-		FILE  * TST = fopen("heat3d_initial.dat", "w");
+		FILE  * TST = fopen(name_ini, "w");
 		fprintf(TST, "N = %i\nN_elem = %i\nN_max = %i\n\n", N0, N_elem, N_max);
 		fprintf(TST, "id_bcond = %i  id_solver = %i  id_type = %i\n\n", id_bcond, id_solver, id_type);
 		fprintf(TST, "id_visual = %i\nNX = %i\nNY = %i\naxis = %i  axis_I = %i  axis_II = %i\nsection = %g  section_I = %g  section_II = %g\n\n", 
@@ -2789,6 +2795,9 @@ test:
 #endif
 #ifdef LAME3D_ANALYT_HOMOGENIZATION
 {
+	const char * name_ini = "../bcm-start/var1/lame3d_initial.dat";
+/////////////////////////
+//...данные по умолчанию;
 	double par[6], rad = 1., h_rad = 0., A = 5., B = 5., C = 5., ll = 0.5, section = 0., section_I = 0., section_II = 0.,
 						nj1 = 0.3, nj2 = 0.3, nj3 = 0.3, E1  = 1.0, E2  = 2.0, E3  = 3.0;
 	int id_visual = 0, N_rad = 1, NX = 100, NY = 100, N0 = 7, N_elem = 8, N_max = 4, id_bcond = 0, id_solver = 0, id_type = 0, 
@@ -2801,16 +2810,16 @@ test:
    Message(buf);
 
 	unsigned long count, upper_limit;
-	char        * id_DATA = read_struct_ascii("lame3d_initial.dat");
+	char        * id_DATA = read_struct_ascii(name_ini);
 	if         (! id_DATA) {
 		sprintf(buf, "Data not found..");
 		Message(" ");
 		Message(buf);
-		sprintf(buf, "Creating data file \"lame3d_initial.dat\"...");
+		sprintf(buf, "Creating data file \"%s\"...", name_ini);
 		Message(buf);
 		Message(" ");
 
-		FILE  * TST = fopen("lame3d_initial.dat", "w");
+		FILE  * TST = fopen(name_ini, "w");
 		fprintf(TST, "N = %i\nN_elem = %i\nN_max = %i\n\n", N0, N_elem, N_max);
 		fprintf(TST, "id_bcond = %i  id_solver = %i  id_type = %i\n\n", id_bcond, id_solver, id_type);
 		fprintf(TST, "id_visual = %i\nNX = %i\nNY = %i\naxis = %i  axis_I = %i  axis_II = %i\nsection = %g  section_I = %g  section_II = %g\n\n", 
@@ -3127,6 +3136,9 @@ test:
 #endif
 #ifdef HYDRO3D_ANALYT_HOMOGENIZATION
 {
+	const char * name_ini = "../bcm-start/var1/hydro3D_initial.dat";
+/////////////////////////
+//...данные по умолчанию;
 	double par[6], rad = 0.5, h_rad = 0., L = 0.5, alpha = 0., section = 0., section_I = 0., section_II = 0.;
 	int id_visual = 0, axis = AXIS_Y, axis_I = AXIS_Z, axis_II = AXIS_X, NX = 100, NY = 100, N_elem = 4, N_max = 2, 
 		 structure = 0, N_rad = 1, N0 = 7, i, j, k, l, m, num;
@@ -3139,16 +3151,16 @@ test:
    Message(buf);
 
 	unsigned long count, upper_limit;
-	char        * id_DATA = read_struct_ascii("hydro3D_initial.dat");
+	char        * id_DATA = read_struct_ascii(name_ini);
 	if         (! id_DATA) {
 		sprintf(buf, "Data not found...");
 		Message(" ");
 		Message(buf); 
-		sprintf(buf, "Creating data file \"hydro3d_initial.dat\"...");
+		sprintf(buf, "Creating data file \"%s\"...", name_ini);
 		Message(buf);
 		Message(" ");
 
-		FILE  * TST = fopen("hydro3d_initial.dat", "w");
+		FILE  * TST = fopen(name_ini, "w");
 		fprintf(TST, "N = %i\nN_elem = %i\nN_max = %i\n\n", N0, N_elem, N_max);
 		fprintf(TST, "id_visual = %i\nNX = %i\nNY = %i\naxis = %i  axis_I = %i  axis_II = %i\nsection = %g  section_I = %g  section_II = %g\n\n", 
 			id_visual, NX, NY, axis, axis_I, axis_II, section, section_I, section_II);
@@ -3513,11 +3525,11 @@ test:
 #endif
 #ifdef TEST_DRAFT_HEAT2D_INTERMEDIATE_PHASE
 {
-	char * name = "./Parametric/Unit2d_1_dop.nas", * buff;
-	//char * name = "./Box2d_homog/heat_clayer488.nas", * buff;
-	//char * name = "./Box2d_homog/heat_cyl_layer1148.nas", * buff;
-	//char * name = "./Box2d_homog/heat_ell_layer1174.nas", * buff;
-	//char * name = "./Box2d_homog/sph_025_16.nas", * buff;
+	char * name = "../Exe/Parametric/Unit2d_1_dop.nas", * buff;
+	//char * name = "../Exe/Box2d_homog/heat_clayer488.nas", * buff;
+	//char * name = "../Exe/Box2d_homog/heat_cyl_layer1148.nas", * buff;
+	//char * name = "../Exe/Box2d_homog/heat_ell_layer1174.nas", * buff;
+	//char * name = "../Exe/Box2d_homog/sph_025_16.nas", * buff;
 	int  i, j, l;
 	double X0, Y0, ell_X = 0., ell_Y = 0., rot_Z, ff = 0.2, rr = sqrt(ff/M_PI), AX = 1.;
 
@@ -3697,7 +3709,7 @@ test:
 #endif
 #ifdef TEST_DRAFT_HEAT3D_INTERMEDIATE_PHASE
 {
-	char * name = "./Parametric/Unit3d_001_dop.nas", * buff;
+	char * name = "../Exe/Parametric/Unit3d_001_dop.nas", * buff;
 	int  i, j, l;
 	double ff = 0.2, rr = sqrt(ff/M_PI), AX = 1.;
 
@@ -3873,11 +3885,11 @@ test:
 #endif
 #ifdef TEST_DRAFT_LAME2D_INTERMEDIATE_PHASE
 {
-	char * name = "./Box2d_homog/heat_clayer488.nas";
-	//char * name = "./Box2d_homog/heat_cyl_layer1148.nas";
-	//char * name = "./Box2d_homog/heat_ell_layer1174.nas";
-	//char * name = "./Box2d_homog/sph_025_16.nas";
-	//char * name = "./Parametric/Unit2d_16.nas";
+	char * name = "../Exe/Box2d_homog/heat_clayer488.nas";
+	//char * name = "../Exe/Box2d_homog/heat_cyl_layer1148.nas";
+	//char * name = "../Exe/Box2d_homog/heat_ell_layer1174.nas";
+	//char * name = "../Exe/Box2d_homog/sph_025_16.nas";
+	//char * name = "../Exe/Parametric/Unit2d_16.nas";
 	int  i, j, l;
 	double X0, Y0, ell_X = 0., ell_Y = 0., rot_Z;
 
@@ -9343,6 +9355,7 @@ int N_spinel = 2;
 }
 #endif
 #define ___INCLUSION___
+//#define ___MATRIX___
 #ifdef ESHELBY_2D_MODEL_CALCULATIONS
 {
 //////////////////////////////////////////////////////////////////////
@@ -9368,11 +9381,11 @@ int N_spinel = 2;
 
 //////////////////////////
 //...model initialization;
-	CBase * sm = CreateDraftR(COHES2D_DRAFT, 8);
+	CBase * sm = CreateDraftR(COHES2D_DRAFT, 8);	   l1 = l3;
 	sm->set_fasa_hmg(nju1, nju2, nju3, G1, G2, G3, (l1 ? G1*(1.-nju1)/(sqr(l1)*(.5-nju1)) : 0.), (l2 ? G2*(1.-nju2)/(sqr(l2)*(.5-nju2)) : 0.), (l3 ? G3*(1.-nju3)/(sqr(l3)*(.5-nju3)) : 0.));
-	//sm->TakeEshelbyModel(ff, ff_l);
-	//sm->TakeEshelbyGradModel(ff, ff_l);
-	sm->TakeEshelbyGradIncluModel(ff, ff_l/*, 1., 0.*/);
+	sm->TakeEshelbyModel(ff, ff_l, 1., 0.);
+	//sm->TakeEshelbyGradModel(ff, ff_l, 1., 0.);
+	//sm->TakeEshelbyGradIncluModel(ff, ff_l, 1., 0.);
 
 ////////////////////////////////////////////////////
 //...результат вычисления эффективных характеристик;
@@ -9395,7 +9408,11 @@ int N_spinel = 2;
 #ifndef ___INCLUSION___
 			for (i = 1; i <= 2*NX; i++) nd->add_new_point_X(.5*i/NX*rad0);
 #else
+#ifdef ___MATRIX___
+			for (i = 0; i <= 2*NX; i++) nd->add_new_point_X(.5*i/NX*(rad2-rad1)+rad1);
+#else
 			for (i = 0; i <= 2*NX; i++) nd->add_new_point_X(.5*i/NX*(rad1-rad0)+rad0);
+#endif
 #endif
 			for (j = 0; j <= 2*NY; j++) nd->add_new_point_Y(.5*j/NY*M_PI*2.);
 
@@ -9427,13 +9444,15 @@ int N_spinel = 2;
 		for (j = 0; j < nd->N1; j++)
 		if (axis == AXIS_CYL) {
 #ifndef ___INCLUSION___
-			if (sqr(nd->X[i]) < sqr(rad0)) nd->hit[i+j*nd->N] = 0; else  
-			if (sqr(nd->X[i]) < sqr(rad1)) nd->hit[i+j*nd->N] = 0; else 
-			if (sqr(nd->X[i]) < sqr(rad2)) nd->hit[i+j*nd->N] = 0; else nd->hit[i+j*nd->N] = 0;	
+			nd->hit[i+j*nd->N] = 0;	
+#else
+#ifdef ___MATRIX___
+			nd->hit[i+j*nd->N] = 3;	
 #else
 			if (sqr(nd->X[i]) < sqr(rad0)) nd->hit[i+j*nd->N] = 2; else  
 			if (sqr(nd->X[i]) < sqr(rad1)) nd->hit[i+j*nd->N] = 2; else 
 			if (sqr(nd->X[i]) < sqr(rad2)) nd->hit[i+j*nd->N] = 2; else nd->hit[i+j*nd->N] = 2;	
+#endif
 #endif
 		}
 		else {
@@ -9453,10 +9472,17 @@ int N_spinel = 2;
 		sm->GetDataFormat("divr_inclu_02", nd,	   DILAT_GRAD_VALUE, 2, axis);
 		sm->GetDataFormat("divu_inclu_02", nd,	DILAT_CLASSIC_VALUE, 2, axis);
 #else
+#ifdef ___MATRIX___
+		sm->GetDataFormat("rd_matrix_02", nd,	   NORMAL_R_GRAD_VALUE, 2, axis);
+		sm->GetDataFormat("ud_matrix_02", nd,	NORMAL_R_CLASSIC_VALUE, 2, axis);
+		sm->GetDataFormat("divr_matrix_02", nd,	   DILAT_GRAD_VALUE, 2, axis);
+		sm->GetDataFormat("divu_matrix_02", nd,	DILAT_CLASSIC_VALUE, 2, axis);
+#else
 		sm->GetDataFormat("rd_02", nd,	   NORMAL_R_GRAD_VALUE, 2, axis);
 		sm->GetDataFormat("ud_02", nd,	NORMAL_R_CLASSIC_VALUE, 2, axis);
 		sm->GetDataFormat("divr_02", nd,	   DILAT_GRAD_VALUE, 2, axis);
 		sm->GetDataFormat("divu_02", nd,	DILAT_CLASSIC_VALUE, 2, axis);
+#endif
 #endif
 		delete nd;
 	}
