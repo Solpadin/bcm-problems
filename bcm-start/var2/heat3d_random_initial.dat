@@ -1,0 +1,17 @@
+N = 15
+N_elem = 8
+N_max = 4
+lagrange = 100000
+
+id_visual = 0
+NX = 100
+NY = 100
+axis = 2  axis_I = 3  axis_II = 1
+section = 0  section_I = 0  section_II = 0
+
+K_matrix = 1
+K_inclusion = 20
+K_layer = 0.01
+
+structure = 
+
