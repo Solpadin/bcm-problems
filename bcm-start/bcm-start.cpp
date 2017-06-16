@@ -19,7 +19,7 @@ void approx_all(double & E1, double & E2, double E3, double & delta, double muni
 void Inp_nodes_add	(char * ch_NODES, CGrid * nd, int   ID_node_set, int ID_element_set);
 void Inp_elements_add(char * ch_NODES, CGrid * nd, int * ID_elements, int ID_element_set);
 //----------------------------------------------------------------------------------------
-#define n_Way_CONVERTOR
+#define n_UWay_CONVERTOR
 //----------------------------------------------------------------------------------------
 void Convert3D_gmt(char * ch_NODES, CGrid * nd, int ID_part);
 void Convert3D_prb(char * ch_NODES, CGrid * nd, int ID_part);
@@ -46,14 +46,13 @@ extern void Read_C3D_Data_float(unsigned short num_markers, unsigned short num_a
 //----------------------------------------------------------------------------------------
 #define n_TEST_CCELLS
 #define n_TEST_SHAPES
-#define n_TEST_RADII
 #define n_TEST_DRAFT_ALL
 #define n_TEST_DRAFT_VISCO
 #define n_TEST_DRAFT_HYDRO
 #define n_TEST_DRAFT_VIBRO
 #define n_HEAT2D_ANALYT_HOMOGENIZATION
 #define n_HEAT3D_ANALYT_HOMOGENIZATION
-#define LAME3D_ANALYT_HOMOGENIZATION
+#define n_LAME3D_ANALYT_HOMOGENIZATION
 #define n_HYDRO3D_ANALYT_HOMOGENIZATION
 #define n_TEST_DRAFT_HEAT2D_INTERMEDIATE_PHASE
 #define n_TEST_DRAFT_HEAT3D_INTERMEDIATE_PHASE
@@ -75,12 +74,12 @@ double CIdent_sphere3D(double * energy, double rad, double fV, double l1, double
 #define n_TEST_DRAFT_COHES2D_CONSTRUCTION_FROM_FEMAP
 #define n_TEST_DRAFT_GRADIENT2D_FROM_FEMAP
 #define n_TEST_DRAFT_HEAT3D_SPHEROID
-#define n_CHEAT3D_HOMOG_SPHEROID
+#define n_HEAT3D_HOMOG_SPHEROID
 #define n_TEST_DRAFT_LAME3D_SPHEROID
-#define n_CLAME3D_HOMOG_SPHEROID
+#define n_LAME3D_HOMOG_SPHEROID
 #define n_DIFFUSION2D_HOMOGENIZATION
 #define n_HEAT2D_LUCSHIN_PAPER
-#define n_HEAT2D_RANDOM_STRUCTURE
+#define nyes_HEAT2D_RANDOM_STRUCTURE
 #define n_HEAT3D_RANDOM_STRUCTURE
 #define n_LAME3D_RANDOM_STRUCTURE
 #define n_HEAT3D_RANDOM_HOMOGENIZATION
@@ -135,13 +134,14 @@ double rigid_approx(double t, double E1_max, double E2_max, double E_min, double
 #define n_TEST_DRAFT_LAME_ESHELBY_INTERMEDIATE_PHASE_cyl
 #define n_TEST_DRAFT_LAME_ESHELBY_SIMPLE_INVESTIGATION_cyl
 #define n_TEST_DRAFT_LAME_ESHELBY_INTERMEDIATE_PHASE_layer
+#define n_TEST_DRAFT_HEAT_ESHELBY
 #define n_TEST_DRAFT_LAME_ESHELBY
 #define n_LAME3D_LAYERED_ESHELBY_HOMOGENIZATION
-#define n_ESHELBY_3D_CALCULATIONS
 //----------------------------------------------------------------------------------------
 void TakeEshelbyModel(double cI, double cL, double EI, double EL, double EM, double nI, double nL, double nM, double lI, double lL, double lM, 
 							 double & EH, double & GH, double & nH, double rad, double fi, double displ[2], double sigma[3], double fK = 0.5, double fG = 0.5);
 //----------------------------------------------------------------------------------------
+#define n_ESHELBY_3D_CALCULATIONS
 #define n_ESHELBY_3D_MODEL
 #define n_ESHELBY_2D_CALCULATIONS
 #define n_VISCO_2D_CALCULATIONS
@@ -163,10 +163,9 @@ void Boussiskew_sigma(double X, double Y, double Z, double & SX, double & SY, do
 #define n_LD_POTENTIAL_COMPOSITE_IDENTIFICATION
 #define n_WSMP_COMPOSITE_CALCULATION
 #define n_MINDL2D_CALCULATIONS
-#define n_TEST_DRAFT_HEAT_ESHELBY
 #define n_TEST_DRAFT_HEAT_NONLINEAR_LAYER
 #define n_TEST_DRAFT_HEAT_FIRST_MEMBER
-#define n_TEST_DRAFT_HEAT_FIRST_MEMBER_NONLINEAR_LAYER
+#define TEST_DRAFT_HEAT_FIRST_MEMBER_NONLINEAR_LAYER
 //----------------------------------------------------------------------------------------
 #ifdef ___MPI_INIT___
 CMPIComm comm_mpi;
@@ -207,10 +206,10 @@ int main(int argc, char* argv[])
 
 #ifdef MUNI_APPROXIMATION
 {
-/////////////////////
-//...исходные данные;
+//////////////////
+//...initial data;
 	int  N_muni = 269/*142*/;
-	double muni[][2] = {//...ненаполненная матрица;
+	double muni[][2] = {//...pure matrix (not filed);
 	{1.,0.00173},		{1.00072,0.00496},{1.01092,0.03958},{1.02204,0.05216},{1.03496,0.04343},{1.04408,0.07734},{1.05296,0.11117},{1.06612,0.12612},{1.07748,0.08906},{1.08696,0.12368},
 	{1.09688,0.15602},{1.10596,0.18592},{1.11556,0.16381},{1.1266, 0.17325},{1.13592,0.19371},{1.14536,0.20315},{1.15568,0.21574},{1.16528,0.22203},{1.1766, 0.22998},{1.18588,0.22596},
 	{1.19436,0.25830},{1.20468,0.28104},{1.21412,0.26932},{1.22296,0.28655},{1.23188,0.29528},{1.241,  0.28733},{1.2502, 0.31731},{1.2606, 0.33462},{1.26884,0.31408},{1.279,  0.33304},
@@ -240,7 +239,7 @@ int main(int argc, char* argv[])
 	{3.7948,	1.15122},{3.8068,	1.17168},{3.81916,1.15122},{3.82724,1.16617},{3.83652,1.16861},{3.84952,1.17246},{3.86108,1.18356},{3.87304,1.16774},{3.88356,1.19300}};
 	 
 	//int  N_muni = /*610*/235;
-	//double muni[][2] = {//...микрошунгит;
+	//double muni[][2] = {//...microschungite;
 	//{0.088,  0.068044355},{0.976,  0.127688172},{1.628,  0.128528226},{2.264,  0.127688172},{2.704,  0.145329301},{3.176,  0.20749328 },{3.836,  0.229334677},{4.264,  0.260416667},{4.712,  0.268817204},{5.128,  0.267137097},
 	//{5.8,    0.320900538},{6.328,  0.326780914},{6.82,   0.366263441},{7.612,  0.400705645},{8.044,  0.404905914},{8.764,  0.430107527},{9.18,   0.439348118},{9.736,  0.499831989},{10.468, 0.491431452},{11.264, 0.523353495},
 	//{12.016, 0.558635753},{12.684, 0.551075269},{13.34,  0.59811828 },{14.1,   0.596438172},{14.868, 0.619119624},{15.488, 0.656081989},{16.112, 0.661122312},{16.876, 0.687163978},{17.3,   0.694724462},{17.704, 0.700604839},
@@ -304,7 +303,7 @@ int main(int argc, char* argv[])
 	//{382.364,5.571236559},{382.836,5.577116935},{383.476,5.583837366},{384.02, 5.608198925},{384.572,5.592237903},{385.216,5.619959677},{385.672,5.61827957 },{386.312,5.619119624},{386.832,5.637600806},{387.292,5.63844086 }};
 
 //int  N_muni = 77;
-//double muni[][2] = {//...микрошунгит, расчет;
+//double muni[][2] = {//...microschungite, calculated;
 //{2,   0.039709446},{4,  0.076892877},{6,  0.111837822},{8,  0.144793086},{10,	0.175975008},{12,	0.205572588},{14,	0.233751609},{16,	0.260658492},{18,	0.286422654},{20,	0.311159177},
 //{22,	0.334970885},{24,	0.357949936},{26,	0.380179215},{28,	0.401733677},{30,	0.422681279},{32,	0.443083898},{34,	0.462998121},{36,	0.482475842},{38,	0.501564882},{40,	0.520309544},
 //{42,	0.53875094 },{44,	0.556927441},{46,	0.574875016},{48,	0.592627557},{50,	0.610217125},{52,	0.62767417 },{54,	0.645027838},{56,	0.662306075},{58,	0.679535882},{60,	0.696743457},
@@ -315,7 +314,7 @@ int main(int argc, char* argv[])
 //{142, 1.70195096 },{144,1.743825072},{146,1.786986625},{148,1.831467297},{150,1.877351024},{152,1.924737135},{154,1.973722178}};
 
 	//int  N_muni = 1304/*210*/;
-	//double muni[][2] = {//...наношунгит;
+	//double muni[][2] = {//...nanoschungite;
  //  {1.00096,0.06129 },{1.00412,0.091935},{1.00992,0.146774},{1.01704,0.158065},{ 1.024 ,0.157258},{1.02928,0.204032},{1.03224,0.237097},{1.03428,0.254032},{1.03692,0.28871 },{1.04092,0.341129},
 	//{1.04612,0.328226},{1.05164,0.356452},{1.05656,0.405645},{1.06076,  0.4   },{ 1.064 ,0.419355},{ 1.067 ,0.480645},{1.07048,0.487903},{ 1.075 ,0.491129},{1.08028,0.535484},{1.08576,0.550806},
 	//{1.09064,0.548387},{ 1.0944,0.579032},{1.09748,0.623387},{1.10076,0.617742},{1.10512,0.645161},{1.11092,0.678226},{1.11716,0.675806},{1.12284,0.678226},{1.12736,0.715323},{1.13104,0.729839},
@@ -449,7 +448,7 @@ int main(int argc, char* argv[])
 	//{4.63156,15.2129 },{ 4.6334,15.20806},{4.63524,15.22177},{4.63744,15.24919}};
 
 //	int  N_muni = 81;
-//	double muni[][2] = {//...наношунгит, расчет;
+//	double muni[][2] = {//...nanoschungite, calculated;
 //{2	,	0.047193413	},{4	,	0.091290125	},{6	,	0.13274721	},{8	,	0.171945794	},{10,	0.20920766	},{12,	0.244807066	},{14,	0.278980133	},{16,	0.311932199	},{18,	0.343843668	},{20,	0.374874663	},
 //{22,	0.405168834	},{24,	0.434856477	},{26,	0.464057097	},{28,	0.492881646	},{30,	0.521434363	},{32,	0.549814394	},{34,	0.578117282	},{36,	0.60643614	},{38,	0.634862837	},{40,	0.663489062	},
 //{42,	0.692407133	},{44,	0.72171107	},{46,	0.751497173	},{48,	0.781864907	},{50,	0.812917568	},{52,	0.844762837	},{54,	0.877513626	},{56,	0.911288614	},{58,	0.946213025	},{60,	0.982419326	},
@@ -459,7 +458,7 @@ int main(int argc, char* argv[])
 //{122,	4.037925944	},{124,	4.25820798	},{126,	4.489599341	},{128,	4.732182223	},{130,	4.985991632	},{132,	5.251019715	},{134,	5.527217883	},{136,	5.814500048	},{138,	6.112747277	},{140,	6.421751298	},
 //{142,	6.740785797	},{144,	7.067903853	},{146,	7.403100592	},{148,	7.746328675	},{150,	8.097274092	},{152,	8.455488308	},{154,	8.820353716	},{156,	9.191225886	},{158,	9.305624539	},{160,	9.400229861	},
 //{162,	9.426676049	}};
-//	double muni_E[][2] = {//...наношунгит, энергия, расчет;
+//	double muni_E[][2] = {//...nanoschungite, energy, calculated;
 //{2	,	0.000470858	},{4	,	0.001817409	},{6	,	0.003951743	},{8	,	0.006798665	},{10,	0.010293542	},{12,	0.014380588	},{14,	0.019011477	},{16,	0.024144236	},{18,	0.02974233	},{20,	0.035773919	},
 //{22,	0.042211241	},{24,	0.049030102	},{26,	0.056209446	},{28,	0.063731008	},{30,	0.071579008	},{32,	0.079739911	},{34,	0.088202218	},{36,	0.0969563	},{38,	0.105994254	},{40,	0.1153098	},
 //{42,	0.12489819	},{44,	0.134756142	},{46,	0.144881796	},{48,	0.155274678	},{50,	0.165935683	},{52,	0.176867067	},{54,	0.18807244	},{56,	0.199556777	},{58,	0.211326422	},{60,	0.223389104	},
@@ -490,8 +489,8 @@ int main(int argc, char* argv[])
 	}
 	approx_all(E1, E2, E3 = E3_max, delta, muni, N_muni);
 
-//////////////////////
-//...printing results;
+////////////////////
+//...output results;
 	FILE *  result = fopen("Approx_4-initial.dat", "w");
 	fprintf(result, " E1 = %g E2 = %g E3 = %g\n delta = %g\n ", E1, E2, E3, delta);
 	fclose (result);
@@ -644,8 +643,8 @@ int main(int argc, char* argv[])
 				finv = matr[k][l0]; matr[k][l0] = 0.;
 				for (l = 0; l < 4; l++) matr[k][l] -= matr[l0][l]*finv;
 			}
-//////////////////////////////////////////////////////////////////////////////////
-////...reverse sorting of columns of inverse matrix and memory release and return;
+///////////////////////////////////////////////////////////////////////////////
+////...reverse sorting of columns of inverse matrix, memory release and return;
 	for (l = N_matr-1; l >= 0; l--)
 		if (kk[l] != ll[l])
 			for (k = 0; k < N_matr; k++) {
@@ -661,8 +660,8 @@ int main(int argc, char* argv[])
 	eps = sqrt(eps);
 	delta = eps/sqrt(sigma);
 
-//////////////////////
-//...printing results;
+////////////////////
+//...output results;
 	FILE *  result = fopen("Muni-Rivlin_initial2.dat", "w");
 	fprintf(result, " C1 = %g\n C2 = %g\n C3 = %g\n C4 = %g\n delta = %g\n ", C1, C2, C3, C4, delta);
 	fclose (result);
@@ -671,8 +670,8 @@ int main(int argc, char* argv[])
 #endif
 #ifdef INP_CONVERTOR
 {
-	//char * name = "c:\\SIMULIA\\Job\\Abaqus\\2016\\Poletayeva_2016\\models\\results\\Variant8 - mesh, IGE2-6_light\\Poletayeva.inp";
-	char * name = "c:\\SIMULIA\\Job\\Abaqus\\2016\\Poletayeva_2016\\models\\results\\Variant9 - big mesh, IGE2-6_light\\Poletayeva.inp";
+	//const char * name = "c:\\SIMULIA\\Job\\Abaqus\\2016\\Poletayeva_2016\\models\\results\\Variant8 - mesh, IGE2-6_light\\Poletayeva.inp";
+	const char * name = "c:\\SIMULIA\\Job\\Abaqus\\2016\\Poletayeva_2016\\models\\results\\Variant9 - big mesh, IGE2-6_light\\Poletayeva.inp";
 	int ID_elements[] = {1, -38}, ID_part = 1;
 
 //////////////////////////
@@ -706,10 +705,10 @@ int main(int argc, char* argv[])
 #endif
 #ifdef UWay_CONVERTOR
 {
-	//char * name = "c:\\Users\\Dima\\Programs\\Bcm_all\\Exe\\Testing\\Kashirskoye_add_elements.inp";
-	//char * name = "c:\\Users\\Dima\\Programs\\Bcm_all\\Exe\\Testing\\GeoEarth.inp";
-	//char * name = "c:\\Users\\Dima\\Programs\\Bcm_all\\Exe\\Testing\\Test_2_plastic_1-1_2.inp";
-	char * name = "c:\\Users\\Dima\\Dima\\My_documents\\IAM_RAS\\IAM_RAS_2015\\UWay-convertor_2015\\Testing\\models\\Constru\\copy_small_mesh\\Test_1.inp";
+	//const char * name = "c:\\Users\\Dima\\Programs\\Bcm_all\\Exe\\Testing\\Kashirskoye_add_elements.inp";
+	//const char * name = "c:\\Users\\Dima\\Programs\\Bcm_all\\Exe\\Testing\\GeoEarth.inp";
+	//const char * name = "c:\\Users\\Dima\\Programs\\Bcm_all\\Exe\\Testing\\Test_2_plastic_1-1_2.inp";
+	const char * name = "c:\\Users\\Dima\\Dima\\My_documents\\IAM_RAS\\IAM_RAS_2015\\UWay-convertor_2015\\Testing\\models\\Constru\\copy_small_mesh\\Test_1.inp";
 	int ID_part, k = 0;
 
 ////////////////////////////
@@ -739,9 +738,9 @@ int main(int argc, char* argv[])
 #endif
 #ifdef GRAD_MEDIA_DEMO
 {
-	//char * name = "./Parametric/Unit2d_4.nas";
-	//char * name = "./Parametric/Unit2d_100.nas";
-	char * name = "./Parametric/Unit2d_20_20.inp";
+	//const char * name = "../Exe/Parametric/Unit2d_4.nas";
+	//const char * name = "../Exe/Parametric/Unit2d_100.nas";
+	const char * name = "../Exe/Parametric/Unit2d_20_20.inp";
 	int  i, j, l;
 
 ///////////////////////////
@@ -910,9 +909,9 @@ double TH[21][9] = {
 #endif
 #ifdef C3D_CONVERTOR_prev
 {
-	//char * name = "c:\\Users\\Dima\\Programs\\Bcm_all\\Exe\\C3D_samples\\sample01\\Eb015pi.c3d";
-	//char * name = "c:\\Users\\Dima\\Programs\\Bcm_all\\Exe\\C3D_samples\\2ride1.c3d";//2ride2.c3d,2ride3.c3d
-	char * name = "c:\\Users\\Dima\\Programs\\Bcm_all\\Exe\\C3D_samples\\ride3.c3d";//ride2.c3d,ride3.c3d
+	//const char * name = "c:\\Users\\Dima\\Programs\\Bcm_all\\Exe\\C3D_samples\\sample01\\Eb015pi.c3d";
+	//const char * name = "c:\\Users\\Dima\\Programs\\Bcm_all\\Exe\\C3D_samples\\2ride1.c3d";//2ride2.c3d,2ride3.c3d
+	const char * name = "c:\\Users\\Dima\\Programs\\Bcm_all\\Exe\\C3D_samples\\ride3.c3d";//ride2.c3d,ride3.c3d
 	
 	unsigned short num_markers, num_channels, first_field, last_field, start_record_num, frames_per_field, channel_num = 1, marker_num = 1; 
 	unsigned char ** mlabels = NULL, ** alabels = NULL, * res_marker = NULL;
@@ -966,8 +965,8 @@ double TH[21][9] = {
 #endif
 #ifdef C3D_CONVERTOR
 {
-	//char * name = "c:\\Users\\Dima\\Programs\\Bcm_all\\Exe\\C3D_samples\\rides\\2ride1.c3d";//2ride2.c3d,2ride3.c3d
-	char * name = "c:\\Users\\Dima\\Programs\\Bcm_all\\Exe\\C3D_samples\\rides\\ride6.c3d";//ride2.c3d,ride3.c3d
+	//const char * name = "c:\\Users\\Dima\\Programs\\Bcm_all\\Exe\\C3D_samples\\rides\\2ride1.c3d";//2ride2.c3d,2ride3.c3d
+	const char * name = "c:\\Users\\Dima\\Programs\\Bcm_all\\Exe\\C3D_samples\\rides\\ride6.c3d";//ride2.c3d,ride3.c3d
 	
 	unsigned short num_markers, num_channels, first_field, last_field, start_record_num, frames_per_field; 
 	short ** analog = NULL;
@@ -1049,8 +1048,8 @@ double TH[21][9] = {
 #endif
 #ifdef IGES_CONVERTOR
 {
-	char * name = "c:\\SIMULIA\\Job\\Abaqus\\2017\\Relief_2017\\models\\Geo";
-	//char * name = "c:\\SIMULIA\\Job\\Abaqus\\2015\\Salt_2015\\models\\Geo";
+	const char * name = "c:\\SIMULIA\\Job\\Abaqus\\2017\\Relief_2017\\models\\Geo";
+	//const char * name = "c:\\SIMULIA\\Job\\Abaqus\\2015\\Salt_2015\\models\\Geo";
 	double X = 0., Y = 0., Z = 0., P[6] = {X, Y, Z, 0., 0., 1.}, k = 0.;
 
 ////////////////////////////
@@ -1085,7 +1084,7 @@ double TH[21][9] = {
 #endif
 #ifdef TEST_CCELLS
 {
-	char * name = "./Models_inp/Box3D_sph/Box3D_sph112.inp";
+	const char * name = "../Exe/Models_inp/Box3D_sph/Box3D_sph112.inp";
 
 //////////////////////////////////////////
 //...reading geometry from the input file;
@@ -1425,7 +1424,7 @@ double TH[21][9] = {
 		sp->admittance(p_cpy,  NULL, 0., 0.);
 		sp->adm_yz(p_cpy, 1.);
 
-		sp->cpy_yz();//...смешанная производная; 
+		sp->cpy_yz();//...mixed derivative; 
 		sp->admittance(sp->deriv, NULL, 0., 0.);	
 		sp->deriv_X(sp->deriv); 
 		sp->cpy_yz(); 
@@ -1634,12 +1633,12 @@ double TH[21][9] = {
 #endif
 #ifdef TEST_DRAFT_VISCO
 {
-	//char * name_ini = "../Exe/Models_inp/Box2D_sph/sph_009_84.inp";
-	//char * name_ini = "../Exe/Models_inp/Box2D_sph/sph_009_172.inp";
-	//char * name_ini = "../Exe/Models_inp/Box2D_sph/sph_009_184.inp";
-	char * name_ini = "../Exe/Models_inp/Box2D_sph/sph_009_496.inp";
+	//const char * name_ini = "../Exe/Models_inp/Box2D_sph/sph_009_84.inp";
+	//const char * name_ini = "../Exe/Models_inp/Box2D_sph/sph_009_172.inp";
+	//const char * name_ini = "../Exe/Models_inp/Box2D_sph/sph_009_184.inp";
+	const char * name_ini = "../Exe/Models_inp/Box2D_sph/sph_009_496.inp";
 
-	//char * name_ini = "../Exe/Box2d_homog/sph_025_16.nas";
+	//const char * name_ini = "../Exe/Box2d_homog/sph_025_16.nas";
 
 ////////////////////////
 //...problem parameters;
@@ -2037,29 +2036,29 @@ double TH[21][9] = {
 #endif
 #ifdef TEST_DRAFT_VIBRO
 {
-//	char * name = "../Exe/Models_nas/Cylinder/cyl_cyl_40.nas";
-//	char * name = "../Exe/Models_nas/Acoustic/ono_box_56.nas";
-//	char * name = "../Exe/Models_nas/Acoustic/ono_box_140.nas";
-//	char * name = "../Exe/Models_nas/Acoustic/ono_box_172.nas";
-//	char * name = "../Exe/Models_nas/Acoustic/ono_box_320.nas";
-//	char * name = "../Exe/Models_nas/Acoustic/ono_box_412.nas";
+//	const char * name = "../Exe/Models_nas/Cylinder/cyl_cyl_40.nas";
+//	const char * name = "../Exe/Models_nas/Acoustic/ono_box_56.nas";
+//	const char * name = "../Exe/Models_nas/Acoustic/ono_box_140.nas";
+//	const char * name = "../Exe/Models_nas/Acoustic/ono_box_172.nas";
+//	const char * name = "../Exe/Models_nas/Acoustic/ono_box_320.nas";
+//	const char * name = "../Exe/Models_nas/Acoustic/ono_box_412.nas";
 
-//	char * name = "../Exe/Models_nas/Acoustic/ono_half_14.nas";
-//	char * name = "../Exe/Models_nas/Acoustic/ono_half_35.nas";
-//	char * name = "../Exe/Models_nas/Acoustic/ono_half_43.nas";
-//	char * name = "../Exe/Models_nas/Acoustic/ono_half_80.nas";
-	char * name = "../Exe/Models_nas/Acoustic/ono_half_103.nas";
-//	char * name = "../Exe/Models_nas/Acoustic/ono_half_243.nas";
-//	char * name = "../Exe/Models_nas/Acoustic/ono_half_349.nas";
+//	const char * name = "../Exe/Models_nas/Acoustic/ono_half_14.nas";
+//	const char * name = "../Exe/Models_nas/Acoustic/ono_half_35.nas";
+//	const char * name = "../Exe/Models_nas/Acoustic/ono_half_43.nas";
+//	const char * name = "../Exe/Models_nas/Acoustic/ono_half_80.nas";
+	const char * name = "../Exe/Models_nas/Acoustic/ono_half_103.nas";
+//	const char * name = "../Exe/Models_nas/Acoustic/ono_half_243.nas";
+//	const char * name = "../Exe/Models_nas/Acoustic/ono_half_349.nas";
 
-//	char * name = "../Exe/Models_nas/Acoustic/ono0half_4.nas";
-//	char * name = "../Exe/Models_nas/Acoustic/ono0half_16.nas";
-//	char * name = "../Exe/Models_nas/Acoustic/ono0half_20.nas";
-//	char * name = "../Exe/Models_nas/Acoustic/ono0half_42.nas";
-//	char * name = "../Exe/Models_nas/Acoustic/ono0half_120.nas";
+//	const char * name = "../Exe/Models_nas/Acoustic/ono0half_4.nas";
+//	const char * name = "../Exe/Models_nas/Acoustic/ono0half_16.nas";
+//	const char * name = "../Exe/Models_nas/Acoustic/ono0half_20.nas";
+//	const char * name = "../Exe/Models_nas/Acoustic/ono0half_42.nas";
+//	const char * name = "../Exe/Models_nas/Acoustic/ono0half_120.nas";
 
 	int  i, j, k, l, N0, NN[] = {3, 1, 1, 1}, id_phase = OK_STATE;
-	double  par[6], LL[] = {1.2, 1.3, 2.5};//...//...указываются возрастающие значения точек;
+	double  par[6], LL[] = {1.2, 1.3, 2.5};//...//...must be declared increasing values of the points;
 
 ///////////////////////////`
 //...parameters of problem;
@@ -2070,23 +2069,23 @@ double TH[21][9] = {
 			 nj1 = 0.30,   //...steel Poisson; 
 			 G1  = 2.04e10/(1.+nj1)*.5; //...steel modulus (\EA\C3/\EC^2);
 
-/////////////////////////////////////////////////////////
-//...инициализация образца и настройка параметров задачи;
+///////////////////////////////////////////////////////////////////////
+//...initialization of the sample and customization problem parameters;
 	CDraft<double> * sm = CreateDraftR(ACOU3D_DRAFT, 8);		
 	if (sm->type() == ACOU3D_DRAFT) sm->set_fasa_hmg(Hz, Ro0, C0);
 	else 									  sm->set_fasa_hmg(Hz, Ro0, C0, Ro1, nj1, G1);
-	sm->set_mpls(PackInts(3, 1)); //...степень мультиполей;
-	sm->set_quad(PackInts(4, 4)); //...степень квадратуры;
-	sm->set_normaliz(.92);			//...нормирующий множитель;
-	sm->set_lagrange(1e5);			//...множитель Лагранжа для функционала энергии;
+	sm->set_mpls(PackInts(3, 1)); //...multipoles degree;
+	sm->set_quad(PackInts(4, 4)); //...quadrature degree;
+	sm->set_normaliz(.92);			//...normalization coefficient;
+	sm->set_lagrange(1e5);			//...Lagrange multiplier for energy functional;
 	sm->change_solv(/*PERIODIC_SOLVING*/SQUARE_SOLVING);
 	sm->solver.change_state(/*EXTERN_STATE*/);
 	sm->solver.set_mode(/*PRINT_MODE*/NO_PHASE);
 
 	sm->set_param(2, 100.);
 
-////////////////////////////
-//...преобразование образца;
+///////////////////////////
+//...sample transformation;
 	CGrid * nd = CreateNodes();
 
 	N0 = sm->GetOnoBoxStruct(1.2, 1.0, 0.5, 0.5, 0.08, NN, LL, name, OK_STATE, id_phase);
@@ -2100,8 +2099,8 @@ double TH[21][9] = {
 	par[0] = 0.0; par[2] = 0.0; par[4] = 0.;
 	par[1] = 0.6; par[3] = 0.5; par[5] = LL[NN[0]-1];
 
-//////////////////////////////////////////
-//...коррекция граничных значений вручную;
+///////////////////////////////////////////////
+//...manually correction of boundary condition;
 	if (1) {
 		double pp[6] = { 0., 0., 0., 0., 0., 0.};
 		for (k = 0; k < sm->N; k++)
@@ -2119,8 +2118,8 @@ double TH[21][9] = {
 		}
 	}
 
-//////////////////////////
-//...распечатка геометрии;
+/////////////////////
+//...geometry output;
 	for (k = 0; k < sm->N;  k++) {
 	sm->B[k].bar->cells_out("bar");
 	sm->B[k].bar->grid_skeleton(nd);
@@ -2299,8 +2298,8 @@ double TH[21][9] = {
 #ifdef HEAT2D_ANALYT_HOMOGENIZATION
 {
 	const char * name_ini = "../bcm-start/var2/heat2d_initial.dat";
-/////////////////////////
-//...данные по умолчанию;
+//////////////////
+//...default data;
 	int	 id_visual = 0,  NX = 100, NY = 100, N0 = 11, N_elem = 16, N_max = 4, i, j, axis = AXIS_Y;
 	double A = 1., B = 1., R1 = 0.3/2, R2 = 0.4/2, K1 = 20., K2 = 0.01, K3 = 1., C = 1., alpha = 0.;
 
@@ -2486,8 +2485,8 @@ test:
 #ifdef HEAT3D_ANALYT_HOMOGENIZATION
 {
 	const char * name_ini = "../bcm-start/var2/heat3d_initial.dat";
-/////////////////////////
-//...данные по умолчанию;
+//////////////////
+//...default data;
 	double par[6], rad = 0.3, h_rad = 0., A = 1., B = 1., C = 1.,  ll = 0.1, section = 0., section_I = 0., section_II = 0., 
 		 K1 = 20., K2 = 0.01, K3 = 1.;
 	int id_visual = 0, N_rad = 1, NX = 100, NY = 100, N0 = 15, N_elem = 8, N_max = 4, id_bcond = 0, id_solver = 0, id_type = 0, 
@@ -2615,15 +2614,15 @@ test:
 	sm->solver.set_mode(/*PRINT_MODE*//*FULLY_MODE*/);
 	yes = 0;
 
-////////////////////////////////////////////////////////
-//...перебираем все радиусы, отключая предельные случаи;
+///////////////////////////////////////////////
+//...search all radii, excluding extreme cases;
 	for (l = 0; l < N_rad; l++, rad += h_rad) { 
 		sprintf(buf, "rad = %g", rad);
 		Message(" ");
 		Message(buf);
 
-////////////////////////////////////////////////////////////////////////////////
-//...пересчет параметров ячейки для обеспечения одинаковой концентрации шунгита;
+///////////////////////////////////////////////////////////////////////////////////
+//...recalculating cell parameters for providing the same schoungite concentartion;
 		if (id_type == 1) A = B = C = pow(300.*M_PI,  1./3.)*(rad+10.)*.5;                                                                    //
 		if (id_type == 2) A = B = C = pow(300.*M_PI,  1./3.)*pow(rad*sqr(rad)+((rad+ll)*sqr(rad+ll)-rad*sqr(rad))*(K3-K1)/(K2-K1), 1./3.)*.5; //                                          //
 		if (id_type == 3) {
@@ -2633,8 +2632,8 @@ test:
 		}
 		if (rad > 0. && rad <= 0.5*A) {
 
-///////////////////////////////////////////
-//...задаем геометрию и исходные параметры;
+/////////////////////////////////////////////
+//...specify geometry and initial parameters;
 			double fL = A, fL2 = fL*fL;
 			A /= fL; rad /= fL;
 			B /= fL;	ll  /= fL;
@@ -2657,8 +2656,8 @@ test:
 				goto err;
 			}
 
-//////////////////////////////////////////
-//..вычисляем эффективные модули композита;
+///////////////////////////////////////////
+//..calculation effective composite moduli;
 			double K[7] = {0.,0.,0.,0.,0.,0., min(A, min(B, C))*.5}, KH, kk, kk_low, kk_max, ff_vol, ll_vol;
 			sm->GetRigidy(K, -1, BASIC_COMPUT);
 			sm->GetRigidy(K, -1, COVERING_COMPUT);
@@ -2669,8 +2668,8 @@ test:
 			kk_low = (K[3]+K[4]+K[5])/(K[3]/K1+K[4]/K2+K[5]/K3);
 			kk_max = (K[3]*K1+K[4]*K2+K[5]*K3)/(K[3]+K[4]+K[5]);
 
-////////////////////////////////////////
-//...четырехфазная модель, метод Эшелби;
+/////////////////////////////////////
+//...four-body model, Eshelby method;
 			KH = sm->TakeEshelby(ff_vol, ll_vol);
 
 			const char  * buf = id_type ? (id_type == 1 ? "heat3d_homog_kf1.dat" : (id_type == 2 ? "heat3d_homog_kf2.dat" : "heat3d_homog_kf3.dat")) : "heat3D_homog_kf0.dat";
@@ -2716,8 +2715,8 @@ test:
 				sm->GetSurferFormat("rr", nd,				  HEAT_VALUE,							 0, axis);
 				sm->GetSurferFormat("pp", nd, id_bcond ? FLUX_VALUE : FLUX_COMPOS_VALUE, 0, axis);
 
-/////////////////////////////////////////
-//...дополнительные сечения (если нужно);
+/////////////////////////////////////
+//...additional sections (if needed);
 				if (id_visual > 1) { 
 					nd->release();
 					if (axis_I == AXIS_Z) {
@@ -2796,8 +2795,8 @@ test:
 #ifdef LAME3D_ANALYT_HOMOGENIZATION
 {
 	const char * name_ini = "../bcm-start/var2/lame3d_initial.dat";
-/////////////////////////
-//...данные по умолчанию;
+//////////////////
+//...default data;
 	double par[6], rad = 1., h_rad = 0., A = 5., B = 5., C = 5., ll = 0.5, section = 0., section_I = 0., section_II = 0.,
 						nj1 = 0.3, nj2 = 0.3, nj3 = 0.3, E1  = 1.0, E2  = 2.0, E3  = 3.0;
 	int id_visual = 0, N_rad = 1, NX = 100, NY = 100, N0 = 7, N_elem = 8, N_max = 4, id_bcond = 0, id_solver = 0, id_type = 0, 
@@ -2925,17 +2924,17 @@ test:
 //...creating model from initiual data;
 test:
 	CDraft<double> * sm = CreateDraftR(LAME3D_DRAFT, 7);
-	sm->set_mpls(PackInts(N0, N0));			//...степень мультиполей;
-	sm->set_quad(PackInts(N_elem, N_max)); //...степень квадратуры;
-	sm->set_normaliz(0.92);						//...нормирующий множитель;
-	sm->set_lagrange(1.);						//...коэффициент Лагранжа; 
+	sm->set_mpls(PackInts(N0, N0));			//...multipoled degree;
+	sm->set_quad(PackInts(N_elem, N_max)); //...quadrature degree;
+	sm->set_normaliz(0.92);						//...normalization coefficient;
+	sm->set_lagrange(1.);						//...Lagrange coefficient; 
 	sm->change_solv(/*SPECIAL_SOLVING*/);
 	sm->solver.change_state(/*EXTERN_STATE*/);
 	sm->solver.set_mode(/*REDUCED_PRINT*//*PRINT_MODE*//*FULLY_MODE*/);
 	yes = 0;
 
-////////////////////////////////////////////////////////
-//...перебираем все радиусы, отключая предельные случаи;
+///////////////////////////////////////////////
+//...search all radii, excluding extreme cases;
 	FILE  * TST = fopen("lame3D_homog.dat", "w");
 	fclose (TST);
 	for (l = 0; l < N_rad; l++, rad += h_rad) { 
@@ -2943,8 +2942,8 @@ test:
 		Message(" ");
 		Message(buf);
 
-////////////////////////////////////////////////////////////////////////////////
-//...пересчет параметров ячейки для обеспечения одинаковой концентрации шунгита;
+///////////////////////////////////////////////////////////////////////////////////
+//...recalculating cell parameters for providing the same schoungite concentartion;
 		if (id_type == 1) A = B = C = pow(300.*M_PI,  1./3.)*(rad+10.)*.5;                                                                    
 		if (id_type == 2) A = B = C = pow(300.*M_PI,  1./3.)*pow(rad*sqr(rad)+((rad+ll)*sqr(rad+ll)-rad*sqr(rad))*(E3-E1)/(E2-E1), 1./3.)*.5;                                           
 		if (id_type == 3) {
@@ -2953,14 +2952,14 @@ test:
 			else 				ll = 1.54*12.5*pow( rad/(1.54*12.5), 2.*(3.-2.568)/3.);
 		}
 		if (rad > 0. && rad <= 0.5*A) { 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//...нормируем геометрию и задаем параметры материалов (в случае ___2BODY_ESHELBY___ для межфазного слоя задаем параметры матрицы!!!);
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//...normalize geometry and specifymaterial parameters (in case of ___2BODY_ESHELBY___ for intarphase layer define matrix parameters!!!);
 			double fL = id_type != 4 ? A : 1.;	A /= fL; B /= fL; C /= fL; rad /= fL; ll /= fL;
 			sm->set_fasa_hmg(nj1, nj2, E1/(fL*(1.+nj1))*.5, E2/(fL*(1.+nj2))*.5, nj3, E3/(fL*(1.+nj3))*.5/*, nj1, E1/(fL*(1.+nj1))*.5*/);
 			sm->set_geometry(rad, ll);
 
-//////////////////////
-//...задаем геометрию;
+/////////////////////
+//...define geometry;
 			if (id_bcond) sm->GetSphBoxStruct(A, B, C, rad, ll);
 			else {
 				sm->GetSphBoxStruct(A, B, C);
@@ -2977,8 +2976,8 @@ test:
 				goto err;
 			}
 
-//////////////////////////////////////////
-//..вычисляем эффективные модули композита;
+///////////////////////////////////////////
+//..calculating composite effective moduli;
 			double K[28], E0, nu, K0, m0, mu, lm, C0, KH, EH, mH, nH, ff_vol, ll_vol; memset(K, 0, 28*sizeof(double)); K[27] = A*.5;
 			sm->GetRigidy(K, -1, BASIC_COMPUT);
 			sm->GetRigidy(K, -1, COVERING_COMPUT);
@@ -2994,8 +2993,8 @@ test:
 			m0 = E0/(2.*(1.+nu));
 			mu = K[15]/K[21]*.5*fL;
 
-////////////////////////////////////////
-//...четырехфазная модель, метод Эшелби;
+/////////////////////////////////////
+//...four-body model, Eshelby method;
 			KH = sm->TakeEshelby_volm(ff_vol, ll_vol)*fL;
 			//KH = sm->TakeEshelby_volm_two (ff_vol)*fL;
 			//mH = sm->TakeEshelby_shear_two(ff_vol+ll_vol)*fL;
@@ -3055,8 +3054,8 @@ test:
 				sm->GetSurferFormat("tz", nd, STRESS_Z_VALUE, 0, axis);
 				sm->GetSurferFormat("tx", nd, STRESS_X_VALUE, 1, axis);
 
-/////////////////////////////////////////
-//...дополнительные сечения (если нужно);
+/////////////////////////////////////
+//...additional sections (if needed);
 				if (id_visual > 1) { 
 					nd->release();
 					if (axis_I == AXIS_Z) {
@@ -3137,8 +3136,8 @@ test:
 #ifdef HYDRO3D_ANALYT_HOMOGENIZATION
 {
 	const char * name_ini = "../bcm-start/var1/hydro3D_initial.dat";
-/////////////////////////
-//...данные по умолчанию;
+//////////////////
+//...default data;
 	double par[6], rad = 0.5, h_rad = 0., L = 0.5, alpha = 0., section = 0., section_I = 0., section_II = 0.;
 	int id_visual = 0, axis = AXIS_Y, axis_I = AXIS_Z, axis_II = AXIS_X, NX = 100, NY = 100, N_elem = 4, N_max = 2, 
 		 structure = 0, N_rad = 1, N0 = 7, i, j, k, l, m, num;
@@ -3236,17 +3235,17 @@ test:
 test:
 #define real_T double
 	CDraft<real_T> * sm = CreateDraftR(HYDRO3D_DRAFT, 8);		
-	sm->set_fasa_hmg(alpha);					//...коэффициент Бринкмана; 
-	sm->set_mpls(PackInts(N0, N0));			//...степень мультиполей;
-	sm->set_quad(PackInts(N_elem, N_max)); //...степень квадратуры;
-	sm->set_normaliz(L*sqrt(3.)/(.5*rad));	//...нормирующий множитель; 
-	sm->set_lagrange(1e5);						//...коэффициент Лагранжа; 
+	sm->set_fasa_hmg(alpha);					//...Brinkman coefficient; 
+	sm->set_mpls(PackInts(N0, N0));			//...multipoles degree;
+	sm->set_quad(PackInts(N_elem, N_max)); //...quadrature degree;
+	sm->set_normaliz(L*sqrt(3.)/(.5*rad));	//...normalization multiplier; 
+	sm->set_lagrange(1e5);						//...Lagrange coefficient; 
 	sm->change_solv(structure ? SQUARE_SOLVING : SPECIAL_SOLVING);
 	sm->solver.set_mode(/*PRINT_MODE*/);
 	yes = 0;
 
-///////////////////////////////////////////////////////
-//...чтение модели и граничных условий из файла данных;
+/////////////////////////////////////////////////////////
+//...model and boundary condition reading from data file;
 	if (sm && structure && structure != 3) {
 		Message(" ");
 		sprintf(buf, "Loading model from file '%s'", name);
@@ -3262,8 +3261,8 @@ test:
 		N_rad = 1;
 		Message("Finish!");
 
-///////////////////////////////////////////////////////////////////////////////////////////
-//...задание граничных значений в модели (скорость поперек потока и давление вдоль потока);
+///////////////////////////////////////////////////////////////////////////////////////////////
+//...definning boundary conditions in model (velocity across stream and pressure along stream);
 		double po[6] = { 0., 0., 0., 0., 0., 0.};
 		sm->BlockActivate();
 		for (k = 0; k < sm->N; k++) 
@@ -3279,8 +3278,8 @@ test:
 		}
 	}
 
-////////////////////////////////////////////////////////
-//...перебираем все радиусы, отключая предельные случаи;
+///////////////////////////////////////////////
+//...search all radii, excluding extreme cases;
 	res = system("mkdir ./bcm_results/hydro3d_homog"); char buff1[200], buff2[200], str[40];
 //	res = system("del *.grd");
 	for (l = 0; l < N_rad; l++, rad += h_rad) { 
@@ -3288,7 +3287,7 @@ test:
 		Message(" ");
 		Message(buf);
 		if (rad > 0. && rad < M_SQRT_2 || structure) {
-			if (! structure || structure == 3) { //...задание геометрии аналитически;
+			if (! structure || structure == 3) { //...define geometry in the analytical form;
 				if (rad < 0.5)
 				sm->GetSphBoxStruct(2.*L, 2.*L, 2.*L, rad, 0., OK_STATE); else
 				sm->GetPenetrateSphere(rad, L);
@@ -3298,7 +3297,7 @@ test:
 				//par[1] =  L; par[3] =  L; par[5] =  L;
 				par[0] = -L*1.5; par[2] = -L*1.5; par[4] = -L*1.5;
 				par[1] =  L*1.5; par[3] =  L*1.5; par[5] =  L*1.5;
-				if (1) { //...задание краевых условий на боковых гранях;
+				if (1) { //...defined boundary condition on the lateral sides;
 					double po[6] = { 0., 0., 0., 0., 0., 0.};
 					LOOP_FACET(sm->B[0].bar, num, m) {
 						sm->B[0].bar->SetFacetXParam(num, par[0], po, FSKEWS_BND);
@@ -3318,8 +3317,8 @@ test:
 			if (sm->computing_kernel(structure ? BASIC_COMPUT : PERIOD_COMPUT) != OK_STATE)
 				Message("Error in sample computing...");
 
-////////////////////////////////////////////////////////////////
-//..вычисляем усредненные характеристики (тензор проницаемости);
+/////////////////////////////////////////////////////////////////
+//..calculating homogenized characteristics (permability tensor);
 			double nn, nn_cyl, nn_cyl_alpha, nn_l, nn_l_alpha, ff_vol;
 			real_T K[4]; memset(K, 0, 4*sizeof(real_T));
 			sm->GetRigidy(K, -1,  BASIC_COMPUT); 	
@@ -3368,7 +3367,7 @@ test:
 					if (axis == AXIS_Z) sm->Poly_struc_in3D(hit, nd->X[i], nd->Y[j], nd->Z[0]); else
 					if (axis == AXIS_Y) sm->Poly_struc_in3D(hit, nd->Y[j], nd->Z[0], nd->X[i]); else
 					if (axis == AXIS_X) sm->Poly_struc_in3D(hit, nd->Z[0], nd->X[i], nd->Y[j]);
-					//if (structure > 1) { //...коррекция канала между сферическими частицами;
+					//if (structure > 1) { //...correction of channel between spherical particles;
 					//	if (sqr(nd->X[i]+L)+sqr(nd->Y[j]-L)+sqr(nd->Z[0]-L) < sqr(rad)) hit = -1;
 					//	if (sqr(nd->X[i]-L)+sqr(nd->Y[j]-L)+sqr(nd->Z[0]-L) < sqr(rad)) hit = -1;
 					//	if (sqr(nd->X[i]-L)+sqr(nd->Y[j]+L)+sqr(nd->Z[0]-L) < sqr(rad)) hit = -1;
@@ -3402,8 +3401,8 @@ test:
 				//	sm->GetSurferFormat("./bcm_results/hydro3d_homog/vv_analyt", nd, ANALYT_VALUE, 0, axis);
 				//}
 
-/////////////////////////////////////////
-//...дополнительные сечения (если нужно);
+/////////////////////////////////////
+//...additional sections (if needed);
 				if (id_visual > 1) { 
 					nd->release();
 					if (axis_I == AXIS_Z) {
@@ -3429,7 +3428,7 @@ test:
 						if (axis_I == AXIS_Z) sm->Poly_struc_in3D(hit, nd->X[i], nd->Y[j], nd->Z[0]); else
 						if (axis_I == AXIS_Y) sm->Poly_struc_in3D(hit, nd->Y[j], nd->Z[0], nd->X[i]); else
 						if (axis_I == AXIS_X) sm->Poly_struc_in3D(hit, nd->Z[0], nd->X[i], nd->Y[j]);
-						//if (structure > 1) { //...коррекция канала между сферическими частицами;
+						//if (structure > 1) { //...correction of channel between spherical particles;
 						//	if (sqr(nd->X[i]+L)+sqr(nd->Y[j]-L)+sqr(nd->Z[0]-L) < sqr(rad)) hit = -1;
 						//	if (sqr(nd->X[i]-L)+sqr(nd->Y[j]-L)+sqr(nd->Z[0]-L) < sqr(rad)) hit = -1;
 						//	if (sqr(nd->X[i]-L)+sqr(nd->Y[j]+L)+sqr(nd->Z[0]-L) < sqr(rad)) hit = -1;
@@ -3484,7 +3483,7 @@ test:
 							if (axis_II == AXIS_Z) sm->Poly_struc_in3D(hit, nd->X[i], nd->Y[j], nd->Z[0]); else
 							if (axis_II == AXIS_Y) sm->Poly_struc_in3D(hit, nd->Y[j], nd->Z[0], nd->X[i]); else
 							if (axis_II == AXIS_X) sm->Poly_struc_in3D(hit, nd->Z[0], nd->X[i], nd->Y[j]);
-							//if (id_structure > 1) { //...коррекция канала между сферическими частицами;
+							//if (id_structure > 1) { //...correction of channel between spherical particles;
 							//	if (sqr(nd->X[i]+L)+sqr(nd->Y[j]-L)+sqr(nd->Z[0]-L) < sqr(rad)) hit = -1;
 							//	if (sqr(nd->X[i]-L)+sqr(nd->Y[j]-L)+sqr(nd->Z[0]-L) < sqr(rad)) hit = -1;
 							//	if (sqr(nd->X[i]-L)+sqr(nd->Y[j]+L)+sqr(nd->Z[0]-L) < sqr(rad)) hit = -1;
@@ -3525,11 +3524,11 @@ test:
 #endif
 #ifdef TEST_DRAFT_HEAT2D_INTERMEDIATE_PHASE
 {
-	char * name = "../Exe/Parametric/Unit2d_1_dop.nas", * buff;
-	//char * name = "../Exe/Box2d_homog/heat_clayer488.nas", * buff;
-	//char * name = "../Exe/Box2d_homog/heat_cyl_layer1148.nas", * buff;
-	//char * name = "../Exe/Box2d_homog/heat_ell_layer1174.nas", * buff;
-	//char * name = "../Exe/Box2d_homog/sph_025_16.nas", * buff;
+	const char * name = "../Exe/Parametric/Unit2d_1_dop.nas", * buff;
+	//const char * name = "../Exe/Box2d_homog/heat_clayer488.nas", * buff;
+	//const char * name = "../Exe/Box2d_homog/heat_cyl_layer1148.nas", * buff;
+	//const char * name = "../Exe/Box2d_homog/heat_ell_layer1174.nas", * buff;
+	//const char * name = "../Exe/Box2d_homog/sph_025_16.nas", * buff;
 	int  i, j, l;
 	double X0, Y0, ell_X = 0., ell_Y = 0., rot_Z, ff = 0.2, rr = sqrt(ff/M_PI), AX = 1.;
 
@@ -3539,8 +3538,8 @@ test:
 	CDraft<real_T> * sm = CreateDraftR(HEAT2D_DRAFT);
 	sm->set_mpls(PackInts(32, 32));	//...space degree of multipoles;
 	sm->set_quad(PackInts(24, 24));	//...N_elem, N_max -- parameters of quadrature;
-	sm->set_normaliz(0.92);			//...normalization coefficient;
-	sm->set_lagrange(1e-4);			//...Lagrange coefficient for energy;
+	sm->set_normaliz(0.92);				//...normalization coefficient;
+	sm->set_lagrange(1e-4);				//...Lagrange coefficient for energy;
 	sm->change_solv(/*SPECIAL_SOLVING*/PERIODIC_SOLVING);
 	sm->solver.change_state(/*EXTERN_STATE*/);
 	sm->solver.set_mode(/*PRINT_MODE | FULLY_MODE | MASKS_MODE | ACCUMULATION*/);
@@ -3670,8 +3669,8 @@ test:
 			//Vol = to_double(K[4]);
 
 			Vol	 = to_double(K[2]+K[3]+K[4]);
-			ff		 = to_double(K[3]/(K[2]+K[3]+K[4])); //...объёмная доля включений;
-			ff_l	 = to_double(K[4]/(K[2]+K[3]+K[4])); //...объёмная доля межфазного слоя;
+			ff		 = to_double(K[3]/(K[2]+K[3]+K[4])); //...volume fraction of inclusion;
+			ff_l	 = to_double(K[4]/(K[2]+K[3]+K[4])); //...volume fraction of intarphase layer;
 			kH		 = to_double(K[0]/(K[2]+K[3]+K[4]));
 			kk_low = to_double((K[2]+K[3]+K[4])/(K[2]/K1+K[3]/K2+K[4]/K3));
 			kk_max = to_double((K[2]*K1+K[3]*K2+K[4]*K3)/(K[2]+K[3]+K[4]));
@@ -3709,7 +3708,7 @@ test:
 #endif
 #ifdef TEST_DRAFT_HEAT3D_INTERMEDIATE_PHASE
 {
-	char * name = "../Exe/Parametric/Unit3d_001_dop.nas", * buff;
+	const char * name = "../Exe/Parametric/Unit3d_001_dop.nas", * buff;
 	int  i, j, l;
 	double ff = 0.2, rr = sqrt(ff/M_PI), AX = 1.;
 
@@ -3718,9 +3717,9 @@ test:
 #define real_T double
 	CDraft<real_T> * sm = CreateDraftR(HEAT3D_DRAFT, 7);
 	sm->set_mpls(PackInts(13, 13));	//...space degree of multipoles;
-	sm->set_quad(PackInts(8, 8));	//...N_elem, N_max -- parameters of quadrature;
-	sm->set_normaliz(0.92);			//...normalization coefficient;
-	sm->set_lagrange(1e-4);			//...Lagrange coefficient for energy;
+	sm->set_quad(PackInts(8, 8));		//...N_elem, N_max -- parameters of quadrature;
+	sm->set_normaliz(0.92);				//...normalization coefficient;
+	sm->set_lagrange(1e-4);				//...Lagrange coefficient for energy;
 	sm->change_solv(/*SPECIAL_SOLVING*/PERIODIC_SOLVING);
 	sm->solver.change_state(/*EXTERN_STATE*/);
 	sm->solver.set_mode(/*PRINT_MODE | FULLY_MODE | MASKS_MODE | ACCUMULATION*/);
@@ -3838,8 +3837,8 @@ test:
 			kk_low = to_double((K[3]+K[4]+K[5])/(K[3]/K1+K[4]/K2+K[5]/K3));
 			kk_max = to_double((K[3]*K1+K[4]*K2+K[5]*K3)/(K[3]+K[4]+K[5]));
 
-////////////////////////////////////////
-//...четырехфазная модель, метод Эшелби;
+/////////////////////////////////////
+//...four-body model, Eshelby method;
 			kk = sm->TakeEshelby(ff, ff_l);
 
 			TST = fopen(buff, "a"); //if (R2 > 0.5 || R1 < 0.) kk = -111.;
@@ -3885,11 +3884,11 @@ test:
 #endif
 #ifdef TEST_DRAFT_LAME2D_INTERMEDIATE_PHASE
 {
-	char * name = "../Exe/Box2d_homog/heat_clayer488.nas";
-	//char * name = "../Exe/Box2d_homog/heat_cyl_layer1148.nas";
-	//char * name = "../Exe/Box2d_homog/heat_ell_layer1174.nas";
-	//char * name = "../Exe/Box2d_homog/sph_025_16.nas";
-	//char * name = "../Exe/Parametric/Unit2d_16.nas";
+	const char * name = "../Exe/Box2d_homog/heat_clayer488.nas";
+	//const char * name = "../Exe/Box2d_homog/heat_cyl_layer1148.nas";
+	//const char * name = "../Exe/Box2d_homog/heat_ell_layer1174.nas";
+	//const char * name = "../Exe/Box2d_homog/sph_025_16.nas";
+	//const char * name = "../Exe/Parametric/Unit2d_16.nas";
 	int  i, j, l;
 	double X0, Y0, ell_X = 0., ell_Y = 0., rot_Z;
 
@@ -3907,12 +3906,12 @@ test:
 
 ///////////////////////////
 //...parameters of problem;
-	double nju1 = 0.300,  //...ледяная матрица; 
-			 nju2 = 0.100,  //...минеральная частица (песок); 
+	double nju1 = 0.300,  //...ice matrix; 
+			 nju2 = 0.100,  //...mineral particle (sand); 
 			 nju3 = 0.499,  //...вода; 
-			 G1   = 6.0/(1.+nju1)*.5,	//...ледяная матрица (GPa);
-			 G2   = 50./(1.+nju2)*.5,	//...включение (песок, GPa); 
-			 G3   = 1e-0/*5*//(1.+nju3)*.5; //...межазный слой (вода, GPa); 
+			 G1   = 6.0/(1.+nju1)*.5,	//...ice matrix (GPa);
+			 G2   = 50./(1.+nju2)*.5,	//...inclusion (sand, GPa); 
+			 G3   = 1e-0/*5*//(1.+nju3)*.5; //...interphase layer (water, GPa); 
 	sm->set_fasa_hmg(nju1, nju2, nju3, G1, G2, G3) ;
 
 //////////////////////////////////
@@ -4067,9 +4066,9 @@ test:
 
 //////////////////////
 //...параметры задачи;
-	double nj1 = 0.30, //...ледяная матрица; 
-			 nj2 = 0.10, //...минеральное включение; 
-			 nj3 = 0.49999, //...слой талой воды; 
+	double nj1 = 0.30, //...ice matrix; 
+			 nj2 = 0.10, //...mineral inclusion; 
+			 nj3 = 0.49999, //...layer of melt water; 
 			 E1  = 6.0,  //...GPa;
 			 E2  = 50.,  //...GPa; 
 			 K3  = 1000.,//...GPa; 
@@ -4077,13 +4076,13 @@ test:
 	sm->set_fasa_hmg(nj1, nj2, E1/(1.+nj1)*.5, E2/(1.+nj2)*.5, nj3, E3/(1.+nj3)*.5);
 	sm->set_geometry(rad, ll);
 
-///////////////////////////////
-//...цикл по параметрам задачи;
+/////////////////////////////////
+//...cycle on problem parameters;
 	int n_var;
 	res = system("mkdir var1_results");
 	for (n_var = 10; n_var <= 10; n_var++) {
-///////////////////////
-//...геометрия области;
+/////////////////////
+//...domain geometry;
 		sm->GetSphBoxStruct(AX, AY, AZ, rad, ll);
 		par[0] = -AX*.5; par[2] = -AY*.5; par[4] = -AZ*.5;
 		par[1] =  AX*.5; par[3] =  AY*.5; par[5] =  AZ*.5;
@@ -4096,8 +4095,8 @@ test:
 			goto err;
 		}
 
-///////////////////////////////////////////////////////////////////////
-//..вычисляем осредненные характеристики (модуль Юнга и модуль сдвига);
+/////////////////////////////////////////////////////////////////////////////////
+//..calculation of homogenized characteristics (Young modulus and shear modulus);
 		double K[28], E0, K0, nu, mu, C0, lm, ff_vol, ll_vol; memset(K, 0, 28*sizeof(double)); K[27] = AX*.5;
 		sm->GetRigidy(K, -1, BASIC_COMPUT);
 		sm->GetRigidy(K, -1, COVERING_COMPUT);
@@ -4117,8 +4116,8 @@ test:
 						  ff_vol+ll_vol, K0, E0, mu, nu, rad, E2, E3, E1, nj2, nj3, nj1);
 		fclose (TST);
 
-//////////////////////////////////////////////////////////////
-//..тестируем поверхностные значения на границе фаз материала;
+//////////////////////////////////////////////////////////
+//..testing surface values on the phase material boundary;
 	int id_testin = 0;
 	if (id_testin) {
 		extern int forced_phase;
@@ -4247,8 +4246,8 @@ test:
 	double par[6], k0 = 0., rad = 0.3, AX = 1., AY = 1., AZ = 1., fm = 1., ff_vol = 0.99;
 	int i, j, k, m, num;
 
-////////////////////////////
-//...преобразование образца;
+///////////////////////////
+//...sample transformation;
 	CDraft<double> * sm = CreateDraftR(HYDRO3D_DRAFT, 8);
 	sm->set_fasa_hmg(k0);			//...Brinkman's coefficient; 
 	sm->set_mpls(PackInts(3, 3)); //...space degree of multipoles;
@@ -4278,8 +4277,8 @@ test:
 		//par[0] = -sm->B[sm->N-1].mp[7]*M_SQRT_2/sm->get_param(sm->NUM_MPLS+1); par[2] = par[0]; par[4] = par[0];
 		//par[1] =  sm->B[sm->N-1].mp[7]*M_SQRT_2/sm->get_param(sm->NUM_MPLS+1); par[3] = par[1]; par[5] = par[1];
 
-/////////////////////////////////////////
-//...задание граничных значений в модели;
+////////////////////////////////////////////////
+//...definition boundary condition in the model;
 		int id_action = 0;
 		if (id_action) {
 			double pp[6] = { 0., 0., 0., 0., 0., 0.},
@@ -4306,8 +4305,8 @@ test:
 			goto err;
 		}
 
-////////////////////////////////////////////////////////////////
-//..вычисляем осредненные характеристики (тензор проницаемости);
+/////////////////////////////////////////////////////////////////
+//..calculation homogenized characteristics (permability tensor);
 		double K[4], nn, nn_cyl, nn_l; memset(K, 0, 4*sizeof(double));
 		sm->GetRigidy(K, -1,  BASIC_COMPUT); 	
 
@@ -4331,7 +4330,7 @@ test:
 		fclose (TST);
 
 //////////////////////////////////////////
-//..тестируем граничные значения на сфере;
+//..testing boundary values on the sphere;
 		int id_testin = 0;
 		if (id_testin) {
 			CGrid * nd = CreateNodes();
@@ -4405,8 +4404,8 @@ test:
 			sm->GetSurferFormat("pp", nd,	PRESSURE_VALUE, 0, axis);
 			sm->GetSurferFormat("vv", nd, VELOCITY_VALUE, 0, axis);
 
-//////////////////////////////
-//...дополнительная плоскость;
+//////////////////////
+//...additional plane;
 			for (i = 0; i <= 2*NX; i++) nd->X[i] = (.5*i/NX*(par[1]-par[0])+par[0]);
 			for (j = 0; j <= 2*NY; j++) nd->Y[j] = (.5*j/NY*(par[3]-par[2])+par[2]);
 			nd->Z[0] = (par[4]+(par[5]-par[4])*(1.+alpha)*.5);
@@ -4439,9 +4438,9 @@ test:
 	int j, k, l, m, num, res;
 
 //////////////////////
-//...параметры модели;
+//...model parameters;
 	CDraft<double> * sm = CreateDraftR(HEAT2D_DRAFT, 8);
-	sm->set_fasa_hmg(1., 2.);		  //...модуль теплопроводности; 
+	sm->set_fasa_hmg(1., 2.);		  //...heat transfer modulus; 
 	sm->set_mpls(PackInts(4, 4));   //...space degree of multipoles;
 	sm->set_quad(PackInts(8, 8));   //...N_elem, N_max -- parameters of quadrature;
 	sm->set_normaliz(0.92);			  //...normalization coefficient;
@@ -4451,8 +4450,8 @@ test:
 	sm->solver.set_mode(REGUL_BOUNDARY/* | PRINT_MODE | NODES_PRINT | FULLY_MODE*/);
 	yes = 0;
 
-///////////////////////////////////////////////////////
-//...чтение модели и граничных условий из файла данных;
+/////////////////////////////////////////////////////////////////////
+//...reading of the model and boundary conditions from the data file;
 	if (sm) {
 		Message(" ");
 		sprintf(buf, "Loading model from file '%s'", name);
@@ -4492,8 +4491,8 @@ test:
 		sm->bar->bar_add(ce);
 	}
 
-/////////////////////////////////////////
-//...задание граничных значений в модели;
+////////////////////////////////////////////////////////
+//...definition of the boundary conditions in the model;
 	int id_action = 0;
 	if (id_action) {
 		double pp[6] = { 1., 0., 0., 0., 0., 0.},
@@ -4598,9 +4597,9 @@ test:
 	int i, j, k, m, num;
 
 //////////////////////
-//...параметры модели;
+//...model parameters;
 	CDraft<double> * sm = CreateDraftR(HEAT3D_DRAFT, 8);
-	sm->set_fasa_hmg(1., 2.);		  //...модуль теплопроводности; 
+	sm->set_fasa_hmg(1., 2.);		  //...heat transfer modulus; 
 	sm->set_mpls(PackInts(7, 7));   //...space degree of multipoles;
 	sm->set_quad(PackInts(8, 4));   //...N_elem, N_max -- parameters of quadrature;
 	sm->set_normaliz(0.92);			  //...normalization coefficient;
@@ -4608,10 +4607,10 @@ test:
 	sm->change_solv(PERIODIC_SOLVING);
 	sm->solver.change_state(/*EXTERN_STATE*/);
 	sm->solver.set_mode(REGUL_BOUNDARY/*PRINT_MODE*//*FULLY_MODE*/);
-	//yes = 0;
+	yes = 0;
 
-///////////////////////////////////////////////////////
-//...чтение модели и граничных условий из файла данных;
+/////////////////////////////////////////////////////////////////////
+//...reading of the model and boundary conditions from the data file;
 	if (sm) {
 		Message(" ");
 		sprintf(buf, "Loading model from file '%s'", name);
@@ -4627,8 +4626,8 @@ test:
 		Message("Finish!");
 	}
 
-/////////////////////////////////////////
-//...задание граничных значений в модели;
+////////////////////////////////////////////////////////
+//...definition of the boundary conditions in the model;
 	int id_action = 0;
 	if (id_action) {
 		double pp[6] = { 1., 0., 0., 0., 0., 0.},
@@ -4765,7 +4764,7 @@ test:
 	int j, l;
 
 //////////////////////////
-//...инициализация модели;
+//...model initialization;
 	CDraft<double> * sm = CreateDraftR(LAME2D_DRAFT);
 	sm->set_mpls(PackInts(4, 4));  //...space degree of multipoles;
 	sm->set_quad(PackInts(8, 8));	  //...N_elem, N_max -- parameters of quadrature;
@@ -4776,21 +4775,21 @@ test:
 	sm->solver.set_mode(REGUL_BOUNDARY/* | PRINT_MODE | NODES_PRINT*//* | FULLY_MODE*/);
 	yes = 0;
 
-//////////////////////
-//...параметры задачи;
-	double nju1 = 0.300, //...ледяная матрица; 
-			 nju2 = 0.100, //...минеральная частица (песок); 
-			 nju3 = 0.499, //...вода; 
-			 E1   = 6.0,	//...ледяная матрица (GPa);
-			 E2   = 50.,	//...включение (песок, GPa); 
-			 E3   = 1e-05, //...межазный слой (вода, GPa); 
+////////////////////////
+//...problem parameters;
+	double nju1 = 0.300, //...ice matrix; 
+			 nju2 = 0.100, //...mineral particle (sand); 
+			 nju3 = 0.499, //...water; 
+			 E1   = 6.0,	//...ice matrix (GPa);
+			 E2   = 50.,	//...inclusiotn (sand, GPa); 
+			 E3   = 1e-05, //...interphase layer (water, GPa); 
 			 G1   = E1/(1.+nju1)*.5,
 			 G2   = E2/(1.+nju2)*.5,
 			 G3   = E3/(1.+nju3)*.5;
 	sm->set_fasa_hmg(nju1, nju2, nju3, G1, G2, G3);
 
-///////////////////////////////////////////////////////
-//...чтение модели и граничных условий из файла данных;
+/////////////////////////////////////////////////////////////////////
+//...reading of the model and boundary conditions from the data file;
 	if (sm) {
 		sprintf(buf, "Loading model from file '%s'", name);
 		Message(" ");
@@ -4940,10 +4939,10 @@ test:
 	sm->change_solv(/*ENERGY_SOLVING*/);
 	sm->solver.change_state(/*EXTERN_STATE*/);
 	sm->solver.set_mode(/*PRINT_MODE*//*FULLY_MODE*/);
-	//yes = 0;
+	yes = 0;
 
-///////////////////////////////////////////////////////
-//...чтение модели и граничных условий из файла данных;
+//////////////////////////////////////////////////////////
+//...reading model and boundary conditions from data file;
 	if (sm) {
 		sprintf(buf, "Loading model from file '%s'", name);
 		Message(" ");
@@ -4958,8 +4957,8 @@ test:
 	}
 	double par[6];	sm->SetGeomBounding(par);
 
-////////////////////////////////////////
-//...задаем граничные значения в модели;
+/////////////////////////////////////////////
+//...define boundary conditions in the model;
 	int id_action = 0;
 	if (id_action) {
 		sm->BlockActivate();
@@ -4977,8 +4976,8 @@ test:
 			sm->B[k].bar->SetFacetZParam(num, par[5], pp, FSKEWS_BND);
 		}
 	}
-/////////////////////////////////////////
-//...устанавливаем граничную поверхность;
+//////////////////////////////
+//...install boundary surface;
 /*	double rr0 = 0.25,
 			 fff = M_PI*rr0*rr0,
 			 rrr = pow(fff*.75/M_PI, 1./3.), 
@@ -4999,9 +4998,9 @@ test:
 */
 ///////////////////////////
 //...parameters of problem;
-	double nj1 = 0.4999,	//...полимерная матрица; 
-			 nj2 = 0.30,	//...графитовое включение; 
-			 nj3 = 0.30,   //...межфазный слой; 
+	double nj1 = 0.4999,	//...polimer matrix; 
+			 nj2 = 0.30,	//...graphite inclusion; 
+			 nj3 = 0.30,   //...interphase layer; 
 			 E1  = 0.000135,
 			 E2  = 0.031, 
 			 E3  = 0.015; 
@@ -5149,8 +5148,8 @@ test:
 			 gamma = 1.0;
 	sm->set_fasa_hmg(nju, G1, fract, alpha, gamma);
 
-///////////////////////////////////////////////////////
-//...чтение модели и граничных условий из файла данных;
+//////////////////////////////////////////////////////////////
+//...reading model and boundary conditions from the data file;
 	if (sm) {
       sprintf(buf, "Loading model from file '%s'", name);
       Message(" ");
@@ -5272,8 +5271,8 @@ test:
 //////////////////////////
 //...model initialization;
 	CDraft<double> * sm = CreateDraftR(COHES2D_DRAFT, 8);
-	sm->set_mpls(PackInts(2, 2)); //...степень мультиполей;
-	sm->set_quad(PackInts(8, 8)); //...степень квадратуры;
+	sm->set_mpls(PackInts(2, 2)); //...multipoles degree;
+	sm->set_quad(PackInts(8, 8)); //...quadrature degree;
 	sm->set_normaliz(0.92);
 	sm->set_param(sm->size_of_param()-1, 1e4);
 	sm->change_solv(E_PERIODIC_SOLVING);
@@ -5439,72 +5438,72 @@ test:
 {
 ///////////////////////////
 //...parameters of problem;
-	//char * name = "./Box2d_fulleren/box2D_without15.nas";  
-	//char * name = "./Box2d_fulleren/box2D_sph_40.nas";     
-	//char * name = "./Box2d_fulleren/box2D_ell70_35_min.nas";
-	//char * name = "./Box2d_fulleren/box2D_sph40_min.nas";  
-	//char * name = "./Box2d_fulleren/box2D_ell_50_20.dat";  
+	//const char * name = "../Exe/Box2d_fulleren/box2D_without15.nas";  
+	//const char * name = "../Exe/Box2d_fulleren/box2D_sph_40.nas";     
+	//const char * name = "../Exe/Box2d_fulleren/box2D_ell70_35_min.nas";
+	//const char * name = "../Exe/Box2d_fulleren/box2D_sph40_min.nas";  
+	//const char * name = "../Exe/Box2d_fulleren/box2D_ell_50_20.dat";  
 
 ///////////////////////
 //...for homogenizaton;
-	//char * name = "./Box2d_homog/sph_04_272.nas";  
-	//char * name = "./Box2d_homog/sph_035_192.nas"; 
-	//char * name = "./Box2d_homog/sph_03_280.nas";  
-	//char * name = "./Box2d_homog/sph_025_64.nas";  
-	//char * name = "./Box2d_homog/sph_025_52.nas";  
-	//char * name = "./Box2d_homog/sph_025_52a.nas"; 
-	//char * name = "./Box2d_homog/sph_025_24.nas";  
-	//char * name = "./Box2d_homog/sph_025_16.nas";  
-	//char * name = "./Box2d_homog/sph_025_80.nas";  
-	//char * name = "./Box2d_homog/sph_025_118.nas"; 
-	//char * name = "./Box2d_homog/sph_025_136.nas"; 
-	//char * name = "./Box2d_homog/sph_02_40.nas";   
-	//char * name = "./Box2d_homog/sph_015_88.nas";  
-	//char * name = "./Box2d_homog/sph_01_104.nas";  
-	//char * name = "./Box2d_homog/sph_035682_76.nas";
-	//char * name = "./Box2d_homog/sph_035682_40_104.nas"; 
-	//char * name = "./Box2d_homog/sph_035682_100_156.nas";
-	//char * name = "./Box2d_homog/sph_035682_100_184.nas";
+	//const char * name = "../Exe/Box2d_homog/sph_04_272.nas";  
+	//const char * name = "../Exe/Box2d_homog/sph_035_192.nas"; 
+	//const char * name = "../Exe/Box2d_homog/sph_03_280.nas";  
+	//const char * name = "../Exe/Box2d_homog/sph_025_64.nas";  
+	//const char * name = "../Exe/Box2d_homog/sph_025_52.nas";  
+	//const char * name = "../Exe/Box2d_homog/sph_025_52a.nas"; 
+	//const char * name = "../Exe/Box2d_homog/sph_025_24.nas";  
+	//const char * name = "../Exe/Box2d_homog/sph_025_16.nas";  
+	//const char * name = "../Exe/Box2d_homog/sph_025_80.nas";  
+	//const char * name = "../Exe/Box2d_homog/sph_025_118.nas"; 
+	//const char * name = "../Exe/Box2d_homog/sph_025_136.nas"; 
+	//const char * name = "../Exe/Box2d_homog/sph_02_40.nas";   
+	//const char * name = "../Exe/Box2d_homog/sph_015_88.nas";  
+	//const char * name = "../Exe/Box2d_homog/sph_01_104.nas";  
+	//const char * name = "../Exe/Box2d_homog/sph_035682_76.nas";
+	//const char * name = "../Exe/Box2d_homog/sph_035682_40_104.nas"; 
+	//const char * name = "../Exe/Box2d_homog/sph_035682_100_156.nas";
+	//const char * name = "../Exe/Box2d_homog/sph_035682_100_184.nas";
 
 /////////////////////////
 //...rotation of ellipse;
-	//char * name = "./Box2d_homog/ell_rot90_76.nas"; 
-	//char * name = "./Box2d_homog/ell_50_20.nas";
-	//char * name = "./Box2d_homog/ell_80_20_(equi_circ)_52.nas";
-	//char * name = "./Box2d_homog/sph_04_272.nas";
-	//char * name = "./Box2d_homog/sph_035682_100_184.nas";
+	//const char * name = "../Exe/Box2d_homog/ell_rot90_76.nas"; 
+	//const char * name = "../Exe/Box2d_homog/ell_50_20.nas";
+	//const char * name = "../Exe/Box2d_homog/ell_80_20_(equi_circ)_52.nas";
+	//const char * name = "../Exe/Box2d_homog/sph_04_272.nas";
+	//const char * name = "../Exe/Box2d_homog/sph_035682_100_184.nas";
 
 ////////////////////////
 //...periodically holes;
-	//char * name = "./Box2d_homog/hole_sph_025_36.nas";
-	//char * name = "./Box2d_homog/hole_sph_03_204.nas";
-	//char * name = "./Box2d_homog/hole_sph_01_96.nas";
+	//const char * name = "../Exe/Box2d_homog/hole_sph_025_36.nas";
+	//const char * name = "../Exe/Box2d_homog/hole_sph_03_204.nas";
+	//const char * name = "../Exe/Box2d_homog/hole_sph_01_96.nas";
 
-	//char * name = "./Box2d_homog/layer285_03.nas";
-	//char * name = "./Box2d_homog/sph285_03.nas";  
-	//char * name = "./Box2d_homog/sph623_01.nas";  
-	//char * name = "./Box2d_homog/sph623_02.nas";  
+	//const char * name = "../Exe/Box2d_homog/layer285_03.nas";
+	//const char * name = "../Exe/Box2d_homog/sph285_03.nas";  
+	//const char * name = "../Exe/Box2d_homog/sph623_01.nas";  
+	//const char * name = "../Exe/Box2d_homog/sph623_02.nas";  
 
-	//char * name = "./Box2d_homog/sph319_04_i.nas";  
-	//char * name = "./Box2d_homog/sph623_04_i.nas";  
-	//char * name = "./Box2d_homog/sph894_04_i.nas";  
-	//char * name = "./Box2d_homog/sph1385_04_i.nas"; 
+	//const char * name = "../Exe/Box2d_homog/sph319_04_i.nas";  
+	//const char * name = "../Exe/Box2d_homog/sph623_04_i.nas";  
+	//const char * name = "../Exe/Box2d_homog/sph894_04_i.nas";  
+	//const char * name = "../Exe/Box2d_homog/sph1385_04_i.nas"; 
 
-	//char * name = "./Box2d_homog/sph285_01_i.nas";
-	//char * name = "./Box2d_homog/sph285_03_i.nas";
-	//char * name = "./Box2d_homog/sph285_02a.nas"; 
+	//const char * name = "../Exe/Box2d_homog/sph285_01_i.nas";
+	//const char * name = "../Exe/Box2d_homog/sph285_03_i.nas";
+	//const char * name = "../Exe/Box2d_homog/sph285_02a.nas"; 
 
-	//char * name = "./Box2d_homog/ell_80_20_(200_80).nas";
-	char * name = "./Box2d_homog/ell_80_20_i.nas";
-	//char * name = "./Box2d_homog/ell_20_80_i.nas";
-	//char * name = "./Box2d_homog/ell_80_20q1.nas";
-	//char * name = "./Box2d_homog/sph_025_114.nas";  
+	//const char * name = "../Exe/Box2d_homog/ell_80_20_(200_80).nas";
+	const char * name = "../Exe/Box2d_homog/ell_80_20_i.nas";
+	//const char * name = "../Exe/Box2d_homog/ell_20_80_i.nas";
+	//const char * name = "../Exe/Box2d_homog/ell_80_20q1.nas";
+	//const char * name = "../Exe/Box2d_homog/sph_025_114.nas";  
 
-	//char * name = "./Demo_Sheffild/sph_01_i_112.nas";
-	//char * name = "./Box2d_homog/sph285_01.inp";
+	//const char * name = "../Exe/Demo_Sheffild/sph_01_i_112.nas";
+	//const char * name = "../Exe/Box2d_homog/sph285_01.inp";
 
-/////////////////////////////
-//...задаем параметры задачи;
+///////////////////////////////
+//...define problem parameters;
 	double energy[] = {0., 0.}, EYoung, 
 			 nj1		= 0.39, //...matrix parameters; 
 			 nj2		= 0.20, //...inclusion parameters; 
@@ -5540,7 +5539,7 @@ test:
 #endif
 #ifdef TEST_DRAFT_GRADIENT2D_FROM_FEMAP
 {
-	char * name_ini = "./Models_inp/Box2D_circle/Box2D_circle_40_M208.inp";
+	const char * name_ini = "../Exe/Models_inp/Box2D_circle/Box2D_circle_40_M208.inp";
 	extern int gradient_model; gradient_model = 0;
 
 	double X0, Y0, ell_X = 0., ell_Y = 0., rot_Z = 0.;
@@ -5549,8 +5548,8 @@ test:
 //////////////////////////
 //...model initialization;
 	CDraft<double> * sm = CreateDraftR(MINDL2D_DRAFT, 8);
-	sm->set_mpls(PackInts(3, 3)); //...степень мультиполей;
-	sm->set_quad(PackInts(16, 8)); //...степень квадратуры;
+	sm->set_mpls(PackInts(3, 3)); //...multipoles degree;
+	sm->set_quad(PackInts(16, 8)); //...quadratures degree;
 	sm->set_normaliz(0.92);
 	sm->set_lagrange(1e5);
 	sm->change_solv(E_PERIODIC_SOLVING);
@@ -5560,12 +5559,12 @@ test:
 
 ///////////////////////////
 //...parameters of problem;
-	double nju1 = 0.33,					//...полимерная матрица;
-			 nju2 = 0.16,					//...жесткое включение;  
-			 E1   = 210.,					//...модуль Юнга матрицы;
-			 E2   = 420.,					//...модуль Юнга включения;
-			 AA	= E1*.0,					//...adhegion parameter;
-			 BB	= E1*.5/(1.+nju1)*.0,//...adhegion parameter;
+	double nju1 = 0.33,					//...polymer matrix;
+			 nju2 = 0.16,					//...rigid inclusion;  
+			 E1   = 210.,					//...Young modulus of matrix;
+			 E2   = 420.,					//...Young modulus of inclusiom;
+			 AA	= E1*.0,					//...first adhegion parameter;
+			 BB	= E1*.5/(1.+nju1)*.0,//...second adhegion parameter;
 			 l1	= 0.3568*3.,			//...interphase layer for matrix;
 			 l2	= 0.3568,				//...interphase layer for inclusion;
 			 l1_dop	= 0.,					//...interphase layer_dop;
@@ -5574,8 +5573,8 @@ test:
 			 G1, G2, KH, GH, EH, nH;
 	sm->set_fasa_hmg(nju1, nju2, G1 = E1/(1.+nju1)*.5, G2 = E2/(1.+nju2)*.5, l1, l1_dop = l1_dop/sqrt(1.-2.*nju1), l2, l2_dop = l2_dop/sqrt(1.-2.*nju2), AA, BB);
 
-///////////////////////////////////////////////////////
-//...чтение модели и граничных условий из файла данных;
+//////////////////////////////////////////////////////////
+//...reading model and boundary conditions from data file;
 	if (sm) {
       sprintf(buf, "Loading model from file '%s'", name_ini);
       Message(" ");
@@ -5670,8 +5669,8 @@ test:
 		sm->GetRigidy(K);
 		ff_vol = M_PI*ell_X*ell_Y/((par[1]-par[0])*(par[3]-par[2]));
 
-///////////////////////
-//...матрица жесткости;
+/////////////////////
+//...rigidity matrix;
 		ku1 = K[0];
 		lm1 = K[2];
 		mu1 = K[7];
@@ -5683,16 +5682,16 @@ test:
 				(K[13]-K[14]*G1/(1.-2.*nju1)-K[15]*G2/(1.-2.*nju2));
 		mu2 = K[14]*G1+K[15]*G2;
 
-///////////////////////////
-//...технические константы;
+/////////////////////
+//...tehnical moduli;
 		nxz = lm2/(ku1+lm1);
 		Kxy = 0.5*(ku1+lm1);	
 		Gxy = 0.5*(ku1-lm1);	
 		Gxz = mu2;	
 		Ez  = ku2-2.*lm2*nxz;
 
-///////////////////////////////////////////////////////////////////
-//...результат пространственного осреднения волокон по Кристенсену;
+////////////////////////////////////////////////////////////////////
+//...result of space homogenization of fibers by Christensen method;
 		KH = (Ez+4.*sqr(1.+nxz)*Kxy)/9.;
 		GH = (Ez+sqr(1.-2.*nxz)*Kxy+6.*(Gxy+Gxz))/15.;
 		nH = 1./(2.*(Ez+Gxy+Gxz)+(8.*sqr(nxz)+12.*nxz+7.)*Kxy);
@@ -5752,11 +5751,11 @@ test:
 	sm->set_normaliz(0.92);
 	sm->change_solv(SPECIAL_SOLVING);
 	sm->solver.set_mode(/*REDUCED_PRINT*/PRINT_MODE/*FULLY_MODE*/);
-	//yes = 0;
+	yes = 0;
 
 for (int j = 1; j <= 1; j++) {
-///////////////////////
-//...геометрия области;
+////////////////////////////
+//...geometry of the domain;
 	sm->GetSpheroidBoxStruct(AA, AA, AA, RR, rr); sm->B[1].type = ESHE_ZOOM_BLOCK;
 	par[0] = -AA*.5; par[2] = -AA*.5; par[4] = -AA*.5;
 	par[1] =  AA*.5; par[3] =  AA*.5; par[5] =  AA*.5;
@@ -5769,8 +5768,8 @@ for (int j = 1; j <= 1; j++) {
 		goto err;
 	}
 
-///////////////////////////////////////////////////////////////////////
-//..вычисляем осредненные характеристики (модуль Юнга и модуль сдвига);
+//////////////////////////////////////////////////////////////////////////////
+//..calculation homogenized characteristics (Young modulus and shear modulus);
 	//double K[28], E0, K0, nu, mu, C0, lm, ff_vol, ll_vol; memset(K, 0, 28*sizeof(double)); K[27] = AX*.5;
 	//sm->GetRigidy(K, -1, VOLUME_COUNTING); for (i = 0; i < 25; i++) K[i] = -K[i];
 	//sm->GetRigidy(K, -1, BASIC_COUNTING);
@@ -5848,29 +5847,29 @@ for (int j = 1; j <= 1; j++) {
 	delete sm;
 }
 #endif
-#ifdef CHEAT3D_HOMOG_SPHEROID
+#ifdef HEAT3D_HOMOG_SPHEROID
 {
 	double par[6], RR = 1., rr = 1., AA = 3.;
 
 //////////////////////////
 //...model initialization;
 	CDraft<double> * sm = CreateDraftR(HEAT3D_DRAFT, 7);		
-	sm->set_mpls(PackInts(1, 1)); //...степень мультиполей;
-	sm->set_quad(PackInts(8, 4)); //...степень квадратуры;
+	sm->set_mpls(PackInts(1, 1)); //...multipoles degree;
+	sm->set_quad(PackInts(8, 4)); //...quadrature degree;
 	sm->set_normaliz(0.92);			//...normalization coefficient;
 	sm->change_solv(SPECIAL_SOLVING);
 	sm->solver.set_mode(/*REDUCED_PRINT*/PRINT_MODE/*FULLY_MODE*/);
 	yes = 0;
 
-//////////////////////
-//...параметры задачи;
+////////////////////////
+//...problem parameters;
 	double K1 = 1.,	 //...heat conduction (matrix);
 			 K2 = 2.;	 //...heat conduction (inclusion);
 	sm->set_fasa_hmg(RR, rr, K1, K2, K2);
 
 for (int j = 1; j <= 1; j++) {
-///////////////////////
-//...геометрия области;
+////////////////////////////
+//...geometry of the domain;
 	sm->GetSpheroidBoxStruct(AA, AA, AA, RR, rr); sm->B[1].type = ESHE_ZOOM_BLOCK;
 	par[0] = -AA*.5; par[2] = -AA*.5; par[4] = -AA*.5;
 	par[1] =  AA*.5; par[3] =  AA*.5; par[5] =  AA*.5;
@@ -5883,8 +5882,8 @@ for (int j = 1; j <= 1; j++) {
 		goto err;
 	}
 
-///////////////////////////////////////////////////////////////////////
-//..вычисляем осредненные характеристики (модуль Юнга и модуль сдвига);
+//////////////////////////////////////////////////////////////////////////////
+//..calculation homogenized characteristics (Young modulus and shear modulus);
 	//double K[28], E0, K0, nu, mu, C0, lm, ff_vol, ll_vol; memset(K, 0, 28*sizeof(double)); K[27] = AX*.5;
 	//sm->GetRigidy(K, -1, VOLUME_COUNTING); for (i = 0; i < 25; i++) K[i] = -K[i];
 	//sm->GetRigidy(K, -1, BASIC_COUNTING);
@@ -5909,7 +5908,7 @@ for (int j = 1; j <= 1; j++) {
 //..visualization;
 	int id_visual = 1;
 	if (id_visual) {
-		CGrid_el	* nd = new CGrid_el;
+		CGrid * nd = CreateNodes();
 		int NX = 100, NY = 100, axis = AXIS_Y, alpha = 0, i, j;
 
 		if (axis == AXIS_Z) {
@@ -5968,8 +5967,8 @@ for (int j = 1; j <= 1; j++) {
 
 //////////////////////
 //...параметры задачи;
-	double nj1 = 0.30, //...полимерная матрица; 
-			 nj2 = 0.30, //...графитовое включение; 
+	double nj1 = 0.30, //...polymer matrix; 
+			 nj2 = 0.30, //...graphite inclusion; 
 			 E1  = 0.135,
 			 E2  = 1.5, par[6]; 
 
@@ -5977,18 +5976,18 @@ for (int j = 1; j <= 1; j++) {
 //...model initialization;
 	CDraft<double> * sm = CreateDraftR(LAME3D_DRAFT, 8);
 	sm->set_fasa_hmg(RR, rr, nj2, nj1, nj1, E2/(1.+nj2)*.5, E1/(1.+nj1)*.5, E1/(1.+nj1)*.5);
-	sm->set_mpls(PackInts(11, 1)); //...степень мультиполей;
-	sm->set_quad(PackInts(8, 4)); //...степень квадратуры;
-	sm->set_normaliz(0.92);			//...нормирующий множитель;
+	sm->set_mpls(PackInts(11, 1)); //...multipoles degree;
+	sm->set_quad(PackInts(8, 4));  //...quadrature degreeе;
+	sm->set_normaliz(0.92);			 //...normalization factor;
 	sm->change_solv(/*SPECIAL_SOLVING*/);
 	sm->solver.set_mode(/*REDUCED_PRINT*//*PRINT_MODE*//*FULLY_MODE*/);
 	//yes = 0;
 
-///////////////////////////////
-//...цикл по параметрам задачи;
+/////////////////////////////////
+//...cycle on problem parameters;
 	for (int j = 1; j <= 1; j++) {
-///////////////////////
-//...геометрия области;
+////////////////////////////
+//...geometry of the domain;
 		sm->GetSpheroidBoxStruct(AA, AA, AA, RR, rr); sm->B[1].type = ESHE_ZOOM_BLOCK;
 		par[0] = -AA*.5; par[2] = -AA*.5; par[4] = -AA*.5;
 		par[1] =  AA*.5; par[3] =  AA*.5; par[5] =  AA*.5;
@@ -6058,13 +6057,13 @@ for (int j = 1; j <= 1; j++) {
 	delete sm;
 }
 #endif
-#ifdef CLAME3D_HOMOG_SPHEROID
+#ifdef LAME3D_HOMOG_SPHEROID
 {
 	double par[6], RR = 1., rr = 0.99, AA = 3.;
 
 //////////////////////////
 //...model initialization;
-	CLame3D * sm = new CLame3D(7);
+	CDraft<double> * sm = CreateDraftR(LAME3D_DRAFT, 7);
 	sm->set_mpls(PackInts(3, 1)); //...multipoles degree;
 	sm->set_quad(PackInts(4, 4));
 	sm->set_normaliz(0.92);
@@ -6073,37 +6072,37 @@ for (int j = 1; j <= 1; j++) {
 
 //////////////////////
 //...параметры задачи;
-	//double nj1 = 0.45, //...полимерная матрица; 
-	//		 nj2 = 0.21, //...графитовое включение; 
+	//double nj1 = 0.45, //...polymer matrix; 
+	//		 nj2 = 0.21,   //...graphite inclusion; 
 	//		 E1  = 1.,
 	//		 E2  = 40.8; 
-	//double nj1 = 0.30, //...полимерная матрица; 
-	//		 nj2 = 0.30, //...графитовое включение; 
+	//double nj1 = 0.30, //...polymer matrix; 
+	//		 nj2 = 0.30,   //...graphite inclusion; 
 	//		 E1  = 135.,
 	//		 E2  = 1500.; 
-	double nj1 = 0.30, //...полимерная матрица; 
-			 nj2 = 0.30, //...графитовое включение; 
+	double nj1 = 0.30, //...polymer matrix; 
+			 nj2 = 0.30, //...graphite inclusion; 
 			 E1  = 1.,
 			 E2  = 2.; 
 	sm->set_fasa_hmg(RR, rr, nj2, nj1, nj1, E2/(1.+nj2)*.5, E1/(1.+nj1)*.5, E1/(1.+nj1)*.5);
 
 for (int j = 1; j <= 1; j++) {
-///////////////////////
-//...геометрия области;
+////////////////////////////
+//...geometry of the domain;
 	sm->GetSpheroidBoxStruct(AA, AA, AA, RR, rr); sm->B[1].type = ESHE_BLOCK;
 	par[0] = -AA*.5; par[2] = -AA*.5; par[4] = -AA*.5;
 	par[1] =  AA*.5; par[3] =  AA*.5; par[5] =  AA*.5;
 
 ///////////////////////////
 //...solving of the probem;
-	if (sm->counting_kernel(ESHELBY_COUNTING) != OK_COUNTING) {
+	if (sm->computing_kernel(ESHELBY_COMPUT) != OK_STATE) {
 		Message("Error in sample counting...");
 		delete sm;
 		goto err;
 	}
 
-///////////////////////////////////////////////////////////////////////
-//..вычисляем осредненные характеристики (модуль Юнга и модуль сдвига);
+//////////////////////////////////////////////////////////////////////////////
+//..calculation homogenized characteristics (Young modulus and shear modulus);
 	//double K[28], E0, K0, nu, mu, C0, lm, ff_vol, ll_vol; memset(K, 0, 28*sizeof(double)); K[27] = AX*.5;
 	//sm->GetRigidy(K, -1, VOLUME_COUNTING); for (i = 0; i < 25; i++) K[i] = -K[i];
 	//sm->GetRigidy(K, -1, BASIC_COUNTING);
@@ -6128,7 +6127,7 @@ for (int j = 1; j <= 1; j++) {
 //..visualization;
 	int id_visual = 1;
 	if (id_visual) {
-		CGrid_el	* nd = new CGrid_el;
+		CGrid * nd = CreateNodes();
 		int NX = 100, NY = 100, axis = AXIS_Y, alpha = 0, i, j;
 
 		if (axis == AXIS_Z) {
@@ -6194,6 +6193,7 @@ for (int j = 1; j <= 1; j++) {
 	set_matrix3(result, N_X1, N_X2, N_C0); 
 	set_matrix3(BB1, N_X1, N_X2, N_C0); 
 	set_matrix3(BB2, N_X1, N_X2, N_C0); 
+	yes = 0;
 
 //////////////////////////
 //...model initialization;
@@ -6245,8 +6245,8 @@ for (int j = 1; j <= 1; j++) {
 	for (j = 0; j < N_X2; j++)
 	for (k = 0; k < N_C0; k++) {
 
-////////////////////////////
-//...определение параметров;
+///////////////////////////
+//...parameters definition;
 		X1[i][j][k] = X1_0+i*h_X1;
 		X2[i][j][k] = X2_0+j*h_X2;
 		C0[i][j][k] = C0_0-k*h_C0;
@@ -6278,7 +6278,7 @@ for (int j = 1; j <= 1; j++) {
 //////////////////
 //..visualization;
 		if (id_visual) {//..visualization;
-			CGrid_el * nd = new CGrid_el;
+			CGrid * nd = CreateNodes();
 			sm->BlockActivate(NULL_STATE);
 
 			for (i = 0; i <= 2*NX; i++) nd->add_new_point_X(.5*i/NX*(par[1]-par[0])+par[0]);
@@ -6295,8 +6295,8 @@ for (int j = 1; j <= 1; j++) {
 	}
 	delete sm;
 
-////////////////////////
-//...печать результатов;
+///////////////////////////////
+//...outputting of the results;
 	FILE * TST = fopen("result_homog.dat", "w");
 	fprintf(TST, "X1,       X2,       C0,       ff_vol,       result,       (B1, B2)\n");
 
@@ -6317,7 +6317,7 @@ for (int j = 1; j <= 1; j++) {
 #endif
 #ifdef HEAT2D_LUCSHIN_PAPER
 {
-	char * name = "./Parametric/Unit2d_16.nas";
+	const char * name = "../Exe/Parametric/Unit2d_16.nas";
 	int  i, j, l;
 
 ///////////////////////////
@@ -6339,7 +6339,7 @@ for (int j = 1; j <= 1; j++) {
 	sm->change_solv(PERIODIC_SOLVING);
 	sm->solver.change_state(/*EXTERN_STATE*/);
 	sm->solver.set_mode(/*REGULARIZATION*/PRINT_MODE/*FULLY_MODE*//*| MASKS_MODE | ACCUMULATION*/);
-	//yes = 0;
+	yes = 0;
 
 /////////////////////////////
 //...3D model initialization;
@@ -6474,7 +6474,7 @@ for (int j = 1; j <= 1; j++) {
 #endif
 #ifdef HEAT2D_RANDOM_STRUCTURE
 {
-	char * name = "./Parametric/Unit2d_4.nas";
+	const char * name = "../Exe/Parametric/Unit2d_4.nas";
 	int  i, j, l;
 
 ///////////////////////////
@@ -6496,7 +6496,7 @@ for (int j = 1; j <= 1; j++) {
 	sm->change_solv(PERIODIC_SOLVING);
 	sm->solver.change_state(/*EXTERN_STATE*/);
 	sm->solver.set_mode(/*REGULARIZATION*//*PRINT_MODE*//*FULLY_MODE*//*| MASKS_MODE | ACCUMULATION*/);
-	//yes = 0;
+	yes = 0;
 
 //////////////////////////////////
 //...reading model from data-file;
@@ -6621,18 +6621,18 @@ for (int j = 1; j <= 1; j++) {
 #endif
 #ifdef HEAT3D_RANDOM_STRUCTURE
 {
-	char * name = "./Parametric/Unit3d_002.nas";
+	const char * name = "../Exe/Parametric/Unit3d_002.nas";
 	double A = 1., B = 1., C = 1., rad = 0.1, ll = 0.05;
 	int i = 0, j, k, M = 1, m = 1;
 /////////////////////////////////////////////////////////////
-//...генератор случайных чисел;                            //
+//...random number generation;                             //
 //	for (srand((unsigned)time(NULL)), i = 0; i < 10; i++) { //
 //	double random = (double) rand()/(double) RAND_MAX;      //
 //			i = i;                                            //
 //	}                                                       //
 /////////////////////////////////////////////////////////////
-//////////////////////////////////
-//...генерим структуру вкллючений;
+///////////////////////////////////////
+//...generation of inclusion structure;
 	const int N = 3;
 	double X[] = {0., 1., 2., 3., 4., 5., 6., 7., 8., 9., 10.}, 
 			 Y[] = {0., 1., 2., 3., 4., 5., 6., 7., 8., 9., 10.}, 
@@ -6662,10 +6662,10 @@ for (int j = 1; j <= 1; j++) {
 	sm->change_solv(/*ENERGY_SOLVING*/PERIODIC_SOLVING/*SPECIAL_SOLVING*/);
 	sm->solver.change_state(EXTERN_STATE);
 	sm->solver.set_mode(/*REGULARIZATION*//* | *//*PRINT_MODE*//*FULLY_MODE*//* | MASKS_MODE*//* | ACCUMULATION*/);
-	//yes = 0;
+	yes = 0;
 
-//////////////////////////////////////////////
-//...построение решетки для системы включений;
+//////////////////////////////////////////////////////
+//...construction of the lattice for inclusion system;
 	CGrid * nd = CreateNodes(); nd->add_params(2);
 	CGrid * lt = CreateNodes();
 
@@ -6680,8 +6680,8 @@ for (int j = 1; j <= 1; j++) {
 	lt->grid_lattice(nd, par);
 
 
-/////////////////////////////////////////////////
-//...задание модели и граничных условий функцией;
+/////////////////////////////////////////////////////////
+//...model and boundary condition definition by function;
 	if (sm && 1) {
 		sm->GetLatticeBox3DStruct(lt->X, lt->Y, lt->Z, lt->N, lt->N1, lt->N2, /*POLY_BLOCK*/CLAYER_BLOCK);
 		//sm->GetLatticeBox3DStruct(X, Y, Z, N+1, N+1, N+1, /*POLY_BLOCK*/CLAYER_BLOCK);
@@ -6693,8 +6693,8 @@ for (int j = 1; j <= 1; j++) {
 		sm->SetBounding(par);
 	}
 
-///////////////////////////////////////////////////////
-//...чтение модели и граничных условий из файла данных;
+////////////////////////////////////////////////////////
+//...readig model and boundary condition from data file;
 	if (sm && 0) {
 		Message(" ");
 		sprintf(buf, "Loading model from file '%s'", name);
@@ -6830,7 +6830,7 @@ for (int j = 1; j <= 1; j++) {
 				sm->GetSurferFormat("pp", nd, FLUX_COMPOS_VALUE, 0, axis);
 			}
 			int id_lines = 0;
-			if (id_lines) {//...одномерные графики;
+			if (id_lines) {//...one-dimentional visualization;
 				double F[3];
 				FILE * TST = fopen("lines.dat", "w");
 				for (i = 0; i < nd->N;  i++){
@@ -6862,28 +6862,28 @@ for (int j = 1; j <= 1; j++) {
 #endif
 #ifdef LAME3D_RANDOM_STRUCTURE
 {
-	char * name = "./Box3d_homog/nano_35x25x246_octa.nas";
+	const char * name = "../Exe/Box3d_homog/nano_35x25x246_octa.nas";
 	double A = 1., B = 1., C = 1., rad = 0.1, ll = 0.05;
 	int i = 0, j, k, m, num;
 
 ///////////////////////////
 //...parameters of problem;
 	double X[] = {0., 0.5, 1.}, Y[] = {0., 0.5, 1.}, Z[] = {0., 0.5, 1.}, par[6];
-	//double nj1 = 0.300,  //...ледяная матрица; 
-	//		 nj2 = 0.100,  //...минеральная частица (песок); 
-	//		 nj3 = 0.499,  //...вода; 
+	//double nj1 = 0.300, //...ice matrixа; 
+	//		 nj2 = 0.100,   //...mineral particle (sand); 
+	//		 nj3 = 0.499,   //...water; 
 	//		 E1   = 6.0,
 	//		 E2   = 50.,
 	//		 E3   = 1e-0/*5*/, 
-	//double nj1 = 0.33, //...полимерная матрица; 
-	//		 nj2 = 0.20, //...графитовое включение; 
-	//		 nj3 = 0.30, //...межфазный слой; 
-	//		 E1  = 18.,  //...GPa;
-	//		 E2  = 380., //...GPa; 
+	//double nj1 = 0.33, //...polymer matrix; 
+	//		 nj2 = 0.20,	//...graphite inclusion; 
+	//		 nj3 = 0.30,	//...interphase layer; 
+	//		 E1  = 18.,		//...GPa;
+	//		 E2  = 380.,	//...GPa; 
 	//		 E3  = 57.5, 
-	double nj1 = 0.4999,	//...полимерная матрица; 
-			 nj2 = 0.30,	//...графитовое включение; 
-			 nj3 = 0.30,   //...межфазный слой; 
+	double nj1 = 0.4999,	//...polymer matrix; 
+			 nj2 = 0.30,	//...graphite inclusion; 
+			 nj3 = 0.30,   //...interphase layer; 
 			 E1  = 0.135,
 			 E2  = 31.0, 
 			 E3  = 1.50, 
@@ -6903,8 +6903,8 @@ for (int j = 1; j <= 1; j++) {
 	sm->solver.set_mode(REGULARIZATION | PRINT_MODE/*FULLY_MODE*//*| MASKS_MODE | ACCUMULATION*/);
 	yes = 0;
 	
-/////////////////////////////////////////////////
-//...задание модели и граничных условий функцией;
+/////////////////////////////////////////////////////////
+//...model and boundary condition definition by function;
 	if (sm && 1) {
 		sm->GetLatticeBox3DStruct(X, Y, Z, 2, 2, 2/*, CLAYER_BLOCK*/);
 		sm->SetBounding(par);
@@ -6914,8 +6914,8 @@ for (int j = 1; j <= 1; j++) {
 		//sm->SetBUniStruct(i, POLY_BLOCK, ERR_GENUS);
 	}
 
-///////////////////////////////////////////////////////
-//...чтение модели и граничных условий из файла данных;
+////////////////////////////////////////////////////////
+//...readig model and boundary condition from data file;
 	if (sm && 0) {
 		Message(" ");
 		sprintf(buf, "Loading model from file '%s'", name);
@@ -7041,6 +7041,9 @@ for (int j = 1; j <= 1; j++) {
 #endif
 #ifdef HEAT3D_RANDOM_HOMOGENIZATION
 {
+	const char * name_ini = "../bcm-start/var2/heat3d_random_initial.dat";
+//////////////////
+//...default data;
 	double rad = 0.1, ll = 0.05, section = 0., section_I = 0., section_II = 0., K1 = 1., K2 = 20., K3 = 0.01, lagrange = 1e5, par[8];
 	int i, j, NX = 100, NY = 100, id_visual = 0, N0 = 15, N_elem = 8, N_max = 4, axis = AXIS_Y, axis_I = AXIS_Z, axis_II = AXIS_X;
 	char name[2000]; name[0] = 0;
@@ -7051,16 +7054,16 @@ for (int j = 1; j <= 1; j++) {
    Message(buf);
 
 	unsigned long count, upper_limit;
-	char        * id_DATA = read_struct_ascii("heat3d_initial.dat");
+	char        * id_DATA = read_struct_ascii(name_ini);
 	if         (! id_DATA) {
 		sprintf(buf, "Data not found..");
 		Message(" ");
 		Message(buf);
-		sprintf(buf, "Creating data file \"heat3d_initial.dat\"...");
+		sprintf(buf, "Creating data file \"%s\"...", name_ini);
 		Message(buf);
 		Message(" ");
 
-		FILE  * TST = fopen("heat3d_initial.dat", "w");
+		FILE  * TST = fopen(name_ini, "w");
 		fprintf(TST, "N = %i\nN_elem = %i\nN_max = %i\nlagrange = %g\n\n", N0, N_elem, N_max, lagrange);
 		fprintf(TST, "id_visual = %i\nNX = %i\nNY = %i\naxis = %i  axis_I = %i  axis_II = %i\nsection = %g  section_I = %g  section_II = %g\n\n", 
 			id_visual, NX, NY, axis, axis_I, axis_II, section, section_I, section_II);
@@ -7071,7 +7074,7 @@ for (int j = 1; j <= 1; j++) {
 		printf("N = %i\nN_elem = %i\nN_max = %i\nlagrange = %g\n\n", N0, N_elem, N_max, lagrange);
 		printf("id_visual = %i\nNX = %i\nNY = %i\naxis = %i  axis_I = %i  axis_II = %i\nsection = %g  section_I = %g  section_II = %g\n\n", 
 			id_visual, NX, NY, axis, axis_I, axis_II, section, section_I, section_II);
-		printf("K_matrix = %g\nK_inclusion = %g\nK_layer = %gn\\n", K1, K2, K3);
+		printf("K_matrix = %g\nK_inclusion = %g\nK_layer = %g\n\n", K1, K2, K3);
 		printf("structure = %s\n\n", name);
 
 		goto test;
@@ -7140,21 +7143,21 @@ test:
 	sm->change_solv (lagrange ? E_PERIODIC_SOLVING : PERIODIC_SOLVING);
 	sm->solver.change_state(EXTERN_STATE);
 	sm->solver.set_mode(REGULARIZATION/* | *//*PRINT_MODE*//*FULLY_MODE*//* | MASKS_MODE*//* | ACCUMULATION*/);
-	//yes = 0;
+	yes = 0;
 
-///////////////////////////////////////////////////////////////////////////////////////////////
-//...зачитываем структуру вкллючений (и переустанавливаем геометрию включений по первой точке);
+///////////////////////////////////////////////////////////////////////////////////////
+//...reading inclusion structure (and reinstall inclusion geometry by the first point);
 	CGrid * nd_stru = CreateNodes();
 			  nd_stru->stru_in(name, par);
 	sm->set_geometry(rad = nd_stru->get_param(0, 0), ll = nd_stru->get_param(1, 0));
 
-//////////////////////////////////////////////
-//...построение решетки для системы включений;
+//////////////////////////////////////////////////
+//...construction of lattice for inclusion system;
 	CGrid * lt = CreateNodes();
 			  lt->grid_lattice(nd_stru, par);
 
-/////////////////////////////////////////////////
-//...задание модели и граничных условий функцией;
+/////////////////////////////////////////////////////////
+//...model and boundary condition definition by function;
 	if (sm) {
 		sm->GetLatticeBox3DStruct(lt->X, lt->Y, lt->Z, lt->N, lt->N1, lt->N2, CLAYER_BLOCK);
 		sm->SetBounding(par);
@@ -7165,7 +7168,7 @@ test:
 
 ///////////////////////////
 //...solving of the probem;
-	res = system("mkdir ./bcm_results/heat3d_homog"); Num_Comput temp_comput;
+	/*res = system("mkdir ./bcm_results/heat3d_homog");*/ Num_Comput temp_comput;
 	if (sm->computing_kernel(temp_comput = sm->N > 1 ? MAPPING_COMPUT : PERIOD_COMPUT) != OK_STATE) {
 		Message("Error in sample computing...");
 		delete sm;
@@ -7219,7 +7222,7 @@ test:
 
 		KH = sm->TakeEshelby(par[6], par[7]);
 
-		FILE * TST = fopen("./bcm_results/heat3d_homog/heat3d_homog.dat", "a");
+		FILE * TST = fopen("./heat3d_random_homog.dat", "a");
 		if (TST) fprintf(TST, "%g    %g    %g    %g    %g\n", par[6], kk, KH, kk_low, kk_max);
 		if (TST)	fclose (TST);
 
@@ -7251,11 +7254,11 @@ test:
 				if (axis == AXIS_X) sm->Poly_struc_in3D(hit, nd->Z[0], nd->X[i], nd->Y[j], NULL_STATE);
 				nd->hit[i+j*nd->N] = hit;
 			}
-			sm->GetSurferFormat("./bcm_results/heat3d_homog/rr", nd,		  HEAT_VALUE, 0, axis);
-			sm->GetSurferFormat("./bcm_results/heat3d_homog/pp", nd, FLUX_COMPOS_VALUE, 0, axis);
+			sm->GetSurferFormat("./rr", nd,		   HEAT_VALUE, 0, axis);
+			sm->GetSurferFormat("./pp", nd, FLUX_COMPOS_VALUE, 0, axis);
 
-///////////////////////////////////////////
-//...дополнительные сечения I (если нужно);
+//////////////////////////////////////
+//...additional section I (if needed);
 			if (id_visual > 1) { 
 				nd->release();
 				if (axis_I == AXIS_Z) {
@@ -7282,11 +7285,11 @@ test:
 					if (axis_I == AXIS_X) sm->Poly_struc_in3D(hit, nd->Z[0], nd->X[i], nd->Y[j], NULL_STATE);
 					nd->hit[i+j*nd->N] = hit;
 				}
-				sm->GetSurferFormat("./bcm_results/heat3d_homog/rr_I", nd,			 HEAT_VALUE, 0, axis_I);
-				sm->GetSurferFormat("./bcm_results/heat3d_homog/pp_I", nd, FLUX_COMPOS_VALUE, 0, axis_I);
+				sm->GetSurferFormat("./rr_I", nd,		  HEAT_VALUE, 0, axis_I);
+				sm->GetSurferFormat("./pp_I", nd, FLUX_COMPOS_VALUE, 0, axis_I);
 
-////////////////////////////////////////////
-//...дополнительные сечения II (если нужно);
+///////////////////////////////////////
+//...additional section II (if needed);
 				if (id_visual > 2) { 
 					nd->release();
 					if (axis_II == AXIS_Z) {
@@ -7313,8 +7316,8 @@ test:
 						if (axis_II == AXIS_X) sm->Poly_struc_in3D(hit, nd->Z[0], nd->X[i], nd->Y[j], NULL_STATE);
 						nd->hit[i+j*nd->N] = hit;
 					}
-					sm->GetSurferFormat("./bcm_results/heat3d_homog/rr_II", nd,			 HEAT_VALUE, 0, axis_I);
-					sm->GetSurferFormat("./bcm_results/heat3d_homog/pp_II", nd, FLUX_COMPOS_VALUE, 0, axis_I);
+					sm->GetSurferFormat("./rr_II", nd,			HEAT_VALUE, 0, axis_I);
+					sm->GetSurferFormat("./pp_II", nd, FLUX_COMPOS_VALUE, 0, axis_I);
 				}
 			}
 			delete nd;
@@ -7325,6 +7328,9 @@ test:
 #endif
 #ifdef LAME3D_RANDOM_HOMOGENIZATION
 {
+	const char * name_ini = "../bcm-start/var1/lame3d_random_initial.dat";
+//////////////////
+//...default data;
 	double rad = 0.1, ll = 0.05, section = 0., section_I = 0., section_II = 0., nj1 = 0.3, nj2 = 0.3, nj3 = 0.3, E1 = 1.0, E2 = 2.0, E3 = 3.0, lagrange = 0, par[8];
 	int i, j, NX = 100, NY = 100, id_visual = 0, N0 = 7, N_elem = 8, N_max = 4, axis = AXIS_Y, axis_I = AXIS_Z, axis_II = AXIS_X;
 	char name[2000]; name[0] = 0;
@@ -7335,16 +7341,16 @@ test:
    Message(buf);
 
 	unsigned long count, upper_limit;
-	char        * id_DATA = read_struct_ascii("lame3d_initial.dat");
+	char        * id_DATA = read_struct_ascii(name_ini);
 	if         (! id_DATA) {
 		sprintf(buf, "Data not found..");
 		Message(" ");
 		Message(buf);
-		sprintf(buf, "Creating data file \"lame3d_initial.dat\"...");
+		sprintf(buf, "Creating data file \"%s\"...", name_ini);
 		Message(buf);
 		Message(" ");
 
-		FILE  * TST = fopen("lame3d_initial.dat", "w");
+		FILE  * TST = fopen(name_ini, "w");
 		fprintf(TST, "N = %i\nN_elem = %i\nN_max = %i\nlagrange = %g\n\n", N0, N_elem, N_max, lagrange);
 		fprintf(TST, "id_visual = %i\nNX = %i\nNY = %i\naxis = %i  axis_I = %i  axis_II = %i\nsection = %g  section_I = %g  section_II = %g\n\n", 
 			id_visual, NX, NY, axis, axis_I, axis_II, section, section_I, section_II);
@@ -7435,19 +7441,19 @@ test:
 	sm->solver.set_mode(REGULARIZATION/* | PRINT_MODE*//*FULLY_MODE*//* | MASKS_MODE*//* | ACCUMULATION*/);
 	yes = 0;
 
-///////////////////////////////////////////////////////////////////////////////////////////////
-//...зачитываем структуру вкллючений (и переустанавливаем геометрию включений по первой точке);
+///////////////////////////////////////////////////////////////////////////////////////
+//...reading inclusion structure (and reinstall inclusion geometry by the first point);
 	CGrid * nd_stru = CreateNodes();
 			  nd_stru->stru_in(name, par);
 	sm->set_geometry(rad = nd_stru->get_param(0, 0), ll = nd_stru->get_param(1, 0));
 
-//////////////////////////////////////////////
-//...построение решетки для системы включений;
+//////////////////////////////////////////////////
+//...construction of lattice for inclusion system;
 	CGrid * lt = CreateNodes();
 			  lt->grid_lattice(nd_stru, par);
 
-/////////////////////////////////////////////////
-//...задание модели и граничных условий функцией;
+/////////////////////////////////////////////////////////
+//...model and boundary condition definition by function;
 	if (sm) {
 		sm->GetLatticeBox3DStruct(lt->X, lt->Y, lt->Z, lt->N, lt->N1, lt->N2, CLAYER_BLOCK);
 		sm->SetBounding(par);
@@ -7458,7 +7464,7 @@ test:
 
 ///////////////////////////
 //...solving of the probem;
-	res = system("mkdir ./bcm_results/lame3d_homog"); Num_Comput temp_comput;
+	/*res = system("mkdir ./bcm_results/lame3d_homog")*/; Num_Comput temp_comput;
 	if (sm->computing_kernel(temp_comput = sm->N > 1 ? MAPPING_COMPUT : PERIOD_COMPUT) != OK_STATE) {
 		Message("Error in sample computing...");
 		delete sm;
@@ -7501,8 +7507,8 @@ test:
 	if (comm_mpi.GetMyid() == 0) 
 #endif
 	{
-//////////////////////////////////////////
-//..вычисляем эффективные модули композита;
+/////////////////////////////////////////////
+//..calculating homogenized composite moduli;
 			double K[28], E0, nu, K0, m0, mu, lm, C0, KH, EH, mH, nH; memset(K, 0, 28*sizeof(double)); K[27] = (par[1]-par[0])*.5;
 			sm->GetRigidy(K, -1, BASIC_COMPUT);
 			sm->GetRigidy(K, -1, COVERING_COMPUT);
@@ -7515,15 +7521,15 @@ test:
 			m0 = E0/(2.*(1.+nu));
 			mu = K[15]/K[21]*.5;
 
-////////////////////////////////////////
-//...четырехфазная модель, метод Эшелби;
+/////////////////////////////////////
+//...four-body model, Eshelby method;
 			KH = sm->TakeEshelby_volm(par[6], par[7]);
 			mH = sm->TakeEshelby_shear_two(par[6]+par[7]);
 			//mH = sm->TakeEshelby_shear(par[6], par[7]);
 			EH = 9.*KH*mH/(3.*KH+mH);
 			nH = (1.5*KH-mH)/(3.*KH+mH);
 
-			FILE * TST = fopen("./bcm_results/lame3d_homog/lame3d_homog.dat", "a");
+			FILE * TST = fopen("./lame3d_random_homog.dat", "a");
 			if (TST) fprintf(TST, "rad = %g  ll = %g  E0 = %g  nu = %g  K0 = %g  m0 = %g  mu = %g  EH = %g  KH = %g  (%g, %g, %g, %g, %g, %g) (N = %i)\n", 
 										  rad, ll, E0, nu, K0, m0, mu, EH, KH, E1, nj1, E2, nj2, E3, nj3, N0);
 			if (TST) fclose (TST);
@@ -7556,13 +7562,13 @@ test:
 				if (axis == AXIS_X) sm->Poly_struc_in3D(hit, nd->Z[0], nd->X[i], nd->Y[j], NULL_STATE);
 				nd->hit[i+j*nd->N] = hit;
 			}
-			sm->GetSurferFormat("./bcm_results/lame3d_homog/rz", nd,	   DISPL_VALUE, 0, axis);
-			sm->GetSurferFormat("./bcm_results/lame3d_homog/rx", nd,	   DISPL_VALUE, 1, axis);
-			sm->GetSurferFormat("./bcm_results/lame3d_homog/tz", nd, STRESS_Z_VALUE, 0, axis);
-			sm->GetSurferFormat("./bcm_results/lame3d_homog/tx", nd, STRESS_X_VALUE, 1, axis);
+			sm->GetSurferFormat("./rz", nd,	   DISPL_VALUE, 0, axis);
+			sm->GetSurferFormat("./rx", nd,	   DISPL_VALUE, 1, axis);
+			sm->GetSurferFormat("./tz", nd, STRESS_Z_VALUE, 0, axis);
+			sm->GetSurferFormat("./tx", nd, STRESS_X_VALUE, 1, axis);
 
-///////////////////////////////////////////
-//...дополнительные сечения I (если нужно);
+//////////////////////////////////////
+//...additional section I (if needed);
 			if (id_visual > 1) { 
 				nd->release();
 				if (axis_I == AXIS_Z) {
@@ -7589,13 +7595,13 @@ test:
 					if (axis_I == AXIS_X) sm->Poly_struc_in3D(hit, nd->Z[0], nd->X[i], nd->Y[j], NULL_STATE);
 					nd->hit[i+j*nd->N] = hit;
 				}
-				sm->GetSurferFormat("./bcm_results/lame3d_homog/rz_I", nd,	   DISPL_VALUE, 0, axis);
-				sm->GetSurferFormat("./bcm_results/lame3d_homog/rx_I", nd,	   DISPL_VALUE, 1, axis);
-				sm->GetSurferFormat("./bcm_results/lame3d_homog/tz_I", nd, STRESS_Z_VALUE, 0, axis);
-				sm->GetSurferFormat("./bcm_results/lame3d_homog/tx_I", nd, STRESS_X_VALUE, 1, axis);
+				sm->GetSurferFormat("./rz_I", nd,	   DISPL_VALUE, 0, axis);
+				sm->GetSurferFormat("./rx_I", nd,	   DISPL_VALUE, 1, axis);
+				sm->GetSurferFormat("./tz_I", nd, STRESS_Z_VALUE, 0, axis);
+				sm->GetSurferFormat("./tx_I", nd, STRESS_X_VALUE, 1, axis);
 
-////////////////////////////////////////////
-//...дополнительные сечения II (если нужно);
+///////////////////////////////////////
+//...additional section II (if needed);
 				if (id_visual > 2) { 
 					nd->release();
 					if (axis_II == AXIS_Z) {
@@ -7622,10 +7628,10 @@ test:
 						if (axis_II == AXIS_X) sm->Poly_struc_in3D(hit, nd->Z[0], nd->X[i], nd->Y[j], NULL_STATE);
 						nd->hit[i+j*nd->N] = hit;
 					}
-					sm->GetSurferFormat("./bcm_results/lame3d_homog/rz_II", nd,	   DISPL_VALUE, 0, axis);
-					sm->GetSurferFormat("./bcm_results/lame3d_homog/rx_II", nd,	   DISPL_VALUE, 1, axis);
-					sm->GetSurferFormat("./bcm_results/lame3d_homog/tz_II", nd, STRESS_Z_VALUE, 0, axis);
-					sm->GetSurferFormat("./bcm_results/lame3d_homog/tx_II", nd, STRESS_X_VALUE, 1, axis);
+					sm->GetSurferFormat("./rz_II", nd,	   DISPL_VALUE, 0, axis);
+					sm->GetSurferFormat("./rx_II", nd,	   DISPL_VALUE, 1, axis);
+					sm->GetSurferFormat("./tz_II", nd, STRESS_Z_VALUE, 0, axis);
+					sm->GetSurferFormat("./tx_II", nd, STRESS_X_VALUE, 1, axis);
 				}
 			}
 			delete nd;
@@ -7636,6 +7642,9 @@ test:
 #endif
 #ifdef TEST_HEAT3D_RANDOM_HOMOGENIZATION
 {
+	const char * name_ini = "../bcm-start/var1/heat3d_aggreg_initial.dat";
+//////////////////
+//...default data;
 	int M = 3, M_max_add = 1, M_add;
 	double A = 1., B = 1., C = 1., section = 0., section_I = 0., section_II = 0., K1 = 1., K2 = 20., K3 = 0.01, lagrange = 0, par[8], pp[2], cc_rad = .05, ll_rad = 7., c0, c1;
 	int i, j, k, NX = 100, NY = 100, id_visual = 1, N0 = 5, N_elem = 4, N_max = 4, axis = AXIS_Y, axis_I = AXIS_Z, axis_II = AXIS_X;
@@ -7647,16 +7656,16 @@ test:
    Message(buf);
 
 	unsigned long count, upper_limit;
-	char        * id_DATA = read_struct_ascii("heat3d_initial.dat");
+	char        * id_DATA = read_struct_ascii(name_ini);
 	if         (! id_DATA) {
 		sprintf(buf, "Data not found..");
 		Message(" ");
 		Message(buf);
-		sprintf(buf, "Creating data file \"heat3d_initial.dat\"...");
+		sprintf(buf, "Creating data file \"%s\"...", name_ini);
 		Message(buf);
 		Message(" ");
 
-		FILE  * TST = fopen("heat3d_initial.dat", "w");
+		FILE  * TST = fopen(name_ini, "w");
 		fprintf(TST, "N = %i\nN_elem = %i\nN_max = %i\nlagrange = %g\n\n", N0, N_elem, N_max, lagrange);
 		fprintf(TST, "id_visual = %i\nNX = %i\nNY = %i\naxis = %i  axis_I = %i  axis_II = %i\nsection = %g  section_I = %g  section_II = %g\n\n", 
 			id_visual, NX, NY, axis, axis_I, axis_II, section, section_I, section_II);
@@ -7745,13 +7754,12 @@ test:
 	sm->change_solv (lagrange ? E_PERIODIC_SOLVING : PERIODIC_SOLVING);
 	sm->solver.change_state(EXTERN_STATE);
 	sm->solver.set_mode(REGUL_BOUNDARY/* | REDUCED_PRINT | PRINT_MODE | FULLY_MODE*//* | TESTI_GRAM*//* | MASKS_MODE*//* | ACCUMULATION*/);
-	//yes = 0;
+	yes = 0;
 
 /////////////////////
 //...printing header;
-	res = system("mkdir ./bcm_results");
-	res = system("mkdir ./bcm_results/heat3d_homog");
-	FILE * TST = fopen("./bcm_results/heat3d_homog/heat3d_homog.dat", "a");
+	res = system("mkdir   heat3d_aggreg_homog");
+	FILE * TST = fopen("./heat3d_aggreg_homog.dat", "a");
 	if (TST) fprintf(TST, "c0,              c1,            kk,         kH,          kk_low,      kk_max,      (N = %i, K_matrix = %g, K_inclu = %g, K_layer = %g))\n", N0, K1, K2, K3);
 	if (TST)	fclose (TST);
 
@@ -7848,7 +7856,7 @@ test:
 
 			kH = sm->TakeEshelby(c0, c1);
 
-			FILE * TST = fopen("./bcm_results/heat3d_homog/heat3d_homog.dat", "a");
+			FILE * TST = fopen("./heat3d_aggreg_homog.dat", "a");
 			if (TST) fprintf(TST, "%g,    %g,    %g,    %g,    %g,    %g\n", c0, c1, kk, kH, kk_low, kk_max);
 			if (TST)	fclose (TST);
 
@@ -7880,11 +7888,11 @@ test:
 					if (axis == AXIS_X) sm->Poly_struc_in3D(hit, nd->Z[0], nd->X[i], nd->Y[j], NULL_STATE);
 					nd->hit[i+j*nd->N] = hit;
 				}
-				sprintf(buf, "./bcm_results/heat3d_homog/rr(%i)", k);	sm->GetSurferFormat(buf, nd, HEAT_VALUE, 0, axis);
-				sprintf(buf, "./bcm_results/heat3d_homog/pp(%i)", k);	sm->GetSurferFormat(buf, nd, FLUX_COMPOS_VALUE, 0, axis);
+				sprintf(buf, "./heat3d_aggreg_homog/rr(%i)", k);	sm->GetSurferFormat(buf, nd, HEAT_VALUE, 0, axis);
+				sprintf(buf, "./heat3d_aggreg_homog/pp(%i)", k);	sm->GetSurferFormat(buf, nd, FLUX_COMPOS_VALUE, 0, axis);
 
-	////////////////////////////////////////
-	//...additional sections I (if needded);
+	///////////////////////////////////////
+	//...additional sections I (if needed);
 				if (id_visual > 1) { 
 					nd->release();
 					if (axis_I == AXIS_Z) {
@@ -7911,11 +7919,11 @@ test:
 						if (axis_I == AXIS_X) sm->Poly_struc_in3D(hit, nd->Z[0], nd->X[i], nd->Y[j], NULL_STATE);
 						nd->hit[i+j*nd->N] = hit;
 					}
-					sprintf(buf, "./bcm_results/heat3d_homog/rr(%i)_I", k);	sm->GetSurferFormat(buf, nd, HEAT_VALUE, 0, axis_I);
-					sprintf(buf, "./bcm_results/heat3d_homog/pp(%i)_I", k);	sm->GetSurferFormat(buf, nd, FLUX_COMPOS_VALUE, 0, axis_I);
+					sprintf(buf, "./heat3d_aggreg_homog/rr(%i)_I", k);	sm->GetSurferFormat(buf, nd, HEAT_VALUE, 0, axis_I);
+					sprintf(buf, "./heat3d_aggreg_homog/pp(%i)_I", k);	sm->GetSurferFormat(buf, nd, FLUX_COMPOS_VALUE, 0, axis_I);
 
-	//////////////////////////////////////////
-	//...additional sections  II (if needded);
+	/////////////////////////////////////////
+	//...additional sections  II (if needed);
 					if (id_visual > 2) { 
 						nd->release();
 						if (axis_II == AXIS_Z) {
@@ -7942,8 +7950,8 @@ test:
 							if (axis_II == AXIS_X) sm->Poly_struc_in3D(hit, nd->Z[0], nd->X[i], nd->Y[j], NULL_STATE);
 							nd->hit[i+j*nd->N] = hit;
 						}
-						sprintf(buf, "./bcm_results/heat3d_homog/rr(%i)_II", k);	sm->GetSurferFormat(buf, nd, HEAT_VALUE, 0, axis_II);
-						sprintf(buf, "./bcm_results/heat3d_homog/pp(%i)_II", k);	sm->GetSurferFormat(buf, nd, FLUX_COMPOS_VALUE, 0, axis_II);
+						sprintf(buf, "./heat3d_aggreg_homog/rr(%i)_II", k);	sm->GetSurferFormat(buf, nd, HEAT_VALUE, 0, axis_II);
+						sprintf(buf, "./heat3d_aggreg_homog/pp(%i)_II", k);	sm->GetSurferFormat(buf, nd, FLUX_COMPOS_VALUE, 0, axis_II);
 					}
 				}
 				delete nd;
@@ -7955,6 +7963,9 @@ test:
 #endif
 #ifdef TEST_LAME3D_RANDOM_HOMOGENIZATION
 {
+	const char * name_ini = "../bcm-start/var2/lame3d_aggreg_initial.dat";
+//////////////////
+//...default data;
 	int M = 3, M_max_add = 1, M_add;
 	double A = 1., B = 1., C = 1., section = 0., section_I = 0., section_II = 0., nj1 = 0.3, nj2 = 0.3, nj3 = 0.3, E1 = 1.0, E2 = 2.0, E3 = 3.0, lagrange = 0, par[8], pp[2], cc_rad = .05, ll_rad = 7., c0, c1;
 	int i, j, k, NX = 100, NY = 100, id_visual = 1, N0 = 5, N_elem = 4, N_max = 4, axis = AXIS_Y, axis_I = AXIS_Z, axis_II = AXIS_X;
@@ -7966,16 +7977,16 @@ test:
    Message(buf);
 
 	unsigned long count, upper_limit;
-	char        * id_DATA = read_struct_ascii("lame3d_initial.dat");
+	char        * id_DATA = read_struct_ascii(name_ini);
 	if         (! id_DATA) {
 		sprintf(buf, "Data not found..");
 		Message(" ");
 		Message(buf);
-		sprintf(buf, "Creating data file \"lame3d_initial.dat\"...");
+		sprintf(buf, "Creating data file \"%s\"...", name_ini);
 		Message(buf);
 		Message(" ");
 
-		FILE  * TST = fopen("lame3d_initial.dat", "w");
+		FILE  * TST = fopen(name_ini, "w");
 		fprintf(TST, "N = %i\nN_elem = %i\nN_max = %i\nlagrange = %g\n\n", N0, N_elem, N_max, lagrange);
 		fprintf(TST, "id_visual = %i\nNX = %i\nNY = %i\naxis = %i  axis_I = %i  axis_II = %i\nsection = %g  section_I = %g  section_II = %g\n\n", 
 			id_visual, NX, NY, axis, axis_I, axis_II, section, section_I, section_II);
@@ -8082,9 +8093,8 @@ test:
 	if (comm_mpi.GetMyid() == 0) 
 #endif
 	{
-		res = system("mkdir ./bcm_results");
-		res = system("mkdir ./bcm_results/lame3d_homog");
-		FILE * TST = fopen("./bcm_results/lame3d_homog/lame3d_homog.dat", "a");
+		res = system("mkdir   lame3d_aggreg_homog");
+		FILE * TST = fopen("./lame3d_aggreg_homog.dat", "a");
 		if (TST) fprintf(TST, "c0,              c1,            E0,          EH,          E0_min,      E0_max,         K0,          KH,          m0,          mu,          nu,      (N = %i, E_matrix = %g, E_inclu = %g, E_layer = %g, nju_matrix = %g, nju_inclu = %g, nju_layer = %g))\n", 
 									  N0, E1, E2, E3, nj1, nj2, nj3);
 		if (TST)	fclose (TST);
@@ -8172,8 +8182,8 @@ test:
 		if (comm_mpi.GetMyid() == 0) 
 #endif
 		{
-//////////////////////////////////////////
-//..вычисляем эффективные модули композита;
+/////////////////////////////////////////////
+//..calculation gomogenized composite moduli;
 			double K[28], E0, E0_min, E0_max, nu, K0, m0, mu, lm, C0, KH, EH, mH, nH; memset(K, 0, 28*sizeof(double)); K[27] = (par[1]-par[0])*.5;
 			sm->GetRigidy(K, -1, BASIC_COMPUT);
 			sm->GetRigidy(K, -1, COVERING_COMPUT);
@@ -8188,15 +8198,15 @@ test:
 			E0_min = (K[24]+K[25]+K[26])/(K[24]/E1+K[25]/E2+K[26]/E3);
 			E0_max = (K[24]*E1+K[25]*E2+K[26]*E3)/(K[24]+K[25]+K[26]);
 
-////////////////////////////////////////
-//...четырехфазная модель, метод Эшелби;
+/////////////////////////////////////
+//...four-body model, Eshelby method;
 			KH = sm->TakeEshelby_volm(par[6], par[7]);
 			//mH = sm->TakeEshelby_shear_two(par[6]+par[7]);
 			mH = sm->TakeEshelby_shear(par[6], par[7]);
 			EH = 9.*KH*mH/(3.*KH+mH);
 			nH = (1.5*KH-mH)/(3.*KH+mH);
 
-			FILE * TST = fopen("./bcm_results/lame3d_homog/lame3d_homog.dat", "a");
+			FILE * TST = fopen("./lame3d_aggreg_homog.dat", "a");
 			if (TST) fprintf(TST, "%g,    %g,    %g,    %g,    %g,    %g,  %g,    %g,    %g,    %g,    %g\n", 
 											c0, c1, E0, EH, E0_min, E0_max, K0, KH, m0, mu, nu);
 			if (TST)	fclose (TST);
@@ -8229,13 +8239,13 @@ test:
 					if (axis == AXIS_X) sm->Poly_struc_in3D(hit, nd->Z[0], nd->X[i], nd->Y[j], NULL_STATE);
 					nd->hit[i+j*nd->N] = hit;
 				}
-				sprintf(buf, "./bcm_results/lame3d_homog/rz(%i)", k);	sm->GetSurferFormat(buf, nd,    DISPL_VALUE, 0, axis);
-				sprintf(buf, "./bcm_results/lame3d_homog/rx(%i)", k);	sm->GetSurferFormat(buf, nd,    DISPL_VALUE, 1, axis);
-				sprintf(buf, "./bcm_results/lame3d_homog/tz(%i)", k);	sm->GetSurferFormat(buf, nd, STRESS_Z_VALUE, 0, axis);
-				sprintf(buf, "./bcm_results/lame3d_homog/tx(%i)", k);	sm->GetSurferFormat(buf, nd, STRESS_X_VALUE, 1, axis);
+				sprintf(buf, "./lame3d_aggreg_homog/rz(%i)", k);	sm->GetSurferFormat(buf, nd,    DISPL_VALUE, 0, axis);
+				sprintf(buf, "./lame3d_aggreg_homog/rx(%i)", k);	sm->GetSurferFormat(buf, nd,    DISPL_VALUE, 1, axis);
+				sprintf(buf, "./lame3d_aggreg_homog/tz(%i)", k);	sm->GetSurferFormat(buf, nd, STRESS_Z_VALUE, 0, axis);
+				sprintf(buf, "./lame3d_aggreg_homog/tx(%i)", k);	sm->GetSurferFormat(buf, nd, STRESS_X_VALUE, 1, axis);
 
-	///////////////////////////////////////////
-	//...дополнительные сечения I (если нужно);
+	//////////////////////////////////////
+	//...additional section I (if needed);
 				if (id_visual > 1) { 
 					nd->release();
 					if (axis_I == AXIS_Z) {
@@ -8262,13 +8272,13 @@ test:
 						if (axis_I == AXIS_X) sm->Poly_struc_in3D(hit, nd->Z[0], nd->X[i], nd->Y[j], NULL_STATE);
 						nd->hit[i+j*nd->N] = hit;
 					}
-					sprintf(buf, "./bcm_results/lame3d_homog/rz(%i)_I", k);	sm->GetSurferFormat(buf, nd,    DISPL_VALUE, 0, axis_I);
-					sprintf(buf, "./bcm_results/lame3d_homog/rx(%i)_I", k);	sm->GetSurferFormat(buf, nd,    DISPL_VALUE, 1, axis_I);
-					sprintf(buf, "./bcm_results/lame3d_homog/tz(%i)_I", k);	sm->GetSurferFormat(buf, nd, STRESS_Z_VALUE, 0, axis_I);
-					sprintf(buf, "./bcm_results/lame3d_homog/tx(%i)_I", k);	sm->GetSurferFormat(buf, nd, STRESS_X_VALUE, 1, axis_I);
+					sprintf(buf, "./lame3d_aggreg_homog/rz(%i)_I", k);	sm->GetSurferFormat(buf, nd,    DISPL_VALUE, 0, axis_I);
+					sprintf(buf, "./lame3d_aggreg_homog/rx(%i)_I", k);	sm->GetSurferFormat(buf, nd,    DISPL_VALUE, 1, axis_I);
+					sprintf(buf, "./lame3d_aggreg_homog/tz(%i)_I", k);	sm->GetSurferFormat(buf, nd, STRESS_Z_VALUE, 0, axis_I);
+					sprintf(buf, "./lame3d_aggreg_homog/tx(%i)_I", k);	sm->GetSurferFormat(buf, nd, STRESS_X_VALUE, 1, axis_I);
 
-	////////////////////////////////////////////
-	//...дополнительные сечения II (если нужно);
+	///////////////////////////////////////
+	//...additional section II (if needed);
 					if (id_visual > 2) { 
 						nd->release();
 						if (axis_II == AXIS_Z) {
@@ -8295,10 +8305,10 @@ test:
 							if (axis_II == AXIS_X) sm->Poly_struc_in3D(hit, nd->Z[0], nd->X[i], nd->Y[j], NULL_STATE);
 							nd->hit[i+j*nd->N] = hit;
 						}
-						sprintf(buf, "./bcm_results/lame3d_homog/rz(%i)_II", k);	sm->GetSurferFormat(buf, nd,    DISPL_VALUE, 0, axis_II);
-						sprintf(buf, "./bcm_results/lame3d_homog/rx(%i)_II", k);	sm->GetSurferFormat(buf, nd,    DISPL_VALUE, 1, axis_II);
-						sprintf(buf, "./bcm_results/lame3d_homog/tz(%i)_II", k);	sm->GetSurferFormat(buf, nd, STRESS_Z_VALUE, 0, axis_II);
-						sprintf(buf, "./bcm_results/lame3d_homog/tx(%i)_II", k);	sm->GetSurferFormat(buf, nd, STRESS_X_VALUE, 1, axis_II);
+						sprintf(buf, "./lame3d_aggreg_homog/rz(%i)_II", k);	sm->GetSurferFormat(buf, nd,    DISPL_VALUE, 0, axis_II);
+						sprintf(buf, "./lame3d_aggreg_homog/rx(%i)_II", k);	sm->GetSurferFormat(buf, nd,    DISPL_VALUE, 1, axis_II);
+						sprintf(buf, "./lame3d_aggreg_homog/tz(%i)_II", k);	sm->GetSurferFormat(buf, nd, STRESS_Z_VALUE, 0, axis_II);
+						sprintf(buf, "./lame3d_aggreg_homog/tx(%i)_II", k);	sm->GetSurferFormat(buf, nd, STRESS_X_VALUE, 1, axis_II);
 					}
 				}
 				delete nd;
@@ -8317,40 +8327,40 @@ double glina[][2] = {{0.4506, 9.727 },{0.5719,10.2481},{0.7106,10.9429},{0.8492,
 							{5.0607,32.8288},{5.2166,33.5236},{5.338 ,34.0447},{5.4766,34.5658},{5.6153,35.0868},{5.7366,35.6079},{5.8925,36.3027},{6.1352,37.1712},
 							{6.2738,37.5186},{6.4298,38.0397},{6.7244,39.0819},{6.8631,39.603 },{7.0191,39.9504},{7.1577,40.2978},{7.2964,40.8189},
 							{7.6256,41.861 },{7.7816,42.3821},{7.9203,42.7295},{8.0589,43.0769},{8.2496,43.4243},{8.3882,43.7717},{8.5442,44.1191},{8.7002,44.6402},{8.8562,44.9876},
-							{8.9775,45.335 },{9.1681,45.8561},{9.3241,46.2035},{9.4801,46.5509}};//...данные для модуля Юнга в MPa;
+							{8.9775,45.335 },{9.1681,45.8561},{9.3241,46.2035},{9.4801,46.5509}};//...data of Youg modulus in MPa;
 int N_glina = 59;
 
-double dural[][2] = {{20.,72.},{100.,63.5},{350.,48.}}, //...данные для модуля Юнга в GPa, температура в C;
+double dural[][2] = {{20.,72.},{100.,63.5},{350.,48.}}, //...data of Young modulus in GPa, temperature in C;
 					A  = ((dural[0][1]-dural[1][1])/(dural[0][0]-dural[1][0])-(dural[0][1]-dural[2][1])/(dural[0][0]-dural[2][0]))/(dural[1][0]-dural[2][0]), 
 					B  =  (dural[0][1]-dural[1][1])/(dural[0][0]-dural[1][0])-(dural[0][0]+dural[1][0])*A, 
-					C  =   dural[0][1]-dural[0][0]*B-dural[0][0]*dural[0][0]*A;//...квадратичная аппроксимация;
+					C  =   dural[0][1]-dural[0][0]*B-dural[0][0]*dural[0][0]*A;//...quadratic approximation;
 int N_dural = 3;
 
 double spinel[][2] = {{20.,250.},{350.,440.}};//...C/GPa;
 int N_spinel = 2;
 //////////////////
 //...initial data;
-	double nju1 = 0.36, //...полимерная матрица;
-			 nju2 = 0.16, //...жесткое включение;  
-			 nju3 = 0.30, //...промежуточный слой;  
-			 E1   = 1.0,  //...модуль Юнга матрицы;
-			 E2   = 380., //...модуль Юнга включения;
-			 E3   = 1.0,  //...модуль Юнга промежуточного слоя;
-			 K1   = E1/(3.*(1.-2.*nju1)),//...модуль Юнга матрицы;
-			 K2   = E2/(3.*(1.-2.*nju2)),//...модуль Юнга включения;
-			 K3   = E3/(3.*(1.-2.*nju3)),//...модуль Юнга промежуточного слоя;
-			 G1   = E1/(2.*(1.+nju1)),   //...модуль сдвига матрицы;
-			 G2   = E2/(2.*(1.+nju2)),   //...модуль сдвига включения;
-			 G3   = E3/(2.*(1.+nju3)),   //...модуль сдвига промежуточного слоя;
-			 l1   = 0.15,			//...доля межфазного слоя по отношению к радиусу включения;
+	double nju1 = 0.36, //...polymer matrix;
+			 nju2 = 0.16, //...rigid inclusionе;  
+			 nju3 = 0.30, //...interphase layer;  
+			 E1   = 1.0,  //...Young modulus in matrix;
+			 E2   = 380., //...Young modulus in inclusion;
+			 E3   = 1.0,  //...Young modulus in interphase layer;
+			 K1   = E1/(3.*(1.-2.*nju1)),//...volume modulus in matrix;
+			 K2   = E2/(3.*(1.-2.*nju2)),//...volume modulus in inclusion;
+			 K3   = E3/(3.*(1.-2.*nju3)),//...volume modulus in interphase layer;
+			 G1   = E1/(2.*(1.+nju1)),   //...shear modulus in matrix;
+			 G2   = E2/(2.*(1.+nju2)),   //...shear modulus in inclusion;
+			 G3   = E3/(2.*(1.+nju3)),   //...shear modulus in interphase layer;
+			 l1   = 0.15,			//...interphase layer fracture with respect to inclusion radius;
 			 c0   = 0.60,			//...volume fraction of inclusion; 
 			 c1   = l1*(l1+2.),	//...volume fraction of interface layer; 
-			 T0   = 20.0,			//...начальная температура среды;
+			 T0   = 20.0,			//...initial temperature of media;
 			 KS, KC, KH, LH, nn, nc, ns, K_min, K_max, ES, EC, EH, GS, GC, GH, E_min, E_max, G_min, G_max;
 	yes = 0;
 
-/////////////////////
-//...данные по слоям;
+/////////////////////////
+//...data respect layers;
 	const int N = 3;
 	double ff[N] = {c0, c1, 1.-c1-c0}, kv[N] = {K2, K3, K1},
 			 mu[N] = {G2, G3, G1}, nj[N] = {nju2, nju3, nju1}, ee[N] = {E2, E3, E1},
@@ -8364,8 +8374,8 @@ int N_spinel = 2;
 	//		 kk[N] = {E2*(1.-nju2)/((1.+nju2)*(1.-2.*nju2)), E1*(1.-nju1)/((1.+nju1)*(1.-2.*nju1))}, 
 	//		 lm[N] = {G2*2.*nju2/(1.-2.*nju2), G1*2.*nju1/(1.-2.*nju1)};
 
-///////////////////////////////
-//...цикл по параметрам задачи;
+/////////////////////////////////
+//...cycle on problem parameters;
 	FILE * TST = fopen("homog_KK.dat", "w");
 	FILE * TSE = fopen("homog_EE.dat", "w");
 	for (int j = 20; j <= 350; j += 1) {
@@ -8389,15 +8399,15 @@ int N_spinel = 2;
 		ES = 9.*KS*fabs(GS)/(3.*KS+fabs(GS));
 		ns = (1.5*KS-fabs(GS))/(3.*KS+fabs(GS));
 
-		KC = TakeCylinder_KH(N, ff, kp, mu); 
-		GC = TakeCylinder_GH(N, ff, kp, mu, nj); 
+		KC = TakeCylinder_KH1(N, ff, kp, mu); 
+		GC = TakeCylinder_GH1(N, ff, kp, mu, nj); 
 		EC = fabs(GC)*(3.*KC-fabs(GC))/KC;
 		nc = (1.-fabs(GC)/KC)*.5;
 
-		KH = TakeCylinder_EH(N, ff, kk);	//...формула смеси, дополнительные характеристики в цилиндрической симметрии; 
-		EH = TakeCylinder_EH(N, ff, ee);	//...формула смеси; 
-		LH = TakeCylinder_LH(N, ff, lm, mu, nj);
-		GH = TakeCylinder_GH(N, ff, mu, nj); //...продольный модуль сдвига; 
+		KH = TakeCylinder_EH (N, ff, kk);	//...mixed formula, additional characteristics in cylinder symmetry; 
+		EH = TakeCylinder_EH (N, ff, ee);	//...mixed formula; 
+		LH = TakeCylinder_KH2(N, ff, lm, mu, nj);
+		GH = TakeCylinder_GH2(N, ff, mu, nj); //...along shear modulusа; 
 		nn = LH/(LH+KH);
 
 		K_min = 1./(c0/K2+(1.-c0)/K1);
@@ -8418,22 +8428,22 @@ int N_spinel = 2;
 {
 //////////////////
 //...initial data;
-	double nju1 = 0.48, //...полимерная матрица;
-			 nju2 = 0.30, //...жесткое включение;  
-			 E1   = 1.0,  //...модуль Юнга матрицы;
-			 E2   = 20.0, //...модуль Юнга включения;
-			 K1   = E1/(3.*(1.-2.*nju1)),//...модуль Юнга матрицы;
-			 K2   = E2/(3.*(1.-2.*nju2)),//...модуль Юнга включения;
-			 G1   = E1/(2.*(1.+nju1)),   //...модуль сдвига матрицы;
-			 G2   = E2/(2.*(1.+nju2)),   //...модуль сдвига включения;
-			 l1   = 0.10, //...доля межфазного слоя во включении;
-			 l2   = 0.10, //...доля межфазного слоя по отношению к радиусу включения в матрице;
+	double nju1 = 0.48, //...polymer matrix;
+			 nju2 = 0.30, //...rigid inclusionе; 
+			 E1   = 1.0,  //...Young modulus in matrix;
+			 E2   = 20.0, //...Young modulus in inclusion;
+			 K1   = E1/(3.*(1.-2.*nju1)),//...volume modulus in matrix;
+			 K2   = E2/(3.*(1.-2.*nju2)),//...volume modulus in inclusion;
+			 G1   = E1/(2.*(1.+nju1)),   //...shear modulus in matrix;
+			 G2   = E2/(2.*(1.+nju2)),   //...shear modulus in inclusion;
+			 l1   = 0.10, //...interphase layer fracture into inclusion;
+			 l2   = 0.10, //...interphase layer fracture with respect to inclusion radius;
 			 c0   = 0.10, //...volume fraction of inclusion; 
 			 KS, KH, K0, ES, EH, E0, GS, GH, G0, ns, nn, n0, K_min, K_max, E_min, E_max, G_min, G_max;
 	yes = 0;
 
-///////////////////////////////
-//...цикл по параметрам задачи;
+/////////////////////////////////
+//...cycle on problem parameters;
 	FILE * TST = fopen("homog_EE.dat", "w");
 	for (int j = 1; j < 400; j += 1) {
 		l2 = 0.066+j*.00001;
@@ -8473,21 +8483,21 @@ int N_spinel = 2;
 {
 //////////////////
 //...initial data;
-	double nju1 = 0.40, //...полимерная матрица;
-			 nju2 = 0.22, //...жесткое включение;  
-			 nju3 = 0.30, //...промежуточный слой;  
-			 E1   = 1.0,//...модуль Юнга матрицы;
-			 E2   = 12.,//...модуль Юнга включения;
-			 E3   = 1.0,//...модуль Юнга промежуточного слоя;
-			 al1  = 0.001,//...KTE матрицы;
-			 al2  = 0.010,//...KTE включения;
-			 al3  = 0.0,  //...KTE промежуточного слоя;
-			 K1   = E1/(3.*(1.-2.*nju1)),//...модуль Юнга матрицы;
-			 K2   = E2/(3.*(1.-2.*nju2)),//...модуль Юнга включения;
-			 K3   = E3/(3.*(1.-2.*nju3)),//...модуль Юнга промежуточного слоя;
-			 G1   = E1/(2.*(1.+nju1)),   //...модуль сдвига матрицы;
-			 G2   = E2/(2.*(1.+nju2)),   //...модуль сдвига включения;
-			 G3   = E3/(2.*(1.+nju3)),   //...модуль сдвига промежуточного слоя;
+	double nju1 = 0.40, //...polymer matrix;
+			 nju2 = 0.22, //...rigid inclusionе;
+			 nju3 = 0.30, //...interphase layer; 
+			 E1   = 1.0,  //...Young modulus in matrix;
+			 E2   = 12.,  //...Young modulus in inclusion;
+			 E3   = 1.0,  //...Young modulus in interphase layer;
+			 al1  = 0.001,//...matrix CTE;
+			 al2  = 0.010,//...inclusion CTE;
+			 al3  = 0.0,  //...interphase layer CTE;
+			 K1   = E1/(3.*(1.-2.*nju1)),//...volume modulus in matrix;
+			 K2   = E2/(3.*(1.-2.*nju2)),//...volume modulus in inclusion;
+			 K3   = E3/(3.*(1.-2.*nju3)),//...volume modulus in interphase layer;
+			 G1   = E1/(2.*(1.+nju1)),   //...shear modulus in matrix;
+			 G2   = E2/(2.*(1.+nju2)),   //...shear modulus in inclusion;
+			 G3   = E3/(2.*(1.+nju3)),   //...shear modulus in interphase layer;
 			 l1	= 0.1,   //...interphase layer for matrix;
 			 l2	= 0.03,  //...interphase layer for inclusion;
 			 limit  = 10., //...maximal length of layer;
@@ -8495,8 +8505,8 @@ int N_spinel = 2;
 			 GH = 0., GL, GS, GC, G0, G_min, G_max, KH, KL, KS, KC, K0, KK, K_min, K_max, EH, EL, ES, EC, E0, E_min, E_max, LH, L_min, L_max, nn;
 		yes = 0;
 
-/////////////////////
-//...данные по слоям;
+/////////////////////////
+//...data respect layers;
 	//const int N = 3;
 	//double ff[N] = {c0*.8, c0*.2, 1.-c0}, kv[N] = {K2, K3, K1},
 	//		 mu[N] = {G2, G3, G1}, ll[N] = {l2, 0., l1}, nj[N] = {nju2, nju3, nju1}, 
@@ -8510,8 +8520,8 @@ int N_spinel = 2;
 			 kk[N] = {E2*(1.-nju2)/((1.+nju2)*(1.-2.*nju2)), E1*(1.-nju1)/((1.+nju1)*(1.-2.*nju1))}, 
 			 lm[N] = {G2*2.*nju2/(1.-2.*nju2), G1*2.*nju1/(1.-2.*nju1)};
 
-///////////////////////////////
-//...цикл по параметрам задачи;
+/////////////////////////////////
+//...cycle on problem parameters;
 	FILE * TST = fopen("homog_KK.dat", "w");
 	FILE * TSG = fopen("homog_GG.dat", "w");
 	FILE * TSE = fopen("homog_EE.dat", "w");
@@ -8527,16 +8537,16 @@ int N_spinel = 2;
 		EL = (3.*KL-4.*fabs(GL))*fabs(GL)/(KL-fabs(GL));
 		E_max = TakeCylinder_EH(N, ff, kk);
 
-		KH = TakeCylinder_EH(N, ff, kk); 
-		KC = TakeCylinder_KH(N, ff, kp, mu); 
+		KH = TakeCylinder_EH (N, ff, kk); 
+		KC = TakeCylinder_KH1(N, ff, kp, mu); 
 		KK = kp[1]+ff[0]*(kp[0]-kp[1])/(1.+ff[1]*(kp[0]-kp[1])/(kp[1]+mu[1]));
-		GC = TakeCylinder_GH(N, ff, kp, mu, nj); 
+		GC = TakeCylinder_GH1(N, ff, kp, mu, nj); 
 		EC = fabs(GC)*(3.*KC-fabs(GC))/KC;
-		LH = TakeCylinder_LH(N, ff, lm, mu, nj);
+		LH = TakeCylinder_KH2(N, ff, lm, mu, nj);
 		KK = lm[1]+ff[0]*(lm[0]-lm[1])/(1.+ff[1]*(kp[0]-kp[1])/(kp[1]+mu[1]));
 		nn = LH/(LH+KH);
-		GH = TakeCylinder_EH(N, ff, mu); 
-		GH = TakeCylinder_GH(N, ff, mu, nj); 
+		GH = TakeCylinder_EH (N, ff, mu); 
+		GH = TakeCylinder_GH2(N, ff, mu, nj); 
 
 		KS = TakeSphere_KH(N, ff, kv, mu); 
 		GS = TakeSphere_GH(N, ff, kv, mu, nj); 
@@ -8576,32 +8586,32 @@ int N_spinel = 2;
 {
 //////////////////
 //...initial data;
-	double nju1 = 0.165,//...полимерная матрица;
-			 nju2 = 0.12,//...жесткое включение;  
-			 nju3 = 0.30,//...промежуточный слой;  
-			 E1   = 73., //...модуль Юнга матрицы;
-			 E2   = 480.,//...модуль Юнга включения;
-			 E3   = 1.0, //...модуль Юнга промежуточного слоя;
-			 al1  = 0.001,//...KTE матрицы;
-			 al2  = 0.010,//...KTE включения;
-			 al3  = 0.0,  //...KTE промежуточного слоя;
-			 K1   = E1/(3.*(1.-2.*nju1)),//...модуль Юнга матрицы;
-			 K2   = E2/(3.*(1.-2.*nju2)),//...модуль Юнга включения;
-			 K3   = E3/(3.*(1.-2.*nju3)),//...модуль Юнга промежуточного слоя;
-			 G1   = E1/(2.*(1.+nju1)),   //...модуль сдвига матрицы;
-			 G2   = E2/(2.*(1.+nju2)),   //...модуль сдвига включения;
-			 G3   = E3/(2.*(1.+nju3)),   //...модуль сдвига промежуточного слоя;
+	double nju1 = 0.165,//...polymer matrix;
+			 nju2 = 0.12, //...rigid inclusionе;
+			 nju3 = 0.30, //...interphase layer; 
+			 E1   = 73.,  //...Young modulus in matrix;
+			 E2   = 480., //...Young modulus in inclusion;
+			 E3   = 1.0,  //...Young modulus in interphase layer;
+			 al1  = 0.001,//...matrix CTE;
+			 al2  = 0.010,//...inclusion CTE;
+			 al3  = 0.0,  //...interphase layer CTE;
+			 K1   = E1/(3.*(1.-2.*nju1)),//...volume modulus in matrix;
+			 K2   = E2/(3.*(1.-2.*nju2)),//...volume modulus in inclusion;
+			 K3   = E3/(3.*(1.-2.*nju3)),//...volume modulus in interphase layer;
+			 G1   = E1/(2.*(1.+nju1)),   //...shear modulus in matrix;
+			 G2   = E2/(2.*(1.+nju2)),   //...shear modulus in inclusion;
+			 G3   = E3/(2.*(1.+nju3)),   //...shear modulus in interphase layer;
 			 //l1	= 0.1,   //...interphase layer for matrix;
 			 //l2	= 0.03,  //...interphase layer for inclusion;
-			 l1	= 10.00,    //...interphase layer for matrix;
-			 l2	= -0.03,    //...interphase layer for inclusion;
+			 l1	= 10.00, //...interphase layer for matrix;
+			 l2	= -0.03, //...interphase layer for inclusion;
 			 limit  = 10., //...maximal length of layer;
 			 c0     = 0.20,//...volume fraction; 
 			 GH = 0., GS, G0, KH, KS, K0, EH, ES, E0, E_min, E_max;
 	yes = 0;
 
-/////////////////////
-//...данные по слоям;
+/////////////////////////
+//...data respect layers;
 	//const int N = 3;
 	//double ff[N] = {c0*.8, c0*.2, 1.-c0}, kv[N] = {K2, K3, K1},
 	//		 mu[N] = {G2, G3, G1}, ll[N] = {l2, 0., l1}, nj[N] = {nju2, nju3, nju1}, 
@@ -8615,8 +8625,8 @@ int N_spinel = 2;
 			 kk[N] = {E2*(1.-nju2)/((1.+nju2)*(1.-2.*nju2)), E1*(1.-nju1)/((1.+nju1)*(1.-2.*nju1))}, 
 			 lm[N] = {G2*2.*nju2/(1.-2.*nju2), G1*2.*nju1/(1.-2.*nju1)};
 
-///////////////////////////////
-//...цикл по параметрам задачи;
+/////////////////////////////////
+//...cycle on problem parameters;
 	FILE * TST = fopen("homog_ALL.dat", "w");
 	for (int j = 0; j <= 1000; j += 1) {
 		c0 = j*.001; 
@@ -8647,39 +8657,39 @@ int N_spinel = 2;
 #endif
 #ifdef TEST_DRAFT_LAME_ESHELBY_INTERMEDIATE_PHASE_cyl
 {
-	//////////////////
-	//...initial data;
+//////////////////
+//...initial data;
 #define ___EXAMPLE1___
-	double nju1 = 0.30, //...эпоксидная матрица;
+	double nju1 = 0.30, //...epoxy rezin matrix;
 #ifdef ___EXAMPLE1___
-		nju2 = 0.14, //...углеродное включение;  
-		E1 = 3.00, //...модуль Юнга матрицы (GPa);
-		E2 = 1100.,//...модуль Юнга включения (GPa);
+		nju2 = 0.14, //...carbon inclusion;  
+		E1 = 3.00,   //...Young modulus in matrix (GPa);
+		E2 = 1100.,  //...Young modulus in inclusion (GPa);
 #else
-		nju2 = 0.35, //...углеродное включение;  
-		E1 = 2.90, //...модуль Юнга матрицы (GPa);
-		E2 = 140., //...модуль Юнга включения (GPa);
+		nju2 = 0.35, //...carbon inclusion;  
+		E1 = 2.90,   //...Young modulus in matrix (GPa);
+		E2 = 140.,   //...Young modulus in inclusion (GPa);
 #endif
-		nju3 = 0.30, //...промежуточный слой;  
-		E3 = 60.,  //...модуль Юнга промежуточного слоя;
-		K1 = E1 / (3.*(1. - 2.*nju1)),//...модуль Юнга матрицы;
-		K2 = E2 / (3.*(1. - 2.*nju2)),//...модуль Юнга включения;
-		K3 = E3 / (3.*(1. - 2.*nju3)),//...модуль Юнга промежуточного слоя;
-		G1 = E1 / (2.*(1. + nju1)),   //...модуль сдвига матрицы;
-		G2 = E2 / (2.*(1. + nju2)),   //...модуль сдвига включения;
-		G3 = E3 / (2.*(1. + nju3)),   //...модуль сдвига промежуточного слоя;
+		nju3 = 0.30, //...interphase layer;  
+		E3 = 60.,    //...Young modulus of interphase layer;
+		K1 = E1 / (3.*(1. - 2.*nju1)),//...volume modulus in matrix;
+		K2 = E2 / (3.*(1. - 2.*nju2)),//...volume modulus in inclusion;
+		K3 = E3 / (3.*(1. - 2.*nju3)),//...volume modulus in interphase layer;
+		G1 = E1 / (2.*(1. + nju1)),   //...shear modulus in matrix;
+		G2 = E2 / (2.*(1. + nju2)),   //...shear modulus in inclusion;
+		G3 = E3 / (2.*(1. + nju3)),   //...shear modulus in interphase layer;
 		l1 = 0.1,    //...interphase layer for matrix;
 		l2 = 0.03,   //...interphase layer for inclusion;
 		lim = 10.,    //...maximal length of layer;
 #ifdef ___EXAMPLE1___
-		l0 = 0.4,    //...относительная ширина межфазного слоя;
+		l0 = 0.4,    //...respect width of interphase layer;
 		c0 = 0.42169,//...volume fraction; 
 		dN = 16021.99436,
 		dL = 0.85,
 		d0 = 5000.,
 		hh = 0.9804,
 #else
-		l0 = 0.1923, //...относительная ширина межфазного слоя;
+		l0 = 0.1923, //...respect width of interphase layer;
 		c0 = 0.7165, //...volume fraction; 
 		dN = 326.725636,
 		dL = 50.,
@@ -8688,14 +8698,14 @@ int N_spinel = 2;
 		GH = 0., GG, G0, KH, KK, K0, LH, L0, EH, EE, nu_H, nH, DD, c1;
 	yes = 0;
 
-	/////////////////////
-	//...данные по слоям;
-	//const int N = 3;
-	//double ff[N] = {c0*.8, c0*.2, 1.-c0}, kv[N] = {K2, K3, K1},
-	//		 mu[N] = {G2, G3, G1}, ll[N] = {l2, 0., l1}, nj[N] = {nju2, nju3, nju1}, 
-	//		 kp[N] = {G2/(1.-2.*nju2), G3/(1.-2.*nju3), G1/(1.-2.*nju1)},
-	//		 kk[N] = {E2*(1.-nju2)/((1.+nju2)*(1.-2.*nju2)), E3*(1.-nju3)/((1.+nju3)*(1.-2.*nju3)), E1*(1.-nju1)/((1.+nju1)*(1.-2.*nju1))},
-	//		 lm[N] = {G2*2.*nju2/(1.-2.*nju2), G3*2.*nju3/(1.-2.*nju3), G1*2.*nju1/(1.-2.*nju1)};
+/////////////////////////
+//...data respect layers;
+//const int N = 3;
+//double ff[N] = {c0*.8, c0*.2, 1.-c0}, kv[N] = {K2, K3, K1},
+//		 mu[N] = {G2, G3, G1}, ll[N] = {l2, 0., l1}, nj[N] = {nju2, nju3, nju1}, 
+//		 kp[N] = {G2/(1.-2.*nju2), G3/(1.-2.*nju3), G1/(1.-2.*nju1)},
+//		 kk[N] = {E2*(1.-nju2)/((1.+nju2)*(1.-2.*nju2)), E3*(1.-nju3)/((1.+nju3)*(1.-2.*nju3)), E1*(1.-nju1)/((1.+nju1)*(1.-2.*nju1))},
+//		 lm[N] = {G2*2.*nju2/(1.-2.*nju2), G3*2.*nju3/(1.-2.*nju3), G1*2.*nju1/(1.-2.*nju1)};
 
 	const int N = 2;
 	double ff[N] = { c0, 1. - c0 }, kv[N] = { K2, K1 }, mu[N] = { G2, G1 }, ll[N] = { l2, l1 },
@@ -8703,8 +8713,8 @@ int N_spinel = 2;
 		kk[N] = { E2*(1. - nju2) / ((1. + nju2)*(1. - 2.*nju2)), E1*(1. - nju1) / ((1. + nju1)*(1. - 2.*nju1)) },
 		lm[N] = { G2*2.*nju2 / (1. - 2.*nju2), G1*2.*nju1 / (1. - 2.*nju1) };
 
-	///////////////////////////////
-	//...цикл по параметрам задачи;
+/////////////////////////////////
+//...cycle on problem parameters;
 #ifdef ___EXAMPLE1___
 	FILE * TST = fopen("GLayer_example1.dat", "w");
 #else
@@ -8720,22 +8730,22 @@ int N_spinel = 2;
 		ff[0] = c0; ff[1] = 1.-c0; ll[0] = l1;
 		c1 = ff[0]/(ff[0]+ff[1]);
 		KH = TakeCylinder_KH1(N, ff, kp, mu);
-		K0 = kp[1]+ff[0]*(kp[0]-kp[1])/(1.+(1.-ff[0])*(kp[0]-kp[1])/kk[1]); //...двухфазная реализация;
+		K0 = kp[1]+ff[0]*(kp[0]-kp[1])/(1.+(1.-ff[0])*(kp[0]-kp[1])/kk[1]); //...two-phase realization;
 		//DD = (kp[0]-kp[2]-(1.-c1)*(kp[0]-kp[1])*(1.+(kp[2]-kp[1])/kk[1]))/(1.+(1.-c1)*(kp[0]-kp[1])/kk[1]);
-		//K0 = kp[2]+(ff[0]+ff[1])*DD/(1.+(1.-(ff[0]+ff[1]))*DD/kk[2]); //...трехфазная реализация;
+		//K0 = kp[2]+(ff[0]+ff[1])*DD/(1.+(1.-(ff[0]+ff[1]))*DD/kk[2]); //...three-phase realization;
 		GH = TakeCylinder_GH1(N, ff, kp, mu, nj);
 		G0 = TakeCylinder_SH(N, ff, kp, mu, nj);
 		nH = (KH-GH)/(2.*KH);
 		EH = fabs(GH)*(3*KH-fabs(GH))/KH;
 		KK = TakeCylinder_EH(N, ff, kk);
 		LH = TakeCylinder_KH2(N, ff, lm, mu, nj);
-		L0 = lm[1]+ff[0]*(lm[0]-lm[1])/(1.+(1.-ff[0])*(kp[0]-kp[1])/kk[1]); //...двухфазная реализация;
+		L0 = lm[1]+ff[0]*(lm[0]-lm[1])/(1.+(1.-ff[0])*(kp[0]-kp[1])/kk[1]); //...two-phase realization;
 		//DD = 1./(1.+(kp[0]-kp[1])/kk[1]*(1.-c1*((ff[0]+ff[1])+(1.-(ff[0]+ff[1]))*(mu[2]-mu[1])/kk[2])/(1.+(1.-(ff[0]+ff[1]))*(kp[1]-kp[2])/kk[2])));
-		//L0 = lm[2]+(ff[0]+ff[1])*(1.+(1.-c1)*(kp[0]-kp[1])/kk[1])/(1.+(1.-(ff[0]+ff[1]))*(kp[1]-kp[2])/kk[2])*(lm[1]-lm[2]+c1*(lm[0]-lm[1])/(1.+(1.-c1)*(kp[0]-kp[1])/kk[1]))*DD; //...трехфазная реализация;
+		//L0 = lm[2]+(ff[0]+ff[1])*(1.+(1.-c1)*(kp[0]-kp[1])/kk[1])/(1.+(1.-(ff[0]+ff[1]))*(kp[1]-kp[2])/kk[2])*(lm[1]-lm[2]+c1*(lm[0]-lm[1])/(1.+(1.-c1)*(kp[0]-kp[1])/kk[1]))*DD; //...three-phase realization;
 		GG = TakeCylinder_GH2_simple(N, ff, mu);
-		G0 = mu[1]+ff[0]*(mu[0]-mu[1])/(1.+(1.-ff[0])*(mu[0]-mu[1]) (2.*mu[1])); //...двухфазная реализация;
+		G0 = mu[1]+ff[0]*(mu[0]-mu[1])/(1.+(1.-ff[0])*(mu[0]-mu[1])/(2.*mu[1])); //...two-phase realization;
 		//DD = (mu[0]-mu[2]-(1.-c1)*(mu[0]-mu[1])*(1.+(mu[2]-mu[1])/mu[1]*.5))/(1.+(1.-c1)*(mu[0]-mu[1])/mu[1]*.5);
-		//G0 = mu[2]+(ff[0]+ff[1])*DD/(1.+(1.-(ff[0]+ff[1]))*DD/mu[2]*.5); //...трехфазная реализация;
+		//G0 = mu[2]+(ff[0]+ff[1])*DD/(1.+(1.-(ff[0]+ff[1]))*DD/mu[2]*.5); //...three-phase realization;
 		nu_H = LH/(2.*KH);
 		EE = KK*(1.+nu_H)*(1.-2.*nu_H)/(1.-nu_H);
 
@@ -8746,16 +8756,16 @@ int N_spinel = 2;
 #endif
 #ifdef TEST_DRAFT_LAME_ESHELBY_SIMPLE_INVESTIGATION_cyl
 {
-	//////////////////
-	//...initial data;
-	double nju1 = 0.30,//...эпоксидная матрица;
-			nju2 = 0.14, //...углеродное включение;  
-			E1 = 3.00,   //...модуль Юнга матрицы (GPa);
-			E2 = 1100.,  //...модуль Юнга включения (GPa);
-			K1 = E1/(3.*(1.-2.*nju1)),//...модуль Юнга матрицы;
-			K2 = E2/(3.*(1.-2.*nju2)),//...модуль Юнга включения;
-			G1 = E1/(2.*(1.+nju1)),   //...модуль сдвига матрицы;
-			G2 = E2/(2.*(1.+nju2)),   //...модуль сдвига включения;
+//////////////////
+//...initial data;
+	double nju1 = 0.30,//...epoxy rezin matrix;
+			nju2 = 0.14, //...carbon inclusion;  
+			E1 = 3.00,   //...Young modulus in matrix (GPa);
+			E2 = 1100.,  //...Young modulus in inclusion (GPa);
+			K1 = E1/(3.*(1.-2.*nju1)),//...volume modulus in matrix;
+			K2 = E2/(3.*(1.-2.*nju2)),//...volume modulus in inclusion;
+			G1 = E1/(2.*(1.+nju1)),   //...shear modulus in matrix;
+			G2 = E2/(2.*(1.+nju2)),   //...shear modulus in inclusion;
 			l0 = 0.4,     //...interphase layer for matrix;
 			lim = 10.,    //...maximal length of layer;
 			c0 = 0.42169, //...volume fraction; 
@@ -8763,18 +8773,18 @@ int N_spinel = 2;
 			GH = 0., GG, G0, KH, KK, K0, LH, L0, EH, EE, E0, nu_H, nH, DD, lM, det;
 	yes = 0;
 
-	/////////////////////
-	//...данные по слоям;
+/////////////////////////
+//...data respect layers;
 	const int N = 2;
 	double ff[N] = { c0, 1.-c0 }, kv[N] = { K2, K1 }, mu[N] = { G2, G1 }, ll[N] = { 0., l0 },
 		kp[N] = { G2/(1.-2.*nju2), G1/(1.-2.*nju1) }, nj[N] = { nju2, nju1 },
 		kk[N] = { E2*(1.-nju2)/((1.+nju2)*(1.-2.*nju2)), E1*(1.-nju1)/((1.+nju1)*(1.-2.*nju1)) },
 		lm[N] = { G2*2.*nju2/(1.-2.*nju2), G1*2.*nju1/(1.-2.*nju1) };
 
-	///////////////////////////////
-	//...цикл по параметрам задачи;
+/////////////////////////////////
+//...cycle on problem parameters;
 	FILE * TST = fopen("GMatrix_example1.dat", "w");
-	for (int j = 0; j <= 100; j += 1) {
+	for (int j = 1; j <= 100; j += 1) {
 		ff[0] = j*.01; ff[1] = 1.-ff[0];
 		K0 = kp[1]+ff[0]*(kp[0]-kp[1])/(1.+(1.-ff[0])*(kp[0]-kp[1])/kk[1]);
 		KH = TakeGradMatrix_KH1(ff[0], E2, E1, nju2, nju1, l0);
@@ -8802,21 +8812,21 @@ int N_spinel = 2;
 {
 //////////////////
 //...initial data;
-	double nju1 = 0.21, //...полимерная матрица;
-			 nju2 = 0.12, //...жесткое включение;  
-			 nju3 = 0.30, //...промежуточный слой;  
-			 E1   = 475., //...модуль Юнга матрицы;
-			 E2   = 480., //...модуль Юнга включения;
-			 E3   = 57.0, //...модуль Юнга промежуточного слоя;
-			 al1  = 0.001,//...KTE матрицы;
-			 al2  = 0.010,//...KTE включения;
-			 al3  = 0.0,  //...KTE промежуточного слоя;
-			 K1   = E1/(3.*(1.-2.*nju1)),//...модуль Юнга матрицы;
-			 K2   = E2/(3.*(1.-2.*nju2)),//...модуль Юнга включения;
-			 K3   = E3/(3.*(1.-2.*nju3)),//...модуль Юнга промежуточного слоя;
-			 G1   = E1/(2.*(1.+nju1)),   //...модуль сдвига матрицы;
-			 G2   = E2/(2.*(1.+nju2)),   //...модуль сдвига включения;
-			 G3   = E3/(2.*(1.+nju3)),   //...модуль сдвига промежуточного слоя;
+	double nju1 = 0.21, //...polymer matrix;
+			 nju2 = 0.12, //...rigisd inclusion;  
+			 nju3 = 0.30, //...interphase layer;  
+			 E1   = 475., //...Young modulus in matrix;
+			 E2   = 480., //...Young modulus in inclusion;
+			 E3   = 57.0, //...Young modulus in interphase layer;
+			 al1  = 0.001,//...matrix CTE;
+			 al2  = 0.010,//...inclusion CTE;
+			 al3  = 0.0,  //...interphase layer CTE;
+			 K1   = E1/(3.*(1.-2.*nju1)),//...volume modulus in matrix;
+			 K2   = E2/(3.*(1.-2.*nju2)),//...volume modulus in inclusion;
+			 K3   = E3/(3.*(1.-2.*nju3)),//...volume modulus in interphase layer;
+			 G1   = E1/(2.*(1.+nju1)),   //...shear modulus in matrix;
+			 G2   = E2/(2.*(1.+nju2)),   //...shear modulus in inclusion;
+			 G3   = E3/(2.*(1.+nju3)),   //...shear modulus in interphase layer;
 			 l1	= 1.0,   //...interphase layer for matrix;
 			 l2	= 1.0,   //...interphase layer for inclusion;
 			 l3	= 1.0,   //...interphase layer for interphase layer;
@@ -8826,8 +8836,8 @@ int N_spinel = 2;
 			 GH = 0., G_min, G_max, KH, K_min, K_max, EH, E_min, E_max;
 	yes = 0;
 
-/////////////////////
-//...данные по слоям;
+/////////////////////////
+//...data respect layers;
 	const int N = 3;
 	double ff[N] = {c0*.8, c0*.2, 1.-c0}, kv[N] = {K2, K3, K1},
 			 mu[N] = {G2, G3, G1}, ll[N] = {l2, l3, l1}, nj[N] = {nju2, nju3, nju1}, 
@@ -8839,8 +8849,8 @@ int N_spinel = 2;
 	//double ff[N] = {c0, 1.-c0}, mu[N] = {G2, G1}, ll[N] = {l2, l1}, 
 	//		 kk[N] = {E2*(1.-nju2)/((1.+nju2)*(1.-2.*nju2)), E1*(1.-nju1)/((1.+nju1)*(1.-2.*nju1))};
 
-///////////////////////////////
-//...цикл по параметрам задачи;
+/////////////////////////////////
+//...cycle on problem parameters;
 	FILE * TST = fopen("homog_All.dat", "w");
 	for (int j = 0; j <= 500; j += 1) {
 		c0 = j*.001; 
@@ -8867,33 +8877,65 @@ int N_spinel = 2;
 	fclose(TST);
 }
 #endif
+#ifdef TEST_DRAFT_HEAT_ESHELBY
+{
+////////////////////////
+//...problem parameters;
+	double K1 = 1.7,	//...circonium oxide (matrtix);
+			 K2 = 30.,	//...corrund (inclusion);
+			 K3 = 3.,	//...interphase layer;
+			 c1 = 0.70, //...scale parameter ofinterphase layer;
+			 c0 = 0.20, ll = 0.7, R1 = 1.5, KH, KH_cl, KH2; //...volume fraction;
+
+//////////////////////////
+//...model initialization;
+	CDraft<double> * sm = CreateDraftR(HEAT3D_DRAFT);
+	sm->set_fasa_hmg(K1, K2, K3);
+	yes = 0;
+
+/////////////////////////////////
+//...cycle on problem parameters;
+	FILE * TST = fopen("heat3D_homog.dat", "w");
+	for (int j = 200; j <= 1000; j += 10) {
+		c0 = j*.001;
+		sm->set_fasa_hmg(R1, R1*pow(c0, -1./3.), K1, K2, K3, 1./sqr(ll));
+		
+		KH	= sm->TakeEshelby_grad(c0);
+		KH_cl = sm->TakeEshelby_two(c0);
+
+		fprintf(TST, " c0 = %g, с1 = %g, KH = %g\n", c0, c1, KH);
+	}
+	fclose (TST);
+	delete sm;
+}
+#endif
 #ifdef TEST_DRAFT_LAME_ESHELBY
 {
 //////////////////////////
 //...model initialization;
 	CDraft<double> * sm = CreateDraftR(/*MINDL3D_DRAFT*/COHES3D_DRAFT, 8),
 						* el = CreateDraftR(LAME3D_DRAFT,  8);
-	double nju1 = 0.4, //...полимерная матрица;
-			 nju2 = 0.22, //...жесткое включение;  
-			 K1   = 1.0,  //...объемный модуль матрицы;
-			 K2   = 40., //...объемный модуль включения;
-			 //E1   = 3.*(1.-2.*nju1)*K1,//...модуль Юнга матрицы;
-			 //E2   = 3.*(1.-2.*nju2)*K2,//...модуль Юнга включения;
-			 E1   = 1.0,//...модуль Юнга матрицы;
-			 E2   = 56.,//...модуль Юнга включения;
+	double nju1 = 0.4,  //...polymerb matrix;
+			 nju2 = 0.22, //...rigid inclusion;  
+			 K1   = 1.0,  //...volume modulus in matrix;
+			 K2   = 40.,  //...volume modulus in inclusion;
+			 //E1   = 3.*(1.-2.*nju1)*K1,//...Young modulus in matrix;
+			 //E2   = 3.*(1.-2.*nju2)*K2,//...Young modulus in inclusion;
+			 E1   = 1.0,//...Young modulus in matrix;
+			 E2   = 56.,//...Young modulus in inclusion;
 			 AA	= E1*.0,			 //...adhegion parameter;
 			 BB	= E1*.5/(1.+nju1)*.0,//...adhegion parameter;
 			 l1	= 4.0,   //...interphase layer for matrix;
-			 l2	= 0.03,   //...interphase layer for inclusion;
+			 l2	= 0.03,  //...interphase layer for inclusion;
 			 l1_dop = 0.,  //...interphase layer_dop;
 			 l2_dop = 0.,  //...interphase layer_dop;
 			 limit  = 10., //...maximal length of layer;
-			 c0     = 0.1,//...volume fraction; 
+			 c0     = 0.1, //...volume fraction; 
 			 G1, G2, GH = 0., KH, G0, K0, EH, nuH, E0, nu0;
 	yes = 0;
 
-///////////////////////////////
-//...цикл по параметрам задачи;
+/////////////////////////////////
+//...cycle on problem parameters;
 	FILE * TST = fopen("mindl3D_homog.dat", "w");
 	for (int j = 1; j <= 1000; j += 1) {
 		//c0 = j*.001;
@@ -8929,22 +8971,22 @@ int N_spinel = 2;
 //...model initialization;
 	CDraft<double> * sm = CreateDraftR(COHES3D_DRAFT, 8),
 						* lm = CreateDraftR(LAME2D_DRAFT, 8);
-	double nju1 = 0.30, //...полимерная матрица;
-			 nju2 = 0.30, //...слой;
-			 nju3 = 0.22, //...жесткое включение;  
-			 E1   = 0.012,//...модуль Юнга матрицы;
-			 E2   = 0.045,//...слой;
-			 E3   = 30.,  //...модуль Юнга включения;
-			 kk1	= E1*(.5+nju1)/(1.+nju1), //...модуль растяжения/сжатия матрицы;
-			 kk2	= E2*(.5+nju2)/(1.+nju2), //...слой;
-			 kk3	= E3*(.5+nju3)/(1.+nju3), //...модуль растяжения/сжатия включения;
+	double nju1 = 0.30, //...polymer matrix;
+			 nju2 = 0.30, //...layer;
+			 nju3 = 0.22, //...rigid inclusion;  
+			 E1   = 0.012,//...Young modulus of matrix;
+			 E2   = 0.045,//...layer;
+			 E3   = 30.,  //...Young modulus of inclusion;
+			 kk1	= E1*(.5+nju1)/(1.+nju1), //...one-axial tension modulus in matrix;
+			 kk2	= E2*(.5+nju2)/(1.+nju2), //...layer;
+			 kk3	= E3*(.5+nju3)/(1.+nju3), //...one-axial tension modulus in inclusion;
 			 l0	= 0.10, //...interphase layer;
 			 c0   = 0.20, //...volume fraction; 
 			 G1, G2, GH = 0., G0, EH, E_min, E_max, KH, KK = 0., KD;
 	yes = 0;
 
-///////////////////////////////
-//...цикл по параметрам задачи;
+/////////////////////////////////
+//...cycle on problem parameters;
 	const int N = 3;
 	double ff[N] = {(1.-c0)*2./3., (1.-c0)*1./3., c0}, kk[N] = {kk1, kk2, kk3}, ll[N] = {l0, l0, l0}, 
 			 mu[N] = {2.*E1*(1.+nju1), 2.*E2*(1.+nju2), 2.*E3*(1.+nju3)}; 
@@ -8978,54 +9020,54 @@ int N_spinel = 2;
 //...model initialization;
 	CDraft<double> * sm = CreateDraftR(MINDL3D_DRAFT, 8),
 						* el = CreateDraftR(LAME3D_DRAFT,  8);
-////////////////////////////////////////////////////////
-//...данные для расчетов с дисперсными частицами - ВПМ2;
-	//double nju1 = 0.33, //...полимерная матрица;
-	//		 //E1   = 210., //...модуль Юнга полимерной матрицы (GPa), Т = 20С;
-	//		 //E1   = 150., //...модуль Юнга полимерной матрицы (GPa), Т = 600С;
-	//		 E1   = 30.,  //...модуль Юнга полимерной матрицы (GPa), Т = 1400/1300С;
-	//		 AA	= E1*.0,			 //...adhegion parameter;
-	//		 BB	= E1*.5/(1.+nju1)*.0,//...adhegion parameter;
-	//		 l1	= 15.,  //...масштабный параметр матрицы (мкм), Т = 20С;
-	//		 //l1	= 20.,  //...масштабный параметр матрицы (мкм), Т = 600С;
- //  		 //l1	= 25.,  //...масштабный параметр матрицы (мкм), Т = 1400/1300С;
+///////////////////////////////////////////////////////////
+//...data for calculations with dispersed particles - WPM2;
+	//double nju1 = 0.33, //...polymer matrix;
+	//		 //E1   = 210., //...Young modulus of matrix (GPa), Т = 20С;
+	//		 //E1   = 150., //...Young modulus of matrix (GPa), Т = 600С;
+	//		 E1   = 30.,    //...Young modulus of matrix (GPa), Т = 1400/1300С;
+	//		 AA	= E1*.0,	 //...adhegion parameter;
+	//		 BB	= E1*.5/(1.+nju1)*.0, //...adhegion parameter;
+	//		 l1	= 15.,  //...scale parameter in matrix (mkm), Т = 20С;
+	//		 //l1	= 20.,  //...scale parameter in matrix (mkm), Т = 600С;
+ //  		 //l1	= 25.,  //...scale parameter in matrix (mkm), Т = 1400/1300С;
 	//		 l1_dop = 0.; //...interphase layer_dop;
-///////////////////////////////////////////////////////////
-//...данные для расчетов с дисперсными частицами - ВКНА-1У;
-	double nju1 = 0.33, //...полимерная матрица;
-			 //E1   = 150., //...модуль Юнга полимерной матрицы (GPa), Т = 20С;
-			 //E1   = 135., //...модуль Юнга полимерной матрицы (GPa), Т = 600С;
-			 E1   = 40.,  //...модуль Юнга полимерной матрицы (GPa), Т = 1400/1300С;
-			 AA	= E1*.0,			 //...adhegion parameter;
-			 BB	= E1*.5/(1.+nju1)*.0,//...adhegion parameter;
-			 l1	= 15.,  //...масштабный параметр матрицы (мкм), Т = 20С;
-			 //l1	= 20.,  //...масштабный параметр матрицы (мкм), Т = 600С;
- 			 //l1	= 25.,  //...масштабный параметр матрицы (мкм), Т = 1400/1300С;
+//////////////////////////////////////////////////////////////
+//...data for calculations with dispersed particles - WKNA-1U;
+	double nju1 = 0.33,   //...polymer matrix;
+			 //E1   = 150., //...Young modulus of matrix (GPa), Т = 20С;
+			 //E1   = 135., //...Young modulus of matrix (GPa), Т = 600С;
+			 E1   = 40.,    //...Young modulus of matrix (GPa), Т = 1400/1300С;
+			 AA	= E1*.0,	 //...adhegion parameter;
+			 BB	= E1*.5/(1.+nju1)*.0, //...adhegion parameter;
+			 l1	= 15.,  //...scale parameter in matrix (mkm), Т = 20С;
+			 //l1	= 20.,  //...scale parameter in matrix (mkm), Т = 600С;
+ 			 //l1	= 25.,  //...scale parameter in matrix (mkm), Т = 1400/1300С;
 			 l1_dop = 0.; //...interphase layer_dop;
-///////////////////////////////////////////////////////
-//...данные для расчетов с дисперсными частицами - AL2O3;
-	//double nju2 = 0.20, //...жесткое включение;  
-	//		 E2   = 380., //...модуль Юнга жесткого включения (GPa);
-	//		 l2	= 0.005,  //...масштабный параметр включений (мкм);
-	//		 l2_dop	= 0., //...interphase layer_dop;
-	//		 rad = 0.05,   //...характерный радиус включений (мкм); 
-	//		 c0  = 0.035,  //...предельная концентрация включений; 
+////////////////////////////////////////////////////////////
+//...data for calculations with dispersed particles - AL2O3;
+	//double nju2 = 0.20, //...rigid inclusion;  
+	//		 E2   = 380.,   //...Young modulus of inclusion (GPa);
+	//		 l2	= 0.005,  //...scale parameter in inclusion (mkm);
+	//		 l2_dop	= 0.,  //...interphase layer_dop;
+	//		 rad = 0.05,    //...character radius of inclusions (mkm);  
+	//		 c0  = 0.035,   //...limiting inclusion concentration; 
 	//		 G1, G2, GH = 0., KH, G0, K0, EH, nuH, E0, nu0, ff, ll;
-///////////////////////////////////////////////////////////
-////...данные для расчетов с дисперсными частицами - Y2O3;
-	double nju2 = 0.31, //...жесткое включение;  
-			 //E2   = 225., //...модуль Юнга жесткого матрицы (GPa), Т = 20С;
-			 //E2   = 215., //...модуль Юнга жесткого матрицы (GPa), Т = 600С;
-			 E2   = 180.,  //...модуль Юнга жесткого матрицы (GPa), Т = 1400/1300С;
-			 l2	= 0.005,  //...масштабный параметр включений (мкм);
-			 l2_dop	= 0., //...interphase layer_dop;
-			 rad = 0.025,   //...характерный радиус включений (мкм); 
-			 c0  = 0.035,  //...предельная концентрация включений; 
+/////////////////////////////////////////////////////////////
+////...data for calculations with dispersed particles - Y2O3;
+	double nju2 = 0.31,   //...rigid inclusion;  
+			 //E2   = 225., //...Young modulus of inclusion (GPa), Т = 20С;
+			 //E2   = 215., //...Young modulus of inclusion (GPa), Т = 600С;
+			 E2   = 180.,   //...Young modulus of inclusion (GPa), Т = 1400/1300С;
+			 l2	= 0.005,  //...scale parameter in inclusion (mkm);
+			 l2_dop	= 0.,  //...interphase layer_dop;
+			 rad = 0.025,   //...character radius of inclusions (mkm); 
+			 c0  = 0.035,   //...limiting inclusion concentration; 
 			 G1, G2, GH = 0., KH, G0, K0, EH, nuH, E0, nu0, ff, ll;
 	yes = 0;
 
-///////////////////////////////  
-//...цикл по параметрам задачи;
+/////////////////////////////////
+//...cycle on problem parameters;
 	FILE * TST = fopen("mindl3D_homog.dat", "w");
 	for (int j = 0; j <= 500; j += 1) {
 		ff = 0.02+j*.00003; ll = 10./*(l1/rad)*/;
@@ -9056,18 +9098,18 @@ int N_spinel = 2;
 #endif
 #ifdef ESHELBY_3D_MODEL
 {
-//////////////////////////////////////////////////////////////////////
-//...данные для расчетов с дисперсными частицами - эпоксидная матрица;
-	double nju1 = 0.3, //...эпоксидная матрица;
-			 E1 = 3.0,	 //...модуль Юнга эпоксидной матрицы (GPa);
-			 G1 = E1*.5/(1+nju1); //...модуль сдвига эпоксидной матрицы (GPa);
-//////////////////////////////////////////////////////////////////
-//...данные для расчетов с дисперсными частицами - оксид алюминия;
-	double nju2 = 0.20, //...жесткое включение;  
-			 nju3 = 0.49, //...промежуточный слой;
-			 E2 = 380.,	  //...модуль Юнга жесткого включения (GPa);
-			 G2 = E2*.5/(1+nju2),  //...модуль сдвига жесткого включения (GPa);
-			 G3 = E2*.05/(1+nju3), //...модуль сдвига промежуточного слоя (GPa);
+/////////////////////////////////////////////////////////////////////////
+//...data for calculations with despersed particles - epoxy rezin matrix;
+	double nju1 = 0.3, //...epoxy matrix;
+			 E1 = 3.0,	 //...Young modulus of epoxy matrix (GPa);
+			 G1 = E1*.5/(1+nju1); //...shear modulus of epoxy matrix (GPa);
+/////////////////////////////////////////////////////////////////////
+//...data for calculations with despersed particles - aluminum oxide;
+	double nju2 = 0.20, //...rigid inclusion;  
+			 nju3 = 0.49, //...interphase laywer;
+			 E2 = 380.,	  //...Young modulus of rigid inclusion (GPa);
+			 G2 = E2*.5/(1+nju2),  //...shear modulus of rigid inclusion (GPa);
+			 G3 = E2*.05/(1+nju3), //...shear modulus of iinterphase layer (GPa);
 			 ff = 0.3, ff_l = 0.1, rad0 = 1., rad1 = pow(ff/(ff+ff_l), -1./3.), rad2 = pow(ff, -1./3.), par[6];
 	yes = 0;
 
@@ -9077,8 +9119,8 @@ int N_spinel = 2;
 	sm->set_fasa_hmg(nju1, nju2, G1, G2, nju3, G3);
 	sm->TakeEshelbyModel_two(ff)/*(ff, ff_l)*/; rad1 = rad2;
 
-////////////////////////////////////////////////////
-//...результат вычисления эффективных характеристик;
+///////////////////////////////////////////////////////
+//...result of calculation of effective characteristics;
 	FILE *  TST = fopen("Eshelby3D_homog.dat", "w");
   	fprintf(TST, " ff = %g, EH = %g, GH = %g, nuH = %g\n", ff, sm->get_Young(2), sm->get_Shear(2), sm->get_Poisn(2));
   	//fprintf(TST, " ff = %g, ff_l = %g, EH = %g, GH = %g, nuH = %g\n", ff, ff_l, sm->get_Young(3), sm->get_Shear(3), sm->get_Poisn(3));
@@ -9138,31 +9180,31 @@ int N_spinel = 2;
 #endif
 #ifdef ESHELBY_2D_CALCULATIONS
 {
-	//////////////////////////
-	//...model initialization;
+//////////////////////////
+//...model initialization;
 	CBase * sm = CreateDraftR(COHES2D_DRAFT, 8),
-		*el = CreateDraftR(LAME2D_DRAFT, 8);
-	/////////////////////////////////////////////
-	//...данные для расчетов: эпоксидная матрица;
-	double nju1 = 0.38, //...эпоксидная матрица;
-		E1 = 1.20, //...модуль Юнга эпоксидной матрицы (GPa);
-		K1 = E1/(1.+nju1)*.5/(1.-2.*nju1), //...плоский всесторонний модуль эпоксидной матрицы (GPa);
-		l1 = 4.0,	  //...расчетный масштабный параметр матрицы по отношению к радиусу включений;
-		l1_lim = 15.; //...предельный масштабный параметр матрицы по отношению к радиусу включений;
-						  ///////////////////////////////////////////////////
-						  ////...данные для расчетов с углеродными волокнами;
-	double nju2 = 0.20, //...углеродные нанотрубки;  
-		E2 = 800., //...модуль Юнга углеродных нанотрубок;
-		K2 = E2/(1.+nju2)*.5/(1.-2.*nju2), //...плоский всесторонний модуль углеродных нанотрубок (GPa);
-		l2 = 0.10,	 //...относительный масштабный параметр включений;
-		rad = 15.0,	 //...характерный радиус включений (нм); 
-		c0 = 0.12,	 //...расчетная концентрация включений; 
-		c0_lim = 1., //...предельная концентрация включений; 
-		G1, G2, KH, K0, K_min, K_max, ff, ll, C1, C2;
+			* el = CreateDraftR(LAME2D_DRAFT, 8);
+/////////////////////////////////////////
+//...data for calculations: epoxy matrix;
+	double nju1 = 0.38, //...epoxy matrix;
+				E1 = 1.20, //...Young modulus of epoxy matrix (GPa);
+				K1 = E1/(1.+nju1)*.5/(1.-2.*nju1), //...plane comprehensive modulus of epoxy matrix (GPa);
+				l1 = 4.0,	  //...calculated scale parameter of matrix respectively to inclusion radius;
+				l1_lim = 15.; //...limited scale parameter of matrix respectively to inclusion radius;
+//////////////////////////////////////////////
+//...data for calculations with carbon fibers;
+	double nju2 = 0.20, //...carbon nanotubes;  
+				E2 = 800., //...Young modulus of carbon nanotubes;
+				K2 = E2/(1.+nju2)*.5/(1.-2.*nju2), //...plane comprehensive modulus of carbon nanotubes (GPa);
+				l2 = 0.10,	 //...relative scale parameter of inclusions;
+				rad = 15.0,	 //...typical inclusion radius (nm); 
+				c0 = 0.12,	 //...calculated inclusion concentration; 
+				c0_lim = 1., //...limited inclusion concentration; 
+				G1, G2, KH, K0, K_min, K_max, ff, ll, C1, C2;
 	yes = 0;
 
-	///////////////////////////////  
-	//...цикл по параметрам задачи;
+///////////////////////////////// 
+//...cycle on problem parameters;
 	FILE * TST = fopen("Nanotubes_homog_c0.dat", "w");
 	for (int j = 1; j <= 2000; j += 1) {
 		//ll = (j*.0005)*l1_lim; ff = c0;
@@ -9192,27 +9234,27 @@ int N_spinel = 2;
 	CDraft<complex> * sm = CreateDraftC(VISCO2D_DRAFT, 8);
 	CDraft<double> * el = CreateDraftR(/*LAME2D_DRAFT*/LAME3D_DRAFT, 8);
 
-/////////////////////////////////////////////
-//...данные для расчетов: эпоксидная матрица;
+////////////////////////////////////////////////////////////
+//...data for calculations with carbon fibers: epoxy matrix;
 	complex KH, GH, K0, G0, G0_det;
-	double nju1 = 0.38, //...эпоксидная матрица;
-		E1 = 1.20, //...модуль Юнга эпоксидной матрицы (GPa);
-		G1 = E1/(1.+nju1)*.5, //...модуль сдвига эпоксидной матрицы (GPa);
-		K1 = G1/(1.-2.*nju1), //...плоский всесторонний модуль эпоксидной матрицы (GPa);
-		fi1 = 0./*M_PI_4*/; //...модуль потерь эпоксидной матрицы;
-/////////////////////////////////////////////////
-//...данные для расчетов с углеродными волокнами;
-	double nju2 = 0.20, //...углеродные нанотрубки;  
-		E2 = 800., //...модуль Юнга углеродных нанотрубок;
-		G2 = E2/(1.+nju2)*.5, //...модуль сдвига углеродных нанотрубок (GPa);
-		K2 = G2/(1.-2.*nju2), //...плоский всесторонний модуль углеродных нанотрубок (GPa);
-		fi2 = 0./*M_PI_4*/, //...модуль потерь углеродных нанотрубок;
-		c0 = 0.12,	 //...расчетная концентрация включений; 
-		c0_lim = 1.; //...предельная концентрация включений; 
+	double nju1 = 0.38, //...epoxy matrix;
+				E1 = 1.20, //...Young modulus of epoxy matrix (GPa);
+				G1 = E1/(1.+nju1)*.5, //...shear modulus of epoxy matrix (GPa);
+				K1 = G1/(1.-2.*nju1), //...plane comprehensive modulus of epoxy matrix (GPa);
+				fi1 = 0./*M_PI_4*/;   //...loss modulus of epoxy matrix;
+//////////////////////////////////////////////
+//...data for calculations with carbon fibers;
+	double nju2 = 0.20, //...carbon nanotubes;  
+				E2 = 800., //...Young modulus of carbon nanotubes;
+				G2 = E2/(1.+nju2)*.5, //...shear modulus of carbon nanotubes (GPa);
+				K2 = G2/(1.-2.*nju2), //...plane comprehensive modulus of carbon nanotubes (GPa);
+				fi2 = 0./*M_PI_4*/,   //...loss modulus of carbon nanotubes;
+				c0 = 0.12,	 //...calculated inclusion concentration;
+				c0_lim = 1.; //...limited inclusion concentration;  
 	yes = 0;
 
-///////////////////////////////  
-//...цикл по параметрам задачи;
+///////////////////////////////// 
+//...cycle on problem parameters;
 	FILE * TST = fopen("Visco2D_homog.dat", "w");
 	for (int j = 200; j <= 2000; j += 1) {
 		double ff = (j*.0005)*c0_lim;
@@ -9236,54 +9278,51 @@ int N_spinel = 2;
 #endif
 #ifdef ESHELBY_2D_MODEL
 {
-//////////////////////////////////////////////////////////////////////
-//...данные для расчетов с углеродными волокнами - эпоксидная матрица;
-	double nju1 = 0.38,			 //...эпоксидная матрица;
-			 E1 = 1.20,				 //...модуль Юнга эпоксидной матрицы (GPa);
-			 G1 = E1*.5/(1+nju1), //...модуль сдвига эпоксидной матрицы (GPa);
-			 l1 = 0.1;				 //...масштабный параметр для градиентной матрицы (в длинах радиуса включения);
+////////////////////////////////////////////////////////////
+//...data for calculations with carbon fibers: epoxy matrix;
+	double nju1 = 0.38,				//...epoxy matrix;
+				E1 = 1.20,				//...Young modulus of epoxy matrix (GPa);
+				G1 = E1*.5/(1+nju1), //...shear modulus of epoxy matrix (GPa);
+				l1 = 0.1;				//...scale parameter in gradient matrix (in length of inclusion radius);
 /////////////////////////////////////////////////////////////////////////
-//...данные для расчетов с углеродными волокнами - углеродные нанотрубки;
-	double nju2 = 0.20, //...углеродные нанотрубки;  
-			 nju3 = 0.38, //...промежуточный слой;
-			 E2 = 800.,	  //...модуль Юнга углеродных нанотрубок (GPa);
-			 G2 = E2*.5/(1+nju2),  //...модуль сдвига жесткого включения (GPa);
-			 G3 = E2*.005/(1+nju3), //...модуль сдвига промежуточного слоя (GPa);
-			 l2 = 0.1,	  //...масштабный параметр включения (в длинах радиуса);
-			 l3 = 0.1,	  //...масштабный параметр для промежуточного слоя (в длинах радиуса включения);
+//...data for calculations with carbon fibers - carbon fibers;
+	double nju2 = 0.20, //...carbon fibers;  
+			 nju3 = 0.38, //...interphase layer;
+			 E2 = 800.,	  //...Young modulus of carbon nanotubes (GPa);
+			 G2 = E2*.5/(1+nju2),	//...shear modulus of rigid inclusion (GPa);
+			 G3 = E2*.005/(1+nju3), //...shear modulus of interphase layer (GPa);
+			 l2 = 0.1,	  //...scale parameter in inclusion (in length of inclusion radius);
+			 l3 = 0.1,	  //...scale parameter in interphase layer (in length of inclusion radius);
 			 ff = 0.3, ff_l = 0.3, rad0 = 1., rad1 = 1./sqrt(ff/(ff+ff_l)), rad2 = 1./sqrt(ff), par[6];
-//////////////////////////////////////////////////////////////////////
-//...данные для расчетов с углеродными волокнами - эпоксидная матрица;
-//	double nju1 = 0.30,			 //...эпоксидная матрица;
-//			 E1 = 3.00,				 //...модуль Юнга эпоксидной матрицы (GPa);
-//			 G1 = E1*.5/(1+nju1); //...модуль сдвига эпоксидной матрицы (GPa);
+////////////////////////////////////////////////////////////
+//...data for calculations with carbon fibers: epoxy matrix;
+//	double nju1 = 0.30,			 //...epoxy matrix;
+//			 E1 = 3.00,				 //...Young modulus of epoxy matrix (GPa);
+//			 G1 = E1*.5/(1+nju1); //...shear modulus of epoxy matrix (GPa);
 ///////////////////////////
-////...данные для расчетов;
-//	double nju2 = /*0.35*/0.14/*0.270*/, //...базовое волокно;  
-//			 E2 = /*140.*/1100./*14.5*/,    //...поперечный модуль Юнга базового волокна (GPa);
-//			 G2 = E2*.5/(1+nju2), //...поперечный модуль сдвига базового волокна (GPa);
-//			 nju3 = 0.219, //...промежуточный слой;
-//			 E3 = 428.2,   //...поперечный модуль Юнга слоя вискерсов (GPa);
-//			 G3 = E3*.5/(1+nju3), //...модуль сдвига промежуточного слоя (GPa);
-//			 ll = 0.8,		//...относительная ширина промежуточного слоя;
-//			 l3 = 0.4,		//...масштабный параметр;
+//...data for calculations;
+//	double nju2 = /*0.35*/0.14/*0.270*/,//...base fiber;  
+//			 E2 = /*140.*/1100./*14.5*/,	//...transferse Young modulus of base fiber (GPa);
+//			 G2 = E2*.5/(1+nju2),			//...transferse shear modulus of base fiber (GPa);
+//			 nju3 = 0.219,			//...interphase layer;
+//			 E3 = 428.2,			//...transferse Young modulus of viskers (GPa);
+//			 G3 = E3*.5/(1+nju3),//...shear modulus of interphase layer (GPa);
+//			 ll = 0.8,				//...relative width of interpase layer;
+//			 l3 = 0.4,				//...scale parameter;
 //			 ff = 0.4217, ff_l = ll*(2.+ll)*ff, rad0 = 1., rad1 = 1./sqrt(ff/(ff+ff_l)), rad2 = 1./sqrt(ff), par[6];
 	yes = 0;
 
 //////////////////////////
 //...model initialization;
 	CBase * sm = CreateDraftR(COHES2D_DRAFT/*LAME2D_DRAFT*/, 8);
-
-	Num_Draft type = draft_method(sm);
-
 	//sm->set_fasa_hmg(nju1, nju2, G1, G2, (l1 ? G1*(1.-nju1)/(sqr(l1)*(.5-nju1)) : 0.), (l2 ? G2/sqr(l2) : 0.));
 	sm->set_fasa_hmg(nju1, nju2, nju3, G1, G2, G3, (l1 ? G1/sqr(l1) : 0.), (l2 ? G2/sqr(l2) : 0.), (l3 ? G3*(1.-nju3)/(sqr(l3)*(.5-nju3)) : 0.));
 	//sm->TakeEshelbyModel/*_two(ff)*/(ff, ff_l); /*rad1 = rad2; ff_l = 0.;*/
 	//sm->TakeEshelbyGradModel/*_two(ff)*/(ff, ff_l); /*rad1 = rad2; ff_l = 0.;*/
 	sm->TakeEshelbyGradIncluModel(ff, ff_l);
 
-////////////////////////////////////////////////////
-//...результат вычисления эффективных характеристик;
+///////////////////////////////////////////////////////
+//...result of calculation of effective characteristics;
 	FILE *  TST = fopen("Eshelby2D_homog.dat", "w");
   	fprintf(TST, " ff = %g, ff_l = %g, EH = %g, GH = %g, nuH = %g\n", ff, ff_l, sm->get_Young(0), sm->get_Shear(0), sm->get_Poisn(0));
 	fclose (TST);
@@ -9358,24 +9397,24 @@ int N_spinel = 2;
 //#define ___MATRIX___
 #ifdef ESHELBY_2D_MODEL_CALCULATIONS
 {
-//////////////////////////////////////////////////////////////////////
-//...данные для расчетов с углеродными волокнами - эпоксидная матрица;
-	double nju1 = 0.30,			 //...эпоксидная матрица;
-			 E1 = 3.00,				 //...модуль Юнга эпоксидной матрицы (GPa);
-			 G1 = E1*.5/(1+nju1); //...модуль сдвига эпоксидной матрицы (GPa);
-/////////////////////////
-//...данные для расчетов;
-	double nju2 = 0.270, //...базовое волокно;  
-			 E2 = 14.5,    //...поперечный модуль Юнга базового волокна (GPa);
-			 G2 = E2*.5/(1+nju2), //...поперечный модуль сдвига базового волокна (GPa);
-			 nju3 = 0.219, //...промежуточный слой;
-			 E3 = 428.2,   //...поперечный модуль Юнга слоя вискерсов (GPa);
-			 G3 = E3*.5/(1+nju3), //...модуль сдвига промежуточного слоя (GPa);
-			 l0 = 0.8,		//...относительная ширина промежуточного слоя;
-			 l1 = 0.03,		//...относительная величина масштабного параметра в матрице;
-			 l2 = 0.03,		//...относительная величина масштабного параметра во включении;
-			 l3 = 0.2,		//...относительная величина масштабного параметра в слое;
-			 f0 = 0.4217,  //...средняя концентрация вискерсов;
+////////////////////////////////////////////////////////////
+//...data for calculations with carbon fibers: epoxy matrix;
+	double nju1 = 0.30,			 //...epoxy matrix;
+			 E1 = 3.00,				 //...Young modulus of epoxy matrix (GPa);
+			 G1 = E1*.5/(1+nju1); //...shear modulus of epoxy matrix (GPa);
+///////////////////////////
+//...data for calculations;
+	double nju2 = 0.270, //...base fiber;  
+			 E2 = 14.5,    //...transferse Young modulus of base fibe (GPa);
+			 G2 = E2*.5/(1+nju2), //...transferse shear modulus of base fibe (GPa);
+			 nju3 = 0.219, //...interphase layer;
+			 E3 = 428.2,   //...transferse Young modulus of viskers (GPa);
+			 G3 = E3*.5/(1+nju3), //...Young modulus of interphase layer (GPa);
+			 l0 = 0.8,		//...relative width of interpase layer;
+			 l1 = 0.03,		//...relative quantity of scale parameter in matrix;
+			 l2 = 0.03,		//...relative quantity of scale parameter in inclusion;
+			 l3 = 0.2,		//...relative quantity of scale parameter in interphase layer;
+			 f0 = 0.4217,  //...mean concentration of viskers;
 			 ff = 0.2, ff_l = l0*(2.+l0)*ff, rad0 = 1., rad1 = 1./sqrt(ff/(ff+ff_l)), rad2 = 1./sqrt(ff), par[6];
 	yes = 0;
 
@@ -9387,8 +9426,8 @@ int N_spinel = 2;
 	//sm->TakeEshelbyGradModel(ff, ff_l, 1., 0.);
 	//sm->TakeEshelbyGradIncluModel(ff, ff_l, 1., 0.);
 
-////////////////////////////////////////////////////
-//...результат вычисления эффективных характеристик;
+///////////////////////////////////////////////////////
+//...result of calculation of effective characteristics;
 	FILE *  TST = fopen("Eshelby2D_homog.dat", "w");
   	fprintf(TST, " ff = %g, ff_l = %g, EH = %g, GH = %g, nuH = %g\n", ff, ff_l, sm->get_Young(0), sm->get_Shear(0), sm->get_Poisn(0));
 	fclose (TST);
@@ -9494,59 +9533,59 @@ int N_spinel = 2;
 //////////////////
 //...initial data;
 #define ___EXAMPLE1___
-	double nju1 = 0.30,	  //...эпоксидная матрица;
+	double nju1 = 0.30,	  //...epoxy rezin matrix;
 #ifdef ___EXAMPLE1___
-			 nju2 = 0.270,	  //...волокнистое включение;  
-			 nju3 = 0.219,	  //...промежуточный слой;  
+			 nju2 = 0.270,	  //...fiber inclusion;  
+			 nju3 = 0.219,	  //...interphase layer;  
 #else
-			 nju2 = 0.289,	  //...волокнистое включение;  
-			 nju3 = 0.339,	  //...промежуточный слой;  
+			 nju2 = 0.289,	  //...fiber inclusion;  
+			 nju3 = 0.339,	  //...interphase layer; 
 #endif
 #ifdef ___EXAMPLE1___
-			 E1   = 3.00,	 //...модуль Юнга матрицы (GPa);
-			 EE2  = 241.,   //...продольный модуль Юнга включения (GPa);
-			 EP2  = 14.5,	 //...поперечный модуль Юнга включения (GPa);
-			 EE3  = 428.217,//...продольный модуль Юнга промежуточного слоя;
-			 EP3  = 6.644,  //...поперечный модуль Юнга промежуточного слоя;
+			 E1   = 3.00,	 //...Young modulus in matrix (GPa);
+			 EE2  = 241.,   //...longitudinal Young modulus of inclusion (GPa);
+			 EP2  = 14.5,	 //...transversal Young modulus of inclusion (GPa);
+			 EE3  = 428.217,//...longitudinal Young modulus of interphase layer;
+			 EP3  = 6.644,  //...transversal Young modulus of interphase layer;
 #else
-			 E1   = 2.90,	  //...модуль Юнга матрицы (GPa);
-			 EE2  = 256.76,  //...продольный модуль Юнга включения (GPa);
-			 EP2  = 25.51,	  //...поперечный модуль Юнга включения (GPa);
-			 EE3  = 105.764, //...продольный модуль Юнга промежуточного слоя;
-			 EP3  = 14.572,  //...поперечный модуль Юнга промежуточного слоя;
+			 E1   = 2.90,	  //...Young modulus in matrix (GPa);
+			 EE2  = 256.76,  //...longitudinal Young modulus of inclusion (GPa);
+			 EP2  = 25.51,	  //...transversal Young modulus of inclusion (GPa);
+			 EE3  = 105.764, //...longitudinal Young modulus of interphase layer;
+			 EP3  = 14.572,  //...transversal Young modulus of interphase layer;
 #endif
-			 G1   = E1/(2.*(1.+nju1)), //...модуль сдвига матрицы;
+			 G1   = E1/(2.*(1.+nju1)), //...shear modulus in matrix;
 #ifdef ___EXAMPLE1___
-			 GG2  = 22.8,	  //...продольный модуль сдвига включения;
-			 GP2  = 4.8,	  //...поперечный модуль сдвига включения;
-			 GG3  = 2.823,   //...продольный модуль сдвига промежуточного слоя;
-			 GP3  = 2.605,	  //...поперечный модуль сдвига промежуточного слоя;
+			 GG2  = 22.8,	  //...longitudinal shear modulus of inclusion;
+			 GP2  = 4.8,	  //...transversal shear modulus  of inclusion;
+			 GG3  = 2.823,   //...longitudinal shear modulus of interphase layer;
+			 GP3  = 2.605,	  //...transversal shear modulus  of interphase layer;
 #else
-			 GG2  = 22.06,	  //...продольный модуль сдвига включения;
-			 GP2  = 9.25,	  //...поперечный модуль сдвига включения;
-			 GG3  = 5.996,   //...продольный модуль сдвига промежуточного слоя;
-			 GP3  = 5.797,	  //...поперечный модуль сдвига промежуточного слоя;
+			 GG2  = 22.06,	  //...longitudinal shear modulus of inclusion;
+			 GP2  = 9.25,	  //...transversal shear modulus  of inclusion;
+			 GG3  = 5.996,   //...longitudinal shear modulus of interphase layer;
+			 GP3  = 5.797,	  //...transversal shear modulus  of interphase layer;
 #endif
-			 c0   = 0.3,	  //...объемная доля включений в композите; 
-			 l3	= 0.4,	  //...масштабный параметр для промежуточного слоя (в длинах радиуса включения);
+			 c0   = 0.3,	  //...volume fracture of inclusion in composite; 
+			 l3	= 0.4,	  //...scale parameter for interphase layer (in length of inclusion radius);
 #ifdef ___EXAMPLE1___
-			 l0	= 0.8,     //...относительная ширина промежуточного слоя (в длинах радиуса включения);
-			 EE4 = 782.698, EE5 = 671.855, EE6 = 587.571, EE7 = 521.469, EE8 = 468.334, //...распределение модулей Юнга вдоль; 
-			 EP4 = 18.556,  EP5 = 12.475,  EP6 = 9.782,   EP7 = 8.258,   EP8 = 7.281,   //...распределение модулей Юнга поперек; 
-			 GG4 = 7.668,   GG5 = 5.213,   GG6 = 4.121,   GG7 = 3.496,   GG8 = 3.09,    //...распределение модулей сдвига вдоль; 
-			 GP4 = 7.506,   GP5 = 4.993,   GP6 = 3.885,   GP7 = 3.261,   GP8 = 2.863,   //...распределение модулей сдвига поперек; 
+			 l0	= 0.8,     //...relative widrt of interphase layer (in length of inclusion raadius);
+			 EE4 = 782.698, EE5 = 671.855, EE6 = 587.571, EE7 = 521.469, EE8 = 468.334, //...Young modulus distribution along; 
+			 EP4 = 18.556,  EP5 = 12.475,  EP6 = 9.782,   EP7 = 8.258,   EP8 = 7.281,   //...Young modulus distribution across; 
+			 GG4 = 7.668,   GG5 = 5.213,   GG6 = 4.121,   GG7 = 3.496,   GG8 = 3.09,    //...shear modulus distribution along;
+			 GP4 = 7.506,   GP5 = 4.993,   GP6 = 3.885,   GP7 = 3.261,   GP8 = 2.863,   //...shear modulus distribution across; 
 #else
-			 l0	= 0.1923,  //...относительная ширина промежуточного слоя (в длинах радиуса включения);
-			 EE4 = 112.566, EE5 = 109.069, EE6 = 105.789, EE7 = 102.706, EE8 = 99.803, //...распределение модулей Юнга вдоль; 
-			 EP4 = 18.171,  EP5 = 16.164,  EP6 = 14.61,   EP7 = 13.372,  EP8 = 12.362, //...распределение модулей Юнга поперек; 
-			 GG4 = 7.436,   GG5 = 6.633,   GG6 = 6.012,   GG7 = 5.516,   GG8 = 5.112,  //...распределение модулей сдвига вдоль; 
-			 GP4 = 7.239,   GP5 = 6.436,   GP6 = 5.813,   GP7 = 5.315,   GP8 = 4.908,  //...распределение модулей сдвига поперек; 
+			 l0	= 0.1923,  //...relative widrt of interphase layer (in length of inclusion raadius);;
+			 EE4 = 112.566, EE5 = 109.069, EE6 = 105.789, EE7 = 102.706, EE8 = 99.803, //...Young modulus distribution along; 
+			 EP4 = 18.171,  EP5 = 16.164,  EP6 = 14.61,   EP7 = 13.372,  EP8 = 12.362, //...Young modulus distribution across; 
+			 GG4 = 7.436,   GG5 = 6.633,   GG6 = 6.012,   GG7 = 5.516,   GG8 = 5.112,  //...shear modulus distribution along;
+			 GP4 = 7.239,   GP5 = 6.436,   GP6 = 5.813,   GP7 = 5.315,   GP8 = 4.908,  //...shear modulus distribution across; 
 #endif
 			 GH = 0., GG, G2, G0, KH, K0, KK, LH, L0, EE, EH, E0, E2, nu_H, nH, nu_2;
 	yes = 0;
 
-/////////////////////
-//...данные по слоям;
+//////////////////////////////
+//...data respectively layers;
 	//const int N = 7;
 	//double ff[N] = {c0, c0*l0*(2.+l0)*.2, c0*l0*(2.+l0)*.2, c0*l0*(2.+l0)*.2, c0*l0*(2.+l0)*.2, c0*l0*(2.+l0)*.2, 1.-c0*sqr(1.+l0)}, 
 	//		 nj[N] = {nju2, nju3, nju3, nju3, nju3, nju3, nju1}, mu1[N] = {GG2, GP4, GP5, GP6, GP7, GP8, G1}, mu2[N] = {GP2, GG4, GG5, GG6, GG7, GG8, G1},
@@ -9560,8 +9599,8 @@ int N_spinel = 2;
 		lm[N] = { EP2*nju2/((1.+nju2)*(1.-2.*nju2)), EE3*nju3/((1.+nju3)*(1.-2.*nju3)), E1*nju1/((1.+nju1)*(1.-2.*nju1)) },
 		kp[N] = { EP2/(2.*(1.+nju2)*(1.-2.*nju2)), EE3/(2.*(1.+nju3)*(1.-2.*nju3)), E1/(2.*(1.+nju1)*(1.-2.*nju1)) };
 
-///////////////////////////////
-//...цикл по параметрам задачи;
+/////////////////////////////////
+//...cycle on problem parameters;
 	FILE * TST = fopen("homog_ALL1.dat", "w");
 	for (int j = 1; j <= 44; j += 1) {
 		c0 = j*.01;
@@ -9593,40 +9632,59 @@ int N_spinel = 2;
 	fclose(TST);
 }
 #endif
+#define ___GRIN_TENSOR___
+#define ___FLAMAN___
 #ifdef BUSSINESQUE_CALCULATIONS
 {
-/////////////////////////
-//...данные для расчетов;
-	double nju = 0.3,	EE = 1.2, GG = EE*.5/(1.+nju), s = 0.1, AA = -1., BB = 1., hh, X, Y, Z, 
-			 GrinX, GrinY, GrinZ, RX, RY, RZ, SX, SY, SZ;
-	int j, NN = 300;
+/////////////////////
+//...calulation data;
+	int  j, NN = 1000;
+	double nju = 0.3,	EE = 1.2, GG = EE*.5/(1.+nju), hh, X, Y, Z, RX, RY, RZ, SX, SY, SZ;
 	yes = 0;
 
-///////////////////////////////  
-//...цикл по параметрам задачи;
-	FILE * TST = fopen("Boussinesq_s01_z0.dat", "w");
+#ifndef ___GRIN_TENSOR___
+	double AA = -1., BB = 1., s = 0.2;
+///////////////////////////////// 
+//...cycle on problem parameters;
+	FILE * TST = fopen("Grin_tensor_s02.dat", "w");
 	for (hh = (BB-AA)/NN, j = 0; j <= NN; j += 1) {
 		//X = AA+j*hh; Y = 0.; Z = 0.;
-		//X = 0.; Y = 0.; Z = AA+j*hh;
-		//GrinX  = Grin_tensor(3, 1, X, Y, Z, GG, nju, s );
-		//GrinY  = Grin_tensor(3, 2, X, Y, Z, GG, nju, s );
-		//GrinZ  = Grin_tensor(3, 3, X, Y, Z, GG, nju, s );
-		//fprintf(TST, " Z = %g, GrinX = %g, GrinY = %g, GrinZ = %g\n", Z, GrinX, GrinY, GrinZ);
-
-		//X = 0.; Y = AA+j*hh;
-		////X = AA+j*hh; Y = 0.;
-		//Flaman_displ(X, Y, RX,  RY,  GG, nju, s );
-		//fprintf(TST, " Y = %g, RX = %g, RY = %g\n", Y, -RX, RY);
-
-		X = AA+j*hh; Y = 0.; Z = 0./*01*/;
-		Boussinesq_displ(X, Y, Z, RX,  RY,  RZ,  GG, nju, s );
-		Boussinesq_sigma(X, Y, Z, SX,  SY,  SZ,  s );
-
-		fprintf(TST, " X = %g, RX = %g, RY = %g, RZ = %g, SX = %g, SY = %g, SZ = %g\n", X, RX, RY, RZ, SX, SY, SZ);
-
-		//Boussinesq_displ(0.00001, Y, Z, RX,  RY,  RZ,  GG, nju, s );
+		X = 0.; Y = 0.; Z = AA+j*hh;
+		SX  = Grin_tensor(3, 1, X, Y, Z, GG, nju, s );
+		SY  = Grin_tensor(3, 2, X, Y, Z, GG, nju, s );
+		SZ  = Grin_tensor(3, 3, X, Y, Z, GG, nju, s );
+		fprintf(TST, " X = %g, Z = %g, SX = %g, SY = %g, SZ = %g\n", X, Z, SX, SY, SZ);
 	}
 	fclose(TST);
+#else
+#ifndef ___FLAMAN___
+	double AA = -1., BB = 1., s = 0.2;
+///////////////////////////////// 
+//...cycle on problem parameters;
+	FILE * TST = fopen("Flaman_s02.dat", "w");
+	for (hh = (BB-AA)/NN, j = 0; j <= NN; j += 1) {
+		X = 0.; Y = AA+j*hh;
+		//X = AA+j*hh; Y = 0.;
+		Flaman_displ(X, Y, RX, RY, GG, nju, s);
+		fprintf(TST, " X = %g, Y = %g, RX = %g, RY = %g\n", X, Y, -RX, RY);
+	}
+	fclose(TST);
+#else
+	double AA = -1., BB = 1., s = 0.1;
+///////////////////////////////// 
+//...cycle on problem parameters;
+	FILE * TST = fopen("Boussinesq_s01_z01.dat", "w");
+	for (hh = (BB-AA)/NN, j = 0; j <= NN; j += 1) {
+		X = AA+j*hh; Y = 0.; Z = 0.1;
+		//X = 0.; Y = 0.; Z = AA+j*hh;
+		Boussinesq_displ(X, Y, Z, RX, RY, RZ, GG, nju, s );
+		Boussinesq_sigma(X, Y, Z, SX, SY, SZ, s);
+
+		fprintf(TST, " X = %g, Z = %g, RX = %g, RY = %g, RZ = %g, SX = %g, SY = %g, SZ = %g\n", X, Z, RX, RY, RZ, SX, SY, -SZ);
+	}
+	fclose(TST);
+#endif
+#endif
 }
 #endif
 #ifdef CRACK_2D_CALCULATIONS
@@ -9635,18 +9693,18 @@ int N_spinel = 2;
 //...model initialization;
 	CDraft<double> * sm = CreateDraftR(COHES2D_DRAFT, 8);
 
-/////////////////////////////////////////////
-//...данные для расчетов;
+///////////////////////
+//...calculations data;
 	int max_iter = 100, NX = 100, NY = 100, i, j, k;
-	double kappa = 1., //...масштабный параметр;
-		* AA = new_struct<double>(max_iter), //...коэффициенты полиномов;
+	double kappa = 1., //...scale parameer;
+		* AA = new_struct<double>(max_iter), //...polynomial coefficients;
 		* BB = new_struct<double>(max_iter),
 		* AD = new_struct<double>(max_iter),
 		* BD = new_struct<double>(max_iter),	X, Y, F, par[4] = { -1., 1., -1., 1.};
 	yes = 0;
 
-///////////////////////////////////////////////////////////////////
-//...расчет и визуализация распределения перемещений около трещины;
+////////////////////////////////////////////////////////////////////////////////
+//...calculation and vizualization distribution of displacements near the crack;
 	CGrid * nd = CreateNodes(); nd->add_params();
 	for (													j = 0; j <= 2*NY; j++)
 	for ( Y = par[2]+.5*j/NY*(par[3]-par[2]), i = 0; i <= 2*NX; i++) {
@@ -9670,81 +9728,81 @@ int N_spinel = 2;
 //...model initialization;
 	CDraft<double> * sm = CreateDraftR(COHES3D_DRAFT, 8),
 						* el = CreateDraftR(LAME3D_DRAFT,  8);
-//////////////////////////////////////////////////////////////
-//...данные для расчетов с дисперсными частицами - матрица Al;
-	double nju1 = 0.33, //...полимерная матрица;
-			 nju3 = 0.30, //...межфазный слой;
-			 E1   = 62.0, //...модуль Юнга мягкой матрицы (GPa);
-			 //E1   = 70.0, //...модуль Юнга мягкой матрицы (GPa);
-			 E3   = 89.2, //...модуль Юнга межфазного слоя (GPa);
-			 G1   = E1/(1.+nju1)*.5,  //...модуль сдвига мягкой матрицы (GPa);
-			 G3   = E3/(1.+nju3)*.5,  //...модуль сдвига межфазного слоя (GPa);
-			 l1	= 0.2455,  //...размер межфазного слоя (мкм, 16.365*0.015);
-			 eps	= 26.; //...пористость (%);
-////////////////////////////////////////////////////////////////////
-////...данные для расчетов с дисперсными частицами - матрица Al-B95;
-//	double nju1 = 0.33, //...полимерная матрица;
-//			 nju3 = 0.30, //...межфазный слой;
-//			 E1   = 70.0, //...модуль Юнга мягкой матрицы (GPa);
-//			 G1   = E1/(1.+nju1)*.5,  //...модуль сдвига мягкой матрицы (GPa);
-//			 l1	= 0.160, //...размер межфазного слоя (мкм);
-//			 rad0 = 0.800, //...радиус начала масштабного эффекта (мкм);
-//			 rad1 = 1.00,  //...радиус окончания масштабного эффекта (мкм);
-//			 rad_str	= 5.; //...размер зерна в структуре (мкм);
+//////////////////////////////////////////////////////////////////
+//...data for calculation with dispersed particles - matrix of Al;
+	double nju1 = 0.33,   //...polymer matrix;
+			 nju3 = 0.30,   //...interphase layer;
+			 E1   = 62.0,   //...Young modulus of soft matrix (GPa);
+			 //E1   = 70.0, //...Young modulus of soft matrix (GPa);
+			 E3   = 89.2,   //...Young modulus of interphase layer (GPa);
+			 G1   = E1/(1.+nju1)*.5, //...shear modulus of soft matrix (GPa);
+			 G3   = E3/(1.+nju3)*.5, //...shear modulus of interphase layer (GPa);
+			 l1	= 0.2455,			 //...size of interphase layer (mkm, 16.365*0.015);
+			 eps	= 26.;				 //...porosity (%);
+////////////////////////////////////////////////////////////////////////
+////...data for calculation with dispersed particles - matrix of Al-B95;
+//	double nju1 = 0.33, //...polymer matrix;
+//			 nju3 = 0.30, //...interphase layer;
+//			 E1   = 70.0, //...Young modulus of soft matrix (GPa);
+//			 G1   = E1/(1.+nju1)*.5,  //...shear modulus of soft matrix (GPa);
+//			 l1	= 0.160, //...size of interphase layer (mkm);
+//			 rad0 = 0.800, //...radius of the beginning of scale effect (mkm);
+//			 rad1 = 1.00,  //...radius of the ending of scale effect (mkm);
+//			 rad_str	= 5.; //...size of grain in structure (mkm);
 ///////////////////////////////////////////////////////
-//...данные для расчетов с дисперсными частицами - AL2O3;
-	//double nju2 = 0.25, //...жесткое включение;  
-	//		 E2   = 500., //...модуль Юнга жесткого включения (GPa);
-	//		 G2   = E2/(1.+nju2)*.5,  //...модуль сдвига жесткого матрицы (GPa);
-	//		 l2	= 0.0015, //...масштабный параметр включений (мкм);
-	//		 rad = 0.1,  	 //...относительная ширина межфазной зоны;
-	//		 c0  = 0.0001,  //...концентрация включений; 
+//...data for calculation with dispersed particles - AL2O3;
+	//double nju2 = 0.25, //...rigid inclusion;  
+	//		 E2   = 500.,   //...Young modulus of rigid inclusion (GPa);
+	//		 G2   = E2/(1.+nju2)*.5, //...shear modulus of rigid inclusion (GPa);
+	//		 l2	= 0.0015, //...scale parameter of inclusions (mkm);
+	//		 rad = 0.1,  	 //...relative width of the interphase zone;
+	//		 c0  = 0.0001,  //...inclusion concentration; 
 	//		 С1, С2, GH = 0., KH, G0, K0, EH, nuH, E0, nu0, ff, ff_l, ll, kk;
-///////////////////////////////////////////////////////////////////
-//...данные для расчетов с дисперсными частицами - AL2O3, кластеры;
-	//double nju2 = 0.24, //...жесткое включение;  
-	//		 E2   = 293., //...модуль Юнга жесткого включения (GPa);
-	//		 G2   = E2/(1.+nju2)*.5,  //...модуль сдвига жесткого матрицы (GPa);
-	//		 l2	= 0.1,	//...относительная ширина межфазной зоны;
-	//		 rad = 0.500,  //...характерный радиус включений (мкм); 
-	//		 c0  = 0.0001, //...концентрация включений; 
+////////////////////////////////////////////////////////////////////
+//...data for calculation with dispersed particles - AL2O3 clusters;
+	//double nju2 = 0.24, //...rigid inclusion;  
+	//		 E2   = 293.,   //...Young modulus of rigid inclusion (GPa);
+	//		 G2   = E2/(1.+nju2)*.5, //...shear modulus of rigid inclusion (GPa);
+	//		 l2	= 0.1,	//...scale parameter of inclusions (mkm);
+	//		 rad = 0.500,  //...relative width of the interphase zone;
+	//		 c0  = 0.0001, //...inclusion concentration; 
 	//		 С1, С2, GH = 0., KH, G0, K0, EH, nuH, E0, nu0, ff, ff_l, ll, kk;
-/////////////////////////////////////////////////////////////////
-//...исходные данные для расчетов с дисперсными частицами - ZrO2;
-	double nju2 = 0.31, //...жесткое включение;  
-			 E2   = 205.,  //...модуль Юнга жесткого матрицы (GPa);
-			 G2   = E2/(1.+nju2)*.5,  //...модуль сдвига жесткого матрицы (GPa);
-			 l2	= 0.03,	 //...относительная ширина межфазной зоны;
-			 rad = 0.015,   //...характерный радиус включений (мкм); 
-			 c0  = 0.001,   //...концентрация максимальной кластеризации включений; 
+//////////////////////////////////////////////////////////
+//...data for calculation with dispersed particles - ZrO2;
+	double nju2 = 0.31,  //...rigid inclusion;  
+			 E2   = 205.,  //...Young modulus of rigid inclusion (GPa);
+			 G2   = E2/(1.+nju2)*.5, //...shear modulus of rigid inclusion (GPa);
+			 l2	= 0.03,	 //...relative width of the interphase zone;
+			 rad = 0.015,   //...typical inclusion radius (mkm); 
+			 c0  = 0.001,   //...concentration of maximal clusterization of inclusions; 
 			 С1, С2, GH = 0., KH, G0, K0, EH, E_min, E_max, nuH, E0, nu0, ff, ff_l, ll, ll0, kk, l1_limit, AA, BB;
-////////////////////////////////////////////////////////////////
-//...исходные данные для расчетов с дисперсными частицами - SiC;
-	//double nju2 = 0.16, //...жесткое включение;  
-	//		 E2   = 415.,  //...модуль Юнга жесткого матрицы (GPa);
-	//		 G2   = E2/(1.+nju2)*.5,  //...модуль сдвига жесткого матрицы (GPa);
-	//		 l2	= 0.0015, //...масштабный параметр включений (мкм);
-	//		 rad = 0.015,   //...предельный радиус включений (мкм); 
-	//		 c0  = 0.300,   //...предельная концентрация включений; 
+/////////////////////////////////////////////////////////
+//...data for calculation with dispersed particles - SiC;
+	//double nju2 = 0.16, //...rigid inclusion;  
+	//		 E2   = 415.,   //...Young modulus of rigid inclusion (GPa);
+	//		 G2   = E2/(1.+nju2)*.5, //...shear modulus of rigid inclusion (GPa);
+	//		 l2	= 0.0015, //...scale parameter of inclusions (mkm);
+	//		 rad = 0.015,   //...limited inclusion radius (mkm); 
+	//		 c0  = 0.300,   //...limited inclusion concentration; 
 	//		 С1, С2, GH = 0., KH, G0, K0, EH, nuH, E0, nu0, E_max, ff, ff_l, ll, kk;
-///////////////////////////////////////////////////////////////////////////
-//...данные для расчетов эпоксидной матрицы с дисперсными частицами - SiO2;
-	//double nju1 = 0.39, //...полимерная матрица;
-	//		 nju2 = 0.20, //...жесткое включение;  
-	//		 E1   = 2.51, //...модуль Юнга эпоксидной матрицы (GPa);
-	//		 E2   = 87.5, //...модуль Юнга стеклянных шариков (GPa);
-	//		 //E2   = 56.0, //...альтернативный модуль Юнга стеклянных шариков (GPa);
-	//		 G1   = E1/(1.+nju1)*.5,  //...модуль сдвига полимерной матрицы (GPa);
-	//		 G2   = E2/(1.+nju2)*.5,  //...модуль сдвига жесткого включения (GPa);
-	//		 rad  = 0.015, //...характерный радиус нановключений (мкм); 
-	//		 l1	= 0.100, //...относительный масштабный параметр матрицы (мкм);
-	//		 l2	= 0.030, //...относительный масштабный параметр включений (мкм);
-	//		 c0   = 0.001, //...концентрация включений; 
+//////////////////////////////////////////////////////////////////////////
+//...data for calculation of epoxy matrix with dispersed particles - SiO2;
+	//double nju1 = 0.39, //...polymer matrix;
+	//		 nju2 = 0.20,   //...rigid inclusion;  
+	//		 E1   = 2.51,   //...Young modulus of epoxy matrix (GPa);
+	//		 E2   = 87.5,   //...Young modulus of glass bolls (GPa);
+	//		 //E2   = 56.0, //...alternative Young modulus of glass bolls (GPa);
+	//		 G1   = E1/(1.+nju1)*.5,  //...shear modulus of polymer matrix (GPa);
+	//		 G2   = E2/(1.+nju2)*.5,  //...shear modulus of rigid inclusion (GPa);
+	//		 rad  = 0.015, //...typical radius of nanoinclusions (mkm); 
+	//		 l1	= 0.100, //...relative scale parameter of matrix (mkm);
+	//		 l2	= 0.030, //...relative scale parameter of inclusions (mkm);
+	//		 c0   = 0.001, //...inclusion concentration; 
 	//		 С1, С2, GH = 0., KH, G0, K0, EH, E_min, E_max, nuH, E0, nu0, ff, ff_l, ll, kk;
 	yes = 0;
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//...цикл по параметрам задачи - расчет алюмокомпозита (трехфазная модель, оценка модуля Юнга по пористости);
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//...cycle on problem parameters - calculation of alumocomposite (three-body model, estimation of Young moduluas by porositry);
 	//FILE * TST = fopen("Alumo3D_eps.dat", "w");
 	//for (int j = 1; j <= 26; j += 1) {
 	//	ff = j*0.01;
@@ -9759,8 +9817,8 @@ int N_spinel = 2;
 	//}
 	//fclose (TST);
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////
-//...цикл по параметрам задачи - расчет алюмокомпозита (четырехфазная модель, оценка межфазного слоя);
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//...cycle on problem parameters - calculation of alumocomposite (four-body model, estimation of interphase layer);
 int  N_data = 1;
 //double data[] = {0.1, 16.3647, 0.5, 9.15491, 1., 7.06, 1.5, 6.04102},
 double data[] = {0.1, 16.3647, 0.5, 8.14284, 1., 4.44806, 1.5, 3.02},
@@ -9783,8 +9841,8 @@ double data[] = {0.1, 16.3647, 0.5, 8.14284, 1., 4.44806, 1.5, 3.02},
 	//}
 	//fclose (TST);
 
-/////////////////////////////////////////////////////////////////////////////////////////
-//...цикл по параметрам задачи - расчет алюмокомпозита (четырехфазная модель, оценка E3);
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+//...cycle on problem parameters - calculation of alumocomposite (four-body model, estimation of E3);
 int  N_table = 5;
 //double table_EL[][2] = {{0.01, 89.2},{0.05, 71.8},{0.10, 60.},{0.15, 67.6},{0.20, 67.6}};
 //double table_EL[][2] = {{0.01, 89.2},{0.05, 75.8},{0.10, 55.7},{0.15, 100.},{0.20, 105.}};
@@ -9806,8 +9864,8 @@ double table_EL[][2] = {{0.01, 89.2},{0.05, 75.8},{0.10, 70.0},{0.15, 70.0},{0.2
 	//}
 	//fclose (TST);
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//...цикл по параметрам задачи - расчет алюмокомпозита (четырехфазная модель, аппроксимация межфазного слоя);
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//...cycle on problem parameters - calculation of alumocomposite (four-body model, approximation of interphase layer);
 	kk  = strata_approx(N_data, data, ll0 = pow(M_PI/(6.*0.0001), 1./3.)-1.);
 	res = strata_approx(N_data, data, coef);
 
@@ -9836,8 +9894,8 @@ double table_EL[][2] = {{0.01, 89.2},{0.05, 75.8},{0.10, 70.0},{0.15, 70.0},{0.2
 	}
 	fclose (TST);
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////
-//...цикл по параметрам задачи - расчет алюмокомпозита по градиентной модели(оценка межфазного слоя);
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//...cycle on problem parameters - calculation of alumocomposite on gradient model (estimation of interphase layer);
 double data_grad[] = {0.1, 16.3647, 0.5, 5.3992/*4.8*//*4.46*/, 1., 0.01, 1.5, 1.86};
 
 //	FILE * TST = fopen("Alumo3D_strata_grad.dat", "w");
@@ -9854,7 +9912,7 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992/*4.8*//*4.46*/, 1., 0.01, 1.5, 1
 //	fclose (TST);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//...цикл по параметрам задачи, трехфазная модель - расчет композита по градиентной модели (оценка адгезии);
+//...cycle on problem parameters - calculation of alumocomposite on gradient model (estimation of adhesion);
 	double table_AA[][2] = {{0.01, 55270.2},{0.05, 53936.2},{0.10, 1000.2},{0.15, 55270.2},{0.20, 70000.2}};
 
 	//FILE * TST = fopen("Alumo3D_adhes.dat", "w");
@@ -9876,8 +9934,8 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992/*4.8*//*4.46*/, 1., 0.01, 1.5, 1
 	//}
 	//fclose (TST);
 
-////////////////////////////////////////////////////////////////////////////////////////
-//...цикл по параметрам задачи - расчет алюмокомпозита по градиентной модели с адгезией;
+/////////////////////////////////////////////////////////////////////////////////////////////////
+//...cycle on problem parameters - calculation of alumocomposite on gradient model with adhesion;
 	//kk  = strata_approx(N_data, data_grad, ll0 = pow(M_PI/(6.*0.0001), 1./3.)-1.);
 
 	//FILE * TST = fopen("Alumo3D_grad.dat", "w");
@@ -9899,8 +9957,8 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992/*4.8*//*4.46*/, 1., 0.01, 1.5, 1
 	//}
 	//fclose (TST);
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//...цикл по параметрам задачи - расчет алюмокомпозита в зависимости от радиуса по градиентной модели (переход от нано к микро);
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//...cycle on problem parameters - calculation of alumocomposite depending of radius on gradient model (transfer between nano and micro);
 	//FILE * TST = fopen("Alumo3D_homog.dat", "w");
 	//for (int j = 1; j <= 5000; j += 1) {
 	//	rad = j*0.002; ll = l1/rad; E_max = (1.-c0)*E1+c0*E2; 
@@ -9938,29 +9996,29 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992/*4.8*//*4.46*/, 1., 0.01, 1.5, 1
 //...model initialization;
 	CDraft<double> * el = CreateDraftR(LAME3D_DRAFT,  8);
 ///////////////////////////////////////////////////////////////////////
-//...данные для расчетов с дисперсными частицами - матрица пористый Al;
-	double nju1 = 0.33, //...полимерная матрица;
-			 nju3 = 0.30, //...межфазный слой;
-			 //E1   = 70.0, //...модуль Юнга сплошной матрицы (GPa);
-			 E1   = 62.0, //...модуль Юнга пористой матрицы (GPa);
-			 E3   = 57.5, //...модуль Юнга межфазного слоя (GPa);
-			 G1   = E1/(1.+nju1)*.5,  //...модуль сдвига мягкой матрицы (GPa);
-			 G3   = E3/(1.+nju3)*.5,  //...модуль сдвига межфазного слоя (GPa);
-			 l1	= 0.200, //...размер межфазного слоя (мкм);
-			 eps	= 12.0,   //...пористость (%);
-			 rad_str	= 3.5; //...размер зерна в структуре (мкм);
+//...data for calculations with dispersed particles - porous Al matrix;
+	double nju1 = 0.33, //...polymer matrix;
+			 nju3 = 0.30, //...interphse layer;
+			 //E1   = 70.0, //...Young modulus of solid matrix (GPa);
+			 E1   = 62.0,   //...Young modulus of porous matrix (GPa);
+			 E3   = 57.5,   //...Young modulus of interphase layer (GPa);
+			 G1   = E1/(1.+nju1)*.5,  //...shear modulus of soft matrix (GPa);
+			 G3   = E3/(1.+nju3)*.5,  //...shear modulus of interphase layer (GPa);
+			 l1	= 0.200,  //...size of interphase layer (mkm);
+			 eps	= 12.0,   //...porosity (%);
+			 rad_str	= 3.5; //...size of grainf in structure (mkm);
 /////////////////////////////////////////////////////////
-//...данные для расчетов с дисперсными частицами - AL2O3;
-	double nju2 = 0.31, //...жесткое включение;  
-			 E2   = 0.00001/* 205.*/, //...модуль Юнга жесткого включения (GPa);
-			 G2   = E2/(1.+nju2)*.5,  //...модуль сдвига дисперсного включения (GPa);
-			 rad = 0.015,  //...характерный радиус нановключений (мкм); 
-			 c0  = 0.001,  //...концентрация включений; 
+//...data for calculations with dispersed particles - AL2O3;
+	double nju2 = 0.31, //...rigid inclusion;  
+			 E2   = 0.00001/* 205.*/, //...Young modulus of rigid inclusion (GPa);
+			 G2   = E2/(1.+nju2)*.5,  //...shear modulus of dispersed inclusion (GPa);
+			 rad = 0.015,  //...typical radius of nanoinclusions (mkm); 
+			 c0  = 0.001,  //...inclusion concentration; 
 			 G0, K0, E0, nu0, ff, ff_l, ll, l2, kk, GH, KH, EH, nuH;
 	yes = 0;
 
-////////////////////////////////////////////////////////////
-//...цикл по параметрам задачи - расчет матрицы по пористости;
+//////////////////////////////////////////////////////////////////
+//...cycle on problem parameters - calculating matrix on porocity;
 	FILE * TST = fopen("Alumo3D_eps.dat", "w");
 	for (int j = 1; j <= 5000; j += 1) {
 		ff = ff = j*0.0001;
@@ -9972,8 +10030,8 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992/*4.8*//*4.46*/, 1., 0.01, 1.5, 1
 		E0 = 9.*K0*G0/(3.*K0+G0);
 		nu0 = (3.*K0-2.*G0)/(3.*K0+G0)*.5;
 
-////////////////////////
-//...градиентная модель;
+////////////////////
+//...gradient model;
 		ff = j*0.0001; ll = 0.7; l2 = 0.03;
 
 		KH = TakeSphere_volm_two (ff, nju1, nju2, E1, E2, ll, l2, -0.0*E1);
@@ -9986,8 +10044,8 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992/*4.8*//*4.46*/, 1., 0.01, 1.5, 1
 	}
 	fclose (TST);
 
-//////////////////////////////////////////////////////////////////////////////////////////////////
-//...цикл по параметрам задачи - расчет алюмокомпозита (четырехфазная модель, фиксированный слой);
+/////////////////////////////////////////////////////////////////////////////////////////////////
+//...cycle on problem parameters - calculation of alumocomposite (four-body model, fixing layer);
 	//FILE * TST = fopen("Alumo3D_layer.dat", "w");
 	//for (int j = 0; j <= 5000; j += 1) {
 	//	rad = j*0.001; kk = (ff = pow(1./c0, 1./3.)-1.)*rad/l1; if (kk > 1.) ll = l1/rad; else ll = ff; 
@@ -10007,8 +10065,8 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992/*4.8*//*4.46*/, 1., 0.01, 1.5, 1
 	//}
 	//fclose (TST);
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//...цикл по параметрам задачи - расчет алюмокомпозита (четырехфазная модель, линейный рост радиуса от концентрации);
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//...cycle on problem parameters - calculation of alumocomposite (four-body model, linear increasing of concentration radius);
 	//FILE * TST = fopen("Alumo3D_layer.dat", "w");
 	//for (int j = 1; j <= 3500; j += 1) {
 	//	ff = j*.00001; kk = pow(6.e2, 1./3.)-1.;	ll = kk/sqrt(1.+sqr(0.3*ff/c0)); 
@@ -10027,8 +10085,8 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992/*4.8*//*4.46*/, 1., 0.01, 1.5, 1
 	//	fprintf(TST, " %g, %g, %g, %g, %g, %g\n", ff*100, rad, ll, K0, G0, E0);
 	//}
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//...цикл по параметрам задачи - расчет композита по градиентной модели с адгезией;
+////////////////////////////////////////////////////////////////////////////////////////////
+//...cycle on problem parameters - calculation of composite on gradient model with adhesion;
 	//FILE * TST = fopen("Alumo3D_adhes.dat", "w");
 	//for (int j = 1; j <= 5000; j += 1) {
 	//	//ff = j*.00001; ll = 7.; l2 = 0.03;
@@ -10055,26 +10113,26 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992/*4.8*//*4.46*/, 1., 0.01, 1.5, 1
 //...model initialization;
 	CDraft<double> * sm = CreateDraftR(COHES3D_DRAFT, 8),
 						* el = CreateDraftR(LAME3D_DRAFT,  8);
-/////////////////////////////////////////////////////
-//...данные для идентификации модели Леннарда-Джонса;
-	double nju1 = 0.3, //...матрица;
-			 E1   = 27.3, //...модуль Юнга матрицы (GPa);
-			 G1   = E1/(1.+nju1)*.5, //...модуль сдвига матрицы (GPa);
-			 l1	= 0.4/*0.281*/;  //...относительная ширина межфазного слоя;
+///////////////////////////////////////////////////
+//...data for Lennard-Johnson model identification;
+	double nju1 = 0.3, //...matrix;
+			 E1   = 27.3, //...Young modulus of matrix (GPa);
+			 G1   = E1/(1.+nju1)*.5, //...shear modulus of matrix (GPa);
+			 l1	= 0.4/*0.281*/;  //...relative width of interphase layer;
 /////////////////////////////////////////////////////////
-//...данные для моделирования частиц (абсолютно жестких);
-	double nju2 = 0.25,  //...включение;  
-			 E2   = 2730./*54.6*/, //...модуль Юнга матрицы (GPa);
-			 G2   = E2/(1.+nju2)*.5,  //...модуль сдвига матрицы (GPa);
-			 l2	= 0.03,	//...относительная ширина межфазной зоны;
-			 rad0 = 0.008, //...начальный радиус включений (мкм); 
-			 rad1 = 0.024, //...конечный радиус включений (мкм); 
-			 c0  = 0.09,   //...концентрация включений; 
+//...data for modelling of particles (absolutely rigid);
+	double nju2 = 0.25,  //...inclusion;  
+			 E2   = 2730./*54.6*/, //...Young modulus of inclusion (GPa);
+			 G2   = E2/(1.+nju2)*.5,  //...shear modulus of inclusion (GPa);
+			 l2	= 0.03,	//...relative width of interphase zone;
+			 rad0 = 0.008, //...beginning radius of inclusions (mkm); 
+			 rad1 = 0.024, //...ending radius of inclusions (mkm); 
+			 c0  = 0.09,   //...inclusion concentration; 
 			 С1, С2, GH = 0., KH, G0, K0, EH, E_min, E_max, nuH, E0, nu0, ff, rad, ll, AA, BB, l1_limit = pow(M_PI/(6.*c0), 1./3.)-1.;
 	yes = 0;
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////
-//...цикл по параметрам задачи - расчет алюмокомпозита по градиентной модели (оценка межфазного слоя);
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//...cycle on problem parameters - calculation of alumocomposite on gradient model (estimation of interphase layer);
 double data_grad[] = {8., 0.3475, 14, 0.294, 24., 0.26};
 
 	FILE * TST = fopen("LD_sphere_grad_009.dat", "w");
@@ -10107,38 +10165,38 @@ double data_grad[] = {8., 0.3475, 14, 0.294, 24., 0.26};
 //...model initialization;
 	CDraft<double> * sm = CreateDraftR(COHES3D_DRAFT, 8),
 						* el = CreateDraftR(LAME3D_DRAFT,  8);
-//////////////////////////////////////////////////////////////
-//...данные для расчетов с дисперсными частицами - матрица Al;
-	double nju1 = 0.30, //...полимерная матрица;
-			 nju3 = 0.30, //...межфазный слой;
-			 E1   = 31.4, //...модуль Юнга матрицы;
-			 E3   = 45.0, //...модуль Юнга межфазного слоя;
-			 G1   = E1/(1.+nju1)*.5,  //...модуль сдвига матрицы;
-			 G3   = E3/(1.+nju3)*.5,  //...модуль сдвига межфазного слоя;
-			 l1	= 2.0;  //...размер межфазного слоя в максимальной точке;
-/////////////////////////////////////////////
-//...исходные данные для коэффициента трения;
-	double k_sleep = 0.29, //...коэффициент трения включения (по отношению к матрице);  
-			 K_surf  = 3.0/*1.26834*/, //...коэффициент поверхностной доли;
-			 A_sleep = 10.,	//...коэффициент "адгезионного" трения;
-			 l1_norm	= 1.,	   //...нормирующий коэффициент для межфазной зоны в матрице;
-			 l2_norm	= 1E-14,	//...нормирующий коэффициент для межфазной зоны во включении;
-			 l2_sleep = 1e7,  //...межфазная зона во включении; 
+////////////////////////////////////////////////////////////////
+//...data for calculations with dispersed particles - Al matrix;
+	double nju1 = 0.30, //...polymer matrix;
+			 nju3 = 0.30, //...interphse layer;
+			 E1   = 31.4, //...Young modulus of matrix;
+			 E3   = 45.0, //...Young modulus of interphase layer;
+			 G1   = E1/(1.+nju1)*.5,  //...shear modulus of matrix;
+			 G3   = E3/(1.+nju3)*.5,  //...shear modulus of interphase layer;
+			 l1	= 2.0;  //...interphase layer size in maximal point;
+///////////////////////////////////////////
+//...initial data for friction coefficient;
+	double k_sleep = 0.29, //...relative fricting coefficient of inclusion (relative to matrix);  
+			 K_surf  = 3.0/*1.26834*/, //...coefficient of surface fraction;
+			 A_sleep = 10.,	//...coefficient of "adhesion" fricting;
+			 l1_norm	= 1.,	   //...normalization coefficient for interphase zone in matrix;
+			 l2_norm	= 1E-14,	//...normalization coefficient for interphase zone in inclusion;
+			 l2_sleep = 1e7,  //...interphase zone in inclusion; 
 			 kkH, alphaI, alphaM, ff_sleep;
 			 
-/////////////////////////////////////////////////////////////////
-//...исходные данные для расчетов с дисперсными частицами - стеарат кальция;
-	double nju2 = 0.49, //...включение;  
-			 E2   = 16.0, //...модуль Юнга включения;
-			 G2   = E2/(1.+nju2)*.5,  //...модуль сдвига включения;
-			 l2	= 0.03,	 //...ширина межфазной зоны во включенияя;
-			 rad = 0.015,   //...характерный радиус включений (мкм); 
-			 c0  = 0.001,   //...концентрация максимального масштабного эффекта; 
+///////////////////////////////////////////////////////////////////////
+//...data for calculations with dispersed particles - calcium stearate;
+	double nju2 = 0.49, //...inclusion;  
+			 E2   = 16.0, //...Young modulus of inclusion;
+			 G2   = E2/(1.+nju2)*.5,  //...shear modulus of inclusion;
+			 l2	= 0.03,	 //...width of interpase zone in inclusion;
+			 rad = 0.015,   //...typical radius of inclusions (mkm); 
+			 c0  = 0.001,   //...concentration at maximal scale effect; 
 			 С1, С2, GH = 0., KH, G0, K0, EH, E_min, E_max, nuH, E0, nu0, ff, ff_l, ll, ll0, kk, l1_limit, AA, BB;
 	yes = 0;
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////
-//...цикл по параметрам задачи - расчет алюмокомпозита (четырехфазная модель, оценка межфазного слоя);
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+//...cycle on problem parameters - calculation of composite (four-body model, estimation interphase layer);
 int  N_data = 3;
 double data[] = {0.0091, 2.2, 0.0273, 1.37, 0.0456, 1.0, 0.0917, 0.2, 0.1851, 0.01},
 		 coef[] = {0., 0., 0.};
@@ -10159,8 +10217,8 @@ double data[] = {0.0091, 2.2, 0.0273, 1.37, 0.0456, 1.0, 0.0917, 0.2, 0.1851, 0.
 	//}
 	//fclose (TST);
 
-/////////////////////////////////////////////////////////////////////////////////////////
-//...цикл по параметрам задачи - расчет алюмокомпозита (четырехфазная модель, оценка E3);
+/////////////////////////////////////////////////////////////////////////////////////////////
+//...cycle on problem parameters - calculation of composite (four-body model, estimation E3);
 int  N_table = 5;
 double table_EL[][2] = {{0.01, 89.2},{0.05, 75.8},{0.10, 70.0},{0.15, 70.0},{0.20, 70.0}};
 	//FILE * TST = fopen("Alumo3D_rigidity.dat", "w");
@@ -10180,8 +10238,8 @@ double table_EL[][2] = {{0.01, 89.2},{0.05, 75.8},{0.10, 70.0},{0.15, 70.0},{0.2
 	//}
 	//fclose (TST);
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//...цикл по параметрам задачи - расчет алюмокомпозита (четырехфазная модель, аппроксимация межфазного слоя);
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//...cycle on problem parameters - calculation of composite (four-body model, approximation interphase layer);
 	//kk  = strata_approx(N_data, data, ll0 = data[1]);
 	//FILE * TST = fopen("WSMP_homog.dat", "w");
 	//for (int j = 1; j <= 2000; j += 1) {
@@ -10201,8 +10259,8 @@ double table_EL[][2] = {{0.01, 89.2},{0.05, 75.8},{0.10, 70.0},{0.15, 70.0},{0.2
 	//}
 	//fclose (TST);
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////
-//...цикл по параметрам задачи - расчет алюмокомпозита (четырехфазная модель, аппроксимация гиперболой);
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+//...cycle on problem parameters - calculation of composite (four-body model, approximation by hyperbola);
 	double X0 = data[2], Y0 = data[3],
 			 X1 = data[4], Y1 = data[5],
 			 X2 = data[6], Y2 = data[7], alpha = (Y2-Y0)/(X2-X0)*(X1-X0)/(Y1-Y0), C = (alpha*X2-X1)/(1.-alpha),
@@ -10227,8 +10285,8 @@ double table_EL[][2] = {{0.01, 89.2},{0.05, 75.8},{0.10, 70.0},{0.15, 70.0},{0.2
 	//}
 	//fclose (TST);
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////
-//...цикл по параметрам задачи - расчет алюмокомпозита по градиентной модели(оценка межфазного слоя);
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//...cycle on problem parameters - calculation of composite by gradient model (estimation of interphase layer);
 double data_grad[] = {0.1, 16.3647, 0.5, 5.3992, 1., 0.01, 1.5, 1.86};
 
 	//FILE * TST = fopen("WSMP_strata_grad.dat", "w");
@@ -10246,8 +10304,8 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992, 1., 0.01, 1.5, 1.86};
 	//}
 	//fclose (TST);
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//...цикл по параметрам задачи, трехфазная модель - расчет композита по градиентной модели (оценка адгезии);
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//...cycle on problem parameters - calculation of composite by gradient model (adhesion estimation);
 	double table_AA[][2] = {{0.0091, 300.0},{0.0273, 250.0},{0.09,  6.1},{0.0917, 6.2},{0.1851, 6.3}};
 	//FILE * TST = fopen("Alumo3D_adhes.dat", "w");
 	//for (int k = 6, j = 0; j <= 2000; j += 1) {
@@ -10268,8 +10326,8 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992, 1., 0.01, 1.5, 1.86};
 	//}
 	//fclose (TST);
 
-////////////////////////////////////////////////////////////////////////////////////////
-//...цикл по параметрам задачи - расчет алюмокомпозита по градиентной модели с адгезией;
+////////////////////////////////////////////////////////////////////////////////////////////
+//...cycle on problem parameters - calculation of composite by gradient model with adhesion;
 	FILE * TST = fopen("WSMP_grad.dat", "w");
 	for (int j = 1; j <= 2000; j += 1) {
 		ff = j*.0001; ll = A/(ff+C)-B; if (ff > X3) ll = d/(ff+e);
@@ -10286,8 +10344,8 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992, 1., 0.01, 1.5, 1.86};
 	}
 	fclose (TST);
 
-/////////////////////////////////////////////////////////////////////////////////////////////
-//...цикл по параметрам задачи - расчет коэффициента трения по градиентной модели с адгезией;
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+//...cycle on problem parameters - calculation of friction coefficient by gradient model with adhesion;
 	double table_slip[][3] = {
 		{0.,		1., 0.},
 		{0.91,	0.825, 3.15},
@@ -10327,14 +10385,14 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992, 1., 0.01, 1.5, 1.86};
 #endif
 #ifdef MINDL2D_CALCULATIONS
 {
-	char * name_ini = "./Models_inp/Box2D_circle/Box2D_circle_", name[2000];
+	const char * name_ini = "../Exe/Models_inp/Box2D_circle/Box2D_circle_", name[2000];
 	extern int gradient_model; gradient_model = 0;
 
 //////////////////////////
 //...model initialization;
 	CDraft<double> * sm = CreateDraftR(MINDL2D_DRAFT, 8);
-	sm->set_mpls(PackInts(9, 9)); //...степень мультиполей;
-	sm->set_quad(PackInts(16, 8)); //...степень квадратуры;
+	sm->set_mpls(PackInts(9, 9)); //...multipoles degree;
+	sm->set_quad(PackInts(16, 8)); //...quadratures degree;
 	sm->set_normaliz(0.92);
 	sm->set_lagrange(1e5);
 	sm->change_solv(E_PERIODIC_SOLVING);
@@ -10342,51 +10400,51 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992, 1., 0.01, 1.5, 1.86};
 	sm->solver.set_mode(/*REGULARIZATION*//*PRINT_MODE*//*FULLY_MODE*/);
 	yes = 0;
 
-/////////////////////////////////////////////////////////
-//...данные для расчетов с нитевидыми кристаллами - ВПМ2;
-	//double nju1 = 0.33, //...полимерная матрица;
-	//		 //E1   = 210., //...модуль Юнга полимерной матрицы (GPa), Т = 20С;
-	//		 //E1   = 150., //...модуль Юнга полимерной матрицы (GPa), Т = 600С;
-	//		 E1   = 30.,  //...модуль Юнга полимерной матрицы (GPa), Т = 1400/1300С;
+///////////////////////////////////////////////////////////////
+//...data for calculations with ffilamentary structures - WPM2;
+	//double nju1 = 0.33, //...polymer matrix;
+	//		 //E1   = 210., //...Young modulus of polymer matrix (GPa), Т = 20С;
+	//		 //E1   = 150., //...Young modulus of polymer matrix (GPa), Т = 600С;
+	//		 E1   = 30.,  //...Young modulus of polymer matrix (GPa), Т = 1400/1300С;
 	//		 AA	= E1*.0,			 //...adhegion parameter;
 	//		 BB	= E1*.5/(1.+nju1)*.0,//...adhegion parameter;
-	//		 l1	= 15.,  //...масштабный параметр матрицы (мкм), Т = 20С;
-	//		 //l1	= 20.,  //...масштабный параметр матрицы (мкм), Т = 600С;
-   //  	 //l1	= 25.,  //...масштабный параметр матрицы (мкм), Т = 1400/1300С;
+	//		 l1	= 15.,  //...scale parameter of matrix (mkm), Т = 20С;
+	//		 //l1	= 20.,  //...scale parameter of matrix (mkm), Т = 600С;
+   //  	 //l1	= 25.,  //...scale parameter of matrix (mkm), Т = 1400/1300С;
 	//		 l1_dop = 0.; //...interphase layer_dop;
-////////////////////////////////////////////////////////////
-//...данные для расчетов с нитевидыми кристаллами - ВКНА-1У;
-	double nju1 = 0.33, //...полимерная матрица;
-			 //E1   = 150., //...модуль Юнга полимерной матрицы (GPa), Т = 20С;
-			 //E1   = 135., //...модуль Юнга полимерной матрицы (GPa), Т = 600С;
-			 E1   = 40.,  //...модуль Юнга полимерной матрицы (GPa), Т = 1400/1300С;
+//////////////////////////////////////////////////////////////////
+//...data for calculations with ffilamentary structures - WKNA-1У;
+	double nju1 = 0.33, //...polymer matrix;
+			 //E1   = 150., //...Young modulus of polymer matrix (GPa), Т = 20С;
+			 //E1   = 135., //...Young modulus of polymer matrix (GPa), Т = 600С;
+			 E1   = 40.,  //...Young modulus of polymer matrix (GPa), Т = 1400/1300С;
 			 AA	= E1*.0,			 //...adhegion parameter;
 			 BB	= E1*.5/(1.+nju1)*.0,//...adhegion parameter;
-			 l1	= 15.,  //...масштабный параметр матрицы (мкм), Т = 20С;
-			 //l1	= 20.,  //...масштабный параметр матрицы (мкм), Т = 600С;
-			 //l1	= 25.,  //...масштабный параметр матрицы (мкм), Т = 1400/1300С;
+			 l1	= 15.,  //...scale parameter of matrix (mkm), Т = 20С;
+			 //l1	= 20.,  //...scale parameter of matrix (mkm), Т = 600С;
+			 //l1	= 25.,  //...scale parameter of matrix (mkm), Т = 1400/1300С;
 			 l1_dop = 0.; //...interphase layer_dop;
 ////////////////////////////////////////////////////////
 //...данные для расчетов с нитевидыми кристаллами AL2O3;
-	double nju2 = 0.16, //...жесткое включение;  
-			 //E2   = 420., //...модуль Юнга жесткого включения (GPa), Т = 20/600С;
-			 E2   = 380., //...модуль Юнга жесткого включения (GPa), Т = 1400/1300С;
-			 l2	= 0.05, //...масштабный параметр включений (мкм);
+	double nju2 = 0.16, //...rigid inclusion;  
+			 //E2   = 420., //...Young modulus of rigid inclusion (GPa), Т = 20/600С;
+			 E2   = 380., //...Young modulus of rigid inclusion (GPa), Т = 1400/1300С;
+			 l2	= 0.05, //...scale parameter of rigid inclusion (mkm);
 			 l2_dop	= 0.,//...interphase layer_dop;
-			 rad = 0.5,   //...характерный радиус включений (мкм); 
-			 c0  = 0.45,  //...предельная концентрация включений; 
+			 rad = 0.5,   //...typical inclusion radius (mkm); 
+			 c0  = 0.45,  //...limited inclusion concentration; 
 			 G1, G2, KH, GH, EH, nH, KM = E1/(1.-2.*nju1)/3., GM = E1/(1.+nju1)*.5, EM = E1, nM = nju1;
 	sm->set_fasa_hmg(nju1, nju2, G1 = E1/(1.+nju1)*.5, G2 = E2/(1.+nju2)*.5, l1, l1_dop = l1_dop/sqrt(1.-2.*nju1), l2, l2_dop = l2_dop/sqrt(1.-2.*nju2), AA, BB);
 
-///////////////////////////////  
-//...цикл по параметрам задачи;
+/////////////////////////////////  
+//...cycle on problem parameters;
 	FILE * TST = fopen("mindl2D_homog.dat", "a");
 	for (int jj = 30; jj <= 45; jj += 5) {
 		double X0, Y0, ell_X = 0., ell_Y = 0., rot_Z = 0.;
 		sprintf(name, "%s%i%s", name_ini, jj, "_M208.inp"); 
 
-///////////////////////////////////////////////////////
-//...чтение модели и граничных условий из файла данных;
+//////////////////////////////////////////////////////////
+//...reading model and boundary conditions from data file;
 		int id_reading = 0, i, j, l;
 		if (sm) {
 			sprintf(buf, "Loading model from file '%s'", name);
@@ -10447,13 +10505,13 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992, 1., 0.01, 1.5, 1.86};
 		{	double K[17], ku1, lm1, mu1, ku2, lm2, mu2, Ez, Kxy, Gxy, Gxz, nxz, ff_vol; memset(K, 0, 17*sizeof(double));
 			sm->GetRigidy(K);
 
-/////////////////////
-//...объемный модуль;
+////////////////////
+//...volume modulus;
 			ff_vol = K[15];
 			//ff_vol = M_PI*ell_X*ell_Y/((par[1]-par[0])*(par[3]-par[2]));
 
-///////////////////////
-//...матрица жесткости;
+/////////////////////
+//...rigidity matrix;
 			ku1 = K[0];
 			lm1 = K[2];
 			mu1 = K[7];
@@ -10463,16 +10521,16 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992, 1., 0.01, 1.5, 1.86};
 			lm2 = K[13];
 			mu2 = K[14]*G1+K[15]*G2;
 
-///////////////////////////
-//...технические константы;
+/////////////////////////
+//...technical constants;
   			nxz = lm2/(ku1+lm1);
 			Kxy = 0.5*(ku1+lm1);	
 			Gxy = 0.5*(ku1-lm1);	
 			Gxz = mu2;	
 			Ez  = ku2-2.*lm2*nxz;
 
-///////////////////////////////////////////////////////////////////
-//...результат пространственного осреднения волокон по Кристенсену;
+////////////////////////////////////////////////////////
+//...result of space averaging of fibers by Christensen;
 			KH = (Ez+4.*sqr(1.+nxz)*Kxy)/9.;
 			GH = (Ez+sqr(1.-2.*nxz)*Kxy+6.*(Gxy+Gxz))/15.;
 			EH = 9.*KH*GH/(3.*KH+GH);
@@ -10517,41 +10575,9 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992, 1., 0.01, 1.5, 1.86};
 	delete sm;
 }
 #endif
-#ifdef TEST_DRAFT_HEAT_ESHELBY
-{
-//////////////////////
-//...параметры задачи;
-	double K1 = 1.7,	//...оксид циркония (matrtix);
-			 K2 = 30.,	//...корунд (inclusion);
-			 K3 = 3.,	//...промежуточный слой;
-			 c1 = 0.70, //...interphase layer;
-			 c0 = 0.20, ll = 0.7, R1 = 1.5, KH, KH_cl, KH2; //...volume fraction;
-
-//////////////////////////
-//...model initialization;
-	CDraft<double> * sm = CreateDraftR(HEAT3D_DRAFT);
-	sm->set_fasa_hmg(K1, K2, K3);
-	yes = 0;
-
-///////////////////////////////
-//...цикл по параметрам задачи;
-	FILE * TST = fopen("heat3D_homog.dat", "w");
-	for (int j = 200; j <= 1000; j += 10) {
-		c0 = j*.001;
-		sm->set_fasa_hmg(R1, R1*pow(c0, -1./3.), K1, K2, K3, 1./sqr(ll));
-		
-		KH	= sm->TakeEshelby_grad(c0);
-		KH_cl = sm->TakeEshelby_two(c0);
-
-		fprintf(TST, " c0 = %g, с1 = %g, KH = %g\n", c0, c1, KH);
-	}
-	fclose (TST);
-	delete sm;
-}
-#endif
 #ifdef TEST_DRAFT_HEAT_NONLINEAR_LAYER
 {
-	char * name = "heat1D_nonlinear_layer.dat";
+	const char * name = "heat1D_nonlinear_layer.dat";
 //////////////////////////
 //...model initialization;
 	CDraft<double> * sm = CreateDraftR(HEAT2D_DRAFT);
@@ -10562,9 +10588,10 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992, 1., 0.01, 1.5, 1.86};
 			T0 =  15, TS =  45;
 			//T0 = 120, TS = 170;
 	set_matrix(out, NN+2, M0+1);
+	yes = 0;
 
-////////////////////////////////////////////////////
-//...начальные и граничные данные, распечатка сетки;
+////////////////////////////////////////////////
+//...initial and boundary data, mesh outputting;
 	for (T[0] = TS, k = 1; k <= NN; k++) T[k] = T0;
 
 	for (l = 0, k = 0; k <= NN; k++, x += h) out[k][l] = x; 
@@ -10573,8 +10600,8 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992, 1., 0.01, 1.5, 1.86};
 	for (l = 1, k = 0; k <= NN; k++) out[k][l] = T[k]; 
 	out[k][l] = t;
 
-///////////////////////////////
-//...цикл по параметрам задачи;
+/////////////////////////////////
+//...cycle on problem parameters;
 	for (j = 1; j < MM; j++) {
 		//sm->TakeStabStep(T, NN, alpha); t += dt;
 		sm->TakeStabStep_layer(T, N1, N2, N_cells, alpha); t += dt;
@@ -10584,8 +10611,8 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992, 1., 0.01, 1.5, 1.86};
 		}
 	}
 
-////////////////////////////
-//...распечатка результатов;
+///////////////////////////
+//...outputting of results;
 	FILE *  TST = fopen(name, "w");
 	fprintf(TST, "h = %g", out[NN+1][0]);
 	for (j = 1; j <= M0; j++) fprintf(TST, ", t = %g", out[NN+1][j]);
@@ -10605,38 +10632,38 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992, 1., 0.01, 1.5, 1.86};
 #endif
 #ifdef TEST_DRAFT_HEAT_FIRST_MEMBER
 {
-	char * name = "./Parametric/Unit2d_1.nas";
-	char * name_out = "heat1D_nonlinear_layer.dat";
-//	char * name = "./Box2d_homog/heat_clayer488.nas";
-//	char * name = "./Box2d_homog/heat_cyl_layer1148.nas";
-//	char * name = "./Box2d_homog/heat_ell_layer1174.nas";
-//	char * name = "./Box2d_homog/sph_025_16.nas";
+	const char * name = "../Exe/Parametric/Unit2d_1.nas";
+	const char * name_out = "./heat1D_nonlinear_layer.dat";
+//	char * name = "../Exe/Box2d_homog/heat_clayer488.nas";
+//	char * name = "../Exe/Box2d_homog/heat_cyl_layer1148.nas";
+//	char * name = "../Exe/Box2d_homog/heat_ell_layer1174.nas";
+//	char * name = "../Exe/Box2d_homog/sph_025_16.nas";
 
 //////////////////////
 //...параметры задачи;
 	double L = 0.5, eps_in = 1e-2;
 	int i, k, j, l; 
-	double KK1 = 1.,		//...heat conduction (matrix);
-			 KK2 = 413./150.,		//...heat conduction (inclusion);
-			 KK3 = KK2,		//...heat conduction (intermediate);
-			 R1 = 0.3,		//...inclusion geometry;
+	double KK1 = 1.,			//...heat conduction (matrix);
+			 KK2 = 413./150.,	//...heat conduction (inclusion);
+			 KK3 = KK2,			//...heat conduction (intermediate);
+			 R1 = 0.3,			//...inclusion geometry;
 			 R2 = 0.3125;		//...intermediate geometry; 
 
 //////////////////////////
-//...инициализация модели;
+//...model initialization;
 	CDraft<double> * sm = CreateDraftR(HEAT2D_DRAFT, 8);		
 	sm->set_fasa_hmg(R1, R2, KK1, KK2, KK3);
-	sm->set_mpls(PackInts(13, 13)); //...степень мультиполей;
-	sm->set_quad(PackInts(16, 8)); //...степень квадратуры;
-	sm->set_normaliz(0.92);			//...normalization coefficient;
-	sm->set_lagrange(1e-4);		  //...Lagrange coefficient for energy;
+	sm->set_mpls(PackInts(13, 13)); //...multipoles degree;
+	sm->set_quad(PackInts(16, 8));  //...quadrature degree;
+	sm->set_normaliz(0.92);			  //...normalization coefficient;
+	sm->set_lagrange(1e-4);			  //...Lagrange coefficient for energy;
 	sm->solver.set_mode(/*PRINT_MODE | FULLY_MODE | MASKS_MODE | ACCUMULATION*/);
 	sm->solver.change_state(/*EXTERN_STATE*/);
 	sm->change_solv(SPECIAL_SOLVING);
 	yes = 0;
 
-///////////////////////////////////
-//...чтение модели из файла данных;
+//////////////////////////////////
+//...reading model from data file;
 	if (sm) {
       sprintf(buf, "Loading model from file '%s'", name);
       Message(" ");
@@ -10697,8 +10724,8 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992, 1., 0.01, 1.5, 1.86};
 			//T0 = 120, TS = 170; 
 	set_matrix(out, NN+2, M0+1);
 
-////////////////////////////////////////////////////
-//...начальные и граничные данные, распечатка сетки;
+////////////////////////////////////////////////
+//...initial and boundary data, mesh outputting;
 	for (T[0] = TS, k = 1; k <= NN; k++) T[k] = T0;
 
 	for (l = 0, k = 0; k <= NN; k++, x += h) out[k][l] = x; 
@@ -10707,8 +10734,8 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992, 1., 0.01, 1.5, 1.86};
 	for (l = 1, k = 0; k <= NN; k++) out[k][l] = T[k]; 
 	out[k][l] = t;
 
-///////////////////////////////
-//...цикл по параметрам задачи;
+/////////////////////////////////
+//...cycle on problem parameters;
 	for (j = 1; j < MM; j++) {
 		sm->TakeStabStep(T, NN, alpha); t += dt;
 		//sm->TakeStabStep_layer(T, N1, N2, N_cells, alpha); t += dt;
@@ -10718,8 +10745,8 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992, 1., 0.01, 1.5, 1.86};
 		}
 	}
 
-////////////////////////////
-//...распечатка результатов;
+/////////////////////////
+//...printing of results;
 	FILE *  TST = fopen(name_out, "w");
 	fprintf(TST, "h = %g", out[NN+1][0]);
 	for (j = 1; j <= M0; j++) fprintf(TST, ", t = %g", out[NN+1][j]);
@@ -10732,23 +10759,23 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992, 1., 0.01, 1.5, 1.86};
 	}
 	fclose(TST);
 
-//////////////////////////////////////////////////////////
-//...расчет функций быстрых переменных (для разных ячеек);
+////////////////////////////////////////////////////////////////
+//...fast oscillation functions calculation (for various cells);
 	int nn = 7, mm = 3, n, ii = (int)(t0/dt)/m+2-m_shift, nn_fast = 40;
 	CDraft<double> ** dr = new_struct<CDraft<double> *>(nn*nn_fast);
 	double * K1 = new_struct<double>(nn*nn_fast), 
 			 * K2 = new_struct<double>(nn*nn_fast), eps = 1.6e-3; 
 	for (n = 0; n < nn*nn_fast; n++) {
 		dr[n] = CreateDraftR(HEAT2D_DRAFT, 8);		
-		dr[n]->set_mpls(PackInts(13, 13)); //...степень мультиполей;
-		dr[n]->set_quad(PackInts(16, 8)); //...степень квадратуры;
-		dr[n]->set_normaliz(0.92);			//...normalization coefficient;
-		dr[n]->set_lagrange(1e-4);		  //...Lagrange coefficient for energy;
+		dr[n]->set_mpls(PackInts(13, 13)); //...multipoles degree;
+		dr[n]->set_quad(PackInts(16, 8));  //...quadrature degree;
+		dr[n]->set_normaliz(0.92);			  //...normalization coefficient;
+		dr[n]->set_lagrange(1e-4);		     //...Lagrange coefficient for energy;
 		dr[n]->solver.set_mode(/*PRINT_MODE | FULLY_MODE | MASKS_MODE | ACCUMULATION*/);
 		dr[n]->solver.change_state(/*EXTERN_STATE*/);
 		dr[n]->change_solv(SPECIAL_SOLVING);
-///////////////////////////////////
-//...характеристики кремния и меди;
+////////////////////////////////////////
+//...cooper and silicon characteristics;
 		int n0 = 12, id_num; k = (int)((n+0.5)*eps/(h*nn_fast));
 		double K_SC[] = {300.,2300.,5000.,3500.,1340.,410.,260.,150.,99.,62.,42.,31.},
 				 K_CU[] = {16200.,24000.,10800.,2170.,560.,429.,413.,401.,393.,379.,366.,352.},
@@ -10765,8 +10792,8 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992, 1., 0.01, 1.5, 1.86};
 		if (id_num > 0 && id_num  < n0) K2[n] = K_CU[id_num-1]+(K_CU[id_num]-K_CU[id_num-1])*(TT-TH[id_num-1])/(TH[id_num]-TH[id_num-1]);
 		if (id_num == nn) K2[n] = K_CU[id_num-1];
 
-///////////////////////////////////
-//...чтение модели из файла данных;
+//////////////////////////////////
+//...reading model from data file;
 		dr[n]->stru.nodes_in(name);
 		dr[n]->bar_condit_in(name);
 		dr[n]->LinkUniStruct();
@@ -10801,7 +10828,7 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992, 1., 0.01, 1.5, 1.86};
 	}
 
 ////////////////////////////
-//..первый член асимптотики;
+//..first asymptotic member;
 	int id_visual = 1;
 	if (id_visual) {
 		CGrid * nd = CreateNodes();
@@ -10854,7 +10881,7 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992, 1., 0.01, 1.5, 1.86};
 				if (nd->hit) hit = nd->hit[i+j*nd->N];
 				if (hit != -1)  {
 /////////////////////////////////////////////////////////
-//..вычисляем истинные координаты, функцию и производную;
+//..calculated true coordinates, function and derivative;
 					k = (int)(x = (X+n)*eps/h);
 					d = (x-k)*(out[k+1][ii]-out[k][ii])+out[k][ii];
 					dd = (out[k+1][ii]-out[k][ii])/h;
@@ -10885,8 +10912,8 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992, 1., 0.01, 1.5, 1.86};
 			delete_struct(out_F);
 			delete_struct(out_F1);
 
-//////////////////////////////////////////////////////////////
-//...перезапись максимального и минимального значения функции;
+/////////////////////////////////////////////////////
+//...rewriting of maximal and minimal function value;
 			if (SURF) {
 				res = fseek(SURF, sizeof(char)*4+sizeof(short int)*2+sizeof(double)*4, SEEK_SET);
 				res = fwrite(& min1F, sizeof(double), 1, SURF);
@@ -10915,31 +10942,31 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992, 1., 0.01, 1.5, 1.86};
 #endif
 #ifdef TEST_DRAFT_HEAT_FIRST_MEMBER_NONLINEAR_LAYER
 {
-	char * name = "./Parametric/Unit2d_1.nas";
-	char * name_out = "heat1D_nonlinear_layer.dat";
+	const char * name = "../Exe/Parametric/Unit2d_1.nas";
+	const char * name_out = "./heat1D_nonlinear_layer.dat";
 
-//////////////////////
-//...параметры задачи;
+////////////////////////
+//...problem parameters;
 	double L = 0.5, eps_in = 1e-2;
 	int i, k, j, l; 
-	double KK1 = 1.,				  //...heat conduction (matrix);
-			 KK2 = 413./150.,		 //...heat conduction (inclusion);
-			 KK3 = KK2,			   //...heat conduction (intermediate);
-			 R1 = 0.3,			  //...inclusion geometry;
-			 R2 = 0.3125;		 //...intermediate geometry; 
+	double KK1 = 1.,			//...heat conduction (matrix);
+			 KK2 = 413./150.,	//...heat conduction (inclusion);
+			 KK3 = KK2,			//...heat conduction (intermediate);
+			 R1 = 0.3,			//...inclusion geometry;
+			 R2 = 0.3125;		//...intermediate geometry; 
 
 //////////////////////////
-//...инициализация модели;
+//...model initialization;
 	CDraft<double> * sm = CreateDraftR(HEAT2D_DRAFT, 8);		
 	sm->set_fasa_hmg(R1, R2, KK1, KK2, KK3);
-	sm->set_mpls(PackInts(1, 1)); //...степень мультиполей;
-	sm->set_quad(PackInts(1, 1)); //...степень квадратуры;
+	sm->set_mpls(PackInts(1, 1)); //...multipoles degree;
+	sm->set_quad(PackInts(1, 1)); //...quadrature degree;
 	sm->set_normaliz(0.92);			//...normalization coefficient;
 	sm->change_solv(SPECIAL_SOLVING);
 	yes = 0;
 
-///////////////////////////////////
-//...чтение модели из файла данных;
+//////////////////////////////////
+//...reading model from data file;
 	if (sm) {
       sprintf(buf, "Loading model from file '%s'", name);
       Message(" ");
@@ -10994,8 +11021,8 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992, 1., 0.01, 1.5, 1.86};
 			T0 = 273, TS = 300;
 	set_matrix(out, NN+2, M0+1);
 
-////////////////////////////////////////////////////
-//...начальные и граничные данные, распечатка сетки;
+////////////////////////////////////////////////
+//...initial and boundary data, mesh outputting;
 	for (T[0] = TS, k = 1; k <= NN; k++) T[k] = T0;
 
 	for (l = 0, k = 0; k <= NN; k++, x += h) out[k][l] = x; 
@@ -11004,8 +11031,8 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992, 1., 0.01, 1.5, 1.86};
 	for (l = 1, k = 0; k <= NN; k++) out[k][l] = T[k]; 
 	out[k][l] = t;
 
-///////////////////////////////
-//...цикл по параметрам задачи;
+/////////////////////////////////
+//...cycle on problem parameters;
 	for (j = 1; j < MM; j++) {
 		//sm->TakeStabStep(T, NN, alpha); t += dt;
 		sm->TakeStabStep_layer(T, N1, N2, N_cells, alpha); t += dt;
@@ -11015,8 +11042,8 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992, 1., 0.01, 1.5, 1.86};
 		}
 	}
 
-////////////////////////////
-//...распечатка результатов;
+//////////////////////
+//...writting results;
 	FILE *  TST = fopen(name_out, "w");
 	fprintf(TST, "h = %g", out[NN+1][0]);
 	for (j = 1; j <= M0; j++) fprintf(TST, ", t = %g", out[NN+1][j]);
@@ -11029,23 +11056,23 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992, 1., 0.01, 1.5, 1.86};
 	}
 	fclose(TST);
 
-//////////////////////////////////////////////////////////
-//...расчет функций быстрых переменных (для разных ячеек);
+////////////////////////////////////////////////////////////////
+//...fast oscillation functions calculation (for various cells);
 	int nn = 7, mm = 3, n, ii = (int)(t0/dt)/m+2-m_shift, nn_fast = 40;
 	CDraft<double> ** dr = new_struct<CDraft<double> *>(nn*nn_fast);
 	double * K1 = new_struct<double>(nn*nn_fast), 
 			 * K2 = new_struct<double>(nn*nn_fast), eps = 1.6e-3; 
 	for (n = 0; n < nn*nn_fast; n++) {
 		dr[n] = CreateDraftR(HEAT2D_DRAFT, 8);		
-		dr[n]->set_mpls(PackInts(13, 13)); //...степень мультиполей;
-		dr[n]->set_quad(PackInts(16, 8)); //...степень квадратуры;
-		dr[n]->set_normaliz(0.92);			//...normalization coefficient;
-		dr[n]->set_lagrange(1e-4);		  //...Lagrange coefficient for energy;
+		dr[n]->set_mpls(PackInts(13, 13)); //...multipoles degree;
+		dr[n]->set_quad(PackInts(16, 8));  //...quadrature degree;
+		dr[n]->set_normaliz(0.92);			  //...normalization coefficient;
+		dr[n]->set_lagrange(1e-4);		     //...Lagrange coefficient for energy;
 		dr[n]->solver.set_mode(/*PRINT_MODE | FULLY_MODE | MASKS_MODE | ACCUMULATION*/);
 		dr[n]->solver.change_state(/*EXTERN_STATE*/);
 		dr[n]->change_solv(SPECIAL_SOLVING);
-///////////////////////////////////
-//...характеристики кремния и меди;
+////////////////////////////////////////
+//...cooper and silicon characteristics;
 		int n0 = 12, id_num; k = (int)((n+0.5)*eps/(h*nn_fast));
 		double K_SC[] = {300.,2300.,5000.,3500.,1340.,410.,260.,150.,99.,62.,42.,31.},
 				 K_CU[] = {16200.,24000.,10800.,2170.,560.,429.,413.,401.,393.,379.,366.,352.},
@@ -11062,8 +11089,8 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992, 1., 0.01, 1.5, 1.86};
 		if (id_num > 0 && id_num  < n0) K2[n] = K_CU[id_num-1]+(K_CU[id_num]-K_CU[id_num-1])*(TT-TH[id_num-1])/(TH[id_num]-TH[id_num-1]);
 		if (id_num == nn) K2[n] = K_CU[id_num-1];
 
-///////////////////////////////////
-//...чтение модели из файла данных;
+//////////////////////////////////
+//...reading model from data file;
 		dr[n]->stru.nodes_in(name);
 		dr[n]->bar_condit_in(name);
 		dr[n]->LinkUniStruct();
@@ -11098,7 +11125,7 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992, 1., 0.01, 1.5, 1.86};
 	}
 
 /////////////////////////////////////////////
-//..первый член асимптотики в формате Surfer;
+//..first asymptotic member in Surfer format;
 	int id_visual = 1;
 	if (id_visual) {
 		CGrid * nd = CreateNodes();
@@ -11151,7 +11178,7 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992, 1., 0.01, 1.5, 1.86};
 				if (nd->hit) hit = nd->hit[i+j*nd->N];
 				if (hit != -1)  {
 /////////////////////////////////////////////////////////
-//..вычисляем истинные координаты, функцию и производную;
+//..calculated true coordinates, function and derivative;
 					k = (int)(x = (X+n)*eps/h);
 					d = (x-k)*(out[k+1][ii]-out[k][ii])+out[k][ii];
 					dd = (out[k+1][ii]-out[k][ii])/h;
@@ -11182,8 +11209,8 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992, 1., 0.01, 1.5, 1.86};
 			delete_struct(out_F);
 			delete_struct(out_F1);
 
-//////////////////////////////////////////////////////////////
-//...перезапись максимального и минимального значения функции;
+/////////////////////////////////////////////////////
+//...rewriting of maximal and minimal function value;
 			if (SURF) {
 				res = fseek(SURF, sizeof(char)*4+sizeof(short int)*2+sizeof(double)*4, SEEK_SET);
 				res = fwrite(& min1F, sizeof(double), 1, SURF);
@@ -11203,7 +11230,7 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992, 1., 0.01, 1.5, 1.86};
 	}
 
 ///////////////////////////////////////////
-//..первый член асимптотики в формате Exel;
+//..first asymptotic member in Exel format;
 	id_visual = 1;
 	if (id_visual) {
 		CGrid * nd = CreateNodes();
@@ -11225,7 +11252,7 @@ double data_grad[] = {0.1, 16.3647, 0.5, 5.3992, 1., 0.01, 1.5, 1.86};
 				X = nd->X[i];
 
 /////////////////////////////////////////////////////////
-//..вычисляем истинные координаты, функцию и производную;
+//..calculated true coordinates, function and derivative;
 				k = (int)(x = (X+n)*eps/h);
 				d = (x-k)*(out[k+1][ii]-out[k][ii])+out[k][ii];
 				dd = (out[k+1][ii]-out[k][ii])/h;
@@ -11272,4 +11299,3 @@ err:
   }
 	return 0;
 }
-

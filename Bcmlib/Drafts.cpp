@@ -662,14 +662,19 @@ void Flaman_displ(double X, double Y, double & RX, double & RY, double mu, doubl
 void Boussinesq_displ(double X, double Y, double Z, double & RX, double & RY, double & RZ, double mu, double nju, double s = 0.)
 {
 	double r = sqrt(sqr(X)+sqr(Y)+sqr(Z)), h0 = r ? 1./r : 0., h1 = r+Z ? 1./(r+Z) : 0., d = 4.*M_PI*mu, 
-			d3 = (1.-2.*nju)*h1, d4 = Z*sqr(h0), d5 = sqr(Z*h0), d1 = (d3-d4)*h0, d2 = (2.*(1.-nju)+d5)*h0;
+			d3 = (1.-2.*nju)*h1, d4 = Z*sqr(h0), d5 = sqr(Z*h0), d1 = (d3-d4)*h0, d2 = (2.*(1.-nju)+d5)*h0, d0;
+	int M_iter = 1000, k;
 	if (s) {
-		d1 -= (2.*d4*(1.+3.*s*h0)+d3)*(h1 = h0*exp(-r/s));
-		d2 += (2.*d5*(1.+3.*s*h0)-(3.-2.*nju)-2.*s*h0)*h1;
-		//if (r/s < 0.01) {
-		//	d1 = d3/s;
-		//	d2 = (7.-6.*nju)/(3.*s);
-		//}
+		if (r < 10.*s || 0) {
+			for (d1 = d2 = 0., d0 = 1., k = 0; k <= M_iter; k++, d0 *= -r/(s*k)) {
+				d1 -= (-(1.-2.*nju)*h1/(k+1.)+Z*h0/s*2./((k+2.)*(k+4)))*d0/s;
+				d2 += (((3.-2.*nju)-2./(k+3.))/(k+1.)+sqr(Z)*h0/s*2./((k+2.)*(k+4)))*d0/s;
+			}
+		}
+		else {
+			d1 -= (2.*d4*(1.+3.*s*h0)+d3)*(h1 = h0*exp(-r/s)); d1 += 6.*sqr(s*h0)*d4*(h0-h1);
+			d2 += (2.*d5*(1.+3.*s*h0)-(3.-2.*nju)-2.*s*h0)*h1; d2 -= 2.*sqr(s*h0)*(3.*d5-1.)*(h0-h1);
+		}
 	}
 	RX = -(d1 /= d)*X;
 	RY = -d1*Y;
@@ -679,10 +684,19 @@ void Boussinesq_displ(double X, double Y, double Z, double & RX, double & RY, do
 void Boussinesq_sigma(double X, double Y, double Z, double & SX, double & SY, double & SZ, double s = 0.)
 {
 	double r = sqrt(sqr(X)+sqr(Y)+sqr(Z)), h0 = r ? 1./r : 0., h1 = -h0, d = 2.*M_PI, 
-			dX = X*sqr(h0), dY = Y*sqr(h0), dZ = Z*sqr(h0), d3 = sqr(Z*h0), d2 = -3.*d3*h0, d1 = d2;
+			dX = X*sqr(h0), dY = Y*sqr(h0), dZ = Z*sqr(h0), d3 = sqr(Z*h0), d2 = -3.*d3*h0, d1 = d2, d0;
+	int M_iter = 1000, k;
 	if (s) {
-		d1 += (2.*d3*(1.+s*h0*15.)-1.-s*h0*6.)*(h1 *= exp(-r/s)*(1.+r/s));
-		d2 += (2.*d3*(1.+s*h0*15.)-3.-s*h0*18.)*h1+sqr(s*h0)*h0*24.;
+		if (r < 10.*s || 0) {
+			for (d1 = d2 = 0., d0 = r, k = 0; k <= M_iter; k++, d0 *= -r/(s*k)) {
+				d1 -= ((2.*(d3-1.)/(k+4.)+1.)/(k+2.)+sqr(Z)*h0/s*2./((k+3.)*(k+5.)))*d0/sqr(s);
+				d2 -= ((2.*(d3-3.)/(k+4.)+3.)/(k+2.)+sqr(Z)*h0/s*2./((k+3.)*(k+5.)))*d0/sqr(s);
+			}
+		}
+		else {
+			d1 += ((2.*d3-1.)*(1.+r/s)+(5.*d3-1.)*(3.+r/s)*2.*s*h0)*(h1 *= exp(-r/s)); d1 += 6.*sqr(s*h0)*(5.*d3-1.)*(h0+h1);
+			d2 += ((2.*d3-3.)*(1.+r/s)+(5.*d3-3.)*(3.+r/s)*2.*s*h0)*h1; d2 += 6.*sqr(s*h0)*(5.*d3-3.)*(h0+h1);
+		}
 	}
 	SX = (d1 /= d)*dX;
 	SY =  d1*dY;
