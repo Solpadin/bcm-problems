@@ -146,7 +146,7 @@ void TakeEshelbyModel(double cI, double cL, double EI, double EL, double EM, dou
 #define n_ESHELBY_2D_CALCULATIONS
 #define n_VISCO_2D_CALCULATIONS
 #define n_ESHELBY_2D_MODEL
-#define n_ESHELBY_2D_MODEL_CALCULATIONS
+#define ESHELBY_2D_MODEL_CALCULATIONS
 #define n_ESHELBY_2D_GRAD_INTERMEDIATE_LAYER
 //----------------------------------------------------------------------------------------
 double Grin_tensor(int i, int k, double X, double Y, double Z,   double mu, double nju, double s = 0.);
@@ -165,7 +165,7 @@ void Boussiskew_sigma(double X, double Y, double Z, double & SX, double & SY, do
 #define n_MINDL2D_CALCULATIONS
 #define n_TEST_DRAFT_HEAT_NONLINEAR_LAYER
 #define n_TEST_DRAFT_HEAT_FIRST_MEMBER
-#define TEST_DRAFT_HEAT_FIRST_MEMBER_NONLINEAR_LAYER
+#define n_TEST_DRAFT_HEAT_FIRST_MEMBER_NONLINEAR_LAYER
 //----------------------------------------------------------------------------------------
 #ifdef ___MPI_INIT___
 CMPIComm comm_mpi;
@@ -9182,7 +9182,7 @@ int N_spinel = 2;
 {
 //////////////////////////
 //...model initialization;
-	CBase * sm = CreateDraftR(COHES2D_DRAFT, 8),
+	CDraft<double> * sm = CreateDraftR(COHES2D_DRAFT, 8),
 			* el = CreateDraftR(LAME2D_DRAFT, 8);
 /////////////////////////////////////////
 //...data for calculations: epoxy matrix;
@@ -9393,7 +9393,7 @@ int N_spinel = 2;
 	delete sm;
 }
 #endif
-#define ___INCLUSION___
+//#define ___INCLUSION___
 //#define ___MATRIX___
 #ifdef ESHELBY_2D_MODEL_CALCULATIONS
 {
@@ -9413,7 +9413,7 @@ int N_spinel = 2;
 			 l0 = 0.8,		//...relative width of interpase layer;
 			 l1 = 0.03,		//...relative quantity of scale parameter in matrix;
 			 l2 = 0.03,		//...relative quantity of scale parameter in inclusion;
-			 l3 = 0.2,		//...relative quantity of scale parameter in interphase layer;
+			 l3 = 1.2,		//...relative quantity of scale parameter in interphase layer;
 			 f0 = 0.4217,  //...mean concentration of viskers;
 			 ff = 0.2, ff_l = l0*(2.+l0)*ff, rad0 = 1., rad1 = 1./sqrt(ff/(ff+ff_l)), rad2 = 1./sqrt(ff), par[6];
 	yes = 0;
@@ -9444,7 +9444,7 @@ int N_spinel = 2;
 		par[1] =  AA*.5; par[3] =  AA*.5; par[5] =  AA*.5;
 
 		if (axis == AXIS_CYL) {
-#ifndef ___INCLUSION___
+#ifdef ___INCLUSION___
 			for (i = 1; i <= 2*NX; i++) nd->add_new_point_X(.5*i/NX*rad0);
 #else
 #ifdef ___MATRIX___
@@ -9482,7 +9482,7 @@ int N_spinel = 2;
 		for (i = 0; i < nd->N;  i++)
 		for (j = 0; j < nd->N1; j++)
 		if (axis == AXIS_CYL) {
-#ifndef ___INCLUSION___
+#ifdef ___INCLUSION___
 			nd->hit[i+j*nd->N] = 0;	
 #else
 #ifdef ___MATRIX___
@@ -9505,22 +9505,34 @@ int N_spinel = 2;
 		//sm->GetSurferFormat("rr", nd,	   DISPL_GRAD_VALUE, 2, axis);
 		//sm->GetSurferFormat("uu", nd,	DISPL_CLASSIC_VALUE, 2, axis);
 		//sm->GetSurferFormat("nn", nd,	NORMAL_R_GRAD_VALUE, 2, axis);
-#ifndef ___INCLUSION___
+#ifdef ___INCLUSION___
 		sm->GetDataFormat("rd_inclu_02", nd,	   NORMAL_R_GRAD_VALUE, 2, axis);
 		sm->GetDataFormat("ud_inclu_02", nd,	NORMAL_R_CLASSIC_VALUE, 2, axis);
 		sm->GetDataFormat("divr_inclu_02", nd,	   DILAT_GRAD_VALUE, 2, axis);
 		sm->GetDataFormat("divu_inclu_02", nd,	DILAT_CLASSIC_VALUE, 2, axis);
+		sm->GetDataFormat("rdx_inclu_02", nd,	   NORMAL_X_GRAD_VALUE, 2, axis);
+		sm->GetDataFormat("udx_inclu_02", nd,	NORMAL_X_CLASSIC_VALUE, 2, axis);
+		sm->GetDataFormat("rdy_inclu_02", nd,	   NORMAL_Y_GRAD_VALUE, 2, axis);
+		sm->GetDataFormat("udy_inclu_02", nd,	NORMAL_Y_CLASSIC_VALUE, 2, axis);
 #else
 #ifdef ___MATRIX___
 		sm->GetDataFormat("rd_matrix_02", nd,	   NORMAL_R_GRAD_VALUE, 2, axis);
 		sm->GetDataFormat("ud_matrix_02", nd,	NORMAL_R_CLASSIC_VALUE, 2, axis);
 		sm->GetDataFormat("divr_matrix_02", nd,	   DILAT_GRAD_VALUE, 2, axis);
 		sm->GetDataFormat("divu_matrix_02", nd,	DILAT_CLASSIC_VALUE, 2, axis);
+		sm->GetDataFormat("rdx_matrix_02", nd,	   NORMAL_X_GRAD_VALUE, 2, axis);
+		sm->GetDataFormat("udx_matrix_02", nd,	NORMAL_X_CLASSIC_VALUE, 2, axis);
+		sm->GetDataFormat("rdy_matrix_02", nd,	   NORMAL_Y_GRAD_VALUE, 2, axis);
+		sm->GetDataFormat("udy_matrix_02", nd,	NORMAL_Y_CLASSIC_VALUE, 2, axis);
 #else
 		sm->GetDataFormat("rd_02", nd,	   NORMAL_R_GRAD_VALUE, 2, axis);
 		sm->GetDataFormat("ud_02", nd,	NORMAL_R_CLASSIC_VALUE, 2, axis);
 		sm->GetDataFormat("divr_02", nd,	   DILAT_GRAD_VALUE, 2, axis);
 		sm->GetDataFormat("divu_02", nd,	DILAT_CLASSIC_VALUE, 2, axis);
+		sm->GetDataFormat("rdx_02", nd,	   NORMAL_X_GRAD_VALUE, 2, axis);
+		sm->GetDataFormat("udx_02", nd,	NORMAL_X_CLASSIC_VALUE, 2, axis);
+		sm->GetDataFormat("rdy_02", nd,	   NORMAL_Y_GRAD_VALUE, 2, axis);
+		sm->GetDataFormat("udy_02", nd,	NORMAL_Y_CLASSIC_VALUE, 2, axis);
 #endif
 #endif
 		delete nd;

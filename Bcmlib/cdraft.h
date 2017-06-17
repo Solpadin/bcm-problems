@@ -2399,7 +2399,7 @@ void CDraft<T>::GetSurferFormat(FILE * SURF, FILE * SURF1, FILE * SURF2, CGrid *
 				 min1F = 0., max1F = 1., 
 				 min2F = 0., max2F = 1., 
 				 min3F = 0., max3F = 1.;
-		int hit;
+		int hit = -1;
 		if (SURF) {
 			res = fwrite("DSBB", sizeof(char)*4,  1, SURF);
 			res = fwrite(& i0,   sizeof(short int), 1, SURF); res = fwrite(& j0,         sizeof(short int), 1, SURF);
@@ -2558,7 +2558,7 @@ void CDraft<T>::GetDataFormat(FILE * DATA, CGrid * nd, Num_Value _FMF, int id_va
 	if (nd && nd->N > 0 && nd->N1 > 0 && DATA) {
 		T *	 out_F = new_struct<T>(surfer_dim(type()));
 		double X, Y, Z;
-		int hit;
+		int hit = -1;
       for (int j = 0; j < nd->N1; j++)
       for (int i = 0; i < nd->N;  i++) {
 			if (id_axis == AXIS_X) {
@@ -2599,7 +2599,7 @@ void CDraft<T>::GetDataFormat(FILE * DATA, CGrid * nd, Num_Value _FMF, int id_va
 				set_param(6, nd->Y[j]);
 			}
 
-			float ff = NOT_HIT, f1, f2, f3; 
+			float ff = NOT_HIT; 
 			if (nd->hit) hit = nd->hit[i+j*nd->N];
 			if (hit != -1)  {
 				if (DATA) {
@@ -2608,12 +2608,9 @@ void CDraft<T>::GetDataFormat(FILE * DATA, CGrid * nd, Num_Value _FMF, int id_va
 						X = nd->X[i];
 						Y = nd->Y[j];
 					}
-               f1 = (float)to_double(out_F[0]);
-               f2 = (float)to_double(out_F[1]);
-               f3 = (float)to_double(out_F[2]);
-					if (dim > 2) fprintf(DATA, "%g   %g   %g   %g   %g   %g\n", X, Y, Z, f1, f2, f3); else
-					if (dim > 1) fprintf(DATA, "%g   %g   %g   %g   %g\n", X, Y, Z, f1, f2); else
-					if (dim > 0) fprintf(DATA, "%g   %g   %g   %g\n", X, Y, Z, f1);
+					if (dim > 2) fprintf(DATA, "%g   %g   %g   %g   %g   %g\n", X, Y, Z, to_double(out_F[0]), to_double(out_F[1]), to_double(out_F[2])); else
+					if (dim > 1) fprintf(DATA, "%g   %g   %g   %g   %g\n", X, Y, Z, to_double(out_F[0]), to_double(out_F[1])); else
+					if (dim > 0) fprintf(DATA, "%g   %g   %g   %g\n", X, Y, Z, to_double(out_F[0]));
 				}
 			}
 			else {
@@ -2626,7 +2623,6 @@ void CDraft<T>::GetDataFormat(FILE * DATA, CGrid * nd, Num_Value _FMF, int id_va
       }
       delete_struct(out_F);
 	}
-	if (DATA) fclose(DATA);
 }
 
 /////////////////////////////////////

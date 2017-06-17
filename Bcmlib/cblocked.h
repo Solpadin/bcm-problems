@@ -28,14 +28,14 @@ template <typename T>
 void CBlockedSolver<T>::trf_step(T ** t0, T ** t1, T ** t2, int dim_N0, int dim_N1, int dim_N2, int id_zero)
 {
 	if (! t0 || ! t1 || ! t2) return;
-	if (id_zero == OK_STATE) { //...прямое суммирование;
+	if (id_zero == OK_STATE) { //...right summation;
 		for (int k = 0; k < dim_N1; k++) memset(t2[k], 0,  dim_N2*sizeof(T));
 		for (int i = 0; i < dim_N1; i++)
 		for (int l = 0; l < dim_N0; l++)
 		for (int j = 0; j < dim_N2; j++) t2[i][j] += t0[l][i]*t1[l][j];
 		return;
 	}
-	if (id_zero == ADDITIONAL_STATE) { //...инверсированное суммирование;
+	if (id_zero == ADDITIONAL_STATE) { //...inverse summation;
 		for (int k = 0; k < dim_N1; k++) memset(t2[k], 0,  dim_N2*sizeof(T));
 		for (int i = 0; i < dim_N1; i++)
 		for (int l = 0; l < dim_N0; l++)
@@ -53,13 +53,13 @@ template <typename T>
 void CBlockedSolver<T>::hrf_step(T ** t0, T ** h1, T ** h2, int dim_N0, int dim_N1, int m, int id_zero)
 {
 	if (! t0 || ! h1 || ! h2) return;
-	if (id_zero == OK_STATE) { //...прямое суммирование;
+	if (id_zero == OK_STATE) { //...right summation;
 		memset(h2[m], 0,  dim_N1*sizeof(T));
 		for (int i = 0; i < dim_N1; i++)
 		for (int l = 0; l < dim_N0; l++) h2[m][i] += t0[l][i]*h1[m][l];	  
 		return;
   }
-  if (id_zero == ADDITIONAL_STATE) { //...инверсированное суммирование;
+  if (id_zero == ADDITIONAL_STATE) { //...inverse summation;
 		for (int i = 0; i < dim_N0; i++)
 		for (int l = 0; l < dim_N1; l++) h2[m][i] -= t0[i][l]*h1[m][l];	  
 		return;
@@ -73,7 +73,7 @@ void CBlockedSolver<T>::hrf_step(T ** t0, T ** h0, int dim_N, int m1, int m2, in
 {
 	if (! t0 || ! h0) return;
 	memset(h0[m2], 0,  dim_N*sizeof(T));
-	if (id_zero == SPECIAL_STATE) { //...инверсированное суммирование;
+	if (id_zero == SPECIAL_STATE) { //...inverse summation;
 		for (int i = 0; i < dim_N; i++)
 		for (int l = 0; l < dim_N; l++) h0[m2][i] += t0[i][l]*h0[m1][l];	  
 		return;
@@ -88,8 +88,8 @@ template <typename T>
 int CBlockedSolver<T>::solver1(int k)
 {
 	int i, j, l, j_diag, k_elim, l_elim, N_dim, M_dim, L_dim, m;
-///////////////////////////////////////////
-//...устанавливаем вспомогательные матрицы;
+////////////////////////////////
+//...install auxuliary matrixes;
 	if (k == 0) {
 		for (m = 0, i = 0; i < this->N; i++) 
 			if (m < this->dim[i]) m = this->dim[i];
@@ -98,7 +98,7 @@ int CBlockedSolver<T>::solver1(int k)
 		pivot_S.set_matrix(m, m);
 		this->pivot_init(m);
 ////////////////////////////////////////////////////
-//...если нет левой части, то копируем ее из правой;
+//...if not to be left part, then copying itb from right part;
 		this->to_presenceTL();
 	}
 
@@ -182,8 +182,8 @@ int CBlockedSolver<T>::solver1(int k)
 		}
 	}
 
-////////////////////////////////////////
-//...уничтожаем вспомогательные матрицы;
+/////////////////////////////////
+//...destriy auxilliary matrixes;
 	if (k == -this->N) {
 		pivot_C.set_matrix(0, 0);
 		pivot_S.set_matrix(0, 0);
@@ -208,7 +208,7 @@ int CBlockedSolver<T>::solver1(int k)
 //...elimination diagonal element;
 			for (j_diag = this->JR[this->p[k]][this->JR_DIAG]-this->JR_SHIFT, m = 0; m < this->id_norm; m++) {
 				hrf_step(this->TR[this->p[k]][j_diag].GetMatrix(), this->hh[this->p[k]][0].GetMatrix(), N_dim, m, this->id_norm, SPECIAL_STATE);
-				T * temp_h = this->hh[this->p[k]][0][m]; //...переставляем строчки матрицы правых частей; 
+				T * temp_h = this->hh[this->p[k]][0][m]; //...change row of right-hand side matrixes; 
 				this->hh[this->p[k]][0][m] = this->hh[this->p[k]][0][this->id_norm]; 
 				this->hh[this->p[k]][0][this->id_norm] = temp_h;
 			}
@@ -231,8 +231,8 @@ template <typename T>
 int CBlockedSolver<T>::solver2(int k)
 {
 	int i, j, l, m, j_diag, k_elim, l_elim, N_dim, M_dim;
-///////////////////////////////////////////
-//...устанавливаем вспомогательные матрицы;
+//////////////////////////////////
+//...install auxilliary matrixes;
 	if (k == 0) {
 		for (m = i = 0; i < this->N; i++) 
 			if (m < (int)this->dim[i]) m = this->dim[i];
@@ -308,8 +308,8 @@ int CBlockedSolver<T>::solver2(int k)
 		}
 	}
 
-////////////////////////////////////////
-//...уничтожаем вспомогательные матрицы;
+/////////////////////////////////
+//...destroy auxilliary matrixes;
 	if (k == -this->N) {
 		pivot_C.set_matrix(0, 0);
 		delete[] this->pivot_ii; this->pivot_ii = NULL;

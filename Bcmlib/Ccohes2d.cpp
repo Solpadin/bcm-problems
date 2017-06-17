@@ -1639,6 +1639,22 @@ void CCohes2D::GetFuncAllValues(double X, double Y, double Z, double * F, int i,
 				F[1] = B[i].shape->potential(solver.hh[i][0][m+1], id_variant);
 				B[i].shape->norm_common2D(F);
 			}  break;
+			case NORMAL_Y_CLASSIC_VALUE: {
+				P[4] = 1.; P[3] = P[5] = 0.;
+				B[i].shape->norm_local(P+3);
+//////////////////////////////////////////
+//...classic derivatives of displacements;
+				B[i].shape->parametrization_hess(P, 1);
+
+				jump2_classic_x (P, i, 0); 
+				jump2_classic_y (P, i, 1); 
+
+/////////////////////////////////////////////////
+//...calculation classic derivatives (ux and uy);
+				F[0] = B[i].shape->potential(solver.hh[i][0][m],   id_variant);
+				F[1] = B[i].shape->potential(solver.hh[i][0][m+1], id_variant);
+				B[i].shape->norm_common2D(F);
+			}  break;
 			case DILAT_CLASSIC_VALUE: {
 				P[3] = 1.; P[4] = P[5] = 0.;
 				B[i].shape->norm_local(P+3);
@@ -1670,22 +1686,6 @@ void CCohes2D::GetFuncAllValues(double X, double Y, double Z, double * F, int i,
 //...calculation classic derivatives (ux and uy);
 				F[0] += B[i].shape->potential(solver.hh[i][0][m+3], id_variant);
 				F[1] += B[i].shape->potential(solver.hh[i][0][m+2], id_variant);
-			}  break;
-			case NORMAL_Y_CLASSIC_VALUE: {
-				P[4] = 1.; P[3] = P[5] = 0.;
-				B[i].shape->norm_local(P+3);
-//////////////////////////////////////////
-//...classic derivatives of displacements;
-				B[i].shape->parametrization_hess(P, 1);
-
-				jump2_classic_x (P, i, 0); 
-				jump2_classic_y (P, i, 1); 
-
-/////////////////////////////////////////////////
-//...calculation classic derivatives (ux and uy);
-				F[0] = B[i].shape->potential(solver.hh[i][0][m],   id_variant);
-				F[1] = B[i].shape->potential(solver.hh[i][0][m+1], id_variant);
-				B[i].shape->norm_common2D(F);
 			}  break;
 			case DISPL_COHESION_VALUE: {
 ///////////////////////////////////

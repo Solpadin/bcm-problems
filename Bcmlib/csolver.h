@@ -6,8 +6,8 @@
 
 #include "csparse.h"
 
-///////////////////////////////////////////////////////
-//...описание существующих типов связей между ячейками;
+/////////////////////////////////////////////////////////
+//...description of exiting link types between the cells;
 enum Num_Links {
 			BOUNDR_LINK = 0,
 			INCLUD_LINK,
@@ -16,42 +16,42 @@ enum Num_Links {
 			  NUMS_LINK
 };
 
-//////////////////////////////////////////////////////////
-//...набор двоичных масок для параллельной версии солвера;
+////////////////////////////////////////////////////////////
+//...number of binary masks for the parallel solver version;
 enum Num_Parallel_Masks {
-		NULL_MODE		 = 0x00000000L, //...нулевая мода - ничего не делаем;
-		NO_TR				 = 0x00000001L, //...не заполняем массивы TR, TT и диагональ;
-		NO_TL				 = 0x00000002L, //...не заполняем массивы TL, TD;
-		NO_PHASE			 = 0x00000004L, //...отключение коррекции связей на границе фаз;
-		ACCUMULATION	 = 0x00000008L, //...включение режима накапливания узлов квадратуры на звеньях;
-		PROCESSOR_ID	 = 0x00000010L, //...включение режима записи номера процессора в h[1];
-		REGULARIZATION  = 0x00000020L, //...включение регуляризации матрицы;
-		REGUL_BOUNDARY  = 0x00000040L, //...включение регуляризации матрицы через граничное условие;
-		REDUCED_MESSAGE = 0x00000080L, //...отключение подробной печати сообщений;
+		NULL_MODE		 = 0x00000000L, //...null mode - nothing to do;
+		NO_TR				 = 0x00000001L, //...not filling arrays TR, TT and diagonal;
+		NO_TL				 = 0x00000002L, //...not filling arrays TL, TD;
+		NO_PHASE			 = 0x00000004L, //...switching off link correction on the boundary phases;
+		ACCUMULATION	 = 0x00000008L, //...switching on mode of quadrature nodes accumulation on chains;
+		PROCESSOR_ID	 = 0x00000010L, //...switching on mode of writing processor number into h[1];
+		REGULARIZATION  = 0x00000020L, //...switching on matrix regularization;
+		REGUL_BOUNDARY  = 0x00000040L, //...switching on matrix regularization through boundary condition;
+		REDUCED_MESSAGE = 0x00000080L, //...switching off mode of detailed message printing;
 ///////////////////////////////////////////////////////////////////////////////////
-//...набор двоичных масок для организации управления солвером на внутреннем уровне;
-		RAPID_MODE	  = 0x00000100L, //...включение быстрого режима (формируется только правая часть, матрица не обращается);
-		CLEAN_MODE	  = 0x00000200L, //...включение режима обнуления дополнительно порожденных матриц;
-		CONTI_MODE	  = 0x00000400L, //...включение режима продолжения;
-		TESTI_MODE	  = 0x00000800L, //...включение режима тестирования;
-		PRINT_MODE	  = 0x00001000L, //...включение режима тестовой печати промежуточной информации;
-		FULLY_MODE	  = 0x00002000L, //...включение режима расширенного вывода промежуточной информации;
-		MASKS_MODE	  = 0x00004000L, //...включение режима вывода маски подматриц-блоков;
-		NO_MESSAGE	  = 0x00008000L, //...отключение печати сообщений;
-		NODES_PRINT	  = 0x00010000L, //...включение режима печати узлов;
-		REDUCED_PRINT = 0x00020000L, //...включение режима сокращенного вывода промежуточной информации;
-//////////////////////////////////////////////////////////////////
-//...тестовое формирование матрицы Грама и энергетической матрицы;
-		TESTI_GRAM	  = 0x00040000L, //...включение режима формирования только блочной матрицы Грама;
-		TESTI_ENERGY  = 0x00080000L, //...включение режима формирования только энергетической матрицы;
+//...number of binary masks for the organization solver management on the internal level;
+		RAPID_MODE	  = 0x00000100L, //...switching on fast mode (forming only right-hand side, block matrix not inversing);
+		CLEAN_MODE	  = 0x00000200L, //...switching on additional generated matrix nulling mode;
+		CONTI_MODE	  = 0x00000400L, //...switching on continuation mode;
+		TESTI_MODE	  = 0x00000800L, //...switching on testing mode;
+		PRINT_MODE	  = 0x00001000L, //...switching on mode of test printing of intermediate information;
+		FULLY_MODE	  = 0x00002000L, //...switching on mode of extended outputting of intermediate information;
+		MASKS_MODE	  = 0x00004000L, //...switching on mode of outputting mask of submatrix-blocks;
+		NO_MESSAGE	  = 0x00008000L, //...switching off message outputting;
+		NODES_PRINT	  = 0x00010000L, //...switching on mode of node printing;
+		REDUCED_PRINT = 0x00020000L, //...switching on mode of reduced outputting of intermediate information;
+//////////////////////////////////////////////
+//...test forming of Gram and ebergy matrixes;
+		TESTI_GRAM	  = 0x00040000L, //...switching on mode forming of only Gram block matrix;
+		TESTI_ENERGY  = 0x00080000L, //...switching on mode forming of only energy matrix;
 };
 
-/////////////////////////////////////////
-//...базовый класс прямоугольной матрицы;
+///////////////////////////////////////
+//...bases class of rectangular matrix;
 template <typename T>
 class CMatrix {
 protected:
-		T ** m; //...объединенный массив элементов и указателей строчек (матрица);
+		T ** m; //...united array of elements and row pointers (matrix);
 public:
       inline T**& GetMatrix(){ return m;}
 //...constructor and destructor;
@@ -69,8 +69,8 @@ public:
 		}
 };
 
-//////////////////////////////////////////////////////////////
-//...базовый класс солвера блочной системы линейных уравнений;
+///////////////////////////////////////////////////////////////
+//...bases class of solver of block system of linear equations;
 template <typename T>
 class CSolver : public CSparse<CMatrix<T> > {
 public:
@@ -181,10 +181,10 @@ void CSolver<T>::reset_struct()
 {
 	if (this->JR)
 	for (int k = 0; k < this->N; k++) if (this->JR[k]) {
-		if (this->TR && this->TR[k]) //...уничтожаем дополнительно порожденные блоки;
+		if (this->TR && this->TR[k]) //...destroy additional generated blocks;
 		for (int j = this->JR[k][this->JR_DIAG]-this->JR_SHIFT+1; j < this->JR[k][0]; j++) this->TR[k][j].set_matrix(0, 0);
 
-		if (this->TL && this->TL[k] && id_change != TR_STATE) //...в симметричном солвере массив TL не порождаем!!!;
+		if (this->TL && this->TL[k] && id_change != TR_STATE) //...in symmetry solver array TL not generated!!!;
 		for (int j = this->JR[k][this->JR_DIAG]-this->JR_SHIFT+1; j < this->JR[k][0]; j++) this->TL[k][j].set_matrix(0, 0);
 	}
 }
@@ -202,7 +202,7 @@ void CSolver<T>::struct_init()
 //...one row initialization of auxilliary arrays;
 template <typename T>
 void CSolver<T>::struct_init(int k, int id_strong)
-{//...последовательность: h, hL, hEE, HD;
+{//...sequence: h, hL, hEE, HD;
 	if (! dim || ! this->hh) return;
 	if (id_strong || ! this->hh[k][0].GetMatrix()) this->hh[k][0].set_matrix(n, dim[k]);
 	if (id_strong || ! this->hh[k][2].GetMatrix()) this->hh[k][2].set_matrix(id_norm, dim[k]);
@@ -382,7 +382,7 @@ template <typename T>
 void CSolver<T>::to_presenceTL(int i)
 {
 	int j_diag = this->JR[i][this->JR_DIAG]-this->JR_SHIFT, NN1 = dim[i], NN2;
-	for (int j = 0; j < j_diag; j++) //...определяем длину массива по положению диагонали;
+	for (int j = 0; j < j_diag; j++) //...defined length of array by diagonal position;
 	if (this->TR[i][j].GetMatrix() && ! this->TL[i][j].GetMatrix() && (NN2 = dim[this->JR[i][j+this->JR_SHIFT]])) {
 		this->TL[i][j].set_matrix(NN1, NN2);  T** m1 = this->TL[i][j].GetMatrix(), ** m2 = this->TR[i][j].GetMatrix(); 
 		for (int k = 0; k < NN1; k++)
@@ -399,7 +399,7 @@ void CSolver<T>::diagonal(int i, double f, int id_all)
 			if (! this->TR[i][j_diag].GetMatrix()) this->TR[i][j_diag].set_matrix(NN, NN);
 			if (! this->TL[i][j_diag].GetMatrix()) this->TL[i][j_diag].set_matrix(NN, NN);
 			for (k = 0; k < this->p[this->N+i]; k++) {
-				for (j = this->JR[this->p[k]][this->JR_DIAG]-this->JR_SHIFT+1; j > 0; j--) //...определяем длину массива по положению диагонали;
+				for (j = this->JR[this->p[k]][this->JR_DIAG]-this->JR_SHIFT+1; j > 0; j--) //...defined length of array by diagonal position;
 				if (this->JR[this->p[k]][j+this->JR_SHIFT-1] == i) break;
 
 				if (j && this->TD[this->p[k]][j-1].GetMatrix())
@@ -435,7 +435,7 @@ void CSolver<T>::diagonal(int id_all)
 		if (id_all) {
 			if (! this->TR[i][j_diag].GetMatrix()) this->TR[i][j_diag].set_matrix(NN1, NN1);
 			if (! this->TL[i][j_diag].GetMatrix()) this->TL[i][j_diag].set_matrix(NN1, NN1);
-			for (  j = 0; j <= this->JR[i][this->JR_DIAG]-this->JR_SHIFT; j++) //...определяем длину массива по положению диагонали;
+			for (  j = 0; j <= this->JR[i][this->JR_DIAG]-this->JR_SHIFT; j++) //...defined length of array by diagonal position;
 			if (this->JR[k = this->JR[i][j+this->JR_SHIFT]][this->JR_DIAG] && (NN2 = dim[k])) {
 				if (! this->TR[k][k_diag = this->JR[k][this->JR_DIAG]-this->JR_SHIFT].GetMatrix()) this->TR[k][k_diag].set_matrix(NN2, NN2);
 				if (j != j_diag) { 
@@ -475,7 +475,7 @@ void CSolver<T>::lagrangian(int i, double f, double fEE, int id_all)
 			this->hh[i][0][l][m] += fEE*this->hh[i][2][l][m];
 		}
 		if (id_all) {
-			for (int j = 0; j < j_diag; j++) { //...определяем длину массива по положению диагонали;
+			for (int j = 0; j < j_diag; j++) { //...defined length of array by diagonal position;
 				if (this->TR[i][j].GetMatrix())
 				for (int NN2 = dim[this->JR[i][j+this->JR_SHIFT]], l = 0; l < NN2; l++) this->TR[i][j][m][l] *= f;
 				if (this->TL[i][j].GetMatrix())
@@ -590,7 +590,7 @@ int CSolver<T>::GaussJ(T ** A, int dim_N)
 }
 
 /////////////////////////////////
-//...умножение матрицы на вектор;
+//...matrix to vector operations;
 template <typename T>
 void CSolver<T>::trf_step(T ** A, int dim_N, T * h, T * X)
 {
@@ -618,16 +618,16 @@ void CSolver<T>::hrf_step_solver(int k, int m)
 /////////////////////
 //...находим решение;
 		trf_step(this->TR[k][this->JR[k][this->JR_DIAG]-this->JR_SHIFT].GetMatrix(), dim[k], this->hh[k][0].GetMatrix()[m], this->hh[k][0].GetMatrix()[id_norm]);
-///////////////////////////////////////////////////////////////
-//...переставляем строчки матрицы правых частей;
+///////////////////////////////////////////
+//...change rows of right-hand side matrix;
 		T * temp_h = this->hh[k][0].GetMatrix()[m]; 
 		this->hh[k][0].GetMatrix()[m] = this->hh[k][0].GetMatrix()[id_norm]; 
 		this->hh[k][0].GetMatrix()[id_norm] = temp_h;
 	}
 }
 
-////////////////////////////////////////////////////////////
-//...заполнение строки блочной матрицы для внешнего солвера;
+/////////////////////////////////////////////////////////
+//...filling row of block matrix for the external solver;
 template <typename T>
 void CSolver<T>::Blocks_Row(int _BlkRow, T * _defc, double alpha)
 {
@@ -656,8 +656,8 @@ void CSolver<T>::Blocks_Row(int _BlkRow, T * _defc, double alpha)
 	}
 }
 
-/////////////////////////////////////////////
-//...заполнение правой части внешней матрицы;
+////////////////////////////////////////////////////
+//...filling right-hand side of the external matrix;
 template <typename T>
 void CSolver<T>::Right_Handside(int _BlkRow, T * _refc, double alpha)
 {
@@ -666,8 +666,8 @@ void CSolver<T>::Right_Handside(int _BlkRow, T * _refc, double alpha)
 		_refc[k] = this->hh[this->p[_BlkRow]][0][0][k]*alpha+this->hh[this->p[_BlkRow]][2][0][k]*beta;
 }
 
-/////////////////////////////////////
-//...начальное приближение к решению;
+///////////////////////////////////////
+//...initial approximation to solution;
 template <typename T>
 void CSolver<T>::Initial_Guess(int _BlkRow, T * _refc)
 {
@@ -675,8 +675,8 @@ void CSolver<T>::Initial_Guess(int _BlkRow, T * _refc)
 		_refc[k] = this->hh[this->p[_BlkRow]][0][id_norm][k];
 }
 
-////////////////////////////////////////////////////////////////////////
-//...отображение структуры блочной матрицы (т.е. связей блоков) на диск;
+/////////////////////////////////////////////////////////////////////
+//...visualization block matrix structure (i.e. block links) on disk;
 template <typename T>
 void CSolver<T>::test_struct(FILE * id_STRU, int id_pernum)
 {
@@ -685,8 +685,8 @@ void CSolver<T>::test_struct(FILE * id_STRU, int id_pernum)
   fprintf(id_STRU, "\nStructure of the block matrix (N = %i):", this->N);
   if (! this->JR) return; 
 
-////////////////////////////////////////////////////////////////
-//...заполняем матрицу на диске, отображающую структуру образца;
+////////////////////////////////////////////////////////////
+//...filling matrix on the disk, reflected sample structure;
   int k_par, i_par, k, i, j;
   for (                        k_par = 0; k_par < this->N; k_par++)
   for (fprintf(id_STRU, "\n"), i_par = 0; i_par < this->N; i_par++) 
@@ -706,8 +706,8 @@ void CSolver<T>::test_struct(FILE * id_STRU, int id_pernum)
   fprintf(id_STRU, "\n");
 }
 
-////////////////////////////////
-//...строковые варианты функции;
+//////////////////////////////
+//...string variant functions;
 template <typename T>
 void CSolver<T>::test_struct(char * ch_STRU, int id_pernum)
 {
@@ -738,7 +738,7 @@ void CSolver<T>::test_gram_matrix(FILE * TST, int k, int variant, double eps)
 	if (variant != END_STATE)
 	for (i = 0; this->TR[k][j_diag].GetMatrix() && i < NN; i++) {
 		fprintf(TST, "\n");
-		if (mode(MASKS_MODE)) { //...печать маски подматриц-блоков;
+		if (mode(MASKS_MODE)) { //...printing of the mask of block submatrix;
 			for (j = 0; j < NN; j++)
 				if (fabs(this->TR[k][j_diag][i][j]) < eps) fprintf(TST, " _"); 
 				else fprintf(TST, " X");
@@ -753,7 +753,7 @@ void CSolver<T>::test_gram_matrix(FILE * TST, int k, int variant, double eps)
 
 	if (variant == END_STATE) {
 		fprintf(TST, "\nEigenvalues vectors (Re, Im):");
-		if (mode(FULLY_MODE)) { //...полная печать собственных значений;
+		if (mode(FULLY_MODE)) { //...full printing of eigenvalues;
 			for (i = 0; i < NN; i++) {
 				fprintf(TST, "\n");
 				fprintf(TST, "%0.15lg ", filtr_Re(this->hh[k][0][n-1][i], eps));
@@ -774,7 +774,7 @@ void CSolver<T>::test_gram_matrix(FILE * TST, int k, int variant, double eps)
 		}
 	}
 	else
-	if (0 <= variant && variant < n) { //...печать одного варианта правых частей;
+	if (0 <= variant && variant < n) { //...printing of the one variant of right-hand side;
 		fprintf(TST, "\nRow vectors:");
 		for (i = 0; this->hh[k][0].GetMatrix() && i < NN; i++) {
 			if (typeid(T) == typeid(complex))
@@ -783,7 +783,7 @@ void CSolver<T>::test_gram_matrix(FILE * TST, int k, int variant, double eps)
 		}  fprintf(TST, "\n");
 	}
 	else
-	if (variant >= n) { //...печать всех вариантов правых частей;
+	if (variant >= n) { //...printig all variant of right-hand sides;
 		fprintf(TST, "\nRow vectors:");
 		for (i = 0; i < NN; i++) {
 			fprintf(TST, "\n");
@@ -813,12 +813,12 @@ void CSolver<T>::test_energy_matrix(FILE * TST, int k, int variant, double eps)
 	fprintf(TST, "\nEnergy matrix for %d block (loc_%d):", k, this->p[this->N+k]);
 	if (this->TL[k][j_diag].GetMatrix()) for (int i = 0; i < dim[k]; i++) {
 		fprintf(TST, "\n");
-		if (mode(MASKS_MODE)) { //...печать маски матрицы энергии;
+		if (mode(MASKS_MODE)) { //...printing mask of the energy matrix;
 			for (j = 0; j < dim[k]; j++) 
 				if (fabs(this->TL[k][j_diag][i][j]) < eps) fprintf(TST, " _"); 
 				else fprintf(TST, " X");
 		}
-		else { //...печать значений элементов матрицы энергии;
+		else { //...printing elemnts of the energy matrix;
 			for (j = 0; j < dim[k]; j++) 
 				if (typeid(T) == typeid(complex))
 					fprintf(TST, "(%0.15lg,%0.15lg)", filtr_Re(this->TL[k][j_diag][i][j], eps), filtr_Im(this->TL[k][j_diag][i][j], eps)); else
@@ -826,7 +826,7 @@ void CSolver<T>::test_energy_matrix(FILE * TST, int k, int variant, double eps)
 		}
 	}	fprintf(TST, "\n");  
 
-	if (0 <= variant && variant < n && this->hh && this->hh[k]) { //...печать одного варианта правых частей;
+	if (0 <= variant && variant < n && this->hh && this->hh[k]) { //...printing one variant of right-hand sides;
 		fprintf(TST, "\nRow vectors:");
 		if (this->hh[k][2].GetMatrix()) for (int i = 0; i < dim[k]; i++) {
 			if (typeid(T) == typeid(complex))
@@ -839,12 +839,12 @@ void CSolver<T>::test_energy_matrix(FILE * TST, int k, int variant, double eps)
 		fprintf(TST, "\nRow vectors:");
 		for (int i = 0; i < dim[k]; i++) {
 			fprintf(TST, "\n");
-			if (mode(MASKS_MODE)) { //...печать маски правых частей;
+			if (mode(MASKS_MODE)) { //...printing right-hand side mask;
 				for (j = 0; j < id_norm; j++)
 					if (fabs(this->hh[k][2][j][i]) < eps) fprintf(TST, " _"); 
 					else fprintf(TST, " X");
 			}
-			else { //...печать значений правых частей;
+			else { //...printing of right-hand side values;
 				for (j = 0; j < id_norm; j++)
 					if (typeid(T) == typeid(complex))
 						fprintf(TST, "(%0.15lg,%0.15lg)", filtr_Re(this->hh[k][2][j][i], eps), filtr_Im(this->hh[k][2][j][i], eps)); else
@@ -867,12 +867,12 @@ void CSolver<T>::test_transfer_matrix(FILE * TST, int k, double eps)
 			fprintf(TST, "\nRight transfer matrix for (%d, %d) blocks:", k, i = this->JR[k][j+this->JR_SHIFT]);
 			for (tt = this->TR[k][j].GetMatrix(), m = 0; tt && m < dim[k]; m++) {
 				fprintf(TST, "\n");
-				if (mode(MASKS_MODE)) { //...печать маски подматриц-блоков;
+				if (mode(MASKS_MODE)) { //...print mask of block-submatrix;
 					for (l = 0; l < dim[i]; l++)
 						if (fabs(tt[m][l]) < eps) fprintf(TST, " _"); 
 						else fprintf(TST, " X");
 				}
-				else { //...печать значений подматриц-блоков;
+				else { //...print values of block-submatrix;
 					for (l = 0; l < dim[i]; l++)
 						if (typeid(T) == typeid(complex))
 							fprintf(TST, "(%0.15lg,%0.15lg)", filtr_Re(tt[m][l], eps), filtr_Im(tt[m][l], eps)); else
@@ -884,12 +884,12 @@ void CSolver<T>::test_transfer_matrix(FILE * TST, int k, double eps)
 			fprintf(TST, "\nLeft transfer matrix for (%d, %d) blocks:", k, i = this->JR[k][j+this->JR_SHIFT]);
 			for (tt = this->TL[k][j].GetMatrix(), m = 0; tt && m < dim[k]; m++) {
 				fprintf(TST, "\n");
-				if (mode(MASKS_MODE)) { //...печать маски подматриц-блоков;
+				if (mode(MASKS_MODE)) { //...print mask of block-submatrix;
 					for (l = 0; l < dim[i]; l++)
 						if (fabs(tt[m][l]) < eps) fprintf(TST, " _"); 
 						else fprintf(TST, " X");
 				}
-				else { //...печать значений подматриц-блоков;
+				else { //...print values of block-submatrix;
 					for (l = 0; l < dim[i]; l++)
 						if (typeid(T) == typeid(complex))
 							fprintf(TST, "(%0.15lg,%0.15lg)", filtr_Re(tt[m][l], eps), filtr_Im(tt[m][l], eps)); else

@@ -6,8 +6,8 @@
 
 #include "utils.h"
 
-///////////////////////////////////////
-//...базовый класс разреженной матрицы;
+//////////////////////////////////
+//...bases clacc of sparse matrix;
 template <typename T>
 class CSparse {
 public:
@@ -46,7 +46,7 @@ public:
 		void add_element ();
 		void set_elements(int N_sm = 0);
 		void add_link (int k, int id_link);
-		void set_links(int k, int * links = NULL, int shift = 1);
+		void set_links(int k, Topo * links = NULL, int shift = 1);
 };
 
 //////////////////////////////////////////////////////
@@ -398,7 +398,7 @@ void CSparse<T>::add_link(int k, int id_link)
 			if (JR[id_link][j+JR_SHIFT-1] == k) break;
 			if (! j) {
 				JR[id_link][JR_SHIFT+JR[id_link][0]++] = k; 
-				if (JR[id_link][JR_DIAG]) { //...меняем местами последний элемент и диагональ;
+				if (JR[id_link][JR_DIAG]) { //...change the last element and diagonal;
 					int temp = JR[id_link][JR_SHIFT+JR[id_link][0]-1]; 
 					JR[id_link][JR_SHIFT+JR[id_link][0]-1] = JR[id_link][JR[id_link][JR_DIAG]]; 
 					JR[id_link][JR[id_link][JR_DIAG]] = temp;
@@ -411,7 +411,7 @@ void CSparse<T>::add_link(int k, int id_link)
 			if (JR[k][j+JR_SHIFT-1] == id_link) break;
 			if (! j) {
 				JR[k][JR_SHIFT+JR[k][0]++] = id_link;
-				if (JR[k][JR_DIAG]) { //...меняем местами последний элемент и диагональ;
+				if (JR[k][JR_DIAG]) { //...change the last element and diagonal;
 					int temp = JR[k][JR_SHIFT+JR[k][0]-1]; 
 					JR[k][JR_SHIFT+JR[k][0]-1] = JR[k][JR[k][JR_DIAG]]; 
 					JR[k][JR[k][JR_DIAG]] = temp;
@@ -432,8 +432,8 @@ void CSparse<T>::set_links (int k, Topo * links, int shift)
 		int  kR, i;
       for (kR = 1, i = 0; i < links[0]; i++)
       if  (0 <= links[i+shift] && p[N+links[i+shift]] > p[N+k]) kR++;
-/////////////////////////////////////////////////////////
-//...распределяем и заполняем индексный массив элементов;
+////////////////////////////////////////////////////////
+//...distributing and filling indexis array of elements;
 		if (( JR[k] = new_struct<int>(kR+JR_SHIFT)) != NULL) {
 			JR[k][0] = kR;	  N_band = max(N_band, JR[k][0]);
 			JR[k][JR_BUFF] = kR+JR_SHIFT;

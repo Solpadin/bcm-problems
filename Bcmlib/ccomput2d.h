@@ -8,20 +8,20 @@
 
 #define  Message(Msg)   { printf("%s", Msg);  printf("\n");}
 
-/////////////////////////////////////////////////////
-//...,базовый класс для счетных схем блочного метода;
+//////////////////////////////////////////////////////
+//...bases class for computing schemes of lock method;
 template <typename T>
 class CComput2D : public CDraft<T> {
 protected:
-		void comput1(int opt); //...вычислительная схема формирования блочной матрицы для аналитической модели;
-		void comput2(int opt); //...вычислительная схема формирования блочной матрицы для конечно-элементной модели;
-		void comput3(int opt); //...вычислительная схема (одноблочная, конечно-элементная) для периодической задачи;
-		void comput4(int opt); //...счетная схема для задачи Эшелби -- аппроксимация по границе включения;
-		void comput5(int opt, T * K, Num_Value _FMF, int id_variant); //...вычислительная схема интегрирования эффективных характеристик по границе блока;
-		void comput6(int opt, T * K, Num_Value _FMF, int id_variant); //...вычислительная схема интегрирования эффективных характеристик по объему блока;
-		void comput7(int opt, T * K);  //...вычислительная схема дополнительных коррекций интегрируемой величины;
-		Num_State comput_kernel1(Num_Comput Num); //...вычислительная схема для блочной структуры; 
-		Num_State comput_kernel2(Num_Comput Num); //...вычислительная схема для блочной структуры с продолжением по времени;
+		void comput1(int opt); //...computing scheme for forming block matrix for anaylytical model;
+		void comput2(int opt); //...computing scheme for forming block matrix for finite element model;
+		void comput3(int opt); //...forming block matrix (one-block, finite element) for periodic problem;
+		void comput4(int opt); //...computing scheme for Eshelby problem -- approximation on boundary of inclusions;
+		void comput5(int opt, T * K, Num_Value _FMF, int id_variant); //...computing scheme for calculation effective characteristics on block boundary;
+		void comput6(int opt, T * K, Num_Value _FMF, int id_variant); //...computing scheme for calculation effective characteristics on block volume;
+		void comput7(int opt, T * K);  //...computing scheme for additional corrections of calculated value;
+		Num_State comput_kernel1(Num_Comput Num); //...computing scheme for block structure; 
+		Num_State comput_kernel2(Num_Comput Num); //...computing scheme for block structure with time continuation;
 //...testing output of block matrix;
 		void test_block_matrix (int variant = ERR_STATE);
 };
@@ -29,9 +29,9 @@ protected:
 /////////////////////////////////////////////////////////////
 //          TEMPLATE VARIANT OF COUNTING SCHEMES           //
 /////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//...основная счетная схема на основе анализа размерных элементов с учетом включения и периодического условия;
-template <typename T> // (еще не сделана)==-
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+//...basic scheme on the analyses of dimensional elements with account inclusion and periodic condition;
+template <typename T> // (still not ready)==-
 void CComput2D<T>::comput1(int opt)
 {
 	int  N_elem = UnPackInts(this->get_param(this->NUM_QUAD)), N_max = UnPackInts(this->get_param(this->NUM_QUAD), 1), j, k, l, m;
@@ -59,7 +59,7 @@ void CComput2D<T>::comput1(int opt)
 		for (j = 0; j < this->solver.JR[k][0]; j++)
 			this->solver.struct_init(this->solver.JR[k][j+this->solver.JR_SHIFT], NULL_STATE);
 
-	LOOP_OPT(loop, opt, k) //...активируем геометрию блочной строки;
+	LOOP_OPT(loop, opt, k) //...activates block row geometry;
 		for (j = 0; j < this->solver.JR[k][0]; j++) {
 			this->bar_activate(this->B[this->solver.JR[k][j+this->solver.JR_SHIFT]], NULL_STATE, NULL_STATE);
 			//this->B[this->solver.JR[k][j+this->solver.JR_SHIFT]].bar->cells_out("CCells");
@@ -77,7 +77,7 @@ void CComput2D<T>::comput1(int opt)
 
 		LOOP_MASK(opt, k);
 /////////////////////////////////
-//...накапливаем граничные точки;
+//...accumulated boundary points;
 		if (this->volm != BLOCK_VOLUME)
 		for (j = min (this->B[k].bar->graph[0], this->B[k].link[0])-1; j >= 0; j--)
 		if (this->B[k].bar->ce[j]->cells_dim() == 1) {
@@ -109,8 +109,8 @@ void CComput2D<T>::comput1(int opt)
 					}
 				}
 			}
-//////////////////////////////////
-//...формирование блочной матрицы;
+//////////////////////////
+//...forming block matrix;
 			if (! this->solver.mode(REDUCED_MESSAGE) && k%m_ilist == 0) {
 				sprintf(msg, "block %4i: block_bnd->N = %i", k, block_bnd->N);
 				if (! this->solver.mode(NO_MESSAGE)) Message(msg);
@@ -133,7 +133,7 @@ void CComput2D<T>::comput1(int opt)
 
 		LOOP_MASK(opt, k);
 /////////////////////////////////
-//...накапливаем граничные точки;
+//...accumulated boundary points;
 		if (this->volm != BLOCK_VOLUME)
 		for (j = min (this->B[k].bar->graph[0], this->B[k].link[0])-1; j >= 0; j--)
 		if (this->B[k].bar->ce[j]->cells_dim() == 1) {
@@ -154,8 +154,8 @@ void CComput2D<T>::comput1(int opt)
 						Po[4] = bnd->Y[bnd->geom[num+3]];
 						Po[5] = 0.;
 
-//////////////////////////////
-//...задаем граничные условия;
+/////////////////////////////
+//...set boundary conditions;
                   pp[0] = pp[1] = pp[2] = 0.;
 						switch (m) {
 							case BOUND1_STATE: pp[0] = 1.; pp[1] = 0.; pp[2] = MAX_HIT/*1.*/; break;
@@ -171,13 +171,13 @@ void CComput2D<T>::comput1(int opt)
 					}
 				}
 			}
-//////////////////////////
-//...коррекция квадратуры;
+///////////////////////////
+//...correction quadrature;
 			if (m <= SRF_STATE && this->bar && this->bar->graph && -m+SRF_STATE < this->bar->graph[0])
 				bound_bnd->QG_curve(this->bar->ce[-m+SRF_STATE]->mp);
 
-//////////////////////////////////
-//...формирование блочной матрицы;
+//////////////////////////
+//...forming block matrix;
 			if (! this->solver.mode(REDUCED_MESSAGE) && k%m_ilist == 0) {
 				sprintf(msg, "block %4i: bound_bnd->N = %i", k, bound_bnd->N);
 				if (! this->solver.mode(NO_MESSAGE)) Message(msg);
@@ -190,8 +190,8 @@ void CComput2D<T>::comput1(int opt)
 		}
 	}
 
-//////////////////////////////////////////////////////////
-//...discrete norm on initial volume (еще не сделано !!!);
+///////////////////////////////////////////////////////////
+//...discrete norm on initial volume (still not ready !!!);
 	if (! this->solver.mode(NO_MESSAGE) && this->volm >= BLOCK_VOLUME) Message("Discrete initial volume...");
 
 	LOOP_OPT(loop, opt, k) 
@@ -205,8 +205,8 @@ void CComput2D<T>::comput1(int opt)
    delete bnd;
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////
-//...счетная схема для конечно-элементной модели с учетом включения и периодического условия;
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+//...computing scheme for finite-element model with account inclusion and periodic boundary condition;
 template <typename T>
 void CComput2D<T>::comput2(int opt)
 {
@@ -239,7 +239,7 @@ void CComput2D<T>::comput2(int opt)
 		for (j = 0; j < this->solver.JR[k][0]; j++)
 			this->solver.struct_init(this->solver.JR[k][j+this->solver.JR_SHIFT], NULL_STATE);
 
-	LOOP_OPT(loop, opt, k) //...активируем геометрию блочной строки;
+	LOOP_OPT(loop, opt, k) //...activated blok row geometry;
 		for (j = 0; j < this->solver.JR[k][0]; j++) {
 			this->bar_activate(this->B[this->solver.JR[k][j+this->solver.JR_SHIFT]], NULL_STATE, NULL_STATE);
 			//this->B[this->solver.JR[k][j+this->solver.JR_SHIFT]].bar->cells_out("CCells");
@@ -258,7 +258,7 @@ void CComput2D<T>::comput2(int opt)
 		for (i = 0; i < this->B[k].bar->graph[0]; i++) IF_ANY_FACET(this->B[k].bar, i) {
 
 /////////////////////////////////
-//...накапливаем граничные точки;
+//...accumulated boundary points;
 			if (this->NUM_PHASE && this->B[k].link[0] > this->NUM_PHASE)
 			for (j = 0;  j < this->B[k].bar->ce[i]->graph[1]; j++) 
 			for (m = this->NUM_PHASE; m < this->B[k].link[0]; m++) 
@@ -294,13 +294,13 @@ void CComput2D<T>::comput2(int opt)
 						}
 					}
 				}
-//////////////////////////
-//...коррекция квадратуры;
+///////////////////////////
+//...quadrature correction;
 				if (this->bar && this->bar->graph && this->bar->graph[0])
 					block_phs->QG_curve(this->bar->ce[0]->mp);
 
-//////////////////////////////////
-//...формирование блочной матрицы;
+//////////////////////////
+//...forming block matrix;
 				if (! this->solver.mode(REDUCED_MESSAGE) && k%m_ilist == 0) {
 					sprintf(msg, "block %4i: block_phs->N = %i", k, block_phs->N);
 					if (! this->solver.mode(NO_MESSAGE)) Message(msg);
@@ -327,7 +327,7 @@ void CComput2D<T>::comput2(int opt)
 		for (i = 0; i < this->B[k].bar->graph[0]; i++) IF_ANY_FACET(this->B[k].bar, i) {
 
 /////////////////////////////////
-//...накапливаем граничные точки;
+//...accumulated boundary points;
 			for (j = 0; j < this->B[k].bar->ce[i]->graph[1]; j++) 
 			if ((m = this->B[k].link[j+1]) >= 0 && this->B[k].link[this->NUM_PHASE] == this->B[m].link[this->NUM_PHASE] &&	(! this->solver.mode(NO_TR) || m == this->solver.p[opt])) {
 				bnd->release();
@@ -360,8 +360,8 @@ void CComput2D<T>::comput2(int opt)
 						}
 					}
 				}
-//////////////////////////////////
-//...формирование блочной матрицы;
+//////////////////////////
+//...forming block matrix;
 				if (! this->solver.mode(REDUCED_MESSAGE) && k%m_ilist == 0) {
 					sprintf(msg, "block %4i: block_bnd->N = %i", k, block_bnd->N);
 					if (! this->solver.mode(NO_MESSAGE)) Message(msg);
@@ -388,7 +388,7 @@ void CComput2D<T>::comput2(int opt)
 		for (i = 0; i < this->B[k].bar->graph[0]; i++) IF_ANY_FACET(this->B[k].bar, i) {
 
 /////////////////////////////////
-//...накапливаем граничные точки;
+//...accumulated boundary points;
 			for (j = 0; j < this->B[k].bar->ce[i]->graph[1]; j++) if (this->B[k].link[j+1] < 0) {
 
 				for (mm = 1, m = this->NUM_PHASE; mm && this->NUM_PHASE && m < this->B[k].link[0]; m++) 
@@ -401,8 +401,8 @@ void CComput2D<T>::comput2(int opt)
 
 					elem = this->block_plink_2D(this->B[k], l = i, m = j, id_dir, par);
 
-/////////////////////////
-//...интегрируем границу;
+//////////////////////////
+//...boundary integrating;
 					if  (bnd->geom && (! this->solver.mode(NO_TR) || elem == this->solver.p[opt])) 
 					for (l = 0; l < bnd->geom[0]; l++) {
 						int num  = bnd->geom_element(l), num_n = bnd->geom[num+1],
@@ -418,17 +418,17 @@ void CComput2D<T>::comput2(int opt)
 								Po[5] = 0.;
 
 ////////////////////////////////////////////////////////////////////////////////////
-//...задаем граничные условия растяжения ячейки или периодические граничные условия;
+//...setting boundary conditions of cell stretching or periodic boundary conditions;
 								pp[0] = pp[1] = pp[2] = pp[4] = 0.;
-								if (! (this->solv%ENERGY_SOLVING)) { //...одноосное растяжение;
+								if (! (this->solv%ENERGY_SOLVING)) { //...one-axis stretching;
 									if (fabs(Po[0]-par[0]) < EE_dop && fabs(Po[3]-par[0]) < EE_dop ||
 										 fabs(Po[0]-par[1]) < EE_dop && fabs(Po[3]-par[1]) < EE_dop)
 										pp[2] = NUMS_BND;
 								}
-								if ((this->solv%ENERGY_SOLVING) && elem >= 0) { //...периодические условия;
+								if ((this->solv%ENERGY_SOLVING) && elem >= 0) { //...periodic conditions;
 									pp[0] = par[1]-par[0];
 									pp[1] = par[3]-par[2];
-									pp[2] = id_dir; //...нумерация границ в стандарте (X:1-2, Y:3-4);
+									pp[2] = id_dir; //...boundary numbering in format (X:1-2, Y:3-4);
 									pp[4] = elem;
 								}
 								gauss_bnd->facet_QG(Po, N_elem, SPECIAL_STATE);
@@ -441,13 +441,13 @@ void CComput2D<T>::comput2(int opt)
 							}
 						}
 					}
-//////////////////////////
-//...коррекция квадратуры;
+///////////////////////////
+//...quadrature correction;
 					if ((this->solv%ENERGY_SOLVING) && ! id_dir && this->bar && this->bar->graph && this->bar->graph[0]) //...коррекция квадратур;
 					bound_bnd->QG_curve(this->bar->ce[0]->mp);
 				}
-//////////////////////////////////
-//...формирование блочной матрицы;
+//////////////////////////
+//...forming block matrix;
 				if (! this->solver.mode(REDUCED_MESSAGE) && k%m_ilist == 0) {
 					sprintf(msg, "block %4i: bound_bnd->N = %i", k, bound_bnd->N);
 					if (! this->solver.mode(NO_MESSAGE)) Message(msg);
@@ -474,8 +474,8 @@ void CComput2D<T>::comput2(int opt)
 			for (i = 0; i < this->B[k].bar->graph[0]; i++) IF_ANY_FACET(this->B[k].bar, i)
 			if (! this->solver.mode(NO_TR) || elem == this->solver.p[opt]) {
 
-//////////////////////////////////////////////////////////////
-//...снимаем данные о контуpе в массив, представляющий фасету;
+/////////////////////////////////////////////////////
+//...setting conotour data in array, presented facet;
 				int N_arc, arc, prev = this->B[k].bar->ce[i]->graph[(N_arc = this->B[k].bar->ce[i]->graph[1])+1], 
 					 N_min = min(N_arc, N_ini), m1, m2;
 				for (j = 1; j <= N_min; j++, prev = arc) {
@@ -491,14 +491,14 @@ void CComput2D<T>::comput2(int opt)
 				}
 				gauss_bnd->release();
 
-///////////////////////////////////////////////////////////////////////////////////
-//...определяем положение криволинейной границы в блоке и строим квадратуру Гаусса;
+//////////////////////////////////////////////////////////////////////////////////////////
+//...defining curvilinear boundary position in block and constructing Gaussian quadrature;
 				if (this->B[k].link[0] > this->NUM_PHASE) {
 					for (j = id_first = 0; ! id_first && j < this->B[k].bar->ce[i]->graph[1]; j++) 
 					for (m = this->NUM_PHASE;    ! id_first && m < this->B[k].link[0]; m++) 
 					if  (this->B[k].link[j+1] == -this->B[k].link[m+1]+SRF_STATE) id_first = 1; 
 					if (id_first && N_arc == 3) {
-						if (j == 1) { //...переворачиваем описание контура;
+						if (j == 1) { //...inverse contour description;
 							swap(pm[0], pm[3]); swap(pm[1], pm[4]); swap(pm[2], pm[5]);
 							swap(pm[0], pm[6]); swap(pm[1], pm[7]); swap(pm[2], pm[8]);
 						}
@@ -507,12 +507,12 @@ void CComput2D<T>::comput2(int opt)
 							swap(pm[0], pm[3]); swap(pm[1], pm[4]); swap(pm[2], pm[5]);
 						}
 						gauss_bnd->facet_QG(pm, N_elem, NULL_STATE, NULL_STATE);
-						if (this->bar && this->bar->graph && this->bar->graph[0]) //...коррекция квадратур;
+						if (this->bar && this->bar->graph && this->bar->graph[0]) //...quadrature correction;
 						gauss_bnd->QG_tria_curve(this->bar->ce[0]->mp, pm);
 					}
 					else
 					if (id_first && N_arc == 4) {
-						if (j == 1) { //...переворачиваем описание контура;
+						if (j == 1) { //...inverse contour description;
 							swap(pm[0], pm[3]); swap(pm[1], pm[4]);  swap(pm[2], pm[5]);
 							swap(pm[0], pm[6]); swap(pm[1], pm[7]);  swap(pm[2], pm[8]);
 							swap(pm[3], pm[9]); swap(pm[4], pm[10]); swap(pm[5], pm[11]);
@@ -533,13 +533,13 @@ void CComput2D<T>::comput2(int opt)
 							swap(pm[0], pm[3]); swap(pm[1], pm[4]);  swap(pm[2], pm[5]);
 						}
 						gauss_bnd->facet_QG(pm, N_elem, OK_STATE, NULL_STATE);
-						if (this->bar && this->bar->graph && this->bar->graph[0]) //...коррекция квадратур;
+						if (this->bar && this->bar->graph && this->bar->graph[0]) //...quadrature correction;
 						gauss_bnd->QG_quad_curve(NULL, this->bar->ce[0]->mp, pm);
 					}
 				}
 
-////////////////////////////////////////////////////
-//...строим квадратуру Гаусса в прямолинейном блоке;
+//////////////////////////////////////////////////////
+//...Gaussian quadrature construction in linear block;
 				if (this->B[k].link[0] == this->NUM_PHASE ) {
 					if (N_arc == 3)
 						gauss_bnd->facet_QG(pm, N_elem, NULL_STATE, NULL_STATE);
@@ -565,11 +565,12 @@ void CComput2D<T>::comput2(int opt)
 	delete bnd;
 }
 
-/////////////////////////////////////////////////////////////
-//...счетная схема для одного блока и периодического условия;
+///////////////////////////////////////////////////////////////
+//...computational scheme for one block and periodic condition;
 template <typename T>
 void CComput2D<T>::comput3(int opt)
 {
+
 	int  N_elem = UnPackInts(this->get_param(this->NUM_QUAD)), N_max = UnPackInts(this->get_param(this->NUM_QUAD), 1), id_dir, i, j, k, l;
 	char msg[201];
 
@@ -595,7 +596,7 @@ void CComput2D<T>::comput3(int opt)
 		for (j = 0; j < this->solver.JR[k][0]; j++)
 			this->solver.struct_init(this->solver.JR[k][j+this->solver.JR_SHIFT], NULL_STATE);
 
-	LOOP_OPT(loop, opt, k) //...активизируем геометрию блочной строки;
+	LOOP_OPT(loop, opt, k) //...activated block row geometry;
 		for (j = 0; j < this->solver.JR[k][0]; j++)
 			this->bar_activate(this->B[this->solver.JR[k][j+this->solver.JR_SHIFT]], NULL_STATE, NULL_STATE);
 
@@ -609,25 +610,25 @@ void CComput2D<T>::comput3(int opt)
 	if (this->B[k].bar && this->B[k].link) {
 
 		LOOP_MASK(opt, k);
-		for (i = 0; i < this->B[k].bar->graph[0]; i++) IF_ANY_FACET(this->B[k].bar, i) { //...прямоугольная ячейка;
+		for (i = 0; i < this->B[k].bar->graph[0]; i++) IF_ANY_FACET(this->B[k].bar, i) { //...rectangular cell;
 			for (j = 0; j < this->B[k].bar->ce[i]->graph[1]; j++) {
 
-/////////////////////////////////////////////////////////////////////
-//...определяем есть ли связь с включением или периодической ячейкой;
+///////////////////////////////////////////////////////////////////////////////////////
+//...defining be there or not connection with including or with periodic cell boundary;
 				for (m_cell = BOUNDR_LINK, l = this->NUM_PHASE; l < this->B[k].link[0] && this->NUM_PHASE; l++)
 				if (this->B[k].link[j+1] == -this->B[k].link[l+1]+SRF_STATE && (m = this->B[k].link[l+1]) >= 0) m_cell = INCLUD_LINK;
 				if (m_cell == BOUNDR_LINK && (id_dir = this->block_iddir_2D(this->B[k], i, j, par))) m_cell = PERIOD_LINK;
 
 /////////////////////////////////
-//...накапливаем граничные точки;
+//...accumulated boundary points;
 				bnd->release();
 
 				this->B[k].bar->ce[this->B[k].bar->ce[i]->graph[j+2]]->line_correct();
 				this->B[k].bar->ce[this->B[k].bar->ce[i]->graph[j+2]]->grid_cells1(bnd, 0., N_max);
 
-///////////////////////////////////
-//...интегрируем границу включения;
-				if (m_cell == INCLUD_LINK) { //...связь с фазами материала;
+////////////////////////////////////
+//...inclusion boundary integration;
+				if (m_cell == INCLUD_LINK) { //...connection with material phases;
 					if (bnd->geom)
 					for (l = 0; l < bnd->geom[0]; l++) {
 						int num = bnd->geom_element(l), num_n = bnd->geom[num+1],
@@ -643,8 +644,8 @@ void CComput2D<T>::comput3(int opt)
 							Po[5] = 0.;
 
 							gauss_bnd->facet_QG(Po, N_elem, SPECIAL_STATE);
-///////////////////////////////////////////////////////////
-//...коррекция квадратуры и ее запись в общий массив точек;
+/////////////////////////////////////////////////////////////
+//...quadrature correction and writing in common nodes array;
 							if (this->bar && this->bar->graph && this->bar->graph[0] > (m = min(k, m)))
 								gauss_bnd->QG_curve(this->bar->ce[m]->mp);
 							for (int lp = 0; lp < gauss_bnd->N; lp++) {
@@ -663,8 +664,8 @@ void CComput2D<T>::comput3(int opt)
 					if (!this->solver.mode(ACCUMULATION)) block_phs->add_buffer(block_phs->N);
 				}
 				else {
-///////////////////////////////////
-//...интегрируем границу ячейки;
+///////////////////////////////
+//...boundary cell integration;
 					if  (bnd->geom) 
 					for (l = 0; l < bnd->geom[0]; l++) {
 						int num  = bnd->geom_element(l), num_n = bnd->geom[num+1],
@@ -679,14 +680,14 @@ void CComput2D<T>::comput3(int opt)
 							Po[4] = bnd->Y[bnd->geom[num+3]];
 							Po[5] = 0.;
 
-////////////////////////////////////////////////
-//...задаем периодические или граничные условия;
-							if (m_cell == PERIOD_LINK) { //...периодические граничные условия;
+//////////////////////////////////////////////
+//...defining periodic or boundary conditions;
+							if (m_cell == PERIOD_LINK) { //...periodic boundary conditions;
 								pp[0] = par[1]-par[0];
 								pp[1] = par[3]-par[2];
 								pp[2] = id_dir;
 							}
-							else { //...одноосное растяжение;
+							else { //...one-axis stretching;
 								pp[0] = pp[1] = pp[2] = 0.;
 								if (fabs(Po[0]-par[0]) < EE_dop && fabs(Po[3]-par[0]) < EE_dop ||
 										fabs(Po[0]-par[1]) < EE_dop && fabs(Po[3]-par[1]) < EE_dop) pp[2] = NUMS_BND;
@@ -717,8 +718,8 @@ void CComput2D<T>::comput3(int opt)
    delete bnd;
 }
 
-/////////////////////////////////////
-//...счетная схема для задачи Эшелби;
+//////////////////////////////////////////////
+//...computational scheme for Eshelby problem;
 template <typename T>
 void CComput2D<T>::comput4(int opt)
 {
@@ -745,7 +746,7 @@ void CComput2D<T>::comput4(int opt)
 		for (j = 0; j < this->solver.JR[k][0]; j++)
 			this->solver.struct_init(this->solver.JR[k][j+this->solver.JR_SHIFT], NULL_STATE);
 
-	LOOP_OPT(loop, opt, k) //...активизируем геометрию блочной строки;
+	LOOP_OPT(loop, opt, k) //...activated block row geometry;
 		for (j = 0; j < this->solver.JR[k][0]; j++)
 			this->bar_activate(this->B[this->solver.JR[k][j+this->solver.JR_SHIFT]], NULL_STATE, NULL_STATE);
 
@@ -762,15 +763,15 @@ void CComput2D<T>::comput4(int opt)
 		for (i = 0; i < this->B[k].bar->graph[0]; i++) IF_ANY_FACET(this->B[k].bar, i) {
 
 /////////////////////////////////
-//...накапливаем граничные точки;
-			for (j = 0; j < this->B[k].bar->ce[i]->graph[1]; j++) {//...прямоугольная ячейка;
+//...accumuiated boundary points;
+			for (j = 0; j < this->B[k].bar->ce[i]->graph[1]; j++) {//...rectangular cell;
 				bnd->release();
 
 				this->B[k].bar->ce[this->B[k].bar->ce[i]->graph[j+2]]->line_correct();
 				this->B[k].bar->ce[this->B[k].bar->ce[i]->graph[j+2]]->grid_cells1(bnd, 0., N_max);
 
-/////////////////////////
-//...интегрируем границу;
+///////////////////////////
+//...boundary integratingу;
 				if  (bnd->geom) 
 				for (l = 0; l < bnd->geom[0]; l++) {
 					int num  = bnd->geom_element(l), num_n = bnd->geom[num+1],
@@ -785,8 +786,8 @@ void CComput2D<T>::comput4(int opt)
 						Po[4] = bnd->Y[bnd->geom[num+3]];
 						Po[5] = 0.;
 
-////////////////////////////////////////////
-//...задаем периодические граничные условия;
+//////////////////////////////////////////
+//...defined periodic boundary conditions;
 						pp[0] = par[1]-par[0];
 						pp[1] = par[3]-par[2];
 						pp[2] = this->block_iddir_2D(this->B[k], i, j, par);
@@ -815,8 +816,8 @@ void CComput2D<T>::comput4(int opt)
    delete bnd;
 }
 
-//////////////////////////////////////////////////////////////////////////////////
-//...счетная схема для интегрирования эффективных характеристик по границе блоков;
+/////////////////////////////////////////////////////////////////////////////////////////
+//...computational scheme for integration of effective characteristics on block boundary;
 template <typename T>
 void CComput2D<T>::comput5(int opt, T * K, Num_Value _FMF, int id_variant)
 {
@@ -842,7 +843,7 @@ void CComput2D<T>::comput5(int opt, T * K, Num_Value _FMF, int id_variant)
 		for (j = 0; j < this->solver.JR[k][0]; j++)
 			this->solver.struct_init(this->solver.JR[k][j+this->solver.JR_SHIFT], NULL_STATE);
 
-	LOOP_OPT(loop, opt, k) //...активизируем геометрию блочной строки;
+	LOOP_OPT(loop, opt, k) //...activated block row geometry;
 		for (j = 0; j < this->solver.JR[k][0]; j++)
 			this->bar_activate(this->B[this->solver.JR[k][j+this->solver.JR_SHIFT]], NULL_STATE, NULL_STATE);
 
@@ -857,24 +858,24 @@ void CComput2D<T>::comput5(int opt, T * K, Num_Value _FMF, int id_variant)
 		LOOP_MASK(opt, k);
 		for (i = 0; i < this->B[k].bar->graph[0]; i++) IF_ANY_FACET(this->B[k].bar, i) {
 
-/////////////////////////////////
-//...накапливаем граничные точки;
+//////////////////////////////////
+//...accumulation boundary points;
 			for (j = 0; j < this->B[k].bar->ce[i]->graph[1]; j++) {
 				bnd->release();
 
 				this->B[k].bar->ce[this->B[k].bar->ce[i]->graph[j+2]]->line_correct();
 				this->B[k].bar->ce[this->B[k].bar->ce[i]->graph[j+2]]->grid_cells1(bnd, 0., N_max);
 
-//////////////////////////////////////////////////////////////////////////////////////////////////
-//...определяем внутреннюю границу, внешнюю границу, прямоугольную ячейку (mm == 0 и id_dir == 0);
+///////////////////////////////////////////////////////////////////////////////////////////////
+//...defining internal boundary, external boundary, rectangular cell (mm == 0 and id_dir == 0);
 				for (mm = 1, m = this->NUM_PHASE; mm && this->NUM_PHASE && m < this->B[k].link[0]; m++) 
 				if ( this->B[k].link[j+1] == -this->B[k].link[m+1]+SRF_STATE) mm = 0;
 				//if (! mm) m = SRF_STATE; else
 				if (! mm) m = SRF_STATE-min(k, -this->B[k].link[j+1]+SRF_STATE); else
 				if ( this->B[k].link[j+1] < 0) this->block_plink_2D(this->B[k], l = i, m = j, id_dir, par);
 
-/////////////////////////
-//...интегрируем границу;
+//////////////////////////
+//...boundary integration;
 				if  (bnd->geom) 
 				for (l = 0; l < bnd->geom[0]; l++) {
 					int num  = bnd->geom_element(l), num_n = bnd->geom[num+1],
@@ -890,8 +891,8 @@ void CComput2D<T>::comput5(int opt, T * K, Num_Value _FMF, int id_variant)
 						Po[5] = 0.;
 
 						gauss_bnd->facet_QG(Po, N_elem, SPECIAL_STATE);
-///////////////////////////////////////////////////////////
-//...коррекция квадратуры и ее запись в общий массив точек;
+/////////////////////////////////////////////////////////////
+//...quadrature correction and writing in common nodes array;
 						if ((! mm || mm && ! id_dir && (m = this->B[k].link[j+1]) <= SRF_STATE) && this->bar && this->bar->graph && -m+SRF_STATE < this->bar->graph[0])
 							gauss_bnd->QG_curve(this->bar->ce[-m+SRF_STATE]->mp);
 						for (int lp = 0; lp < gauss_bnd->N; lp++) {
@@ -903,8 +904,8 @@ void CComput2D<T>::comput5(int opt, T * K, Num_Value _FMF, int id_variant)
 					}
 				}
 
-//////////////////////////////////
-//...интегрирование границы блока;
+////////////////////////////////
+//...integrating block boundary;
 				if (! this->solver.mode(REDUCED_MESSAGE) && k%m_ilist == 0) {
 					sprintf(msg, "block %4i: bound_bnd->N = %i", k, bound_bnd->N);
 					if (! this->solver.mode(NO_MESSAGE)) Message(msg);
@@ -922,8 +923,8 @@ void CComput2D<T>::comput5(int opt, T * K, Num_Value _FMF, int id_variant)
    delete bnd;
 }
 
-/////////////////////////////////////////////////////////////////////////////////
-//...счетная схема для интегрирования эффективных характеристик по объему блоков;
+////////////////////////////////////////////////////////////////////////////////////
+//...computational scheme for integrating effective characteristics on block volume;
 template <typename T>
 void CComput2D<T>::comput6(int opt, T * K, Num_Value _FMF, int id_variant)
 {
@@ -944,7 +945,7 @@ void CComput2D<T>::comput6(int opt, T * K, Num_Value _FMF, int id_variant)
 		for (int j = 0; j < this->solver.JR[k][0]; j++)
 			this->solver.struct_init(this->solver.JR[k][j+this->solver.JR_SHIFT], NULL_STATE);
 
-	LOOP_OPT(loop, opt, k) //...активизируем геометрию блочной строки;
+	LOOP_OPT(loop, opt, k) //...activated block row geometry;
 		for (int j = 0; j < this->solver.JR[k][0]; j++)
 			this->bar_activate(this->B[this->solver.JR[k][j+this->solver.JR_SHIFT]], NULL_STATE, NULL_STATE);
 
@@ -959,8 +960,8 @@ void CComput2D<T>::comput6(int opt, T * K, Num_Value _FMF, int id_variant)
 		for (int i = 0; i < this->B[k].bar->graph[0]; i++) IF_ANY_FACET(this->B[k].bar, i)
 		if (! this->solver.mode(NO_TR)) {
 
-//////////////////////////////////////////////////////////////
-//...снимаем данные о контуpе в массив, представляющий фасету;
+//////////////////////////////////////////////////////
+//...putting contour data into array, presented facet;
 			int N_arc, arc, prev = this->B[k].bar->ce[i]->graph[(N_arc = this->B[k].bar->ce[i]->graph[1])+1], 
 				 N_min = min(N_arc, N_ini), m1, m2;
 			for (j = 1; j <= N_min; j++, prev = arc) {
@@ -975,14 +976,14 @@ void CComput2D<T>::comput6(int opt, T * K, Num_Value _FMF, int id_variant)
 				  pm[3*(j-1)+2] = this->B[k].bar->ce[i]->ce[m1]->mp[3];
 			}
 
-///////////////////////////////////////////////////////////////////////////////////
-//...определяем положение криволинейной границы в блоке и строим квадратуру Гаусса;
+///////////////////////////////////////////////////////////////////////////////////////
+//...defining position of curve boundary in block and constructing Gaussian quadrature;
 			if (this->B[k].link[0] > this->NUM_PHASE) {
 				for (j = id_first = 0; ! id_first && j < this->B[k].bar->ce[i]->graph[1]; j++) 
 				for (m = this->NUM_PHASE;    ! id_first && m < this->B[k].link[0]; m++) 
 				if  (this->B[k].link[j+1] == -this->B[k].link[m+1]+SRF_STATE) id_first = 1; 
 				if (id_first && N_arc == 3) {
-					if (j == 1) { //...переворачиваем описание контура;
+					if (j == 1) { //...inverse contour description;
 						swap(pm[0], pm[3]); swap(pm[1], pm[4]); swap(pm[2], pm[5]);
 						swap(pm[0], pm[6]); swap(pm[1], pm[7]); swap(pm[2], pm[8]);
 					}
@@ -991,12 +992,12 @@ void CComput2D<T>::comput6(int opt, T * K, Num_Value _FMF, int id_variant)
 						swap(pm[0], pm[3]); swap(pm[1], pm[4]); swap(pm[2], pm[5]);
 					}
 					gauss_bnd->facet_QG(pm, N_elem, NULL_STATE, NULL_STATE);
-					if (this->bar && this->bar->graph && this->bar->graph[0]) //...коррекция квадратур;
+					if (this->bar && this->bar->graph && this->bar->graph[0]) //...quadrature correction;
 					gauss_bnd->QG_tria_curve(this->bar->ce[0]->mp, pm);
 				}
 				else
 				if (id_first && N_arc == 4) {
-					if (j == 1) { //...переворачиваем описание контура;
+					if (j == 1) { //...inverse contour description;
 						swap(pm[0], pm[3]); swap(pm[1], pm[4]);  swap(pm[2], pm[5]);
 						swap(pm[0], pm[6]); swap(pm[1], pm[7]);  swap(pm[2], pm[8]);
 						swap(pm[3], pm[9]); swap(pm[4], pm[10]); swap(pm[5], pm[11]);
@@ -1017,13 +1018,13 @@ void CComput2D<T>::comput6(int opt, T * K, Num_Value _FMF, int id_variant)
 						swap(pm[0], pm[3]); swap(pm[1], pm[4]);  swap(pm[2], pm[5]);
 					}
 					gauss_bnd->facet_QG(pm, N_elem, OK_STATE, NULL_STATE);
-					if (this->bar && this->bar->graph && this->bar->graph[0]) //...коррекция квадратур;
+					if (this->bar && this->bar->graph && this->bar->graph[0]) //...quadrature correction;
 					gauss_bnd->QG_quad_curve(NULL, this->bar->ce[0]->mp, pm);
 				}
 			}
 
-////////////////////////////////////////////////////
-//...строим квадратуру Гаусса в прямолинейном блоке;
+//////////////////////////////////////////////////////
+//...constructing Gaussian quadrature in linear block;
 			if (this->B[k].link[0] == this->NUM_PHASE ) {
 				if (N_arc == 3)
 					gauss_bnd->facet_QG(pm, N_elem, NULL_STATE, NULL_STATE);
@@ -1047,8 +1048,8 @@ void CComput2D<T>::comput6(int opt, T * K, Num_Value _FMF, int id_variant)
 	delete gauss_bnd;
 }
 
-///////////////////////////////////////////////////////
-//...счетная схема для дополнительного перебора блоков;
+//////////////////////////////////////////////////////////
+//...computational scheme for additional search of blocks;
 template <typename T>
 void CComput2D<T>::comput7(int opt, T * K)
 {
@@ -1058,7 +1059,7 @@ void CComput2D<T>::comput7(int opt, T * K)
 		for (j = 0; j < this->solver.JR[k][0]; j++)
 			this->solver.struct_init(this->solver.JR[k][j+this->solver.JR_SHIFT], NULL_STATE);
 
-	LOOP_OPT(loop, opt, k) //...активизируем геометрию блочной строки;
+	LOOP_OPT(loop, opt, k) //...activated block row geometry;
 		for (j = 0; j < this->solver.JR[k][0]; j++)
 			this->bar_activate(this->B[this->solver.JR[k][j+this->solver.JR_SHIFT]], NULL_STATE, NULL_STATE);
 
@@ -1073,8 +1074,8 @@ void CComput2D<T>::comput7(int opt, T * K)
 	}
 }
 
-/////////////////////////////////////////
-//...счетная схема для блочной структуры;
+//////////////////////////////////////////////////////
+//...leading computational scheme for block structure;
 template <typename T>
 Num_State CComput2D<T>::comput_kernel1(Num_Comput Num)
 {
@@ -1084,8 +1085,8 @@ Num_State CComput2D<T>::comput_kernel1(Num_Comput Num)
 	if (! this->solver.changed(EXTERN_STATE)) {
 		this->computing(-1, Num);
 
-/////////////////////////////////////////////////////
-//...формируем диагональ, блочную матрицу и печатаем;
+////////////////////////////////////////////////////////
+//...forming diagonal, block matrix and test outputting;
 		this->solver.diagonal();
 
 		if (this->solver.mode(TESTI_GRAM))   this->solver.lagrangian(1., 0.); else
@@ -1095,8 +1096,8 @@ Num_State CComput2D<T>::comput_kernel1(Num_Comput Num)
 		if (! this->solver.mode(REDUCED_PRINT)) 
 			test_block_matrix(this->solver.n); else test_block_matrix(0);
 
-///////////////////////////////////
-//...запускаем внутренний решатель;
+///////////////////////////
+//...start internal solver;
 		if (! this->solver.mode(NO_MESSAGE)) Message("Blocked GaussJ...");
 
 		double f_count = 0., g_count, dim_N = 2*this->solver.N;
@@ -1125,10 +1126,10 @@ Num_State CComput2D<T>::comput_kernel1(Num_Comput Num)
 		}
 		this->solver.reset_struct();
 
-//////////////////////////////////////////
-//...переносим результаты в функции формы;
+/////////////////////////////////////////////
+//...transfer of results into form functions;
 		this->shapes_init(OK_STATE);
-		if (this->solver.mode(REDUCED_PRINT) || this->solver.mode(PRINT_MODE)) { //...тестовая печать;
+		if (this->solver.mode(REDUCED_PRINT) || this->solver.mode(PRINT_MODE)) { //...test printing;
 		if (this->solver.mode(FULLY_MODE)  && ! this->solver.mode(REDUCED_PRINT)) 
 			for (int i = 0; i < this->N; i++)
 				this->B[this->solver.p[i]].shape->TestShape("res", this->solver.n+1, this->solver.p[i], EE*1000000.);
@@ -1140,8 +1141,8 @@ Num_State CComput2D<T>::comput_kernel1(Num_Comput Num)
 	return OK_STATE;
 }
 
-/////////////////////////////////////////////////////////////////////////////
-//...счетная схема для блочной структуры с параметром продолжения по времени;
+//////////////////////////////////////////////////////////////////////////////////
+//...computational scheme for block structure with continuation parameter on time;
 template <typename T>
 Num_State CComput2D<T>::comput_kernel2(Num_Comput Num)
 {
@@ -1149,8 +1150,8 @@ Num_State CComput2D<T>::comput_kernel2(Num_Comput Num)
 		return ERR_STATE;
 
 	if (! this->solver.changed(EXTERN_STATE)) {
-//////////////////////////////////////////////////////
-//...готовим тестовую печать помежуточных результатов;
+///////////////////////////////////////////////////
+//...prepare test printing of intermediate results;
 		if (this->solver.mode(TESTI_MODE) && ! this->solver.mode(NO_MESSAGE)) Message("Preparing visualization...");
 		
 		CGrid * nd = CreateNodes(GRID_EL_NODES);
@@ -1173,24 +1174,24 @@ Num_State CComput2D<T>::comput_kernel2(Num_Comput Num)
 			}
 		}
 
-///////////////////////////////////
-//...запускаем внутренний решатель;
+///////////////////////////
+//...start internal solver;
 		if (! this->solver.mode(NO_MESSAGE)) Message("Blocked GaussJ...");
 		this->solver.clean_mode(RAPID_MODE | CONTI_MODE);
 
-/////////////////////////
-//...итерации по времени;
+////////////////////
+//...time iteration;
 		while (this->param[this->NUM_TIME+1]+EE < this->param[this->NUM_TIME+3]) {
 
-/////////////////////////////////////////////////////
-//...модификация интервала времени на последнем шаге;
+/////////////////////////////////////////////
+//...modified time interval on the last step;
 			if ( this->param[this->NUM_TIME+1]+this->param[this->NUM_TIME+2] > this->param[this->NUM_TIME+3]) {
 				this->param[this->NUM_TIME+2] = this->param[this->NUM_TIME+3]-this->param[this->NUM_TIME+1];
 				this->solver.clean_mode(RAPID_MODE);
 			}
 
-////////////////////////////////////////////////////////////
-//...формирование или пересчет правых частей и всей матрицы;
+//////////////////////////////////////////////////////////////////
+//...forming or recalculating of right-hand sides and hole matrix;
 			this->solver.struct_clean(this->solver.mode(RAPID_MODE) ? NULL_STATE : 
 			                    this->solver.mode(CONTI_MODE) ? ZERO_STATE : OK_STATE);
 			this->computing(-1, Num);
@@ -1202,8 +1203,8 @@ Num_State CComput2D<T>::comput_kernel2(Num_Comput Num)
 			if (! this->solver.mode(REDUCED_PRINT)) 
 				test_block_matrix(this->solver.n); else test_block_matrix(0);
 
-////////////////////////////////////////////
-//...полное или частичное обращение матрицы;
+/////////////////////////////////////////
+//...full or partial inversing of matrix;
 			double f_count, g_count, dim_N = 2*this->solver.N;
 			char buff[1000];
 			int  k;
@@ -1227,14 +1228,14 @@ Num_State CComput2D<T>::comput_kernel2(Num_Comput Num)
 					if (! this->solver.mode(NO_MESSAGE)) Message(buff);
 				}
 			}
-			this->param[this->NUM_TIME+1] += this->param[this->NUM_TIME+2]; //...интегральный момент времени, соответствующий концу интервала;
+			this->param[this->NUM_TIME+1] += this->param[this->NUM_TIME+2]; //...integral time moment, corresponded to the end of interval;
 
-/////////////////////////////////////////
-//...переносим результат в функции формы;
+//////////////////////////////////////////////
+//...transfer results into the form functions;
 			this->shapes_init(OK_STATE);
 
-///////////////////////////////////////////////
-//...тестовая печать промежуточных результатов;
+////////////////////////////////////////
+//...test printing intermediate results;
 			if (this->solver.mode(TESTI_MODE)) {
 				int kkk;
 				if (! this->solver.mode(CONTI_MODE)) kkk = system("del *.grd");
@@ -1252,8 +1253,8 @@ Num_State CComput2D<T>::comput_kernel2(Num_Comput Num)
  
 		delete nd;
 
-///////////////////////////////////
-//...тестовая печать функций формы;
+/////////////////////////////////////
+//...test printing of form functions;
 		if (this->solver.mode(REDUCED_PRINT) || this->solver.mode(PRINT_MODE)) for (int i = 0; i < min(this->N, 5); i++) //...тестовая печать;
 			this->B[this->solver.p[i]].shape->TestShape("res", this->solver.n+1, this->solver.p[i], EE*1000000.);
 	}
