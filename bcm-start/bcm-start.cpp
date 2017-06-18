@@ -9413,7 +9413,7 @@ int N_spinel = 2;
 			 l0 = 0.8,		//...relative width of interpase layer;
 			 l1 = 0.03,		//...relative quantity of scale parameter in matrix;
 			 l2 = 0.03,		//...relative quantity of scale parameter in inclusion;
-			 l3 = 1.2,		//...relative quantity of scale parameter in interphase layer;
+			 l3 = 0.2,		//...relative quantity of scale parameter in interphase layer;
 			 f0 = 0.4217,  //...mean concentration of viskers;
 			 ff = 0.2, ff_l = l0*(2.+l0)*ff, rad0 = 1., rad1 = 1./sqrt(ff/(ff+ff_l)), rad2 = 1./sqrt(ff), par[6];
 	yes = 0;
@@ -9422,7 +9422,7 @@ int N_spinel = 2;
 //...model initialization;
 	CBase * sm = CreateDraftR(COHES2D_DRAFT, 8);	   l1 = l3;
 	sm->set_fasa_hmg(nju1, nju2, nju3, G1, G2, G3, (l1 ? G1*(1.-nju1)/(sqr(l1)*(.5-nju1)) : 0.), (l2 ? G2*(1.-nju2)/(sqr(l2)*(.5-nju2)) : 0.), (l3 ? G3*(1.-nju3)/(sqr(l3)*(.5-nju3)) : 0.));
-	sm->TakeEshelbyModel(ff, ff_l, 1., 0.);
+	sm->TakeEshelbyModel(ff, ff_l/*, 1., 0.*/);
 	//sm->TakeEshelbyGradModel(ff, ff_l, 1., 0.);
 	//sm->TakeEshelbyGradIncluModel(ff, ff_l, 1., 0.);
 
@@ -9437,7 +9437,7 @@ int N_spinel = 2;
 	int id_visual = 1, i, j;
 	if (id_visual) {
 		CGrid * nd = CreateNodes();
-		int NX = 100, NY = 100, axis = AXIS_CYL/*AXIS_Z*/;
+		int NX = 300, NY = 300, axis = /*AXIS_CYL*/AXIS_Z;
 
 		double AA = 4.*rad2;
 		par[0] = -AA*.5; par[2] = -AA*.5; par[4] = -AA*.5;
@@ -9505,6 +9505,13 @@ int N_spinel = 2;
 		//sm->GetSurferFormat("rr", nd,	   DISPL_GRAD_VALUE, 2, axis);
 		//sm->GetSurferFormat("uu", nd,	DISPL_CLASSIC_VALUE, 2, axis);
 		//sm->GetSurferFormat("nn", nd,	NORMAL_R_GRAD_VALUE, 2, axis);
+
+		sm->GetSurferFormat("tr", nd, STRESS_RADIAL_GRAD_VALUE, 2, axis);
+		sm->GetSurferFormat("pp", nd, STRESS_PRESSURE_GRAD_VALUE, 2, axis);
+		sm->GetSurferFormat("tx", nd,		  STRESS_X_GRAD_VALUE, 2, axis);
+		sm->GetSurferFormat("tx_classic", nd, STRESS_X_CLASSIC_VALUE, 2, axis);
+
+
 #ifdef ___INCLUSION___
 		sm->GetDataFormat("rd_inclu_02", nd,	   NORMAL_R_GRAD_VALUE, 2, axis);
 		sm->GetDataFormat("ud_inclu_02", nd,	NORMAL_R_CLASSIC_VALUE, 2, axis);

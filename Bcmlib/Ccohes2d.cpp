@@ -1806,6 +1806,31 @@ void CCohes2D::GetFuncAllValues(double X, double Y, double Z, double * F, int i,
 				F[1] = B[i].shape->potential(solver.hh[i][0][m+1], id_variant);
 				B[i].shape->norm_common2D(F);
 			}  break;
+			case STRESS_R_GRAD_VALUE: {
+				double RR = sqrt(sqr(P[0])+sqr(P[1])+sqr(P[2]));
+				if (RR != 0.) {
+					P[3] = P[0]/RR; 
+					P[4] = P[1]/RR;
+					P[5] = P[2]/RR;
+				}
+				else {
+					P[3] = 1.; P[4] = P[5] = 0.;
+				}
+				B[i].shape->norm_local(P+3);
+/////////////////////
+//...common stresses;
+				B[i].shape->parametrization_hess(P, 1);
+
+				hessian_deriv_N(1, P, i); hessian_deriv_N(4, P, i);
+				jump4_common_x (P, i, 0); 
+				jump4_common_y (P, i, 1); 
+
+//////////////////////////////////////////////////////////////////////////
+//...calculation common stress tensor at radial coordinates (txr and tyr);
+				F[0] = B[i].shape->potential(solver.hh[i][0][m],   id_variant);
+				F[1] = B[i].shape->potential(solver.hh[i][0][m+1], id_variant);
+				B[i].shape->norm_common2D(F);
+			}  break;
 			case STRESS_X_GRAD_VALUE: {
 				P[3] = 1.; P[4] = P[5] = 0.;
 				B[i].shape->norm_local(P+3);
@@ -1839,6 +1864,64 @@ void CCohes2D::GetFuncAllValues(double X, double Y, double Z, double * F, int i,
 				F[0] = B[i].shape->potential(solver.hh[i][0][m],   id_variant);
 				F[1] = B[i].shape->potential(solver.hh[i][0][m+1], id_variant);
 				B[i].shape->norm_common2D(F);
+			}  break;
+			case STRESS_RADIAL_GRAD_VALUE: {
+				double RR = sqrt(sqr(P[0])+sqr(P[1])+sqr(P[2]));
+				if (RR != 0.) {
+					P[3] = P[0]/RR; 
+					P[4] = P[1]/RR;
+					P[5] = P[2]/RR;
+				}
+				else {
+					P[3] = 1.; P[4] = P[5] = 0.;
+				}
+				B[i].shape->norm_local(P+3);
+/////////////////////
+//...common stresses;
+				B[i].shape->parametrization_hess(P, 1);
+
+				hessian_deriv_N(1, P, i); hessian_deriv_N(4, P, i);
+				jump4_common_x (P, i, 0); 
+				jump4_common_y (P, i, 1); 
+
+//////////////////////////////////////////////////////////////////////////
+//...calculation common stress tensor at radial coordinates (txr and tyr);
+				F[0] = B[i].shape->potential(solver.hh[i][0][m],   id_variant)*P[3]+
+						 B[i].shape->potential(solver.hh[i][0][m+1], id_variant)*P[4];
+				F[1] = 0.;
+			}  break;
+			case STRESS_PRESSURE_GRAD_VALUE: {
+				P[3] = 1.; P[4] = P[5] = 0.;
+				B[i].shape->norm_local(P+3);
+/////////////////////
+//...common stresses;
+				B[i].shape->parametrization_hess(P, 1);
+
+				hessian_deriv_N(1, P, i); hessian_deriv_N(4, P, i);
+				jump4_common_x (P, i, 0); 
+				jump4_common_y (P, i, 1); 
+
+////////////////////////////////////////////////////
+//...calculation common stress tensor (txx and txy);
+				F[0] = B[i].shape->potential(solver.hh[i][0][m],   id_variant);
+				F[1] = B[i].shape->potential(solver.hh[i][0][m+1], id_variant);
+
+				B[i].shape->norm_common(P+3);
+				P[4] = 1.; P[3] = P[5] = 0.;
+				B[i].shape->norm_local(P+3);
+
+/////////////////////
+//...common stresses;
+				B[i].shape->parametrization_hess(P, 1);
+
+				hessian_deriv_N(1, P, i); hessian_deriv_N(4, P, i);
+				jump4_common_x (P, i, 2); 
+				jump4_common_y (P, i, 3); 
+
+////////////////////////////////////////////////////
+//...calculation common stress tensor (tyx and tyy);
+				F[0] += B[i].shape->potential(solver.hh[i][0][m+3], id_variant);
+				F[1] += B[i].shape->potential(solver.hh[i][0][m+2], id_variant);
 			}  break;
 			case STRESS_X_CLASSIC_VALUE: {
 				P[3] = 1.; P[4] = P[5] = 0.;
@@ -2062,7 +2145,7 @@ void CCohes2D::GetFuncAllValues(double X, double Y, double Z, double * F, int i,
 
 ////////////////////////////////////////////////////
 //...calculation common stress tensor (txx and txy);
-				F[0] += B[i].shape->potential(solver.hh[i][0][m+3],   id_variant);
+				F[0] += B[i].shape->potential(solver.hh[i][0][m+3], id_variant);
 				F[1] += B[i].shape->potential(solver.hh[i][0][m+2], id_variant);
 			}  break;
 			case DILAT_VALUE: {//...divergency of displacements;

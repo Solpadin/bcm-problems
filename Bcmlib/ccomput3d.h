@@ -8,8 +8,8 @@
 
 #define  Message(Msg)   { printf("%s", Msg);  printf("\n");}
 
-/////////////////////////////////////////////////////
-//...,базовый класс для счетных схем блочного метода;
+///////////////////////////////////////////////////////
+//...bases class for computing schemes of block method;
 template <typename T>
 class CComput3D : public CComput2D<T> {
 public:
@@ -18,19 +18,19 @@ public:
 		void block_comput(CGrid * bnd, int k, double square, int Max_N, int * descr = NULL,  int id_fast = OK_STATE);
 		void block_comput(CGrid * bnd, int k, int m, double square, int Max_N, int * descr = NULL, int id_fast = OK_STATE);
 protected:
-		void comput1(int opt);//...счетная схема формирования блочной матрицы для конечно-элементной модели;
-		void comput2(int opt);//...счетная схема формирования блочной матрицы для аналитической модели;
-		void comput3(int opt);//...счетная схема (аналитическая) для периодической задачи в одном блоке;
-		void comput4(int opt);//...счетная схема (аналитическая) для задачи Эшелби в одном блоке;
-		void comput5(int opt, T * K, Num_Value _FMF, int id_variant);//...счетная схема для интегрирования эффективных характеристик по границе блока;
-		void comput6(int opt, T * K, Num_Value _FMF, int id_variant);//...счетная схема для интегрирования эффективных характеристик по объему  блока;
+		void comput1(int opt);//...computational scheme of forming block matrix for finite-element model;
+		void comput2(int opt);//...computational scheme of forming block matrix for analytical model;
+		void comput3(int opt);//...computational scheme (analytcal) for peridic problem in one block;
+		void comput4(int opt);//...computational scheme (analytcal) for Eshelby problem in one bloock;
+		void comput5(int opt, T * K, Num_Value _FMF, int id_variant);//...computational scheme for calculation effective characteristics on block boundary;
+		void comput6(int opt, T * K, Num_Value _FMF, int id_variant);//...computational scheme for calculation effective characteristics on block volume;
 };
 
-/////////////////////////////////////////////////////////////
-//          TEMPLATE VARIANT OF COUNTING SCHEME            //
-/////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////
-//...counting of the boundary points for individual facet;
+//////////////////////////////////////////////////////////////
+//          TEMPLATE VARIANT OF COMPUTING SCHEME            //
+//////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////
+//...computing of boundary points for individual facet;
 template <typename T>
 int CComput3D<T>::block_comput(CGrid * bnd, int k, double square, int i, int & j_surf, int Max_N, int ANY, int id_fast)
 {
@@ -40,8 +40,8 @@ int CComput3D<T>::block_comput(CGrid * bnd, int k, double square, int i, int & j
 	int	i_surf, j, l, N_ini = 4, m = 0;
 	if (Max_N <= 0) Max_N = 1;
 
-//////////////////////////////////////////
-//...ищем первую криволинейную поверхность;
+//////////////////////////////////////
+//...search first curvilinear surface;
 	for (i_surf = ERR_STATE, l = 0; l < this->B[k].link[0]; l++)
 	if  (this->B[k].link[l+1] <= SRF_STATE && l+1 != this->NUM_PHASE) {
 		j_surf = this->B[k].link[(i_surf = l)+1];
@@ -56,8 +56,8 @@ int CComput3D<T>::block_comput(CGrid * bnd, int k, double square, int i, int & j
 	if (bnd->N_par < 4) bnd->add_params(4-bnd->N_par);
 	IF_FACET(this->B[k].bar, i, l, ANY) {
 
-//////////////////////////////////////////////////////////////
-//...снимаем данные о контуpе в массив, представляющий фасету;
+//////////////////////////////////////////////////////
+//...getting contour data into array, presented facet;
 		int N_arc, arc, prev = this->B[k].bar->ce[i]->graph[(N_arc = this->B[k].bar->ce[i]->graph[1])+1],
 			 N_min = min(N_arc, N_ini), m1, m2;
 		for (j = 1; j <= N_min; j++, prev = arc) {
@@ -72,8 +72,8 @@ int CComput3D<T>::block_comput(CGrid * bnd, int k, double square, int i, int & j
 			pm[3*(j-1)+2] = this->B[k].bar->ce[i]->ce[m1]->mp[3];
 		}
 
-///////////////////////////////////////////////////
-//...снимаем данные о граничных условиях и нормали;
+////////////////////////////////////////////////
+//...getting boundary condition data and normal;
 		pp_bnd[0] = this->B[k].bar->ce[i]->mp[l+2];
 		pp_bnd[1] = this->B[k].bar->ce[i]->mp[l+3];
 		pp_bnd[2] = this->B[k].bar->ce[i]->mp[l+4];
@@ -89,8 +89,8 @@ int CComput3D<T>::block_comput(CGrid * bnd, int k, double square, int i, int & j
 			P[11] = this->B[k].bar->ce[i]->mp[6];
 		}
 
-/////////////////////////////////////////
-//...определяем положение кривой границы;
+/////////////////////////////////////////////
+//...define position of curvilinear boundary;
 		if (0 <= i_surf) m = this->B[k].bar->ce[i]->common_id(this->B[k].bar->ce[i_surf]);
 		l = m ? m : 2;
 
@@ -150,8 +150,8 @@ int CComput3D<T>::block_comput(CGrid * bnd, int k, double square, int i, int & j
 	return(m);
 }
 
-/////////////////////////////////////////////////////////////////////////////////
-//...counting of the boundary points on lateral links sides (with curve surface);
+//////////////////////////////////////////////////////////////////////////////
+//...computing of boundary points on lateral links sides (with curve surface);
 template <typename T>
 int CComput3D<T>::block_comput(CGrid * bnd, int k, int k_ext, double square, int & j_surf, int Max_N, int id_fast)
 {
@@ -160,8 +160,8 @@ int CComput3D<T>::block_comput(CGrid * bnd, int k, int k_ext, double square, int
 	int	i_surf, i, j, l, N_ini = 4, m = 0;
 	if (Max_N <= 0) Max_N = 1;
 
-//////////////////////////////////////////
-//...ищем первую криволинейную поверхность; 
+//////////////////////////////////////
+//...search first curvilinear surface;
 	for (i_surf = ERR_STATE, l = 0; l < this->B[k].link[0]; l++)
 	if  (this->B[k].link[l+1] <= SRF_STATE && l+1 != this->NUM_PHASE) { 
 		j_surf = this->B[k].link[(i_surf = l)+1]; 
@@ -175,8 +175,8 @@ int CComput3D<T>::block_comput(CGrid * bnd, int k, int k_ext, double square, int
 //..generation boundary points;.
 	LOOP_LINK_FACET(this->B[k].bar, i, l, k_ext) {
 
-//////////////////////////////////////////////////////////////
-//...снимаем данные о контуpе в массив, представляющий фасету;
+//////////////////////////////////////////////////////
+//...getting contour data into array, presented facet;
 		int N_arc, arc, prev = this->B[k].bar->ce[i]->graph[(N_arc = this->B[k].bar->ce[i]->graph[1])+1], 
 			 N_min = min(N_arc, N_ini), m1, m2;
 		for (j = 1; j <= N_min; j++, prev = arc) {
@@ -192,7 +192,7 @@ int CComput3D<T>::block_comput(CGrid * bnd, int k, int k_ext, double square, int
 		}
 
 //////////////////////////////
-//...снимаем данные о нормали;
+//...define data about normal;
 		if (square == 0. && N_arc == 4) {
 			P[12] = this->B[k].bar->ce[i]->mp[4];
 			P[13] = this->B[k].bar->ce[i]->mp[5];
@@ -204,8 +204,8 @@ int CComput3D<T>::block_comput(CGrid * bnd, int k, int k_ext, double square, int
 			P[11] = this->B[k].bar->ce[i]->mp[6];
 		}
 
-/////////////////////////////////////////
-//...определяем положение кривой границы;
+/////////////////////////////////////////////
+//...define position of curvilinear boundary;
 		if (0 <= i_surf) m = this->B[k].bar->ce[i]->common_id(this->B[k].bar->ce[i_surf]);
 		l = m ? m : 2;
 
@@ -266,8 +266,8 @@ int CComput3D<T>::block_comput(CGrid * bnd, int k, int k_ext, double square, int
 	return(m);
 }
 
-/////////////////////////////////////////////////////
-//...counting of the boundary points of block matrix;
+////////////////////////////////////////////////////
+//...computing of  boundary points for block matrix;
 template <typename T>
 void CComput3D<T>::block_comput(CGrid * bnd, int k, double square, int Max_N, int * descr, int id_fast)
 {
@@ -283,8 +283,8 @@ void CComput3D<T>::block_comput(CGrid * bnd, int k, double square, int Max_N, in
 	 LOOP_FACET(this->B[k].bar, i, l) 
 		 if (! descr || i < descr[0] && ! descr[i+1]) {
 
-//////////////////////////////////////////////////////////////
-//...снимаем данные о контуpе в массив, представляющий фасету;
+/////////////////////////////////////////////////////
+//...defining contour data in array, presented facet;
          int N_arc, arc, prev = this->B[k].bar->ce[i]->graph[(N_arc = this->B[k].bar->ce[i]->graph[1])+1], 
              N_min = min(N_arc, N_ini), m1, m2;
          for (j = 1; j <= N_min; j++, prev = arc) {
@@ -299,8 +299,8 @@ void CComput3D<T>::block_comput(CGrid * bnd, int k, double square, int Max_N, in
 				pm[3*(j-1)+2] = this->B[k].bar->ce[i]->ce[m1]->mp[3];
 			}
 
-///////////////////////////////////////////////////
-//...снимаем данные о граничных условиях и нормали;
+//////////////////////////////////////////////////////
+//...define data about boundary conditions and normal;
          pp_bnd[0] = this->B[k].bar->ce[i]->mp[l+2];
          pp_bnd[1] = this->B[k].bar->ce[i]->mp[l+3];
          pp_bnd[2] = this->B[k].bar->ce[i]->mp[l+4];
@@ -472,8 +472,8 @@ void CComput3D<T>::block_comput(CGrid * bnd, int k, double square, int Max_N, in
     }
 }
 
-////////////////////////////////////////////////////////////
-//...counting of the boundary points on lateral links sides;
+///////////////////////////////////////////////////////////////
+//...computing of the boundary points on lateral linking sides;
 template <typename T>
 void CComput3D<T>::block_comput(CGrid * bnd, int k, int m, double square, int Max_N, int * descr, int id_fast)
 {
@@ -501,8 +501,8 @@ void CComput3D<T>::block_comput(CGrid * bnd, int k, int m, double square, int Ma
 				pm[3*(j-1)+2] = this->B[k].bar->ce[i]->ce[m1]->mp[3];
          }
 
-///////////////////////////////////////////////////
-//...снимаем данные о граничных условиях и нормали;
+/////////////////////////////////////////////////////
+//...defining contour data in array, presented facet;
          if (square == 0. && N_arc == 4) {
              P[12] = this->B[k].bar->ce[i]->mp[4];
              P[13] = this->B[k].bar->ce[i]->mp[5];
@@ -662,8 +662,8 @@ void CComput3D<T>::block_comput(CGrid * bnd, int k, int m, double square, int Ma
 		}
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//...основная счетная схема на основе анализа размерных элементов с учетом включения и периодического условия;
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//...basic computational scheme on the base of analysis of dimensional elements with inclusion and periodic booundary condition;
 template <typename T>
 void CComput3D<T>::comput1(int opt)
 {
@@ -693,7 +693,7 @@ void CComput3D<T>::comput1(int opt)
 		for (j = 0; j < this->solver.JR[k][0]; j++)
 			this->solver.struct_init(this->solver.JR[k][j+this->solver.JR_SHIFT], NULL_STATE);
 
-	LOOP_OPT(loop, opt, k) //...активизируем геометрию блочной строки;
+	LOOP_OPT(loop, opt, k) //...activated block row geometry;
 		for (j = 0; j < this->solver.JR[k][0]; j++)
 			this->bar_activate(this->B[this->solver.JR[k][j+this->solver.JR_SHIFT]], NULL_STATE);
 
@@ -781,19 +781,19 @@ void CComput3D<T>::comput1(int opt)
 		for (i = 0; i < nums_facet; i++) 
 		if ((j = this->B[k].link[i+1]) <= ERR_STATE && this->B[k].bar->ce[i]->segms_id()) {
 
-/////////////////////////////////////////////////////////////////////
-//...определяем есть ли связь с включением или периодической ячейкой;
+///////////////////////////////////////////////////////////////////////////////////////
+//...defining be there or not connection with including or with periodic cell boundary;
 			for (m_cell = BOUNDR_LINK, l = this->NUM_PHASE; l < this->B[k].link[0] && this->NUM_PHASE; l++)
 			if ( this->B[k].link[l+1] == -this->B[k].link[i+1]+SRF_STATE && this->B[k].link[l+1] >= 0) m_cell = INCLUD_LINK;
 			if (m_cell == BOUNDR_LINK && (elem = this->block_plink_3D(this->B[k], l = i, id_dir, par)) >= 0) m_cell = PERIOD_LINK;
 		
 /////////////////////////////////
-//...накапливаем граничные точки;
+//...accumulated boundary points;
 			if  (m_cell != INCLUD_LINK && (! this->solver.mode(NO_TR) || elem == this->solver.p[opt])) {
 				this->B[k].bar->ce[i]->segms_QG(gauss_bnd, N_elem, N_max, pp);
 				this->bnd_marker3D(j, pp);
 
-				if (m_cell == PERIOD_LINK) { //...периодические граничные условия;
+				if (m_cell == PERIOD_LINK) { //...periodic boundary conditions;
 					pp[0] = par[1]-par[0];
 					pp[1] = par[3]-par[2];
 					pp[2] = par[5]-par[4];
@@ -811,12 +811,12 @@ void CComput3D<T>::comput1(int opt)
 					sprintf(msg, "block %4i: bound_bnd->N = %i", k, bound_bnd->N);
 					if (! this->solver.mode(NO_MESSAGE)) Message(msg);
 				}
-				if (m_cell == PERIOD_LINK) { //...периодические граничные условия;
+				if (m_cell == PERIOD_LINK) { //...periodic boundary conditions;
 					if (this->solv >= ENERGY_SOLVING)
 					this->GramAll(bound_bnd, k, 0, E_PERIOD_COMPUT); else
 					this->GramAll(bound_bnd, k, 0,   PERIOD_COMPUT);
 				}
-				else { //...обычные граничные условия;
+				else { //...usual boundary conditions;
 					if (this->solv >= ENERGY_SOLVING)
 					this->GramAll(bound_bnd, k, 0, E_BASIC_COMPUT); else
 					this->GramAll(bound_bnd, k, 0,   BASIC_COMPUT);
@@ -831,8 +831,8 @@ void CComput3D<T>::comput1(int opt)
 	delete gauss_bnd;
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//...счетная схема для конечно-элементной модели с учетом криволинейного включения и периодического условия;
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//...computational scheme for finite-element model with curvilinear inclusion and periodic boundary condition;
 template <typename T>
 void CComput3D<T>::comput2(int opt)
 {
@@ -869,7 +869,7 @@ void CComput3D<T>::comput2(int opt)
 		for (j = 0; j < this->solver.JR[k][0]; j++)
 			this->solver.struct_init(this->solver.JR[k][j+this->solver.JR_SHIFT], NULL_STATE);
 
-	LOOP_OPT(loop, opt, k) //...активизируем геометрию блочной строки;
+	LOOP_OPT(loop, opt, k) //...activated block row geometry;
 		for (j = 0; j < this->solver.JR[k][0]; j++)
 			this->bar_activate(this->B[this->solver.JR[k][j+this->solver.JR_SHIFT]]);
 
@@ -885,8 +885,8 @@ void CComput3D<T>::comput2(int opt)
 
 		for (i = 0; i < nums_facet; i++) if ((j = this->B[k].link[i+1]) <= ERR_STATE) {
 
-/////////////////////////////////////////////////////////////////////
-//...определяем есть ли связь с включением или периодической ячейкой;
+///////////////////////////////////////////////////////////////////////////////////////
+//...defining be there or not connection with including or with periodic cell boundary;
 			for (m_cell = BOUNDR_LINK, l = this->NUM_PHASE; l < this->B[k].link[0] && this->NUM_PHASE; l++)
 			if  ( this->B[k].link[l+1] == -this->B[k].link[i+1]+SRF_STATE && this->B[k].link[l+1] >= 0) m_cell = INCLUD_LINK;
 			if  (m_cell == BOUNDR_LINK && (elem = this->block_plink_3D(this->B[k], l = i, id_dir, par)) >= 0) m_cell = PERIOD_LINK;
@@ -896,7 +896,7 @@ void CComput3D<T>::comput2(int opt)
 				m = block_comput(bnd, k, sqr(this->get_param(this->NUM_QUAD+1)), i, j_surf, N_max);
 
 /////////////////////////////////
-//...накапливаем граничные точки;
+//...accumulated boundary points;
 				if (bnd->geom)
 				for (l = 0; l <  bnd->geom[0]; l++) {
 					int num  = bnd->geom_element(l), num_n = bnd->geom[num+1],
@@ -916,7 +916,7 @@ void CComput3D<T>::comput2(int opt)
 							Po[cnt++] = bnd->Z[bnd->geom[num+2]];
 						}
 						gauss_bnd->facet_QG(Po, N_elem, NULL_STATE, j <= SRF_STATE ? OK_STATE : NULL_STATE);
-						if (m_cell == PERIOD_LINK) { //...коррекция квадратур для периодической ячейки;
+						if (m_cell == PERIOD_LINK) { //...quadrature correction for periodic cell;
 							pp[0] = par[1]-par[0];
 							pp[1] = par[3]-par[2];
 							pp[2] = par[5]-par[4];
@@ -970,7 +970,7 @@ void CComput3D<T>::comput2(int opt)
 							Po[11] = bnd->Z[bnd->geom[num+5]];
 
 							gauss_bnd->facet_QG(Po, N_elem, OK_STATE, j <= SRF_STATE ? OK_STATE : NULL_STATE);
-							if (m_cell == PERIOD_LINK) { //...коррекция квадратур для периодической ячеки;
+							if (m_cell == PERIOD_LINK) { //...quadrature correction for periodic cell;
 								pp[0] = par[1]-par[0];
 								pp[1] = par[3]-par[2];
 								pp[2] = par[5]-par[4];
@@ -1008,12 +1008,12 @@ void CComput3D<T>::comput2(int opt)
 				else					sprintf(msg, "block %4i: bound_bnd->N = %i", k, bound_bnd->N);
 				if (! this->solver.mode(NO_MESSAGE)) Message(msg);
 			}
-			if (this->solv >= ENERGY_SOLVING) //...периодические условия скачка;
+			if (this->solv >= ENERGY_SOLVING) //...jump periodic condition;
 			this->GramAll(bound_phs, k, 0, E_PERIOD_COMPUT); else
 			this->GramAll(bound_phs, k, 0,   PERIOD_COMPUT);
 			if (! this->solver.mode(ACCUMULATION)) bound_phs->add_buffer(bound_phs->N);
 			
-			if (this->solv >= ENERGY_SOLVING) //...обычное граничное условие;
+			if (this->solv >= ENERGY_SOLVING) //...usual boundary condition;
 			this->GramAll(bound_bnd, k, 0, E_BASIC_COMPUT); else
 			this->GramAll(bound_bnd, k, 0,   BASIC_COMPUT);
 			if (! this->solver.mode(ACCUMULATION)) bound_bnd->add_buffer(bound_bnd->N);
@@ -1033,7 +1033,7 @@ void CComput3D<T>::comput2(int opt)
 			m = block_comput(bnd, k, j, sqr(this->get_param(this->NUM_QUAD+1)), j_surf, N_max);
 
 /////////////////////////////////
-//...накапливаем граничные точки;
+//...accumulated boundary points;
 			if (bnd->geom)
 			for (l = 0; l <  bnd->geom[0]; l++) {
 				int num  = bnd->geom_element(l), num_n = bnd->geom[num+1],
@@ -1049,7 +1049,7 @@ void CComput3D<T>::comput2(int opt)
 						Po[cnt++] = bnd->Z[bnd->geom[num+2]];
 					}
 					gauss_bnd->facet_QG(Po, N_elem, NULL_STATE, this->NUM_PHASE < i+1 ? OK_STATE : NULL_STATE);
-					if (this->NUM_PHASE < i+1) { //...коррекция квадратур на границе фаз;
+					if (this->NUM_PHASE < i+1) { //...quadrature correction on phase boundary;
 						if ((m = this->B[k].link[i+2]) <= SRF_STATE && this->bar && this->bar->graph && -m+SRF_STATE < this->bar->graph[0]) {
 							gauss_bnd->QG_surface(this->bar->ce[-m+SRF_STATE]->mp);
 							for (int lp = 0; lp < gauss_bnd->N; lp++) {
@@ -1095,7 +1095,7 @@ void CComput3D<T>::comput2(int opt)
 						Po[11] = bnd->Z[bnd->geom[num+5]];
 
 						gauss_bnd->facet_QG(Po, N_elem, OK_STATE, this->NUM_PHASE < i+1 ? OK_STATE : NULL_STATE);
-						if (this->NUM_PHASE < i+1) { //...коррекция квадратур на границе фаз;
+						if (this->NUM_PHASE < i+1) { //...quadrature correction on phase boundary;
 							if ((m = this->B[k].link[i+2]) <= SRF_STATE && this->bar && this->bar->graph && -m+SRF_STATE < this->bar->graph[0]) {
 								gauss_bnd->QG_surface(this->bar->ce[-m+SRF_STATE]->mp);
 								for (int lp = 0; lp < gauss_bnd->N; lp++) {
@@ -1128,12 +1128,12 @@ void CComput3D<T>::comput2(int opt)
 				else					 sprintf(msg, "block %4i: block_bnd->N = %i", k, block_bnd->N);
 				if (! this->solver.mode(NO_MESSAGE)) Message(msg);
 			}
-			if (this->solv >= ENERGY_SOLVING) //...граница фаз;;
+			if (this->solv >= ENERGY_SOLVING) //...phase boundary;
 			this->TransferBB (block_phs, k, j, 0, E_PERIOD_COMPUT); else
 			this->TransferBB (block_phs, k, j, 0,   PERIOD_COMPUT);
 			if (! this->solver.mode(ACCUMULATION)) block_phs->add_buffer(block_phs->N);
 
-			if (this->solv >= ENERGY_SOLVING) //...обычная граница внутри материала;
+			if (this->solv >= ENERGY_SOLVING) //...usual boundary inside material;
 			this->TransferBB (block_bnd, k, j, 0, E_BASIC_COMPUT); else
 			this->TransferBB (block_bnd, k, j, 0,   BASIC_COMPUT);
 			if (! this->solver.mode(ACCUMULATION)) block_bnd->add_buffer(block_bnd->N);
@@ -1147,8 +1147,8 @@ void CComput3D<T>::comput2(int opt)
    delete bnd;
 }
 
-/////////////////////////////////////////////////////////////
-//...счетная схема для одного блока и периодического условия;
+///////////////////////////////////////////////////////////////
+//...computational scheme for one block and periodic condition;
 template <typename T>
 void CComput3D<T>::comput3(int opt)
 {
@@ -1177,7 +1177,7 @@ void CComput3D<T>::comput3(int opt)
 		for (j = 0; j < this->solver.JR[k][0]; j++)
 			this->solver.struct_init(this->solver.JR[k][j+this->solver.JR_SHIFT], NULL_STATE);
 
-	LOOP_OPT(loop, opt, k) //...активизируем геометрию блочной строки;
+	LOOP_OPT(loop, opt, k) //...activated block row geometry;
 		for (j = 0; j < this->solver.JR[k][0]; j++)
 			this->bar_activate(this->B[this->solver.JR[k][j+this->solver.JR_SHIFT]], NULL_STATE);
 
@@ -1197,22 +1197,22 @@ void CComput3D<T>::comput3(int opt)
 		for (i = 0; i < nums_facet; i++) 
 		if ((j = this->B[k].link[i+1]) <= ERR_STATE && this->B[k].bar->ce[i]->segms_id()) {
 
-/////////////////////////////////////////////////////////////////////
-//...определяем есть ли связь с включением или периодической ячейкой;
+///////////////////////////////////////////////////////////////////////////////////////
+//...defining be there or not connection with including or with periodic cell boundary;
 			for (m_cell = BOUNDR_LINK, l = this->NUM_PHASE; l < this->B[k].link[0] && this->NUM_PHASE; l++)
 			if (this->B[k].link[l+1] == -this->B[k].link[i+1]+SRF_STATE && this->B[k].link[l+1] >= 0) m_cell = INCLUD_LINK;
 			if (m_cell == BOUNDR_LINK && (id_dir = this->block_iddir_3D(this->B[k], i, par))) m_cell = PERIOD_LINK;
 
-////////////////////////////////////////////////////////////////////
-//...искусственная нумерация фасет для параллелепипеда с включением;
+///////////////////////////////////////////////////////////////////
+//...artificial facet numeration for parallelepiped with inclusion;
 			if (this->BOX_LINK_PERIOD == OK_STATE && this->B[k].link[this->NUM_PHASE] == -1 && i > 0) { 
 				m_cell = PERIOD_LINK;
 				id_dir = i;
 			}
 
 /////////////////////////////////
-//...накапливаем граничные точки;
-			if (m_cell == PERIOD_LINK) { //...периодические граничные условия;
+//...accumulated boundary points;
+			if (m_cell == PERIOD_LINK) { //...periodic boundary condition;
  				this->B[k].bar->ce[i]->segms_QG(gauss_bnd, N_elem, N_max);
 				pp[0] = par[1]-par[0];
 				pp[1] = par[3]-par[2];
@@ -1234,7 +1234,7 @@ void CComput3D<T>::comput3(int opt)
 				if (! this->solver.mode(ACCUMULATION)) bound_bnd->add_buffer(bound_bnd->N);
 			}
 			else
-			if (m_cell == INCLUD_LINK) { //...связь с фазами материала;
+			if (m_cell == INCLUD_LINK) { //...link with phase material;
  				this->B[k].bar->ce[i]->segms_QG(gauss_bnd, N_elem, N_max);
 
 				for (int lp = 0; lp < gauss_bnd->N; lp++) {
@@ -1253,7 +1253,7 @@ void CComput3D<T>::comput3(int opt)
 				if (! this->solver.mode(ACCUMULATION)) block_phs->add_buffer(block_phs->N);
 			}
 			else
-			if (m_cell == BOUNDR_LINK) { //...связь с внутренней границей материала;
+			if (m_cell == BOUNDR_LINK) { //...link with internal material boundary;
  				this->B[k].bar->ce[i]->segms_QG(gauss_bnd, N_elem, N_max, pp);
 				this->bnd_marker3D(j, pp);
 
@@ -1280,8 +1280,8 @@ void CComput3D<T>::comput3(int opt)
    delete bnd;
 }
 
-/////////////////////////////////////
-//...счетная схема для задачи Эшелби;
+//////////////////////////////////////////////
+//...computational scheme for Eshelby problem;
 template <typename T>
 void CComput3D<T>::comput4(int opt)
 {
@@ -1305,7 +1305,7 @@ void CComput3D<T>::comput4(int opt)
 		for (j = 0; j < this->solver.JR[k][0]; j++)
 			this->solver.struct_init(this->solver.JR[k][j+this->solver.JR_SHIFT], NULL_STATE);
 
-	LOOP_OPT(loop, opt, k) //...активизируем геометрию блочной строки;
+	LOOP_OPT(loop, opt, k) //...activated block row geometry;
 		for (j = 0; j < this->solver.JR[k][0]; j++)
 			this->bar_activate(this->B[this->solver.JR[k][j+this->solver.JR_SHIFT]], NULL_STATE);
 
@@ -1326,13 +1326,13 @@ void CComput3D<T>::comput4(int opt)
 		if ((j = this->B[k].link[i+1]) <= ERR_STATE && this->B[k].bar->ce[i]->segms_id()) {
 
 ///////////////////////////////////////////
-//...определяем есть ли связь с включением;
+//...defining if exist link with inclusion;
 			for (m_cell = BOUNDR_LINK, l = this->NUM_PHASE; l < this->B[k].link[0] && this->NUM_PHASE; l++)
 			if (this->B[k].link[l+1] == -this->B[k].link[i+1]+SRF_STATE && this->B[k].link[l+1] >= 0) m_cell = INCLUD_LINK;
 
 /////////////////////////////////
-//...накапливаем граничные точки;
-			if (m_cell == INCLUD_LINK) { //...связь с фазами материала;
+//...accumulated boundary points;
+			if (m_cell == INCLUD_LINK) { //...link with phase material;
  				this->B[k].bar->ce[i]->segms_QG(gauss_bnd, N_elem, N_max);
 
 				for (int lp = 0; lp < gauss_bnd->N; lp++) {
@@ -1355,8 +1355,8 @@ void CComput3D<T>::comput4(int opt)
 	delete gauss_bnd;
 }
 
-//////////////////////////////////////////////////////////////////////////////////
-//...счетная схема для интегрирования эффективных характеристик по границе блоков;
+//////////////////////////////////////////////////////////////////////////////////////
+//...computational scheme for integration effective characteristics on block boundary;
 template <typename T>
 void CComput3D<T>::comput5(int opt, T * K, Num_Value _FMF, int id_variant)
 {
@@ -1382,7 +1382,7 @@ void CComput3D<T>::comput5(int opt, T * K, Num_Value _FMF, int id_variant)
 		for (j = 0; j < this->solver.JR[k][0]; j++)
 			this->solver.struct_init(this->solver.JR[k][j+this->solver.JR_SHIFT], NULL_STATE);
 
-	LOOP_OPT(loop, opt, k) //...активизируем геометрию блочной строки;
+	LOOP_OPT(loop, opt, k) //...activated block row geometry;
 		for (j = 0; j < this->solver.JR[k][0]; j++)
 			this->bar_activate(this->B[this->solver.JR[k][j+this->solver.JR_SHIFT]], NULL_STATE);
 
@@ -1400,15 +1400,15 @@ void CComput3D<T>::comput5(int opt, T * K, Num_Value _FMF, int id_variant)
 			bnd->release();
 			m = block_comput(bnd, k, sqr(this->get_param(this->NUM_QUAD+1)), i, j_surf, N_max, OK_STATE);
 
-//////////////////////////////////////////////////////////////////////////
-//...определяем внутреннюю границу, внешнюю границу, прямоугольную ячейку;
+///////////////////////////////////////////////////////////////////////
+//...definition internal boundary, external boundary, rectangular cell;
 			for (m_cell = BOUNDR_LINK, l = this->NUM_PHASE; l < this->B[k].link[0] && this->NUM_PHASE; l++)
 			if  ( this->B[k].link[l+1] == -this->B[k].link[i+1]+SRF_STATE && this->B[k].link[l+1] >= 0) m_cell = INCLUD_LINK;
 			if  (m_cell == BOUNDR_LINK &&  this->B[k].link[i+1] >= 0)  m_cell = BLOCKS_LINK;
 			if  (m_cell == BOUNDR_LINK && (elem = this->block_plink_3D(this->B[k], l = i, id_dir, par)) >= 0) m_cell = PERIOD_LINK;
 
 /////////////////////////////////
-//...накапливаем граничные точки;
+//...accumulated boundary points;
 			IF_ANY_FACET(this->B[k].bar, i) {
 				if (bnd->geom)
 				for (l = 0; l <  bnd->geom[0]; l++) {
@@ -1486,8 +1486,8 @@ void CComput3D<T>::comput5(int opt, T * K, Num_Value _FMF, int id_variant)
 				}
 			}
 			else
-///////////////////////////////////////////////////////////////////////
-//...определяем связи с фазами материала и внутренней границей области;
+////////////////////////////////////////////////////////////////////////////
+//...definition connection with phase material and internal domain boundary;
 			if ((m_cell == INCLUD_LINK || m_cell == BOUNDR_LINK) && this->B[k].bar->ce[i]->segms_id()) {
 				this->B[k].bar->ce[i]->segms_QG(gauss_bnd, N_elem, N_max);
 
@@ -1499,8 +1499,8 @@ void CComput3D<T>::comput5(int opt, T * K, Num_Value _FMF, int id_variant)
 				gauss_bnd->add_buffer(gauss_bnd->N);
 			}
 
-//////////////////////////////////
-//...интегрирование границы блока;
+////////////////////////////////
+//...integration block boundary;
  			if (! this->solver.mode(REDUCED_MESSAGE) && k%m_ilist == 0) {
 				sprintf(msg, "block %4i: bound_bnd->N = %i", k, bound_bnd->N);
 				if (! this->solver.mode(NO_MESSAGE)) Message(msg);
@@ -1517,8 +1517,8 @@ void CComput3D<T>::comput5(int opt, T * K, Num_Value _FMF, int id_variant)
    delete bnd;
 }
 
-/////////////////////////////////////////////////////////////////////////////////
-//...счетная схема для интегрирования эффективных характеристик по объему блоков;
+////////////////////////////////////////////////////////////////////////////////////
+//...computational scheme for integration effective characteristics on block volume;
 template <typename T>
 void CComput3D<T>::comput6(int opt, T * K, Num_Value _FMF, int id_variant)
 {
@@ -1538,7 +1538,7 @@ void CComput3D<T>::comput6(int opt, T * K, Num_Value _FMF, int id_variant)
 		for (j = 0; j < this->solver.JR[k][0]; j++)
 			this->solver.struct_init(this->solver.JR[k][j+this->solver.JR_SHIFT], NULL_STATE);
 
-	LOOP_OPT(loop, opt, k) //...активизируем геометрию блочной строки;
+	LOOP_OPT(loop, opt, k) //...activated block row geometry;
 		for (j = 0; j < this->solver.JR[k][0]; j++)
 			this->bar_activate(this->B[this->solver.JR[k][j+this->solver.JR_SHIFT]], NULL_STATE);
 
@@ -1548,8 +1548,8 @@ void CComput3D<T>::comput6(int opt, T * K, Num_Value _FMF, int id_variant)
 
 	LOOP_OPT(loop, opt, k) 
 	if (this->B[k].bar && this->B[k].link) {
-////////////////////////////////////////////////
-//...вставляем временную затычку для квадратуры;
+/////////////////////////////////////////////
+//...insert temporary plug in for quadrature;
 		gauss_bnd->grid_box3D(N_elem, N_elem, N_elem); 
 		l = 0;
 		for (m = 0; m <= N_elem; m++) {
@@ -1567,8 +1567,8 @@ void CComput3D<T>::comput6(int opt, T * K, Num_Value _FMF, int id_variant)
 			}
 		}
 
-////////////////////////////////////////
-//...корректируем для сферического слоя;
+////////////////////////////////
+//...spherical layer correction;
 		double R1 = this->param[4], R2 = this->B[0].mp[7], fff, ddd, rrr;
 		l = 0;
 		for (m = 0; m <= N_elem; m++)
@@ -1587,7 +1587,7 @@ void CComput3D<T>::comput6(int opt, T * K, Num_Value _FMF, int id_variant)
 		}
 
 ///////////////////////////////////////////
-//...вносим данные в интегрируемую функцию;
+//...insert data into integrating function;
 		if (! this->solver.mode(REDUCED_MESSAGE) && k%m_ilist == 0) {
 			sprintf(msg, "block %4i: gauss_bnd->N = %i", k, gauss_bnd->N);
 			if (! this->solver.mode(NO_MESSAGE)) Message(msg);
